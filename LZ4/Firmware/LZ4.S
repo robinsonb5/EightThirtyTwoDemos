@@ -130,7 +130,7 @@ lz4_depack:
 
 	mt	r2
 	cmp	r0
-	cond	SGT
+	cond	SLT
 	  li	IMW1(PCREL(.lenOffset-1))
 	  li	IMW0(PCREL(.lenOffset))
 	  add	r7
