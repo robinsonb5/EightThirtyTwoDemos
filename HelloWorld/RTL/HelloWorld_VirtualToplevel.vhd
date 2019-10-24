@@ -181,21 +181,34 @@ myuart : entity work.simple_uart
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 
-	to_rom.MemAAddr<=cpu_addr(15 downto 2);
-	to_rom.MemAWrite<=from_cpu;
-	to_rom.MemAByteSel<=cpu_bytesel;
-	to_rom.MemAWriteEnable<=(cpu_wr and cpu_req) when cpu_addr(31)='0' else '0';
-
 	to_rom.MemBWriteEnable<='0';
-	
-	to_cpu<=from_rom.MemARead when cpu_addr(31)='0' else from_mem;
-
-	cpu_ack <= '1' when mem_busy='0' or rom_ack='1' else '0';
-	
+		
 	process(slowclk)
 	begin
 		if rising_edge(slowclk) then
 			rom_ack<=cpu_req and mem_rom;
+
+			if cpu_addr(31)='0' then
+				to_cpu<=from_rom.MemARead;
+			else
+				to_cpu<=from_mem;
+			end if;
+
+			if mem_busy='0' or rom_ack='1' then
+				cpu_ack<='1';
+			else
+				cpu_ack<='0';
+			end if;
+
+			to_rom.MemAAddr<=cpu_addr(15 downto 2);
+			to_rom.MemAWrite<=from_cpu;
+			to_rom.MemAByteSel<=cpu_bytesel;
+			if cpu_addr(31)='0' then
+				to_rom.MemAWriteEnable<=(cpu_wr and cpu_req);
+			else
+				to_rom.MemAWriteEnable<='0';
+			end if;
+	
 		end if;	
 	end process;
 	
