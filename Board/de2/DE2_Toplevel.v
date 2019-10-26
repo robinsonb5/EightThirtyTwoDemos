@@ -379,12 +379,12 @@ audio_top audio_top (
 
 defparam myvirtualtoplevel.sdram_rows = 12;
 defparam myvirtualtoplevel.sdram_cols = 8;
-defparam myvirtualtoplevel.sysclk_frequency = 1200;
+defparam myvirtualtoplevel.sysclk_frequency = 2400;
 
 VirtualToplevel myvirtualtoplevel
 (	
 	.clk(sysclk),
-	.slowclk(slowclk),
+	.slowclk(sysclk),
 	.reset_in(SW[0]),
 	
 	// video

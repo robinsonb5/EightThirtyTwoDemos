@@ -1,7 +1,7 @@
 #include "assembler.pp"
 
 
-start:
+start: // 0
 	// Setup the stack
 	li	IMW2(0x800)
 	li	IMW1(0x800)
@@ -37,7 +37,7 @@ start:
 	li	IMW0(0xffffffc0)
 	mr	r0
 
-.txwait:
+.txwait: // 0x15
 	li	IMW1(0x100)	// TX Ready flag
 	li	IMW0(0x100)
 	mr	r2
@@ -65,12 +65,12 @@ start:
 //	r1 destination pointer
 //	r2 packed buffer end
 
-lz4_depack:
+lz4_depack: // 0x24
 	stdec	r6
 	li	PCREL(.tokenLoop)
 	add	r7
 			
-.lenOffset:
+.lenOffset: // 0x27 
 	ldbinc	r0
 	mr	r3
 	li	8
@@ -103,7 +103,7 @@ lz4_depack:
 	  li	IMW0(PCREL(.copy))
 	  add	r7
 			
-.tokenLoop:	
+.tokenLoop:	// 0x41
 	ldbinc	r0
 	mr	r4
 	mr	r5
@@ -119,7 +119,7 @@ lz4_depack:
 	li	IMW0(PCREL(.readLen))
 	add	r7
 
-.litCopy:
+.litCopy: // 0x4e
 	ldbinc	r0
 	stbinc	r1
 	li	1
@@ -135,11 +135,11 @@ lz4_depack:
 	  li	IMW0(PCREL(.lenOffset))
 	  add	r7
 			
-.over:
+.over: // 0x5b
 	ldinc	r6
 	mr	r7
 
-.readLen:
+.readLen: // 0x5d
 	stdec	r6
 	li	15
 	cmp	r5
@@ -147,7 +147,7 @@ lz4_depack:
 	  li	IMW0(PCREL(.readEnd))
 	  add	r7
 
-.readLoop:
+.readLoop: // 0x63
 	ldbinc	r0
 	mr	r3
 	add	r5
@@ -158,7 +158,7 @@ lz4_depack:
 	  li	IMW0(PCREL(.readLoop))
 	  add	r7
 
-.readEnd:
+.readEnd: // 0x6c
 	ldinc	r6
 	mr	r7
 

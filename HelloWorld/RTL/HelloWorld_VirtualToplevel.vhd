@@ -182,6 +182,9 @@ myuart : entity work.simple_uart
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 
 	to_rom.MemBWriteEnable<='0';
+	to_rom.MemAAddr<=cpu_addr(15 downto 2);
+	to_rom.MemAWrite<=from_cpu;
+	to_rom.MemAByteSel<=cpu_bytesel;
 		
 	process(slowclk)
 	begin
@@ -194,15 +197,12 @@ myuart : entity work.simple_uart
 				to_cpu<=from_mem;
 			end if;
 
-			if mem_busy='0' or rom_ack='1' then
+			if (mem_busy='0' or rom_ack='1') and cpu_ack='0' then
 				cpu_ack<='1';
 			else
 				cpu_ack<='0';
 			end if;
 
-			to_rom.MemAAddr<=cpu_addr(15 downto 2);
-			to_rom.MemAWrite<=from_cpu;
-			to_rom.MemAByteSel<=cpu_bytesel;
 			if cpu_addr(31)='0' then
 				to_rom.MemAWriteEnable<=(cpu_wr and cpu_req);
 			else
