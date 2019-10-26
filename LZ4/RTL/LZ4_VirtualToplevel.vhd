@@ -181,7 +181,6 @@ myuart : entity work.simple_uart
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 
-	to_rom.MemBWriteEnable<='0';
 	to_rom.MemAAddr<=cpu_addr(15 downto 2);
 	to_rom.MemAWrite<=from_cpu;
 	to_rom.MemAByteSel<=cpu_bytesel;

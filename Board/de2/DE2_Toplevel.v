@@ -379,7 +379,7 @@ audio_top audio_top (
 
 defparam myvirtualtoplevel.sdram_rows = 12;
 defparam myvirtualtoplevel.sdram_cols = 8;
-defparam myvirtualtoplevel.sysclk_frequency = 2400;
+defparam myvirtualtoplevel.sysclk_frequency = 2666;
 
 VirtualToplevel myvirtualtoplevel
 (	
