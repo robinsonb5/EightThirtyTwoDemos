@@ -63,12 +63,13 @@ end entity;
 
 architecture rtl of VirtualToplevel is
 
-constant sysclk_hz : integer := sysclk_frequency*500;
+constant sysclk_hz : integer := sysclk_frequency*1000;
 constant uart_divisor : integer := sysclk_hz/1152;
 constant maxAddrBit : integer := 31;
 
 signal reset_n : std_logic := '0';
 signal reset_counter : unsigned(15 downto 0) := X"FFFF";
+
 
 -- UART signals
 
@@ -78,6 +79,24 @@ signal ser_rxdata : std_logic_vector(7 downto 0);
 signal ser_rxrecv : std_logic;
 signal ser_txgo : std_logic;
 signal ser_rxint : std_logic;
+
+
+-- Interrupt signals
+
+constant int_max : integer := 1;
+signal int_triggers : std_logic_vector(int_max downto 0);
+signal int_status : std_logic_vector(int_max downto 0);
+signal int_ack : std_logic;
+signal int_req : std_logic;
+signal int_enabled : std_logic :='0'; -- Disabled by default
+signal int_trigger : std_logic;
+
+
+-- Timer register block signals
+
+signal timer_reg_req : std_logic;
+signal timer_tick : std_logic;
+
 
 -- CPU signals
 
@@ -148,7 +167,7 @@ myuart : entity work.simple_uart
 		enable_rx=>true
 	)
 	port map(
-		clk => slowclk,
+		clk => clk,
 		reset => reset_n, -- active low
 		txdata => ser_txdata,
 		txready => ser_txready,
@@ -161,15 +180,51 @@ myuart : entity work.simple_uart
 		txd => txd
 	);
 
+	
+mytimer : entity work.timer_controller
+  generic map(
+		prescale => sysclk_frequency/2, -- Prescale incoming clock
+		timers => 0
+  )
+  port map (
+		clk => slowclk,
+		reset => reset_n,
 
--- Hello World ROM
+		reg_addr_in => cpu_addr(7 downto 0),
+		reg_data_in => from_cpu,
+		reg_rw => '0', -- we never read from the timers
+		reg_req => timer_reg_req,
 
-	rom : entity work.LZ4_rom
+		ticks(0) => timer_tick -- Tick signal is used to trigger an interrupt
+	);
+
+
+-- Interrupt controller
+
+intcontroller: entity work.interrupt_controller
+generic map (
+	max_int => int_max
+)
+port map (
+	clk => clk,
+	reset_n => reset_n,
+	trigger => int_triggers, -- Again, thanks ISE.
+	ack => int_ack,
+	int => int_req,
+	status => int_status
+);
+
+int_triggers<=(0=>timer_tick, others => '0');
+
+
+-- ROM
+
+	rom : entity work.Interrupts_rom
 	generic map(
 		maxAddrBitBRAM => 11
 	)
 	port map(
-		clk => slowclk,
+		clk => clk,
 		from_soc => to_rom,
 		to_soc => from_rom
 	);
@@ -185,9 +240,9 @@ myuart : entity work.simple_uart
 	to_rom.MemAWrite<=from_cpu;
 	to_rom.MemAByteSel<=cpu_bytesel;
 		
-	process(slowclk)
+	process(clk)
 	begin
-		if rising_edge(slowclk) then
+		if rising_edge(clk) then
 			rom_ack<=cpu_req and mem_rom;
 
 			if cpu_addr(31)='0' then
@@ -214,8 +269,9 @@ myuart : entity work.simple_uart
 	cpu : entity work.eightthirtytwo_cpu
 	port map
 	(
-		clk => slowclk,
+		clk => clk,
 		reset_n => reset_n,
+		interrupt => int_req,
 
 		-- cpu fetch interface
 
@@ -230,17 +286,27 @@ myuart : entity work.simple_uart
 
 
 
-process(slowclk)
+process(clk)
 begin
-	if rising_edge(slowclk) then
+	if rising_edge(clk) then
 		mem_busy<='1';
 		ser_txgo<='0';
-		
+		int_ack<='0';
+		timer_reg_req<='0';
+
 		-- Write from CPU?
 		if mem_wr='1' and mem_busy='1' then
-			case cpu_addr(31 downto 28) is
+			case cpu_addr(31)&cpu_addr(10 downto 8) is
+				when X"C" =>	-- Timer controller at 0xFFFFFC00
+					timer_reg_req<='1';
+					mem_busy<='0';	-- Audio controller never blocks the CPU
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
+
+						when X"B0" => -- Interrupts
+							int_enabled<=from_cpu(0);
+							mem_busy<='0';
+
 						when X"C0" => -- UART
 							ser_txdata<=from_cpu(7 downto 0);
 							ser_txgo<='1';
@@ -260,6 +326,13 @@ begin
 
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
+
+						when X"B0" => -- Interrupt
+							from_mem<=(others=>'X');
+							from_mem(int_max downto 0)<=int_status;
+							int_ack<='1';
+							mem_busy<='0';
+
 						when X"C0" => -- UART
 							from_mem<=(others=>'X');
 							from_mem(9 downto 0)<=ser_rxrecv&ser_txready&ser_rxdata;
