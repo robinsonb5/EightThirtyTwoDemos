@@ -183,11 +183,11 @@ myuart : entity work.simple_uart
 	
 mytimer : entity work.timer_controller
   generic map(
-		prescale => sysclk_frequency/2, -- Prescale incoming clock
+		prescale => sysclk_frequency, -- Prescale incoming clock
 		timers => 0
   )
   port map (
-		clk => slowclk,
+		clk => clk,
 		reset => reset_n,
 
 		reg_addr_in => cpu_addr(7 downto 0),

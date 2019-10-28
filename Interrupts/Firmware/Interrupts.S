@@ -35,8 +35,8 @@ interrupt:
 	li	IMW0(PCREL(tick))
 	ldidx	r7
 	xor	r1
-	li	IMW1(PCREL(tick)-1)
-	li	IMW0(PCREL(tick))
+	li	IMW1(PCREL(tick+4)-1)
+	li	IMW0(PCREL(tick+4))
 	addt	r7
 	stmpdec	r1
 
@@ -52,7 +52,7 @@ interrupt:
 	add	r0		// Decrement return address
 	ldinc r6
 	exg	r0		// Restore r0
-	exg	r7		// Jump to return address - 1.
+	mr	r7		// Jump to return address - 1.
 
 tick:
 	.int	0
@@ -96,15 +96,16 @@ entry:
 	addt	r7
 	mr	r5
 .loop:
-	li	IMW1(PCREL(.tocktext)-1)
-	li	IMW0(PCREL(.tocktext))
-	addt	r7
 	ld	r5
 	cond EQ
-		li	IMW1(PCREL(.ticktext)-1)
-		li	IMW0(PCREL(.ticktext))
-		addt	r7
+		li	IMW1((.ticktext-.tickpoint)-2)
+		li	IMW0((.ticktext-.tickpoint)-1)
+	cond NEQ
+		li	IMW1((.tocktext-.tickpoint)-2)
+		li	IMW0((.tocktext-.tickpoint)-1)
 	cond EX
+.tickpoint:	// The PC relative calculation is done here, so the offsets must be relative to this address.
+	addt	r7
 
 	mr	r0
 
