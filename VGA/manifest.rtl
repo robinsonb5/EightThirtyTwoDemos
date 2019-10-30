@@ -31,6 +31,6 @@
 RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
 
-RTL/Virtual_Toplevel.vhd
+RTL/VGA_VirtualToplevel.vhd
 Firmware/VGA_ROM.vhd
 
