@@ -1,4 +1,4 @@
-PROJECT=Interrupts
+PROJECT = PRJ
 BOARDS_ALTERA = "de1 de2"
 BOARDS_XILINX = ""
 

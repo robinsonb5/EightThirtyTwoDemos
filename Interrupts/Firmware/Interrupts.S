@@ -13,11 +13,12 @@ vector: // Entry point and interrupt vector.  On interrupt zero flag will be set
 		li IMW0(PCREL(entry))
 		add	r7
 
-interrupt:
-	exg	r6
-	stmpdec	r0
-	stmpdec	r6
-	stmpdec	r1
+interrupt:	// We fall through to here if we're servicing an interrupt.
+	exg	r6	// Swap the stack pointer and return address.
+	stmpdec	r0	// Save one register's contents to the stack (with the stack pointer in tmp)
+	stmpdec	r6	// Save the return address
+	stmpdec	r1	// Save any other registers that we change in the interrupt handler.
+
 	exg	r6	// Return address is before r0's old contents since we have to decrement the return address
 
 	li	IMW1(INTERRUPTBASE)
@@ -97,65 +98,30 @@ entry:
 	mr	r5
 .loop:
 	ld	r5
-	cond EQ
-		li	IMW1((.ticktext-.tickpoint)-2)
-		li	IMW0((.ticktext-.tickpoint)-1)
+	cond EQ	// If/else control flow using just predication - no branching required.
+		li	IMW1((.ticktext-.tickpoint))
+		li	IMW0((.ticktext-.tickpoint))
 	cond NEQ
-		li	IMW1((.tocktext-.tickpoint)-2)
-		li	IMW0((.tocktext-.tickpoint)-1)
+		li	IMW1((.tocktext-.tickpoint))
+		li	IMW0((.tocktext-.tickpoint))
 	cond EX
-.tickpoint:	// The PC relative calculation is done here, so the offsets must be relative to this address.
 	addt	r7
+.tickpoint:	// The PC relative calculation is done here, so the offsets must be relative to this address.
 
 	mr	r0
-
 	li	IMW1(PCREL(Puts)-1)
 	li	IMW0(PCREL(Puts))
-	add	r7
+	add	r7	// Call the Puts subroutine
 
 	li	IMW1(PCREL(.loop)-1)
 	li	IMW0(PCREL(.loop))
-	add	r7
+	add	r7	// Branch to .loop
 
 .ticktext:
 	.ascii "Tick\n\0"
 .tocktext:
 	.ascii "Tock\n\0"
-#if 0
 
-#include "uart.h"
-#include "interrupts.h"
-#include "timer.h"
-
-static int tick;
-void timer_interrupt()
-{
-	DisableInterrupts();
-	int ints=GetInterrupts();
-	tick^=1;
-	if(tick)
-		puts("Tick...\n");
-	else
-		puts("Tock...\n");
-	EnableInterrupts();
-}
-
-
-int main(int argc, char **argv)
-{
-	tick=0;
-	puts("Setting up timer...\n");
-	HW_TIMER(REG_TIMER_INDEX)=0; // Set first timer
-	HW_TIMER(REG_TIMER_COUNTER)=100000; // Timer is prescaled to 100KHz
-	puts("Enabling interrupts...\n");
-	SetIntHandler(timer_interrupt);
-	EnableInterrupts();
-	puts("Enabling timer...\n");
-	HW_TIMER(REG_TIMER_ENABLE)=1; // Enable timer 0
-	while(1)
-		;
-}
-#endif
 
 Puts:	// Sends the string pointed to by r0 to the UART
 	stdec	r6
