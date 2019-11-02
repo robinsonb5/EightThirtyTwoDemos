@@ -194,15 +194,7 @@ signal sdram_req : std_logic;
 signal sdram_wr : std_logic;
 signal sdram_read : std_logic_vector(31 downto 0);
 signal sdram_ack : std_logic;
-
-signal sdram_addr2 : std_logic_vector(31 downto 0);
-signal sdram_req2 : std_logic;
-signal sdram_read2 : std_logic_vector(31 downto 0);
-signal sdram_ack2 : std_logic;
-
-signal sdram_wrL : std_logic;
-signal sdram_wrU : std_logic;
-signal sdram_wrU2 : std_logic;
+signal sdram_bytesel : std_logic_vector(3 downto 0);
 
 type sdram_states is (read1, read2, read3, write1, writeb, write2, write3, idle);
 signal sdram_state : sdram_states;
@@ -210,6 +202,7 @@ signal sdram_state : sdram_states;
 
 -- CPU signals
 
+signal soft_reset_n : std_logic;
 signal mem_busy : std_logic;
 signal mem_rom : std_logic;
 signal rom_ack : std_logic;
@@ -409,7 +402,7 @@ mysdram : entity work.sdram_cached
 
 	-- Housekeeping
 		sysclk => clk,
-		reset => reset_n,  -- Contributes to reset, so have to use reset_in here.
+		reset => reset_in,  -- Contributes to reset, so have to use reset_in here.
 		reset_out => sdr_ready,
 
 		vga_addr => vga_addr,
@@ -446,7 +439,7 @@ mysdram : entity work.sdram_cached
 		clk => clk,
 		reset => reset_in,
 
-		reg_addr_in => mem_addr(7 downto 0),
+		reg_addr_in => cpu_addr(7 downto 0),
 		reg_data_in => from_cpu,
 --		reg_data_out => vga_reg_dataout,
 		reg_rw => vga_reg_rw,
@@ -480,7 +473,7 @@ myaudio : entity work.sound_wrapper
 		clk => clk,
 		reset => reset_n,
 
-		reg_addr_in => mem_addr(7 downto 0),
+		reg_addr_in => cpu_addr(7 downto 0),
 		reg_data_in => from_cpu,
 		reg_rw => '0', -- we never read from the sound controller
 		reg_req => audio_reg_req,
@@ -548,10 +541,10 @@ int_triggers<=(0=>timer_tick, others => '0');
 		to_soc => from_rom
 	);
 
-	
+
 -- Main CPU
 
-	mem_rom <='1' when cpu_addr(31 downto 28)=X"0" else '0';
+	mem_rom <='1' when cpu_addr(31 downto 26)=X"0"&"00" else '0';
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 
@@ -589,7 +582,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 	port map
 	(
 		clk => clk,
-		reset_n => reset_n,
+		reset_n => reset_n and soft_reset_n,
 		interrupt => int_req,
 
 		-- cpu fetch interface
@@ -625,7 +618,7 @@ begin
 		kbdsendtrigger<='0';
 		mousesendtrigger<='0';
 		flushcaches<='0';
-		soft_reset<='0';
+		soft_reset_n<='1';
 
 		-- Write from CPU?
 		if mem_wr='1' and mem_busy='1' then
@@ -649,11 +642,6 @@ begin
 
 						when X"B0" => -- Interrupts
 							int_enabled<=from_cpu(0);
-							mem_busy<='0';
-
-						when X"C0" => -- UART
-							ser_txdata<=from_cpu(7 downto 0);
-							ser_txgo<='1';
 							mem_busy<='0';
 							
 						when X"B4" => -- Cache control
@@ -698,8 +686,12 @@ begin
 							null;
 					end case;
 				when others =>
-					mem_busy<='0';
-					null;
+					sdram_addr<=cpu_addr;
+					sdram_bytesel<=cpu_bytesel;
+					sdram_wr<='0';
+					sdram_req<='1';
+					sdram_write<=from_cpu;
+					sdram_state<=read1;	-- read/write logic doesn't need to differ.
 			end case;
 
 		elsif mem_rd='1' and mem_busy='1' then -- Read from CPU?
@@ -753,14 +745,31 @@ begin
 
 						when others =>
 							mem_busy<='0';
-							null;
 					end case;
 
 				when others =>
-					mem_busy<='0';
-					null;
+					sdram_addr<=cpu_addr;
+					sdram_addr(1 downto 0)<="00";
+					sdram_wr<='1';
+					sdram_req<='1';
+					sdram_state<=read1;
 			end case;
 		end if;
+
+	-- SDRAM state machine
+	
+		case sdram_state is
+			when read1 => -- read first word from RAM
+				if sdram_ack='0' then
+					from_mem<=sdram_read;
+					sdram_req<='0';
+					sdram_state<=idle;
+					mem_busy<='0';
+				end if;
+			when others =>
+				null;
+
+		end case;
 
 
 		-- SPI cycles
@@ -776,7 +785,7 @@ begin
 		if ser_rxint='1' then
 			ser_rxrecv<='1';
 			if ser_rxdata=X"04" then
-				soft_reset<='1';
+				soft_reset_n<='0';
 				ser_rxrecv<='0';
 			end if;
 		end if;

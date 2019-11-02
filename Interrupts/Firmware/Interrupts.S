@@ -30,16 +30,22 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 	ld	r0	// Read interrupts to acknowledge the ones we've received - 
 			// tmp now contains a bitmap of triggered interrupts.
 
+
 	li	1	// tick = tick ^ 1;
 	mr	r1
-	li	IMW1(PCREL(tick)-1)
-	li	IMW0(PCREL(tick))
-	ldidx	r7
-	xor	r1
 	li	IMW1(PCREL(tick+4)-1)
 	li	IMW0(PCREL(tick+4))
+	ldidx	r7
+	xor	r1
+	li	IMW1(PCREL(tick+8)-1)
+	li	IMW0(PCREL(tick+8))
 	addt	r7
 	stmpdec	r1
+
+	mr	r1
+	li	1
+	stdec	r1
+
 
 	ldinc r6	// Restore r1
 	mr	r1
@@ -56,6 +62,7 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 	mr	r7		// Jump to return address - 1.
 
 tick:
+	.int	0
 	.int	0
 
 entry:
@@ -92,11 +99,24 @@ entry:
 
 	// Main loop:
 
-	li	IMW1(PCREL(tick)-1)
-	li	IMW0(PCREL(tick))
+	li	IMW1(PCREL(tick+4)-1)
+	li	IMW0(PCREL(tick+4))
 	addt	r7
 	mr	r5
 .loop:
+
+	li	IMW0(-4)
+	addt	r5
+	mr	r0
+	ld	r0
+	cond EQ
+		li	IMW1(PCREL(.loop)-1)
+		li	IMW0(PCREL(.loop))
+		add	r7	// Branch to .loop
+
+	li	0
+	st	r0
+
 	ld	r5
 	cond EQ	// If/else control flow using just predication - no branching required.
 		li	IMW1((.ticktext-.tickpoint))
