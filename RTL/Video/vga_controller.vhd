@@ -77,7 +77,6 @@ architecture rtl of vga_controller is
 	signal currentX : unsigned(11 downto 0);
 	signal currentY : unsigned(11 downto 0);
 	signal end_of_pixel : std_logic;
-	signal vga_newframe : std_logic;
 	signal vgadata : std_logic_vector(15 downto 0);
 
 	signal vsync_r : std_logic;
@@ -214,7 +213,6 @@ begin
 		
 		if rising_edge(clk) then
 			vblank_int<='0';
-			vga_newframe<='0';
 			vgachannel_fromhost.req<='0';
 			vgasetaddr<='0';
 			vgachannel_fromhost.setreqlen<='0';

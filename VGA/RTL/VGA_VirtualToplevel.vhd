@@ -103,7 +103,7 @@ signal ser_rxint : std_logic;
 
 -- Interrupt signals
 
-constant int_max : integer := 1;
+constant int_max : integer := 2;
 signal int_triggers : std_logic_vector(int_max downto 0);
 signal int_status : std_logic_vector(int_max downto 0);
 signal int_ack : std_logic;
@@ -147,7 +147,6 @@ signal vga_data : std_logic_vector(15 downto 0);
 signal vga_req : std_logic;
 signal vga_fill : std_logic;
 signal vga_refresh : std_logic;
-signal vga_newframe : std_logic;
 signal vga_reservebank : std_logic; -- Keep bank clear for instant access.
 signal vga_reserveaddr : std_logic_vector(31 downto 0); -- to SDRAM
 
@@ -414,7 +413,6 @@ mysdram : entity work.sdram_cached
 		vga_reservebank => vga_reservebank,
 		vga_reserveaddr => vga_reserveaddr,
 
-		vga_newframe => vga_newframe,
 		datawr1 => from_cpu,
 		addr1 => cpu_addr,
 		req1 => sdram_req,
@@ -526,7 +524,7 @@ port map (
 	status => int_status
 );
 
-int_triggers<=(0=>timer_tick, others => '0');
+int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 
 
 -- ROM

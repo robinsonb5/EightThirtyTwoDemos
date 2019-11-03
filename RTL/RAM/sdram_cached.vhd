@@ -58,7 +58,6 @@ port
 	vga_fill : out std_logic;
 	vga_ack : out std_logic;
 	vga_nak : out std_logic;
-	vga_newframe : in std_logic := '0';
 	vga_refresh : in std_logic :='1'; -- SDRAM won't come out of reset without this.
 	vga_reservebank : in std_logic :='0'; -- Keep a bank clear for instant access in slot 1
 	vga_reserveaddr : in std_logic_vector(31 downto 0) :=X"00000000";
