@@ -37,11 +37,10 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 	ld	r0	// Read interrupts to acknowledge the ones we've received - 
 			// tmp now contains a bitmap of triggered interrupts.
 
-	mr	r1
 	mr	r2
 	li	1
-	and	r1
-	cond	NEQ	// Timer interrupt
+	ror	r2	// LSB (timer int) gets shifted into the carry flag, rotate rather than shift to keep the Z flag clear.
+	cond	SLT	// Timer interrupt
 		li	1	// tick = tick ^ 1;
 		mr	r1
 		li	IMW1(PCREL(tick+4)-1)
@@ -58,9 +57,9 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 		stdec	r1
 	cond	EX
 
-	li	2
-	and	r2
-	cond	NEQ // VBlank interrupt
+	li	1
+	ror	r2
+	cond	SLT // VBlank interrupt
 		li	4
 		mr	r1
 		li	IMW1(PCREL(fbptr)-1)
@@ -144,7 +143,25 @@ entry:
 	addt	r7
 	mr	r5
 
+	li	IMW5(0x20000000)
+	li	IMW4(0x20000000)
+	li	IMW3(0x20000000)
+	li	IMW2(0x20000000)
+	li	IMW1(0x20000000)
+	li	IMW0(0x20000000)
+	mr	r4
+	li	0
+	mr	r3
+
 .loop:
+	mt	r3
+	st	r4
+	li	1
+	add	r3
+	li	4
+	add	r4	// Just write an ever-increasing value to an ever-increasing address.
+	//  FIXME - Will eventually hit peripheral space and crash.
+
 	li	IMW0(-4)
 	addt	r5
 	mr	r0

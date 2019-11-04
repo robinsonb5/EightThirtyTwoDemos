@@ -267,10 +267,10 @@ myuart : entity work.simple_uart
 	mykeyboard : entity work.io_ps2_com
 		generic map (
 			clockFilter => 15,
-			ticksPerUsec => sysclk_frequency/20
+			ticksPerUsec => sysclk_frequency/10
 		)
 		port map (
-			clk => slowclk,
+			clk => clk,
 			reset => not reset_n, -- active high!
 			ps2_clk_in => ps2k_clk_in,
 			ps2_dat_in => ps2k_dat_in,
@@ -290,10 +290,10 @@ myuart : entity work.simple_uart
 	mymouse : entity work.io_ps2_com
 		generic map (
 			clockFilter => 15,
-			ticksPerUsec => sysclk_frequency/20
+			ticksPerUsec => sysclk_frequency/10
 		)
 		port map (
-			clk => slowclk,
+			clk => clk,
 			reset => not reset_n, -- active high!
 			ps2_clk_in => ps2m_clk_in,
 			ps2_dat_in => ps2m_dat_in,
@@ -311,12 +311,12 @@ myuart : entity work.simple_uart
 
 
 -- SPI Timer
-process(slowclk)
+process(clk)
 begin
-	if rising_edge(slowclk) then
+	if rising_edge(clk) then
 		spiclk_in<='0';
 		spi_tick<=spi_tick+1;
-		if (spi_fast='1' and spi_tick(3)='1') or spi_tick(7)='1' then
+		if (spi_fast='1' and spi_tick(4)='1') or spi_tick(7)='1' then
 			spiclk_in<='1'; -- Momentary pulse for SPI host.
 			spi_tick<='0'&X"00";
 		end if;
@@ -327,7 +327,7 @@ end process;
 -- SPI host
 spi : entity work.spi_interface
 	port map(
-		sysclk => slowclk,
+		sysclk => clk,
 		reset => reset_n,
 
 		-- Host interface
@@ -555,7 +555,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 		if rising_edge(clk) then
 			rom_ack<=cpu_req and mem_rom;
 
-			if cpu_addr(31)='0' then
+			if mem_rom='1' then
 				to_cpu<=from_rom.MemARead;
 			else
 				to_cpu<=from_mem;
@@ -567,7 +567,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 				cpu_ack<='0';
 			end if;
 
-			if cpu_addr(31)='0' then
+			if mem_rom='1' then
 				to_rom.MemAWriteEnable<=(cpu_wr and cpu_req);
 			else
 				to_rom.MemAWriteEnable<='0';
