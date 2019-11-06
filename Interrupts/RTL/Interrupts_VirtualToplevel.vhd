@@ -267,6 +267,10 @@ int_triggers<=(0=>timer_tick, others => '0');
 	end process;
 	
 	cpu : entity work.eightthirtytwo_cpu
+	generic map
+	(
+		littleendian => true
+	)
 	port map
 	(
 		clk => clk,

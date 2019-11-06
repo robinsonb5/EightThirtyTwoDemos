@@ -212,6 +212,10 @@ myuart : entity work.simple_uart
 	end process;
 	
 	cpu : entity work.eightthirtytwo_cpu
+	generic map
+	(
+		littleendian => true
+	)
 	port map
 	(
 		clk => slowclk,

@@ -99,8 +99,8 @@ begin
 		port map (
 			clk => clk,
 			reset => reset,
-			clkDiv => X"3",	-- 100 Mhz / (3+1) = 25 Mhz
---			clkDiv => X"4",	-- 125 Mhz / (4+1) = 25 Mhz
+--			clkDiv => X"3",	-- 100 Mhz / (3+1) = 25 Mhz
+			clkDiv => X"4",	-- 125 Mhz / (4+1) = 25 Mhz
 
 			hSync => hsync_r,
 			vSync => vsync_r,
