@@ -1,4 +1,4 @@
-PROJECTS=HelloWorld Interrupts VGA SDRAM
+PROJECTS=HelloWorld Interrupts LZ4 VGA
 BOARDS_ALTERA = "de1 de2"
 
 all:

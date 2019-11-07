@@ -4,12 +4,6 @@
 Firmware/Interrupts_ROM.vhd
 RTL/Interrupts_VirtualToplevel.vhd
 RTL/Toplevel_Config.vhd
-../EightThirtyTwo/RTL/eightthirtytwo_pkg.vhd
-../EightThirtyTwo/RTL/eightthirtytwo_alu.vhd
-../EightThirtyTwo/RTL/eightthirtytwo_shifter.vhd
-../EightThirtyTwo/RTL/eightthirtytwo_aligner.vhd
-../EightThirtyTwo/RTL/eightthirtytwo_decode.vhd
-../EightThirtyTwo/RTL/eightthirtytwo_fetchloadstore.vhd
-../EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd
+../EightThirtyTwo/RTL/eightthirtytwo.qip
 ../EightThirtyTwo/romgen/rom_pkg.vhd
 
