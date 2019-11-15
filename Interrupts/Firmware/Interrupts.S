@@ -105,6 +105,8 @@ entry:
 	mr	r5
 .loop:
 
+	cond NEX	// Wait for interrupt
+
 	li	IMW0(-4)
 	addt	r5
 	mr	r0

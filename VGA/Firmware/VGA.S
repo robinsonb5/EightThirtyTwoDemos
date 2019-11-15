@@ -15,10 +15,15 @@
 
 
 vector: // Entry point and interrupt vector.  On interrupt zero flag will be set.
-	cond NEQ
+	cond SGT	// Carry clear, zero clear - thread 1
 		li IMW1(PCREL(entry-1))
 		li IMW0(PCREL(entry))
 		add	r7
+	cond SLT	// Carry set, zero clear - thread 2
+		li	IMW1(PCREL(thread2_entry-1))
+		li	IMW0(PCREL(thread2_entry))
+		add	r7
+
 
 interrupt:	// We fall through to here if we're servicing an interrupt.
 	exg	r6	// Swap the stack pointer and return address.
@@ -98,6 +103,34 @@ tick:
 fbptr:
 	.int	0
 
+
+thread2_entry:
+	li	IMW2(0x400)
+	li	IMW1(0x400)
+	li	IMW0(0x400)
+	mr	r6
+
+	li	IMW5(0x20000000)
+	li	IMW4(0x20000000)
+	li	IMW3(0x20000000)
+	li	IMW2(0x20000000)
+	li	IMW1(0x20000000)
+	li	IMW0(0x20000000)
+	mr	r4
+	li	0
+	mr	r3
+.thread2mainloop:
+	mt	r3
+	st	r4
+	li	1
+	add	r3
+	li	4
+	add	r4	// Just write an ever-increasing value to an ever-increasing address.
+	//  FIXME - Will eventually hit peripheral space and crash.
+	li	IMW0(PCREL(.thread2mainloop))
+	add	r7
+
+
 entry:
 	// Setup the stack
 	li	IMW2(0x800)
@@ -143,24 +176,10 @@ entry:
 	addt	r7
 	mr	r5
 
-	li	IMW5(0x20000000)
-	li	IMW4(0x20000000)
-	li	IMW3(0x20000000)
-	li	IMW2(0x20000000)
-	li	IMW1(0x20000000)
-	li	IMW0(0x20000000)
-	mr	r4
-	li	0
-	mr	r3
-
 .loop:
-	mt	r3
-	st	r4
-	li	1
-	add	r3
-	li	4
-	add	r4	// Just write an ever-increasing value to an ever-increasing address.
-	//  FIXME - Will eventually hit peripheral space and crash.
+	cond NEX	// Suspend execution.  An interrupt will restart it.
+	mt r0		// This instruction will be lost.
+	mt r0		// This one gives the interrupt an opportunity to fire
 
 	li	IMW0(-4)
 	addt	r5
