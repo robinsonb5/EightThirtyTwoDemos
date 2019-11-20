@@ -580,7 +580,8 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 	generic map
 	(
 		littleendian => true,
-		dualthread => true
+		dualthread => true,
+		prefetch => true
 	)
 	port map
 	(

@@ -214,13 +214,14 @@ myuart : entity work.simple_uart
 	cpu : entity work.eightthirtytwo_cpu
 	generic map
 	(
-		littleendian => true
+		littleendian => true,
+		dualthread => false
 	)
 	port map
 	(
 		clk => slowclk,
 		reset_n => reset_n,
-
+		interrupt => '0',
 		-- cpu fetch interface
 
 		addr => cpu_addr(31 downto 2),
