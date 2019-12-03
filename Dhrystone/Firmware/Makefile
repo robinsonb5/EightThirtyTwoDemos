@@ -7,8 +7,11 @@ COPT = -O=1311
 all: Dhrystone_ROM.vhd
 
 clean :
+	rm *.S
 	rm *.o
+	rm *.vhd
 	rm *.bin
+	rm *.elf
 
 %_ROM.vhd: %.bin $(ROMGEN)
 	sed 's/dualportram/$*_rom/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
