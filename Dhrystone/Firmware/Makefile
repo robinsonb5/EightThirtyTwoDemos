@@ -2,7 +2,7 @@
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
-CFLAGS = -+ -O=1311 -size
+CFLAGS = -+ -speed
 COPT = -O=1311
 all: Dhrystone_ROM.vhd
 
@@ -31,7 +31,7 @@ Dhrystone.elf : start.o uart.o small_printf.o division.o strcmp.o dhry_1.o dhry_
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
 %.o : %.c Makefile ldscript.ld $(832DIR)/start.S
-	../../EightThirtyTwo/vbcc/bin/vbcc832 -+ $(COPT) -size -I$(832DIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(832DIR) $*.c
 	mv $*.asm $*.S
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
@@ -39,7 +39,7 @@ Dhrystone.elf : start.o uart.o small_printf.o division.o strcmp.o dhry_1.o dhry_
 	gcc -c $(832DIR)/$*.S -I$(832DIR) -o $*.o
 
 %.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 -+ $(COPT) -size -I$(832DIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(832DIR) $*.c
 	mv $*.asm $*.S
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c

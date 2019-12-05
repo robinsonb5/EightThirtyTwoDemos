@@ -137,56 +137,44 @@ l3: #
 	li	IMW0(PCREL(l5))
 		add	r7
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 	sgn
-	cmp	r1
+	cmp	r2
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l6)-1)
 	li	IMW0(PCREL(l6))
 		add	r7
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
 	sgn
-	cmp	r1
+	cmp	r2
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l10)-1)
 	li	IMW0(PCREL(l10))
 		add	r7
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 3 in 1 chunks
 	li	IMW0(3)
 	sgn
-	cmp	r1
+	cmp	r2
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l4)-1)
 	li	IMW0(PCREL(l4))
 		add	r7
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	sgn
-	cmp	r1
+	cmp	r2
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l12)-1)
@@ -543,13 +531,10 @@ _Proc_8:
 
 	//dhry_2.c, line 124
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r5
-	mt	r5
-	mr	r1
-					// (objtotemp)  reg r2
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
 	mt	r2
 	sgn
-	cmp	r1
+	cmp	r5
 				// freereg r2
 
 	//dhry_2.c, line 124
@@ -650,13 +635,10 @@ l19: #
 
 	//dhry_2.c, line 124
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r4
-	mt	r4
-	mr	r1
-					// (objtotemp)  reg r2
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
 	mt	r2
 	sgn
-	cmp	r1
+	cmp	r4
 				// freereg r2
 
 	//dhry_2.c, line 124
@@ -879,10 +861,19 @@ _Func_1:
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) nop
-	li	24
-	shl	r3
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r3
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r3
+	mul	r3
+	mr	r3
 					// (save result) isreg
 				// allocreg r2
 
@@ -897,21 +888,27 @@ _Func_1:
 	li	IMW0(20)
 	ldidx	r6
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_2.c, line 148
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r3
-	mt	r3
-	mr	r1
-					// (objtotemp)  reg r2
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
 	mt	r2
 	sgn
-	cmp	r1
+	cmp	r3
 				// freereg r3
 				// freereg r2
 
@@ -978,7 +975,7 @@ l24: #
 		//r1: yes
 		//r2: yes
 		//r3: yes
-		//r4: no
+		//r4: yes
 		//r5: no
 		//r6: yes
 		//r7: yes
@@ -990,9 +987,23 @@ _Func_2:
 	stmpdec	r6
 	stmpdec	r2
 	stmpdec	r3
+	stmpdec	r4
 	exg	r6
 	stdec	r6	// quickest way to decrement sp by 4
+				// allocreg r4
+// code 0x2
+					// (a/p assign)
+					// (prepobj r1) reg r4 - no need to prep
+					// (load_temp - type 1) not varadr
+					// (objtotemp)  var, auto|reg
+		//sizemod based on type 0x1
+	byt
+	ld	r6
+					// (save temp) isreg
+	mr	r4
+				//save_temp done
 				// allocreg r3
+				// allocreg r2
 
 	//dhry_2.c, line 170
 // code 0x2
@@ -1005,6 +1016,7 @@ _Func_2:
 					// (save temp) isreg
 	mr	r3
 				//save_temp done
+				// freereg r2
 l40: # 
 				// allocreg r2
 
@@ -1013,8 +1025,8 @@ l40: #
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
 	ldidx	r6
 	mr	r2
 					// (objtotemp)  const
@@ -1039,10 +1051,19 @@ l40: #
 	byt
 	ld	r2
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_2.c, line 173
@@ -1060,8 +1081,8 @@ l40: #
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
 	ldidx	r6
 	mr	r2
 					// (objtotemp)  reg r3
@@ -1077,10 +1098,19 @@ l40: #
 	byt
 	ld	r2
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_2.c, line 173
@@ -1124,21 +1154,19 @@ l40: #
 	li	IMW1(PCREL(l30)-1)
 	li	IMW0(PCREL(l30))
 		add	r7
+				// allocreg r2
 
 	//dhry_2.c, line 176
 // code 0x2
 					// (a/p assign)
-					// (prepobj r1) var, auto|reg
-	mt	r6
-	mr	r1
+					// (prepobj r1) reg r4 - no need to prep
 					// (load_temp - type 1) not varadr
 					// (objtotemp)  const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-					// (save temp) store prepped reg
-	stbinc	r1
-//Disposable, postinc doesn't matter
+					// (save temp) isreg
+	mr	r4
 				//save_temp done
 
 	//dhry_2.c, line 177
@@ -1153,14 +1181,11 @@ l30: #
 
 	//dhry_2.c, line 171
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r3
-	mt	r3
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
 	sgn
-	cmp	r1
+	cmp	r3
 
 	//dhry_2.c, line 171
 	cond	LE
@@ -1168,34 +1193,39 @@ l30: #
 	li	IMW1(PCREL(l40)-1)
 	li	IMW0(PCREL(l40))
 		add	r7
+				// freereg r2
 				// allocreg r2
 
 	//dhry_2.c, line 179
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x1
-	byt
-	ld	r6
+					// (objtotemp)  reg r4
+	mt	r4
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_2.c, line 179
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 57 in 2 chunks
 	li	IMW1(87)
 	li	IMW0(87)
 	sgn
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_2.c, line 179
@@ -1210,28 +1240,32 @@ l30: #
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x1
-	byt
-	ld	r6
+					// (objtotemp)  reg r4
+	mt	r4
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_2.c, line 179
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 5a in 2 chunks
 	li	IMW1(90)
 	li	IMW0(90)
 	sgn
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_2.c, line 179
@@ -1240,6 +1274,7 @@ l30: #
 	li	IMW1(PCREL(l32)-1)
 	li	IMW0(PCREL(l32))
 		add	r7
+				// allocreg r2
 
 	//dhry_2.c, line 181
 // code 0x2
@@ -1252,6 +1287,7 @@ l30: #
 					// (save temp) isreg
 	mr	r3
 				//save_temp done
+				// freereg r2
 l32: # 
 				// allocreg r2
 
@@ -1259,28 +1295,32 @@ l32: #
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x1
-	byt
-	ld	r6
+					// (objtotemp)  reg r4
+	mt	r4
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_2.c, line 182
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 52 in 2 chunks
 	li	IMW1(82)
 	li	IMW0(82)
 	sgn
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_2.c, line 182
@@ -1289,6 +1329,7 @@ l32: #
 	li	IMW1(PCREL(l35)-1)
 	li	IMW0(PCREL(l35))
 		add	r7
+				// allocreg r2
 
 	//dhry_2.c, line 184
 // code 0x5e
@@ -1304,29 +1345,38 @@ l32: #
 	li	IMW1(PCREL(l39)-1)
 	li	IMW0(PCREL(l39))
 	add	r7
+				// freereg r2
 l35: # 
+				// allocreg r2
 
 	//dhry_2.c, line 187
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
+// code 0x2
+					// (a/p assign)
+					// (prepobj r1) reg r2 - no need to prep
+					// (load_temp - type 10) not varadr
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0xa
 				// constant: 14 in 1 chunks
 	li	IMW0(20)
 	ldidx	r6
-	stdec	r6
+					// (save temp) isreg
+	mr	r2
+				//save_temp done
+				// allocreg r1
 
 	//dhry_2.c, line 187
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
+// code 0x2
+					// (a/p assign)
+					// (prepobj r1) reg r1 - no need to prep
+					// (load_temp - type 10) not varadr
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0xa
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
 	ldidx	r6
-	stdec	r6
+					// (save temp) isreg
+	mr	r1
+				//save_temp done
 
 	//dhry_2.c, line 187
 // code 0x2a
@@ -1334,10 +1384,9 @@ l35: #
 	ldinc	r7
 	.int	_strcmp
 	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
 
+				// freereg r2
+				// freereg r1
 				// allocreg r2
 
 	//dhry_2.c, line 187
@@ -1348,14 +1397,11 @@ l35: #
 
 	//dhry_2.c, line 187
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 	sgn
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_2.c, line 187
@@ -1364,6 +1410,7 @@ l35: #
 	li	IMW1(PCREL(l38)-1)
 	li	IMW0(PCREL(l38))
 		add	r7
+				// allocreg r2
 
 	//dhry_2.c, line 190
 // code 0x1b
@@ -1407,8 +1454,12 @@ l38: #
 	li	IMW0(0)
 	mr	r0
 l39: # 
+				// freereg r2
 				// freereg r3
+				// freereg r4
 	ldinc	r6	// quickest way to add 4 to sp
+	ldinc	r6
+	mr	r4
 	ldinc	r6
 	mr	r3
 	ldinc	r6
@@ -1485,7 +1536,7 @@ l45: #
 	.globl	___extension__
 	.section	.bss
 	.global	___extension__
-	.comm	___extension__,4
-	.globl	_Int_Glob
+	.lcomm	___extension__,4
 	.globl	_strcmp
+	.globl	_Int_Glob
 	.globl	_Ch_1_Glob

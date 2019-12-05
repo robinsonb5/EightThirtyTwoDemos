@@ -166,7 +166,7 @@ _main:
 	.int	_rec2 + 16
 	mr	r1
 // (char with size!=1 -> array of unknown type)
-// Copying 31 bytes to rec2
+// Copying 7 words and 3 bytes to rec2
 					// (load_temp - type 1) not varadr
 					// (objtotemp) //static
 				//statictotemp
@@ -175,18 +175,42 @@ _main:
 	mr	r0
 	mt	r2
 	stdec	r6
-				// constant: 1f in 1 chunks
-	li	IMW0(31)
-	addt	r1
-	mr	r2
-.cpyrec2loop0:
+// Copying 3 word tail to rec2
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+// Copying 3 byte tail to rec2
 	ldbinc	r0
 	stbinc	r1
-	mt	r1
-	cmp	r2
-	cond	NEQ
-		li	IMW0(PCREL(.cpyrec2loop0))
-		add	r7
+	ldbinc	r0
+	stbinc	r1
+	ldbinc	r0
+	stbinc	r1
 	ldinc	r6
 	mr	r2
 
@@ -198,7 +222,7 @@ _main:
 	.int	_Str_1_Loc
 	mr	r1
 // (char with size!=1 -> array of unknown type)
-// Copying 31 bytes to Str_1_Loc
+// Copying 7 words and 3 bytes to Str_1_Loc
 					// (load_temp - type 1) not varadr
 					// (objtotemp) //static
 				//statictotemp
@@ -207,18 +231,42 @@ _main:
 	mr	r0
 	mt	r2
 	stdec	r6
-				// constant: 1f in 1 chunks
-	li	IMW0(31)
-	addt	r1
-	mr	r2
-.cpyStr_1_Locloop1:
+// Copying 3 word tail to Str_1_Loc
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+// Copying 3 byte tail to Str_1_Loc
 	ldbinc	r0
 	stbinc	r1
-	mt	r1
-	cmp	r2
-	cond	NEQ
-		li	IMW0(PCREL(.cpyStr_1_Locloop1))
-		add	r7
+	ldbinc	r0
+	stbinc	r1
+	ldbinc	r0
+	stbinc	r1
 	ldinc	r6
 	mr	r2
 
@@ -539,7 +587,7 @@ l97: #
 	.int	_Str_2_Loc
 	mr	r1
 // (char with size!=1 -> array of unknown type)
-// Copying 31 bytes to Str_2_Loc
+// Copying 7 words and 3 bytes to Str_2_Loc
 					// (load_temp - type 1) not varadr
 					// (objtotemp) //static
 				//statictotemp
@@ -548,18 +596,42 @@ l97: #
 	mr	r0
 	mt	r2
 	stdec	r6
-				// constant: 1f in 1 chunks
-	li	IMW0(31)
-	addt	r1
-	mr	r2
-.cpyStr_2_Locloop2:
+// Copying 3 word tail to Str_2_Loc
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+// Copying 3 byte tail to Str_2_Loc
 	ldbinc	r0
 	stbinc	r1
-	mt	r1
-	cmp	r2
-	cond	NEQ
-		li	IMW0(PCREL(.cpyStr_2_Locloop2))
-		add	r7
+	ldbinc	r0
+	stbinc	r1
+	ldbinc	r0
+	stbinc	r1
 	ldinc	r6
 	mr	r2
 
@@ -921,23 +993,29 @@ l101: #
 	byt
 	ldt
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_1.c, line 199
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
 	sgn
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_1.c, line 199
@@ -970,10 +1048,19 @@ l99: #
 	li	IMW0(8)
 	ldidx	r6
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_1.c, line 200
@@ -1073,7 +1160,7 @@ l99: #
 	.int	_Str_2_Loc
 	mr	r1
 // (char with size!=1 -> array of unknown type)
-// Copying 31 bytes to Str_2_Loc
+// Copying 7 words and 3 bytes to Str_2_Loc
 					// (load_temp - type 1) not varadr
 					// (objtotemp) //static
 				//statictotemp
@@ -1082,18 +1169,42 @@ l99: #
 	mr	r0
 	mt	r2
 	stdec	r6
-				// constant: 1f in 1 chunks
-	li	IMW0(31)
-	addt	r1
-	mr	r2
-.cpyStr_2_Locloop3:
+// Copying 3 word tail to Str_2_Loc
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
+// Copying 3 byte tail to Str_2_Loc
 	ldbinc	r0
 	stbinc	r1
-	mt	r1
-	cmp	r2
-	cond	NEQ
-		li	IMW0(PCREL(.cpyStr_2_Locloop3))
-		add	r7
+	ldbinc	r0
+	stbinc	r1
+	ldbinc	r0
+	stbinc	r1
 	ldinc	r6
 	mr	r2
 
@@ -1158,10 +1269,19 @@ l32: #
 	li	IMW0(4)
 	ldidx	r6
 	mr	r3
-	li	24
-	shl	r3
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r3
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r3
+	mul	r3
+	mr	r3
 					// (save result) isreg
 				// allocreg r2
 
@@ -1175,21 +1295,27 @@ l32: #
 	byt
 	ldt
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_1.c, line 199
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r3
-	mt	r3
-	mr	r1
-					// (objtotemp)  reg r2
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
 	mt	r2
 	sgn
-	cmp	r1
+	cmp	r3
 				// freereg r3
 				// freereg r2
 
@@ -1317,15 +1443,12 @@ l102: #
 
 	//dhry_1.c, line 175
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r5
-	mt	r5
-	mr	r1
-					// (objtotemp)  extern
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Number_Of_Runs
 	ldt
 	sgn
-	cmp	r1
+	cmp	r5
 
 	//dhry_1.c, line 175
 	cond	LE
@@ -1569,10 +1692,19 @@ l100: #
 	byt
 	ldt
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_1.c, line 244
@@ -1647,10 +1779,19 @@ l100: #
 	byt
 	ldt
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_1.c, line 246
@@ -5491,7 +5632,7 @@ _Proc_1:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 			//Swapping dest and counter registers
-// Copying 48 bytes to 
+// Copying 12 words and 0 bytes to 
 					// (load_temp - type 12) not varadr
 					// (objtotemp)  deref 
 					// (prepobj tmp) deref
@@ -5502,18 +5643,21 @@ _Proc_1:
 	mr	r0
 	mt	r2
 	stdec	r6
+// Copying 12 words to 
 				// constant: 30 in 2 chunks
 	li	IMW1(48)
 	li	IMW0(48)
 	addt	r2
 	mr	r1
-.cpyloop4:
-	ldbinc	r0
-	stbinc	r2
+.cpywordloop4:
+	ldinc	r0
+	st	r2
+	li	4
+	add	r2
 	mt	r2
 	cmp	r1
 	cond	NEQ
-		li	IMW0(PCREL(.cpyloop4))
+		li	IMW0(PCREL(.cpywordloop4))
 		add	r7
 	ldinc	r6
 	mr	r2
@@ -5821,25 +5965,28 @@ l105: #
 	ldt
 //marker 1
 	mr	r1
-// Copying 48 bytes to Ptr_Val_Par
+// Copying 12 words and 0 bytes to Ptr_Val_Par
 					// (load_temp - type 12) not varadr
 					// (objtotemp)  deref 
 //FIXME - unhandled type 12
 	mr	r0
 	mt	r2
 	stdec	r6
+// Copying 12 words to Ptr_Val_Par
 				// constant: 30 in 2 chunks
 	li	IMW1(48)
 	li	IMW0(48)
 	addt	r1
 	mr	r2
-.cpyPtr_Val_Parloop5:
-	ldbinc	r0
-	stbinc	r1
+.cpyPtr_Val_Parwordloop5:
+	ldinc	r0
+	st	r1
+	li	4
+	add	r1
 	mt	r1
 	cmp	r2
 	cond	NEQ
-		li	IMW0(PCREL(.cpyPtr_Val_Parloop5))
+		li	IMW0(PCREL(.cpyPtr_Val_Parwordloop5))
 		add	r7
 	ldinc	r6
 	mr	r2
@@ -5863,8 +6010,8 @@ l106: #
 		//r1: yes
 		//r2: yes
 		//r3: yes
-		//r4: no
-		//r5: no
+		//r4: yes
+		//r5: yes
 		//r6: yes
 		//r7: yes
 		//tmp: yes
@@ -5875,24 +6022,42 @@ _Proc_2:
 	stmpdec	r6
 	stmpdec	r2
 	stmpdec	r3
+	stmpdec	r4
+	stmpdec	r5
 	exg	r6
 	stdec	r6	// quickest way to decrement sp by 4
+				// allocreg r5
+// code 0x2
+					// (a/p assign)
+					// (prepobj r1) reg r5 - no need to prep
+					// (load_temp - type 3) not varadr
+					// (objtotemp)  var, auto|reg
+		//sizemod based on type 0x3
+	ld	r6
+					// (save temp) isreg
+	mr	r5
+				//save_temp done
+				// allocreg r4
+// code 0x2
+					// (a/p assign)
+					// (prepobj r1) reg r4 - no need to prep
+					// (load_temp - type 10) not varadr
+					// (objtotemp)  var, auto|reg
+		//sizemod based on type 0xa
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
+	ldidx	r6
+					// (save temp) isreg
+	mr	r4
+				//save_temp done
 				// allocreg r3
 
 	//dhry_1.c, line 375
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  deref 
-					// (prepobj tmp) deref
-				// var FIXME - deref? reg 
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
-	addt	r6
-	ldt
-//marker 1
-		//sizemod based on type 0x3
-	ldt
-//marker 2
+	//(offset 0)
+	ld	r4
 	mr	r3
 					// (objtotemp)  const
 				// constant: a in 1 chunks
@@ -5912,23 +6077,29 @@ l113: #
 	byt
 	ldt
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_1.c, line 377
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
 	sgn
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_1.c, line 377
@@ -5958,40 +6129,30 @@ l113: #
 	.int	_Int_Glob
 	ldt
 	sub	r0
-					// (save result) deref
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0xa
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
-	ldidx	r6
-	mr	r1
-				// store reg
+					// (save result) store reg
 // Store_reg to type 0x3
 	mt	r0
-	st	r1
+	st	r4
 
 	//dhry_1.c, line 382
 // code 0x2
 					// (a/p assign)
-					// (prepobj r1) var, auto|reg
-	mt	r6
-	mr	r1
+					// (prepobj r1) reg r5 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
-					// (save temp) store prepped reg
-	st	r1
+					// (save temp) isreg
+	mr	r5
 				//save_temp done
 l112: # 
 
 	//dhry_1.c, line 384
 // code 0x44
 					// (test)
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
+					// (objtotemp)  reg r5
+	mt	r5
+	and	r5
 
 	//dhry_1.c, line 384
 	cond	NEQ
@@ -6000,7 +6161,13 @@ l112: #
 	li	IMW0(PCREL(l113))
 		add	r7
 				// freereg r3
+				// freereg r4
+				// freereg r5
 	ldinc	r6	// quickest way to add 4 to sp
+	ldinc	r6
+	mr	r5
+	ldinc	r6
+	mr	r4
 	ldinc	r6
 	mr	r3
 	ldinc	r6
@@ -6154,23 +6321,29 @@ _Proc_4:
 	byt
 	ldt
 	mr	r2
-	li	24
-	shl	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
 	sgn
-	shr	r2
+	mul	r2
+	mr	r2
 					// (save result) isreg
 
 	//dhry_1.c, line 409
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
-	mr	r1
-					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
 	sgn
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_1.c, line 409
@@ -6306,71 +6479,71 @@ _Proc_5:
 // stacksize=0+??
 	.globl	_Reg
 	.section	.data
-	.align	2
+	.align	4
 _Reg:
 	.int	0
 	.globl	_Number_Of_Runs
-	.align	2
+	.align	4
 _Number_Of_Runs:
 	.int	25000
+	.globl	_strcpy
+	.globl	_small_printf
 	.globl	_Ptr_Glob
 	.section	.bss
 	.global	_Ptr_Glob
-	.comm	_Ptr_Glob,4
+	.lcomm	_Ptr_Glob,4
 	.globl	_Next_Ptr_Glob
 	.global	_Next_Ptr_Glob
-	.comm	_Next_Ptr_Glob,4
+	.lcomm	_Next_Ptr_Glob,4
 	.globl	_Int_Glob
 	.global	_Int_Glob
-	.comm	_Int_Glob,4
+	.lcomm	_Int_Glob,4
 	.globl	_Bool_Glob
 	.global	_Bool_Glob
-	.comm	_Bool_Glob,4
-	.globl	_Arr_1_Glob
-	.global	_Arr_1_Glob
-	.comm	_Arr_1_Glob,200
-	.globl	_Arr_2_Glob
-	.global	_Arr_2_Glob
-	.comm	_Arr_2_Glob,10000
-	.globl	_Begin_Time
-	.global	_Begin_Time
-	.comm	_Begin_Time,4
-	.globl	_End_Time
-	.global	_End_Time
-	.comm	_End_Time,4
-	.globl	_User_Time
-	.global	_User_Time
-	.comm	_User_Time,4
-	.globl	_Microseconds
-	.global	_Microseconds
-	.comm	_Microseconds,4
-	.globl	_Dhrystones_Per_Second
-	.global	_Dhrystones_Per_Second
-	.comm	_Dhrystones_Per_Second,4
-	.globl	_Vax_Mips
-	.global	_Vax_Mips
-	.comm	_Vax_Mips,4
-	.globl	_rec1
-	.global	_rec1
-	.comm	_rec1,48
-	.globl	_rec2
-	.global	_rec2
-	.comm	_rec2,48
-	.globl	_strcpy
-	.globl	_small_printf
+	.lcomm	_Bool_Glob,4
 	.globl	_Ch_1_Glob
 	.global	_Ch_1_Glob
-	.comm	_Ch_1_Glob,1
+	.lcomm	_Ch_1_Glob,1
 	.globl	_Ch_2_Glob
 	.global	_Ch_2_Glob
-	.comm	_Ch_2_Glob,1
+	.lcomm	_Ch_2_Glob,1
+	.globl	_Arr_1_Glob
+	.global	_Arr_1_Glob
+	.lcomm	_Arr_1_Glob,200
+	.globl	_Arr_2_Glob
+	.global	_Arr_2_Glob
+	.lcomm	_Arr_2_Glob,10000
 	.globl	_Func_1
+	.globl	_Begin_Time
+	.global	_Begin_Time
+	.lcomm	_Begin_Time,4
+	.globl	_End_Time
+	.global	_End_Time
+	.lcomm	_End_Time,4
+	.globl	_User_Time
+	.global	_User_Time
+	.lcomm	_User_Time,4
+	.globl	_Microseconds
+	.global	_Microseconds
+	.lcomm	_Microseconds,4
+	.globl	_Dhrystones_Per_Second
+	.global	_Dhrystones_Per_Second
+	.lcomm	_Dhrystones_Per_Second,4
+	.globl	_Vax_Mips
+	.global	_Vax_Mips
+	.lcomm	_Vax_Mips,4
+	.globl	_rec1
+	.global	_rec1
+	.lcomm	_rec1,48
+	.globl	_rec2
+	.global	_rec2
+	.lcomm	_rec2,48
 	.globl	_Str_1_Loc
 	.global	_Str_1_Loc
-	.comm	_Str_1_Loc,31
+	.lcomm	_Str_1_Loc,31
 	.globl	_Str_2_Loc
 	.global	_Str_2_Loc
-	.comm	_Str_2_Loc,31
+	.lcomm	_Str_2_Loc,31
 	.globl	_Func_2
 	.globl	_Proc_7
 	.globl	_Proc_8
