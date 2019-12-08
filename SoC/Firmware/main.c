@@ -33,13 +33,13 @@ int sanitycheck(volatile int *base,int cachesize)
 		*base=sanitycheck_bitpatterns[i];
 		if (*base!=sanitycheck_bitpatterns[i])
 		{
-			printf("Sanity check failed (before cache refresh) on 0x%d (got 0x%d)\n",sanitycheck_bitpatterns[i],*base);
+			printf("Sanity check failed (before cache refresh) on 0x%x (got 0x%x)\n",sanitycheck_bitpatterns[i],*base);
 			result=0;
 		}
 		refreshcache(base,cachesize);
 		if (*base!=sanitycheck_bitpatterns[i])
 		{
-			printf("Sanity check failed (after cache refresh) on 0x%d (got 0x%d)\n",sanitycheck_bitpatterns[i],*base);
+			printf("Sanity check failed (after cache refresh) on 0x%x (got 0x%x)\n",sanitycheck_bitpatterns[i],*base);
 			result=0;
 		}
 	}
@@ -67,13 +67,13 @@ int bytecheck(volatile int *base,int cachesize)
 
 	if(base[0]!=0x555555cc)
 	{
-		printf("Byte check failed (before cache refresh) at 0 (got 0x%d)\n",base[0]);
+		printf("Byte check failed (before cache refresh) at 0 (got 0x%x)\n",base[0]);
 		result=0;
 	}
 
 	if(base[3]!=0x33aaaaaa)
 	{
-		printf("Byte check failed (before cache refresh) at 3 (got 0x%d)\n",base[3]);
+		printf("Byte check failed (before cache refresh) at 3 (got 0x%x)\n",base[3]);
 		result=0;
 	}
 
@@ -83,13 +83,13 @@ int bytecheck(volatile int *base,int cachesize)
 
 	if(base[0]!=0x555512cc)
 	{
-		printf("Byte check 2 failed (before cache refresh) at 0 (got 0x%d)\n",base[0]);
+		printf("Byte check 2 failed (before cache refresh) at 0 (got 0x%x)\n",base[0]);
 		result=0;
 	}
 
 	if(base[3]!=0xfedcaaaa)
 	{
-		printf("Byte check 2 failed (before cache refresh) at 3 (got 0x%d)\n",base[3]);
+		printf("Byte check 2 failed (before cache refresh) at 3 (got 0x%x)\n",base[3]);
 		result=0;
 	}
 
@@ -97,13 +97,13 @@ int bytecheck(volatile int *base,int cachesize)
 
 	if(base[0]!=0x555512cc)
 	{
-		printf("Byte check failed (after cache refresh) at 0 (got 0x%d)\n",base[0]);
+		printf("Byte check failed (after cache refresh) at 0 (got 0x%x)\n",base[0]);
 		result=0;
 	}
 
 	if(base[3]!=0xfedcaaaa)
 	{
-		printf("Byte check failed (after cache refresh) at 3 (got 0x%d)\n",base[3]);
+		printf("Byte check failed (after cache refresh) at 3 (got 0x%x)\n",base[3]);
 		result=0;
 	}
 
@@ -112,53 +112,53 @@ int bytecheck(volatile int *base,int cachesize)
 	// Check byte reads from various alignments
 	if(b2[0]!=0xcc)
 	{
-		printf("Byte read check failed at 0 (got 0x%d)\n",b2[0]);
+		printf("Byte read check failed at 0 (got 0x%x)\n",b2[0]);
 		result=0;
 	}
 	if(b2[1]!=0x12)
 	{
-		printf("Byte read check failed at 1 (got 0x%d)\n",b2[1]);
+		printf("Byte read check failed at 1 (got 0x%x)\n",b2[1]);
 		result=0;
 	}
 	if(b2[2]!=0x0f)
 	{
-		printf("Byte read check failed at 2 (got 0x%d)\n",b2[2]);
+		printf("Byte read check failed at 2 (got 0x%x)\n",b2[2]);
 		result=0;
 	}
 	if(b2[3]!=0x55)
 	{
-		printf("Byte read check failed at 3 (got 0x%d)\n",b2[3]);
+		printf("Byte read check failed at 3 (got 0x%x)\n",b2[3]);
 		result=0;
 	}
 	if(b2[12]!=0xaa)
 	{
-		printf("Byte read check failed at 12 (got 0x%d)\n",b2[12]);
+		printf("Byte read check failed at 12 (got 0x%x)\n",b2[12]);
 		result=0;
 	}
 	if(b2[13]!=0xf0)
 	{
-		printf("Byte read check failed at 13 (got 0x%d)\n",b2[13]);
+		printf("Byte read check failed at 13 (got 0x%x)\n",b2[13]);
 		result=0;
 	}
 	if(b2[14]!=0xdc)
 	{
-		printf("Byte read check failed at 14 (got 0x%d)\n",b2[14]);
+		printf("Byte read check failed at 14 (got 0x%x)\n",b2[14]);
 		result=0;
 	}
 	if(b2[15]!=0xfe)
 	{
-		printf("Byte read check failed at 15 (got 0x%d)\n",b2[15]);
+		printf("Byte read check failed at 15 (got 0x%x)\n",b2[15]);
 		result=0;
 	}
 
 	if(b3[0]!=0x12cc)
 	{
-		printf("Word read check failed at 0 (got 0x%d)\n",b3[0]);
+		printf("Word read check failed at 0 (got 0x%x)\n",b3[0]);
 		result=0;
 	}
 	if(b3[7]!=0xfedc)
 	{
-		printf("Word read check failed at 7 (got 0x%d)\n",b3[7]);
+		printf("Word read check failed at 7 (got 0x%x)\n",b3[7]);
 		result=0;
 	}
 
@@ -180,25 +180,25 @@ int aligncheck(volatile int *base,unsigned int cachesize)
 	t=*(volatile int *)(b+2);
 	if(t!=0x22334455)
 	{
-		printf("Align check failed (before cache refresh) at 2 (got 0x%d)\n",t);
+		printf("Align check failed (before cache refresh) at 2 (got 0x%x)\n",t);
 		result=0;
 	}
 	t=*(volatile int *)(b+6);
 	if(t!=0x66778899)
 	{
-		printf("Align check failed (before cache refresh) at 6 (got 0x%d)\n",t);
+		printf("Align check failed (before cache refresh) at 6 (got 0x%x)\n",t);
 		result=0;
 	}
 	t=*(volatile int *)(b+10);
 	if(t!=0xaabbccdd)
 	{
-		printf("Align check failed (before cache refresh) at 10 (got 0x%d)\n",t);
+		printf("Align check failed (before cache refresh) at 10 (got 0x%x)\n",t);
 		result=0;
 	}
 	t=*(volatile int *)(b+14);
 	if(t!=0xeeff5555)
 	{
-		printf("Align check failed (before cache refresh) at 14 (got 0x%d)\n",t);
+		printf("Align check failed (before cache refresh) at 14 (got 0x%x)\n",t);
 		result=0;
 	}
 
@@ -207,25 +207,25 @@ int aligncheck(volatile int *base,unsigned int cachesize)
 	t=*(volatile int *)(b+2);
 	if(t!=0x22334455)
 	{
-		printf("Align check failed (after cache refresh) at 2 (got 0x%d)\n",t);
+		printf("Align check failed (after cache refresh) at 2 (got 0x%x)\n",t);
 		result=0;
 	}
 	t=*(volatile int *)(b+6);
 	if(t!=0x66778899)
 	{
-		printf("Align check failed (after cache refresh) at 6 (got 0x%d)\n",t);
+		printf("Align check failed (after cache refresh) at 6 (got 0x%x)\n",t);
 		result=0;
 	}
 	t=*(volatile int *)(b+10);
 	if(t!=0xaabbccdd)
 	{
-		printf("Align check failed (after cache refresh) at 10 (got 0x%d)\n",t);
+		printf("Align check failed (after cache refresh) at 10 (got 0x%x)\n",t);
 		result=0;
 	}
 	t=*(volatile int *)(b+14);
 	if(t!=0xeeff5555)
 	{
-		printf("Align check failed (after cache refresh) at 14 (got 0x%d)\n",t);
+		printf("Align check failed (after cache refresh) at 14 (got 0x%x)\n",t);
 		result=0;
 	}
 }
@@ -269,8 +269,8 @@ int lfsrcheck(volatile int *base,unsigned int size)
 			if(jr!=w)
 			{
 				result=0;
-				printf("0x%d good reads, ",goodreads);
-				printf("Error at 0x%d, expected 0x%d, got 0x%d\n",j^addrmask, w,jr);
+				printf("%d good reads, ",goodreads);
+				printf("Error at 0x%x, expected 0x%x, got 0x%x\n",j^addrmask, w,jr);
 				goodreads=0;
 			}
 			else
@@ -314,8 +314,8 @@ int linearcheck(volatile int *base,unsigned int size)
 		if(jr!=w)
 		{
 			result=0;
-			printf("0x%d good reads, ",goodreads);
-			printf("Error at 0x%d, expected 0x%d, got 0x%d on round %d\n",i, w,jr,j);
+			printf("0x%x good reads, ",goodreads);
+			printf("Error at 0x%x, expected 0x%x, got 0x%x on round %d\n",i, w,jr,j);
 			goodreads=0;
 		}
 		else
@@ -367,14 +367,14 @@ unsigned int addresscheck(volatile int *base,int cachesize)
 		else if(base[a1]!=ADDRCHECKWORD)
 		{
 			result=0;
-			printf("Bad data found at 0x%d (0x%d)\n",a1<<2, base[a1]);
+			printf("Bad data found at 0x%x (0x%x)\n",a1<<2, base[a1]);
 		}
 		a1<<=1;
 	}
 	aliases<<=2;
 	if(aliases)
 	{
-		printf("Aliases found at 0x%d\n",aliases);
+		printf("Aliases found at 0x%x\n",aliases);
 
 		while(aliases)
 		{
@@ -388,7 +388,7 @@ unsigned int addresscheck(volatile int *base,int cachesize)
 		else
 			size=1;
 	}
-	printf("SDRAM size (assuming no address faults) is 0x%d megabytes\n",size);
+	printf("SDRAM size (assuming no address faults) is 0x%x megabytes\n",size);
 	
 	return(size);
 }
@@ -403,22 +403,22 @@ int simplecheck(volatile int *base, int cachesize)
 	base[3]=0xddeeff00;
 	if(base[0]!=0x11223344)
 	{
-		printf("Simple check failed at 0 (got %d, expected 0x11223344))\n",base[0]);
+		printf("Simple check failed at 0 (got %x, expected 0x11223344))\n",base[0]);
 		result=0;
 	}
 	if(base[1]!=0x55667788)
 	{
-		printf("Simple check failed at 1 (got %d, expected 0x55667788))\n",base[1]);
+		printf("Simple check failed at 1 (got %x, expected 0x55667788))\n",base[1]);
 		result=0;
 	}
 	if(base[2]!=0x99aabbcc)
 	{
-		printf("Simple check failed at 2 (got %d, expected 0x99aabbcc))\n",base[2]);
+		printf("Simple check failed at 2 (got %x, expected 0x99aabbcc))\n",base[2]);
 		result=0;
 	}
 	if(base[3]!=0xddeeff00)
 	{
-		printf("Simple check failed at 3 (got %d, expected 0xddeeff00))\n",base[3]);
+		printf("Simple check failed at 3 (got %x, expected 0xddeeff00))\n",base[3]);
 		result=0;
 	}
 	return(1);
