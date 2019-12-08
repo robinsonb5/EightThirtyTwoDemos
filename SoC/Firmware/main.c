@@ -1,453 +1,250 @@
+/*	Firmware for loading files from SD card.
+	Part of the ZPUTest project by Alastair M. Robinson.
+	SPI and FAT code borrowed from the Minimig project.
+*/
+
+
+#include "stdarg.h"
 
 #include "uart.h"
+#include "spi.h"
+#include "minfat.h"
+#include "cachecontrol.h"
 #include "small_printf.h"
 
+#define Breadcrumb(x) HW_UART(REG_UART)=x;
 
-// FIXME - use a smaller LFSR - this one will fail for RAMs smaller than 8 meg.
-#define CYCLE_LFSR {lfsr<<=1; if(lfsr&0x400000) lfsr|=1; if(lfsr&0x200000) lfsr^=1;}
 
-// Force a read-read of cache contents.  Takes the size of the cache (in bytes) as a parameter.
-// Works using a brute-force read of four times as much data as will fit in the cache, ensuring
-// that everything has to be flushed out.
-void refreshcache(volatile int *base,int size)
+// RS232 boot code - falls back to this if SD boot fails.
+
+int SREC_COLUMN;
+int SREC_ADDR;
+int SREC_ADDRSIZE;
+int SREC_BYTECOUNT;
+int SREC_TYPE;
+int SREC_COUNTER;
+int SREC_TEMP;
+int SREC_MAX_ADDR;
+
+void _boot()
 {
-	int t;
-	int i;
-
-	for(i=0;i<size;++i)
-		t=*base++;
+	while(1)
+		;
 }
 
-
-// Sanity check.  First stage check, writes and reads a bit pattern, and ensures that the same
-// bit pattern is read back, before and after a cache refresh.
-
-static const int sanitycheck_bitpatterns[]={0x00000000,0x55555555,0xaaaaaaaa,0xffffffff};
-
-int sanitycheck(volatile int *base,int cachesize)
+int DoDecode(int a0,int d0)
 {
-	int result=1;
-	int i;
-	for(i=0;i<(sizeof(sanitycheck_bitpatterns)/sizeof(int));++i)
+	d0&=0xdf;	// To upper case, if necessary - numbers are now 16-25
+	d0-=55;		// Map 'A' onto decimal 10.
+	if(d0<0)	// If negative, then digit was a number.
+		d0+=39; // map '0' onto 0.
+	a0<<=4;
+	a0|=d0;
+	return(a0);
+}
+
+void HandleByte(char d0)
+{
+	++SREC_COLUMN;
+
+	if(d0=='S')
 	{
-		*base=sanitycheck_bitpatterns[i];
-		if (*base!=sanitycheck_bitpatterns[i])
+		SREC_COLUMN=0;
+		SREC_ADDR=0;
+		SREC_BYTECOUNT=0;
+		SREC_TYPE=0;
+		Breadcrumb('S');
+	}
+	else
+	{
+		if(SREC_COLUMN==1)
 		{
-			printf("Sanity check failed (before cache refresh) on 0x%x (got 0x%x)\n",sanitycheck_bitpatterns[i],*base);
-			result=0;
+			int t;
+			Breadcrumb('t');
+			t=SREC_TYPE=DoDecode(SREC_TYPE,d0);	// Called once, should result in type being in the lowest nybble bye of SREC_TYPE
+
+			if(t>3)
+				t=10-t;	// Just to be awkward, S7 has 32-bit addr, S8 has 24 and S9 has 16!
+
+			SREC_ADDRSIZE=(t+1)<<1;
+
+//			printf("SREC_TYPE: %d, SREC_ADDRSIZE: %d\n",SREC_TYPE,SREC_ADDRSIZE);
+			Breadcrumb(t+48);
 		}
-		refreshcache(base,cachesize);
-		if (*base!=sanitycheck_bitpatterns[i])
+		else if((SREC_TYPE<=9)&&(SREC_TYPE>0))
 		{
-			printf("Sanity check failed (after cache refresh) on 0x%x (got 0x%x)\n",sanitycheck_bitpatterns[i],*base);
-			result=0;
-		}
-	}
-	return(result);
-}
-
-// FIXME - make these tests endian-agnostic, or better yet have them determine endianness.
-int bytecheck(volatile int *base,int cachesize)
-{
-	int result=1;
-	volatile unsigned char *b2=(volatile char *)base;
-	volatile unsigned short *b3=(volatile unsigned short *)base;
-	int t;
-
-	t=base[0];	// Preload the cache
-	t=base[1];
-	t=base[2];
-	t=base[3];
-
-	base[0]=0x55555555;
-	base[3]=0xaaaaaaaa;
-
-	b2[0]=0xcc;	// Write high byte
-	b2[15]=0x33; // Write low byte
-
-	if(base[0]!=0x555555cc)
-	{
-		printf("Byte check failed (before cache refresh) at 0 (got 0x%x)\n",base[0]);
-		result=0;
-	}
-
-	if(base[3]!=0x33aaaaaa)
-	{
-		printf("Byte check failed (before cache refresh) at 3 (got 0x%x)\n",base[3]);
-		result=0;
-	}
-
-	// Try again now the values are in cache.
-	b2[1]=0x12;
-	b3[7]=0xfedc;
-
-	if(base[0]!=0x555512cc)
-	{
-		printf("Byte check 2 failed (before cache refresh) at 0 (got 0x%x)\n",base[0]);
-		result=0;
-	}
-
-	if(base[3]!=0xfedcaaaa)
-	{
-		printf("Byte check 2 failed (before cache refresh) at 3 (got 0x%x)\n",base[3]);
-		result=0;
-	}
-
-	refreshcache(base,cachesize);
-
-	if(base[0]!=0x555512cc)
-	{
-		printf("Byte check failed (after cache refresh) at 0 (got 0x%x)\n",base[0]);
-		result=0;
-	}
-
-	if(base[3]!=0xfedcaaaa)
-	{
-		printf("Byte check failed (after cache refresh) at 3 (got 0x%x)\n",base[3]);
-		result=0;
-	}
-
-	b2[2]=0x0f;
-	b2[13]=0xf0;
-	// Check byte reads from various alignments
-	if(b2[0]!=0xcc)
-	{
-		printf("Byte read check failed at 0 (got 0x%x)\n",b2[0]);
-		result=0;
-	}
-	if(b2[1]!=0x12)
-	{
-		printf("Byte read check failed at 1 (got 0x%x)\n",b2[1]);
-		result=0;
-	}
-	if(b2[2]!=0x0f)
-	{
-		printf("Byte read check failed at 2 (got 0x%x)\n",b2[2]);
-		result=0;
-	}
-	if(b2[3]!=0x55)
-	{
-		printf("Byte read check failed at 3 (got 0x%x)\n",b2[3]);
-		result=0;
-	}
-	if(b2[12]!=0xaa)
-	{
-		printf("Byte read check failed at 12 (got 0x%x)\n",b2[12]);
-		result=0;
-	}
-	if(b2[13]!=0xf0)
-	{
-		printf("Byte read check failed at 13 (got 0x%x)\n",b2[13]);
-		result=0;
-	}
-	if(b2[14]!=0xdc)
-	{
-		printf("Byte read check failed at 14 (got 0x%x)\n",b2[14]);
-		result=0;
-	}
-	if(b2[15]!=0xfe)
-	{
-		printf("Byte read check failed at 15 (got 0x%x)\n",b2[15]);
-		result=0;
-	}
-
-	if(b3[0]!=0x12cc)
-	{
-		printf("Word read check failed at 0 (got 0x%x)\n",b3[0]);
-		result=0;
-	}
-	if(b3[7]!=0xfedc)
-	{
-		printf("Word read check failed at 7 (got 0x%x)\n",b3[7]);
-		result=0;
-	}
-
-	return(result);
-}
-
-
-int aligncheck(volatile int *base,unsigned int cachesize)
-{
-	int result=1;
-	int t;
-	volatile char *b=(volatile char *)base;
-	base[0]=0x00112233;
-	base[1]=0x44556677;
-	base[2]=0x8899aabb;
-	base[3]=0xccddeeff;
-	base[4]=0x5555aaaa;
-
-	t=*(volatile int *)(b+2);
-	if(t!=0x22334455)
-	{
-		printf("Align check failed (before cache refresh) at 2 (got 0x%x)\n",t);
-		result=0;
-	}
-	t=*(volatile int *)(b+6);
-	if(t!=0x66778899)
-	{
-		printf("Align check failed (before cache refresh) at 6 (got 0x%x)\n",t);
-		result=0;
-	}
-	t=*(volatile int *)(b+10);
-	if(t!=0xaabbccdd)
-	{
-		printf("Align check failed (before cache refresh) at 10 (got 0x%x)\n",t);
-		result=0;
-	}
-	t=*(volatile int *)(b+14);
-	if(t!=0xeeff5555)
-	{
-		printf("Align check failed (before cache refresh) at 14 (got 0x%x)\n",t);
-		result=0;
-	}
-
-	refreshcache(base,cachesize);
-
-	t=*(volatile int *)(b+2);
-	if(t!=0x22334455)
-	{
-		printf("Align check failed (after cache refresh) at 2 (got 0x%x)\n",t);
-		result=0;
-	}
-	t=*(volatile int *)(b+6);
-	if(t!=0x66778899)
-	{
-		printf("Align check failed (after cache refresh) at 6 (got 0x%x)\n",t);
-		result=0;
-	}
-	t=*(volatile int *)(b+10);
-	if(t!=0xaabbccdd)
-	{
-		printf("Align check failed (after cache refresh) at 10 (got 0x%x)\n",t);
-		result=0;
-	}
-	t=*(volatile int *)(b+14);
-	if(t!=0xeeff5555)
-	{
-		printf("Align check failed (after cache refresh) at 14 (got 0x%x)\n",t);
-		result=0;
-	}
-}
-
-
-#define LFSRSEED 12467
-
-int lfsrcheck(volatile int *base,unsigned int size)
-{
-	int result=1;
-	int cycles=127;
-	int goodreads=0;
-	// Shift left 20 bits to convert to megabytes, then 2 bits right since we're dealing with longwords
-	unsigned int mask=(size<<18)-1;
-	unsigned int lfsr=LFSRSEED;
-
-	printf("Checking memory");
-
-	while(--cycles)
-	{
-		int i;
-		unsigned int lfsrtemp;
-		unsigned int addrmask=0;
-		putchar('.');
-		lfsrtemp=lfsr;
-		for(i=0;i<262144;++i)
-		{
-			unsigned int w=lfsr&0xfffff;
-			unsigned int j=lfsr&0xfffff;
-			base[j^addrmask]=w;
-
-			CYCLE_LFSR;
-		}
-		lfsr=lfsrtemp;
-		for(i=0;i<262144;++i)
-		{
-			unsigned int w=lfsr&0xfffff;
-			unsigned int j=lfsr&0xfffff;
-			unsigned int jr;
-			jr=base[j^addrmask];
-			if(jr!=w)
+			Breadcrumb(SREC_TYPE+48);
+			if(SREC_COLUMN<=3)	// Columns 2 and 3 contain byte count.
 			{
-				result=0;
-				printf("%d good reads, ",goodreads);
-				printf("Error at 0x%x, expected 0x%x, got 0x%x\n",j^addrmask, w,jr);
-				goodreads=0;
+				SREC_BYTECOUNT=DoDecode(SREC_BYTECOUNT,d0);
+//				printf("Bytecount: %x\n",SREC_BYTECOUNT);
+			}
+			else if(SREC_COLUMN<=(SREC_ADDRSIZE+3)) // Columns 4 to ... contain the address.
+			{
+				SREC_ADDR=DoDecode(SREC_ADDR,d0); // Called 2, 3 or 4 times, depending on the number of address bits.
+				SREC_COUNTER=1;
+//				printf("SREC_ADDR: %x\n",SREC_ADDR);
+			}
+			else if(SREC_TYPE>0 && SREC_TYPE<=3) // Only types 1, 2 and 3 have data
+			{
+				if(SREC_COLUMN<=((SREC_BYTECOUNT<<1)+1))	// Two characters for each output byte
+				{
+#ifdef DEBUG
+//					unsigned char *p=&SREC_TEMP;
+#else
+//					unsigned char *p=(unsigned char *)SREC_ADDR;
+#endif
+					SREC_TEMP=DoDecode(SREC_TEMP,d0);
+					--SREC_COUNTER;
+					if(SREC_COUNTER<0)
+					{
+//						printf("%x: %x\n",SREC_ADDR,SREC_TEMP&0xff);
+#ifndef DEBUG
+						*(unsigned char *)SREC_ADDR=SREC_TEMP;
+#endif
+						++SREC_ADDR;
+						if(SREC_ADDR>SREC_MAX_ADDR)
+							SREC_MAX_ADDR=SREC_ADDR;
+						SREC_COUNTER=1;
+					}
+				}
+				else
+				{
+#ifdef DEBUG
+//					unsigned char *p=&SREC_TEMP;
+#else
+//					unsigned char *p=(unsigned char *)SREC_ADDR;
+#endif
+					if(SREC_COUNTER==0)
+					{
+						SREC_TEMP<<=4;
+#ifndef DEBUG
+						*(unsigned char *)SREC_ADDR=SREC_TEMP;
+#endif
+//						*p<<=4;
+					}
+				}
+			}
+			else if(SREC_TYPE>=7)
+			{
+				int checksum=0;
+				FLUSHCACHES;
+
+				for(SREC_ADDR=0;SREC_ADDR<SREC_MAX_ADDR;SREC_ADDR+=4)
+					checksum+=*(int *)SREC_ADDR;
+				printf("Checksum to %d: %d\n",SREC_MAX_ADDR,checksum);
+				Breadcrumb('B');
+//				printf("Booting to %x\n",SREC_ADDR);
+#ifdef DEBUG
+				exit(0);
+#else
+				_boot();
+#endif
 			}
 			else
-				++goodreads;
-			CYCLE_LFSR;
+				Breadcrumb(48+SREC_TYPE);
+
 		}
-		CYCLE_LFSR;
-		addrmask|=lfsr;
-		addrmask&=mask;
 	}
-	putchar('\n');
-	return(result);
 }
 
 
-int linearcheck(volatile int *base,unsigned int size)
+/* Load files named in a manifest file */
+
+static unsigned char Manifest[2048];
+
+
+void _break()
 {
-	int result=1;
-	int cycles=127;
-	int goodreads=0;
-	// Shift left 20 bits to convert to megabytes, then 2 bits right since we're dealing with longwords
-	unsigned int mask=(size<<18)-1;
-	unsigned int lfsr=LFSRSEED;
-	int i,j;
-	unsigned int lfsrtemp;
-	unsigned int addrmask=0;
-	printf("Linear memory check");
-	lfsrtemp=lfsr;
-	for(i=0;i<mask;++i)
+	while(1)
+		;
+}
+
+
+int main(int argc,char **argv)
+{
+	int i;
+
+	puts("Initializing SD card\n");
+	if(spi_init())
 	{
-		unsigned int w=lfsr;
-		base[i]=w;
-		CYCLE_LFSR;
-	}
-	lfsr=lfsrtemp;
-	for(i=0;i<mask;++i)
-	{
-		unsigned int w=lfsr;
-		unsigned int jr;
-		jr=base[i];
-		if(jr!=w)
+		puts("Hunting for partition\n");
+		FindDrive();
+		if(LoadFile("MANIFESTMST",Manifest))
 		{
-			result=0;
-			printf("0x%x good reads, ",goodreads);
-			printf("Error at 0x%x, expected 0x%x, got 0x%x on round %d\n",i, w,jr,j);
-			goodreads=0;
+			unsigned char *buffer=Manifest;
+			int ptr;
+			puts("Parsing manifest\n");
+			while(1)
+			{
+				unsigned char c=0;
+				ptr=0;
+				// Parse address
+				while((c=*buffer++)!=' ')
+				{
+					HW_UART(REG_UART)=c;
+					if(c=='#') // Comment line?
+						break;
+					if(c=='G')
+						_boot();
+
+					if(c=='\n')
+						_break(); // Halt CPU
+
+					if(c=='L')
+						buffer=Manifest;
+
+					c=(c&~32)-('0'-32); // Convert to upper case
+					if(c>='9')
+						c-='A'-'0';
+					ptr<<=4;
+					ptr|=c;
+				}
+				// Parse filename
+				if(c!='#')
+				{
+					int i;
+					while((c=*buffer++)==' ')
+						;
+					--buffer;
+					// c-1 is now the filename pointer
+
+//					printf("Loading file %s to %d\n",fn,(long)ptr);
+//					buffer[11]=0;
+					LoadFile(buffer,(unsigned char *)ptr);
+//					HW_VGA(FRAMEBUFFERPTR)=ptr;
+				}
+
+				// Hunt for newline character
+				while((c=*buffer++)!='\n')
+					;
+			}
 		}
 		else
-			++goodreads;
-		CYCLE_LFSR;
-	}
-	putchar('\n');
-	return(result);
-}
-
-
-// Check for bad address bits and aliases.
-
-#define ADDRCHECKWORD 0x55aa44bb
-#define ADDRCHECKWORD2 0xf0e1d2c3
-
-unsigned int addresscheck(volatile int *base,int cachesize)
-{
-	int result=1;
-	int i,j,k;
-	int a1,a2;
-	int aliases=0;
-	unsigned int size=64;
-	// Seed the RAM;
-	a1=1;
-	*base=ADDRCHECKWORD;
-	for(j=1;j<25;++j)
-	{
-		a2=1;
-		for(i=1;i<25;++i)
 		{
-			base[a1|a2]=ADDRCHECKWORD;
-			a2<<=1;
+			puts("Loading manifest failed\n");
 		}
-		a1<<=1;
-	}	
-	refreshcache(base,cachesize);
-
-	// Now check for aliases
-	a1=1;
-	*base=ADDRCHECKWORD2;
-	for(j=1;j<25;++j)
-	{
-		if(base[a1]==ADDRCHECKWORD2)
-		{
-			// An alias isn't necessarily a failure.
-			aliases|=a1;
-		}
-		else if(base[a1]!=ADDRCHECKWORD)
-		{
-			result=0;
-			printf("Bad data found at 0x%x (0x%x)\n",a1<<2, base[a1]);
-		}
-		a1<<=1;
 	}
-	aliases<<=2;
-	if(aliases)
-	{
-		printf("Aliases found at 0x%x\n",aliases);
 
-		while(aliases)
-		{
-			if((aliases&0x2000000)==0)	// If the alias bits aren't contiguously the high bits, then it indicates a bad address.
-				result=0;
-			aliases=(aliases<<1)&0x3ffffff;	// Test currently supports up to 16m longwords = 64 megabytes.
-			size>>=1;
-		}
-		if(result && (size<64))
-			printf("(Aliases probably simply indicate that RAM\nis smaller than 64 megabytes)\n");
-		else
-			size=1;
-	}
-	printf("SDRAM size (assuming no address faults) is 0x%x megabytes\n",size);
-	
-	return(size);
-}
-
-
-int simplecheck(volatile int *base, int cachesize)
-{
-	int result=1;
-	base[0]=0x11223344;
-	base[1]=0x55667788;
-	base[2]=0x99aabbcc;
-	base[3]=0xddeeff00;
-	if(base[0]!=0x11223344)
-	{
-		printf("Simple check failed at 0 (got %x, expected 0x11223344))\n",base[0]);
-		result=0;
-	}
-	if(base[1]!=0x55667788)
-	{
-		printf("Simple check failed at 1 (got %x, expected 0x55667788))\n",base[1]);
-		result=0;
-	}
-	if(base[2]!=0x99aabbcc)
-	{
-		printf("Simple check failed at 2 (got %x, expected 0x99aabbcc))\n",base[2]);
-		result=0;
-	}
-	if(base[3]!=0xddeeff00)
-	{
-		printf("Simple check failed at 3 (got %x, expected 0xddeeff00))\n",base[3]);
-		result=0;
-	}
-	return(1);
-}
-
-#define CACHESIZE 4096
-
-int main(int argc, char **argv)
-{
-	volatile int *base=0x20000000;
-
+	puts("Booting from RS232.");
+	SREC_MAX_ADDR=0;
 	while(1)
 	{
-		int size=8;
-		if(simplecheck(base,CACHESIZE))
-			printf("Simple check passed.\n");
-		if(sanitycheck(base,CACHESIZE))
-			printf("First stage sanity check passed.\n");
-		if(bytecheck(base,CACHESIZE))
-			printf("Byte (dqm) check passed\n");
-//		if(aligncheck(base,CACHESIZE))
-//			printf("Alignment check passed\n");
-		if(size=addresscheck(base,CACHESIZE))
-			printf("Address check passed.\n");
-		if(linearcheck(base,size))
-			printf("Linear check passed.\n\n");
-		if(lfsrcheck(base,size))
-			printf("LFSR check passed.\n\n");
+		int c;
+		int timeout=1000000;
+		putchar('.');
+		while(timeout--)
+		{
+			int r=HW_UART(REG_UART);
+			if(r&UART_F_RXREADY)
+			{
+				c=r&255;
+				HandleByte(c);
+				timeout=1000000;
+			}
+		}
 	}
+
 	return(0);
 }
 

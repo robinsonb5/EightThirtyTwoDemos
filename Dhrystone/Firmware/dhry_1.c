@@ -19,6 +19,7 @@
 #include "dhry.h"
 //#include <sys/null.h>
 #include <sys/types.h>
+#include <stddef.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>

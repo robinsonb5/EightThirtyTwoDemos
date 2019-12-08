@@ -15,7 +15,7 @@
 __readMilliseconds:
 	stdec	r6
 
-	//dhry_1.c, line 85
+	//dhry_1.c, line 86
 // code 0x5e
 					//setreturn
 					// (load_temp - type 4) not varadr
@@ -71,7 +71,7 @@ _main:
 				//save_temp done
 				// allocreg r2
 
-	//dhry_1.c, line 124
+	//dhry_1.c, line 125
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -85,7 +85,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 125
+	//dhry_1.c, line 126
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -99,7 +99,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 127
+	//dhry_1.c, line 128
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -113,7 +113,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 128
+	//dhry_1.c, line 129
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 4)
@@ -128,7 +128,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 129
+	//dhry_1.c, line 130
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 8)
@@ -143,7 +143,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 130
+	//dhry_1.c, line 131
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 12)
@@ -159,7 +159,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 134
+	//dhry_1.c, line 135
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 16)
@@ -215,7 +215,7 @@ _main:
 	ldinc	r6
 	mr	r2
 
-	//dhry_1.c, line 135
+	//dhry_1.c, line 136
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -271,7 +271,7 @@ _main:
 	ldinc	r6
 	mr	r2
 
-	//dhry_1.c, line 137
+	//dhry_1.c, line 138
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 1628)
@@ -286,7 +286,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 142
+	//dhry_1.c, line 143
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -296,7 +296,7 @@ _main:
 	.int	l5
 	stdec	r6
 
-	//dhry_1.c, line 142
+	//dhry_1.c, line 143
 // code 0x2a
 					//call
 	ldinc	r7
@@ -307,7 +307,7 @@ _main:
 	add	r6
 
 
-	//dhry_1.c, line 143
+	//dhry_1.c, line 144
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -317,7 +317,7 @@ _main:
 	.int	l6
 	stdec	r6
 
-	//dhry_1.c, line 143
+	//dhry_1.c, line 144
 // code 0x2a
 					//call
 	ldinc	r7
@@ -328,7 +328,7 @@ _main:
 	add	r6
 
 
-	//dhry_1.c, line 144
+	//dhry_1.c, line 145
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -338,7 +338,7 @@ _main:
 	.int	l7
 	stdec	r6
 
-	//dhry_1.c, line 144
+	//dhry_1.c, line 145
 // code 0x2a
 					//call
 	ldinc	r7
@@ -349,7 +349,7 @@ _main:
 	add	r6
 
 
-	//dhry_1.c, line 145
+	//dhry_1.c, line 146
 // code 0x44
 					// (test)
 					// (objtotemp)  extern
@@ -358,14 +358,14 @@ _main:
 		//sizemod based on type 0x3
 	ldt
 
-	//dhry_1.c, line 145
+	//dhry_1.c, line 146
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l9)-1)
 	li	IMW0(PCREL(l9))
 		add	r7
 
-	//dhry_1.c, line 147
+	//dhry_1.c, line 148
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -375,7 +375,7 @@ _main:
 	.int	l10
 	stdec	r6
 
-	//dhry_1.c, line 147
+	//dhry_1.c, line 148
 // code 0x2a
 					//call
 	ldinc	r7
@@ -386,7 +386,7 @@ _main:
 	add	r6
 
 
-	//dhry_1.c, line 148
+	//dhry_1.c, line 149
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -396,7 +396,7 @@ _main:
 	.int	l11
 	stdec	r6
 
-	//dhry_1.c, line 148
+	//dhry_1.c, line 149
 // code 0x2a
 					//call
 	ldinc	r7
@@ -407,14 +407,14 @@ _main:
 	add	r6
 
 
-	//dhry_1.c, line 151
+	//dhry_1.c, line 152
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l12)-1)
 	li	IMW0(PCREL(l12))
 	add	r7
 l9: # 
 
-	//dhry_1.c, line 152
+	//dhry_1.c, line 153
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -424,7 +424,7 @@ l9: #
 	.int	l13
 	stdec	r6
 
-	//dhry_1.c, line 152
+	//dhry_1.c, line 153
 // code 0x2a
 					//call
 	ldinc	r7
@@ -435,7 +435,7 @@ l9: #
 	add	r6
 
 
-	//dhry_1.c, line 153
+	//dhry_1.c, line 154
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -445,7 +445,7 @@ l9: #
 	.int	l14
 	stdec	r6
 
-	//dhry_1.c, line 153
+	//dhry_1.c, line 154
 // code 0x2a
 					//call
 	ldinc	r7
@@ -457,7 +457,7 @@ l9: #
 
 l12: # 
 
-	//dhry_1.c, line 157
+	//dhry_1.c, line 158
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -468,7 +468,7 @@ l12: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 157
+	//dhry_1.c, line 158
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -478,7 +478,7 @@ l12: #
 	.int	l15
 	stdec	r6
 
-	//dhry_1.c, line 157
+	//dhry_1.c, line 158
 // code 0x2a
 					//call
 	ldinc	r7
@@ -489,7 +489,7 @@ l12: #
 	add	r6
 
 
-	//dhry_1.c, line 172
+	//dhry_1.c, line 173
 // code 0x2a
 					//call
 	ldinc	r7
@@ -497,7 +497,7 @@ l12: #
 	exg	r7
 
 
-	//dhry_1.c, line 172
+	//dhry_1.c, line 173
 // code 0x5d
 					// (getreturn)					// (save result) store reg
 // Store_reg to type 0x4
@@ -506,7 +506,8 @@ l12: #
 	.int	_Begin_Time + 4
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-	//dhry_1.c, line 174
+
+	//dhry_1.c, line 175
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -518,7 +519,7 @@ l12: #
 	mr	r5
 				//save_temp done
 
-	//dhry_1.c, line 175
+	//dhry_1.c, line 176
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -532,7 +533,7 @@ l12: #
 	sgn
 	cmp	r1
 
-	//dhry_1.c, line 175
+	//dhry_1.c, line 176
 	cond	LE
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l100)-1)
@@ -541,7 +542,7 @@ l12: #
 				// freereg r2
 l97: # 
 
-	//dhry_1.c, line 176
+	//dhry_1.c, line 177
 // code 0x2a
 					//call
 	ldinc	r7
@@ -549,7 +550,7 @@ l97: #
 	exg	r7
 
 
-	//dhry_1.c, line 177
+	//dhry_1.c, line 178
 // code 0x2a
 					//call
 	ldinc	r7
@@ -557,7 +558,7 @@ l97: #
 	exg	r7
 
 
-	//dhry_1.c, line 179
+	//dhry_1.c, line 180
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -572,7 +573,7 @@ l97: #
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 180
+	//dhry_1.c, line 181
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -584,7 +585,7 @@ l97: #
 	mr	r4
 				//save_temp done
 
-	//dhry_1.c, line 181
+	//dhry_1.c, line 182
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -640,7 +641,7 @@ l97: #
 	ldinc	r6
 	mr	r2
 
-	//dhry_1.c, line 182
+	//dhry_1.c, line 183
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -657,7 +658,7 @@ l97: #
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -667,7 +668,7 @@ l97: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -677,7 +678,7 @@ l97: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x2a
 					//call
 	ldinc	r7
@@ -689,13 +690,13 @@ l97: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r2
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r2
@@ -703,7 +704,7 @@ l97: #
 	and	r2
 				// freereg r2
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l21)-1)
@@ -711,7 +712,7 @@ l97: #
 		add	r7
 				// allocreg r2
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -723,14 +724,14 @@ l97: #
 	mr	r2
 				//save_temp done
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l22)-1)
 	li	IMW0(PCREL(l22))
 	add	r7
 l21: # 
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -743,7 +744,7 @@ l21: #
 				//save_temp done
 l22: # 
 
-	//dhry_1.c, line 183
+	//dhry_1.c, line 184
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -757,7 +758,7 @@ l22: #
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 185
+	//dhry_1.c, line 186
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
@@ -768,7 +769,7 @@ l22: #
 	sgn
 	cmp	r1
 
-	//dhry_1.c, line 185
+	//dhry_1.c, line 186
 	cond	GE
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l101)-1)
@@ -778,7 +779,7 @@ l22: #
 l98: # 
 				// allocreg r2
 
-	//dhry_1.c, line 187
+	//dhry_1.c, line 188
 // code 0x1d
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
@@ -791,7 +792,7 @@ l98: #
 	mul	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 187
+	//dhry_1.c, line 188
 // code 0x1c
 					// (bitwise) loadreg
 					// (objtotemp)  reg r2
@@ -807,10 +808,11 @@ l98: #
 	li	IMW0(16)
 	addt	r6
 	stmpdec	r0
- // WARNING - check that 4 has been added.				// freereg r2
+ // WARNING - check that 4 has been added.
+				// freereg r2
 				// allocreg r2
 
-	//dhry_1.c, line 189
+	//dhry_1.c, line 190
 // code 0x28
 					// (address)
 					// (prepobj r2) var, auto|reg
@@ -821,7 +823,7 @@ l98: #
 
 					// (save result) isreg
 
-	//dhry_1.c, line 189
+	//dhry_1.c, line 190
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -830,7 +832,7 @@ l98: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 189
+	//dhry_1.c, line 190
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -838,7 +840,7 @@ l98: #
 	mt	r4
 	stdec	r6
 
-	//dhry_1.c, line 189
+	//dhry_1.c, line 190
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -849,7 +851,7 @@ l98: #
 	ldidx	r6
 	stdec	r6
 
-	//dhry_1.c, line 189
+	//dhry_1.c, line 190
 // code 0x2a
 					//call
 	ldinc	r7
@@ -860,7 +862,7 @@ l98: #
 	add	r6
 
 
-	//dhry_1.c, line 191
+	//dhry_1.c, line 192
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
@@ -879,7 +881,8 @@ l98: #
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-	//dhry_1.c, line 185
+
+	//dhry_1.c, line 186
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
@@ -890,7 +893,7 @@ l98: #
 	sgn
 	cmp	r1
 
-	//dhry_1.c, line 185
+	//dhry_1.c, line 186
 	cond	SLT
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l98)-1)
@@ -898,7 +901,7 @@ l98: #
 		add	r7
 l101: # 
 
-	//dhry_1.c, line 194
+	//dhry_1.c, line 195
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -909,7 +912,7 @@ l101: #
 	ldidx	r6
 	stdec	r6
 
-	//dhry_1.c, line 194
+	//dhry_1.c, line 195
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -920,7 +923,7 @@ l101: #
 	ldidx	r6
 	stdec	r6
 
-	//dhry_1.c, line 194
+	//dhry_1.c, line 195
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -930,7 +933,7 @@ l101: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//dhry_1.c, line 194
+	//dhry_1.c, line 195
 // code 0x4e
 					// (a/p push)
 					// a: pushed 12, regnames[sp] r6
@@ -940,7 +943,7 @@ l101: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//dhry_1.c, line 194
+	//dhry_1.c, line 195
 // code 0x2a
 					//call
 	ldinc	r7
@@ -951,7 +954,7 @@ l101: #
 	add	r6
 
 
-	//dhry_1.c, line 196
+	//dhry_1.c, line 197
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -962,7 +965,7 @@ l101: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 196
+	//dhry_1.c, line 197
 // code 0x2a
 					//call
 	ldinc	r7
@@ -973,7 +976,7 @@ l101: #
 	add	r6
 
 
-	//dhry_1.c, line 197
+	//dhry_1.c, line 198
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -993,7 +996,7 @@ l101: #
 				//save_temp done
 				// allocreg r2
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -1019,7 +1022,7 @@ l101: #
 	mr	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 41 in 2 chunks
@@ -1029,7 +1032,7 @@ l101: #
 	cmp	r2
 				// freereg r2
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 	cond	SLT
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l102)-1)
@@ -1037,7 +1040,7 @@ l101: #
 		add	r7
 l99: # 
 
-	//dhry_1.c, line 200
+	//dhry_1.c, line 201
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1048,7 +1051,7 @@ l99: #
 	stdec	r6
 				// allocreg r2
 
-	//dhry_1.c, line 200
+	//dhry_1.c, line 201
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -1074,7 +1077,7 @@ l99: #
 	mr	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 200
+	//dhry_1.c, line 201
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1083,7 +1086,7 @@ l99: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 200
+	//dhry_1.c, line 201
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1095,13 +1098,13 @@ l99: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 200
+	//dhry_1.c, line 201
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r2
 
-	//dhry_1.c, line 200
+	//dhry_1.c, line 201
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
@@ -1115,7 +1118,7 @@ l99: #
 	cmp	r1
 				// freereg r2
 
-	//dhry_1.c, line 200
+	//dhry_1.c, line 201
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l32)-1)
@@ -1123,7 +1126,7 @@ l99: #
 		add	r7
 				// allocreg r2
 
-	//dhry_1.c, line 203
+	//dhry_1.c, line 204
 // code 0x28
 					// (address)
 					// (prepobj r2) var, auto|reg
@@ -1134,7 +1137,7 @@ l99: #
 
 					// (save result) isreg
 
-	//dhry_1.c, line 203
+	//dhry_1.c, line 204
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1143,7 +1146,7 @@ l99: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 203
+	//dhry_1.c, line 204
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1152,7 +1155,7 @@ l99: #
 	li	IMW0(0)
 	stdec	r6
 
-	//dhry_1.c, line 203
+	//dhry_1.c, line 204
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1163,7 +1166,7 @@ l99: #
 	add	r6
 
 
-	//dhry_1.c, line 204
+	//dhry_1.c, line 205
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -1219,7 +1222,7 @@ l99: #
 	ldinc	r6
 	mr	r2
 
-	//dhry_1.c, line 205
+	//dhry_1.c, line 206
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -1230,7 +1233,7 @@ l99: #
 	mr	r4
 				//save_temp done
 
-	//dhry_1.c, line 206
+	//dhry_1.c, line 207
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -1245,7 +1248,7 @@ l99: #
 				//save_temp done
 l32: # 
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
@@ -1269,7 +1272,7 @@ l32: #
 	stbinc	r0	//WARNING - pointer / reg not restored, might cause trouble!
 				// allocreg r3
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -1296,7 +1299,7 @@ l32: #
 					// (save result) isreg
 				// allocreg r2
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -1322,7 +1325,7 @@ l32: #
 	mr	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
 	mt	r2
@@ -1331,7 +1334,7 @@ l32: #
 				// freereg r3
 				// freereg r2
 
-	//dhry_1.c, line 199
+	//dhry_1.c, line 200
 	cond	LE
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l99)-1)
@@ -1339,7 +1342,7 @@ l32: #
 		add	r7
 l102: # 
 
-	//dhry_1.c, line 210
+	//dhry_1.c, line 211
 // code 0x1d
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
@@ -1348,7 +1351,7 @@ l102: #
 	mul	r4
 					// (save result) isreg
 
-	//dhry_1.c, line 211
+	//dhry_1.c, line 212
 // code 0x1e
 					// (bitwise) loadreg
 	//Call division routine
@@ -1377,9 +1380,10 @@ l102: #
 	li	IMW0(4)
 	addt	r6
 	stmpdec	r0
- // WARNING - check that 4 has been added.				// allocreg r2
+ // WARNING - check that 4 has been added.
+				// allocreg r2
 
-	//dhry_1.c, line 212
+	//dhry_1.c, line 213
 // code 0x1c
 					// (bitwise) loadreg
 					// (objtotemp)  reg r4
@@ -1393,7 +1397,7 @@ l102: #
 	sub	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 212
+	//dhry_1.c, line 213
 // code 0x1d
 					// (bitwise) loadreg
 					// (objtotemp)  const
@@ -1402,7 +1406,7 @@ l102: #
 	mul	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 212
+	//dhry_1.c, line 213
 // code 0x1c
 					// (bitwise) loadreg
 					// (objtotemp)  reg r2
@@ -1416,7 +1420,7 @@ l102: #
 				// freereg r2
 				// allocreg r2
 
-	//dhry_1.c, line 214
+	//dhry_1.c, line 215
 // code 0x28
 					// (address)
 					// (prepobj r2) var, auto|reg
@@ -1425,7 +1429,7 @@ l102: #
 
 					// (save result) isreg
 
-	//dhry_1.c, line 214
+	//dhry_1.c, line 215
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1434,7 +1438,7 @@ l102: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 214
+	//dhry_1.c, line 215
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1445,7 +1449,7 @@ l102: #
 	add	r6
 
 
-	//dhry_1.c, line 175
+	//dhry_1.c, line 176
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  const
@@ -1454,7 +1458,7 @@ l102: #
 	add	r5
 					// (save result) isreg
 
-	//dhry_1.c, line 175
+	//dhry_1.c, line 176
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -1464,7 +1468,7 @@ l102: #
 	sgn
 	cmp	r5
 
-	//dhry_1.c, line 175
+	//dhry_1.c, line 176
 	cond	LE
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l97)-1)
@@ -1472,7 +1476,7 @@ l102: #
 		add	r7
 l100: # 
 
-	//dhry_1.c, line 232
+	//dhry_1.c, line 233
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1480,7 +1484,7 @@ l100: #
 	exg	r7
 
 
-	//dhry_1.c, line 232
+	//dhry_1.c, line 233
 // code 0x5d
 					// (getreturn)					// (save result) store reg
 // Store_reg to type 0x4
@@ -1489,26 +1493,6 @@ l100: #
 	.int	_End_Time + 4
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-	//dhry_1.c, line 236
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l34
-	stdec	r6
-
-	//dhry_1.c, line 236
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_small_printf
-	exg	r7
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	add	r6
-
 
 	//dhry_1.c, line 237
 // code 0x4e
@@ -1517,7 +1501,7 @@ l100: #
 					// (objtotemp) //static
 				//statictotemp
 	ldinc	r7
-	.int	l35
+	.int	l34
 	stdec	r6
 
 	//dhry_1.c, line 237
@@ -1538,7 +1522,7 @@ l100: #
 					// (objtotemp) //static
 				//statictotemp
 	ldinc	r7
-	.int	l36
+	.int	l35
 	stdec	r6
 
 	//dhry_1.c, line 238
@@ -1559,7 +1543,7 @@ l100: #
 					// (objtotemp) //static
 				//statictotemp
 	ldinc	r7
-	.int	l37
+	.int	l36
 	stdec	r6
 
 	//dhry_1.c, line 239
@@ -1574,6 +1558,27 @@ l100: #
 
 
 	//dhry_1.c, line 240
+// code 0x4e
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) //static
+				//statictotemp
+	ldinc	r7
+	.int	l37
+	stdec	r6
+
+	//dhry_1.c, line 240
+// code 0x2a
+					//call
+	ldinc	r7
+	.int	_small_printf
+	exg	r7
+				// constant: 4 in 1 chunks
+	li	IMW0(4)
+	add	r6
+
+
+	//dhry_1.c, line 241
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1584,7 +1589,7 @@ l100: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 240
+	//dhry_1.c, line 241
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1592,36 +1597,6 @@ l100: #
 				//statictotemp
 	ldinc	r7
 	.int	l38
-	stdec	r6
-
-	//dhry_1.c, line 240
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_small_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//dhry_1.c, line 241
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 5 in 1 chunks
-	li	IMW0(5)
-	stdec	r6
-
-	//dhry_1.c, line 241
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l39
 	stdec	r6
 
 	//dhry_1.c, line 241
@@ -1636,6 +1611,36 @@ l100: #
 
 
 	//dhry_1.c, line 242
+// code 0x4e
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp)  const
+				// constant: 5 in 1 chunks
+	li	IMW0(5)
+	stdec	r6
+
+	//dhry_1.c, line 242
+// code 0x4e
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) //static
+				//statictotemp
+	ldinc	r7
+	.int	l39
+	stdec	r6
+
+	//dhry_1.c, line 242
+// code 0x2a
+					//call
+	ldinc	r7
+	.int	_small_printf
+	exg	r7
+				// constant: 8 in 1 chunks
+	li	IMW0(8)
+	add	r6
+
+
+	//dhry_1.c, line 243
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1646,7 +1651,7 @@ l100: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 242
+	//dhry_1.c, line 243
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1656,7 +1661,7 @@ l100: #
 	.int	l40
 	stdec	r6
 
-	//dhry_1.c, line 242
+	//dhry_1.c, line 243
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1667,7 +1672,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 243
+	//dhry_1.c, line 244
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1676,7 +1681,7 @@ l100: #
 	li	IMW0(1)
 	stdec	r6
 
-	//dhry_1.c, line 243
+	//dhry_1.c, line 244
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1686,7 +1691,7 @@ l100: #
 	.int	l41
 	stdec	r6
 
-	//dhry_1.c, line 243
+	//dhry_1.c, line 244
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1698,7 +1703,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 244
+	//dhry_1.c, line 245
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -1724,7 +1729,7 @@ l100: #
 	mr	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 244
+	//dhry_1.c, line 245
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1733,7 +1738,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 244
+	//dhry_1.c, line 245
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1743,7 +1748,7 @@ l100: #
 	.int	l42
 	stdec	r6
 
-	//dhry_1.c, line 244
+	//dhry_1.c, line 245
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1754,7 +1759,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 245
+	//dhry_1.c, line 246
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1764,7 +1769,7 @@ l100: #
 	li	IMW0(65)
 	stdec	r6
 
-	//dhry_1.c, line 245
+	//dhry_1.c, line 246
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1774,7 +1779,7 @@ l100: #
 	.int	l43
 	stdec	r6
 
-	//dhry_1.c, line 245
+	//dhry_1.c, line 246
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1786,7 +1791,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 246
+	//dhry_1.c, line 247
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -1812,7 +1817,7 @@ l100: #
 	mr	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 246
+	//dhry_1.c, line 247
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1821,7 +1826,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 246
+	//dhry_1.c, line 247
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1829,37 +1834,6 @@ l100: #
 				//statictotemp
 	ldinc	r7
 	.int	l44
-	stdec	r6
-
-	//dhry_1.c, line 246
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_small_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//dhry_1.c, line 247
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 42 in 2 chunks
-	li	IMW1(66)
-	li	IMW0(66)
-	stdec	r6
-
-	//dhry_1.c, line 247
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l45
 	stdec	r6
 
 	//dhry_1.c, line 247
@@ -1874,6 +1848,37 @@ l100: #
 
 
 	//dhry_1.c, line 248
+// code 0x4e
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp)  const
+				// constant: 42 in 2 chunks
+	li	IMW1(66)
+	li	IMW0(66)
+	stdec	r6
+
+	//dhry_1.c, line 248
+// code 0x4e
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) //static
+				//statictotemp
+	ldinc	r7
+	.int	l45
+	stdec	r6
+
+	//dhry_1.c, line 248
+// code 0x2a
+					//call
+	ldinc	r7
+	.int	_small_printf
+	exg	r7
+				// constant: 8 in 1 chunks
+	li	IMW0(8)
+	add	r6
+
+
+	//dhry_1.c, line 249
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1884,7 +1889,7 @@ l100: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 248
+	//dhry_1.c, line 249
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1892,36 +1897,6 @@ l100: #
 				//statictotemp
 	ldinc	r7
 	.int	l46
-	stdec	r6
-
-	//dhry_1.c, line 248
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_small_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//dhry_1.c, line 249
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 7 in 1 chunks
-	li	IMW0(7)
-	stdec	r6
-
-	//dhry_1.c, line 249
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l47
 	stdec	r6
 
 	//dhry_1.c, line 249
@@ -1936,6 +1911,36 @@ l100: #
 
 
 	//dhry_1.c, line 250
+// code 0x4e
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp)  const
+				// constant: 7 in 1 chunks
+	li	IMW0(7)
+	stdec	r6
+
+	//dhry_1.c, line 250
+// code 0x4e
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) //static
+				//statictotemp
+	ldinc	r7
+	.int	l47
+	stdec	r6
+
+	//dhry_1.c, line 250
+// code 0x2a
+					//call
+	ldinc	r7
+	.int	_small_printf
+	exg	r7
+				// constant: 8 in 1 chunks
+	li	IMW0(8)
+	add	r6
+
+
+	//dhry_1.c, line 251
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1946,7 +1951,7 @@ l100: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 250
+	//dhry_1.c, line 251
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1956,7 +1961,7 @@ l100: #
 	.int	l48
 	stdec	r6
 
-	//dhry_1.c, line 250
+	//dhry_1.c, line 251
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1967,7 +1972,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 251
+	//dhry_1.c, line 252
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1977,7 +1982,7 @@ l100: #
 	.int	l49
 	stdec	r6
 
-	//dhry_1.c, line 251
+	//dhry_1.c, line 252
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1988,7 +1993,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 252
+	//dhry_1.c, line 253
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1998,7 +2003,7 @@ l100: #
 	.int	l50
 	stdec	r6
 
-	//dhry_1.c, line 252
+	//dhry_1.c, line 253
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2009,7 +2014,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 253
+	//dhry_1.c, line 254
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2024,7 +2029,7 @@ l100: #
 //marker 2
 	stdec	r6
 
-	//dhry_1.c, line 253
+	//dhry_1.c, line 254
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2034,7 +2039,7 @@ l100: #
 	.int	l51
 	stdec	r6
 
-	//dhry_1.c, line 253
+	//dhry_1.c, line 254
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2045,7 +2050,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 254
+	//dhry_1.c, line 255
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2055,7 +2060,7 @@ l100: #
 	.int	l52
 	stdec	r6
 
-	//dhry_1.c, line 254
+	//dhry_1.c, line 255
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2067,7 +2072,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 255
+	//dhry_1.c, line 256
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2082,7 +2087,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 255
+	//dhry_1.c, line 256
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2092,7 +2097,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 255
+	//dhry_1.c, line 256
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2102,7 +2107,7 @@ l100: #
 	.int	l53
 	stdec	r6
 
-	//dhry_1.c, line 255
+	//dhry_1.c, line 256
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2113,7 +2118,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 256
+	//dhry_1.c, line 257
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2122,7 +2127,7 @@ l100: #
 	li	IMW0(0)
 	stdec	r6
 
-	//dhry_1.c, line 256
+	//dhry_1.c, line 257
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2132,7 +2137,7 @@ l100: #
 	.int	l54
 	stdec	r6
 
-	//dhry_1.c, line 256
+	//dhry_1.c, line 257
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2144,7 +2149,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 257
+	//dhry_1.c, line 258
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2159,7 +2164,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 257
+	//dhry_1.c, line 258
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2169,7 +2174,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 257
+	//dhry_1.c, line 258
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2179,7 +2184,7 @@ l100: #
 	.int	l55
 	stdec	r6
 
-	//dhry_1.c, line 257
+	//dhry_1.c, line 258
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2190,7 +2195,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 258
+	//dhry_1.c, line 259
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2199,7 +2204,7 @@ l100: #
 	li	IMW0(2)
 	stdec	r6
 
-	//dhry_1.c, line 258
+	//dhry_1.c, line 259
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2209,7 +2214,7 @@ l100: #
 	.int	l56
 	stdec	r6
 
-	//dhry_1.c, line 258
+	//dhry_1.c, line 259
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2221,7 +2226,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 259
+	//dhry_1.c, line 260
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2236,7 +2241,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 259
+	//dhry_1.c, line 260
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2246,7 +2251,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 259
+	//dhry_1.c, line 260
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2256,7 +2261,7 @@ l100: #
 	.int	l57
 	stdec	r6
 
-	//dhry_1.c, line 259
+	//dhry_1.c, line 260
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2267,7 +2272,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 260
+	//dhry_1.c, line 261
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2276,7 +2281,7 @@ l100: #
 	li	IMW0(17)
 	stdec	r6
 
-	//dhry_1.c, line 260
+	//dhry_1.c, line 261
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2286,7 +2291,7 @@ l100: #
 	.int	l58
 	stdec	r6
 
-	//dhry_1.c, line 260
+	//dhry_1.c, line 261
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2298,7 +2303,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 261
+	//dhry_1.c, line 262
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2313,7 +2318,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 261
+	//dhry_1.c, line 262
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2322,7 +2327,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 261
+	//dhry_1.c, line 262
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2332,7 +2337,7 @@ l100: #
 	.int	l59
 	stdec	r6
 
-	//dhry_1.c, line 261
+	//dhry_1.c, line 262
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2343,27 +2348,6 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 262
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l60
-	stdec	r6
-
-	//dhry_1.c, line 262
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_small_printf
-	exg	r7
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	add	r6
-
-
 	//dhry_1.c, line 263
 // code 0x4e
 					// (a/p push)
@@ -2371,7 +2355,7 @@ l100: #
 					// (objtotemp) //static
 				//statictotemp
 	ldinc	r7
-	.int	l61
+	.int	l60
 	stdec	r6
 
 	//dhry_1.c, line 263
@@ -2386,6 +2370,27 @@ l100: #
 
 
 	//dhry_1.c, line 264
+// code 0x4e
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) //static
+				//statictotemp
+	ldinc	r7
+	.int	l61
+	stdec	r6
+
+	//dhry_1.c, line 264
+// code 0x2a
+					//call
+	ldinc	r7
+	.int	_small_printf
+	exg	r7
+				// constant: 4 in 1 chunks
+	li	IMW0(4)
+	add	r6
+
+
+	//dhry_1.c, line 265
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2400,7 +2405,7 @@ l100: #
 //marker 2
 	stdec	r6
 
-	//dhry_1.c, line 264
+	//dhry_1.c, line 265
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2410,7 +2415,7 @@ l100: #
 	.int	l62
 	stdec	r6
 
-	//dhry_1.c, line 264
+	//dhry_1.c, line 265
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2421,7 +2426,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 265
+	//dhry_1.c, line 266
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2431,7 +2436,7 @@ l100: #
 	.int	l63
 	stdec	r6
 
-	//dhry_1.c, line 265
+	//dhry_1.c, line 266
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2443,7 +2448,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 266
+	//dhry_1.c, line 267
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2458,7 +2463,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 266
+	//dhry_1.c, line 267
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2468,7 +2473,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 266
+	//dhry_1.c, line 267
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2478,7 +2483,7 @@ l100: #
 	.int	l64
 	stdec	r6
 
-	//dhry_1.c, line 266
+	//dhry_1.c, line 267
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2489,7 +2494,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 267
+	//dhry_1.c, line 268
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2498,7 +2503,7 @@ l100: #
 	li	IMW0(0)
 	stdec	r6
 
-	//dhry_1.c, line 267
+	//dhry_1.c, line 268
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2508,7 +2513,7 @@ l100: #
 	.int	l65
 	stdec	r6
 
-	//dhry_1.c, line 267
+	//dhry_1.c, line 268
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2520,7 +2525,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 268
+	//dhry_1.c, line 269
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2535,7 +2540,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 268
+	//dhry_1.c, line 269
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2545,7 +2550,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 268
+	//dhry_1.c, line 269
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2555,7 +2560,7 @@ l100: #
 	.int	l66
 	stdec	r6
 
-	//dhry_1.c, line 268
+	//dhry_1.c, line 269
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2566,7 +2571,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 269
+	//dhry_1.c, line 270
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2575,7 +2580,7 @@ l100: #
 	li	IMW0(1)
 	stdec	r6
 
-	//dhry_1.c, line 269
+	//dhry_1.c, line 270
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2585,7 +2590,7 @@ l100: #
 	.int	l67
 	stdec	r6
 
-	//dhry_1.c, line 269
+	//dhry_1.c, line 270
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2597,7 +2602,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 270
+	//dhry_1.c, line 271
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2612,7 +2617,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 270
+	//dhry_1.c, line 271
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2622,7 +2627,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 270
+	//dhry_1.c, line 271
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2632,7 +2637,7 @@ l100: #
 	.int	l68
 	stdec	r6
 
-	//dhry_1.c, line 270
+	//dhry_1.c, line 271
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2643,7 +2648,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 271
+	//dhry_1.c, line 272
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2652,7 +2657,7 @@ l100: #
 	li	IMW0(18)
 	stdec	r6
 
-	//dhry_1.c, line 271
+	//dhry_1.c, line 272
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2662,7 +2667,7 @@ l100: #
 	.int	l69
 	stdec	r6
 
-	//dhry_1.c, line 271
+	//dhry_1.c, line 272
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2674,7 +2679,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 273
+	//dhry_1.c, line 274
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -2689,7 +2694,7 @@ l100: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 273
+	//dhry_1.c, line 274
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2698,7 +2703,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 273
+	//dhry_1.c, line 274
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2708,7 +2713,7 @@ l100: #
 	.int	l70
 	stdec	r6
 
-	//dhry_1.c, line 273
+	//dhry_1.c, line 274
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2719,7 +2724,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 274
+	//dhry_1.c, line 275
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2729,7 +2734,7 @@ l100: #
 	.int	l71
 	stdec	r6
 
-	//dhry_1.c, line 274
+	//dhry_1.c, line 275
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2740,7 +2745,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 275
+	//dhry_1.c, line 276
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2749,7 +2754,7 @@ l100: #
 	ld	r6
 	stdec	r6
 
-	//dhry_1.c, line 275
+	//dhry_1.c, line 276
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2759,7 +2764,7 @@ l100: #
 	.int	l72
 	stdec	r6
 
-	//dhry_1.c, line 275
+	//dhry_1.c, line 276
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2770,7 +2775,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 276
+	//dhry_1.c, line 277
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2779,7 +2784,7 @@ l100: #
 	li	IMW0(5)
 	stdec	r6
 
-	//dhry_1.c, line 276
+	//dhry_1.c, line 277
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2789,7 +2794,7 @@ l100: #
 	.int	l73
 	stdec	r6
 
-	//dhry_1.c, line 276
+	//dhry_1.c, line 277
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2800,7 +2805,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 277
+	//dhry_1.c, line 278
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2808,7 +2813,7 @@ l100: #
 	mt	r4
 	stdec	r6
 
-	//dhry_1.c, line 277
+	//dhry_1.c, line 278
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2816,36 +2821,6 @@ l100: #
 				//statictotemp
 	ldinc	r7
 	.int	l74
-	stdec	r6
-
-	//dhry_1.c, line 277
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_small_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//dhry_1.c, line 278
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: d in 1 chunks
-	li	IMW0(13)
-	stdec	r6
-
-	//dhry_1.c, line 278
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l75
 	stdec	r6
 
 	//dhry_1.c, line 278
@@ -2860,6 +2835,36 @@ l100: #
 
 
 	//dhry_1.c, line 279
+// code 0x4e
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp)  const
+				// constant: d in 1 chunks
+	li	IMW0(13)
+	stdec	r6
+
+	//dhry_1.c, line 279
+// code 0x4e
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) //static
+				//statictotemp
+	ldinc	r7
+	.int	l75
+	stdec	r6
+
+	//dhry_1.c, line 279
+// code 0x2a
+					//call
+	ldinc	r7
+	.int	_small_printf
+	exg	r7
+				// constant: 8 in 1 chunks
+	li	IMW0(8)
+	add	r6
+
+
+	//dhry_1.c, line 280
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2870,7 +2875,7 @@ l100: #
 	ldidx	r6
 	stdec	r6
 
-	//dhry_1.c, line 279
+	//dhry_1.c, line 280
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2878,36 +2883,6 @@ l100: #
 				//statictotemp
 	ldinc	r7
 	.int	l76
-	stdec	r6
-
-	//dhry_1.c, line 279
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_small_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//dhry_1.c, line 280
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 7 in 1 chunks
-	li	IMW0(7)
-	stdec	r6
-
-	//dhry_1.c, line 280
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l77
 	stdec	r6
 
 	//dhry_1.c, line 280
@@ -2922,6 +2897,36 @@ l100: #
 
 
 	//dhry_1.c, line 281
+// code 0x4e
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp)  const
+				// constant: 7 in 1 chunks
+	li	IMW0(7)
+	stdec	r6
+
+	//dhry_1.c, line 281
+// code 0x4e
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) //static
+				//statictotemp
+	ldinc	r7
+	.int	l77
+	stdec	r6
+
+	//dhry_1.c, line 281
+// code 0x2a
+					//call
+	ldinc	r7
+	.int	_small_printf
+	exg	r7
+				// constant: 8 in 1 chunks
+	li	IMW0(8)
+	add	r6
+
+
+	//dhry_1.c, line 282
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2932,7 +2937,7 @@ l100: #
 	ldidx	r6
 	stdec	r6
 
-	//dhry_1.c, line 281
+	//dhry_1.c, line 282
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2942,7 +2947,7 @@ l100: #
 	.int	l78
 	stdec	r6
 
-	//dhry_1.c, line 281
+	//dhry_1.c, line 282
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2953,7 +2958,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 282
+	//dhry_1.c, line 283
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2962,7 +2967,7 @@ l100: #
 	li	IMW0(1)
 	stdec	r6
 
-	//dhry_1.c, line 282
+	//dhry_1.c, line 283
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2972,7 +2977,7 @@ l100: #
 	.int	l79
 	stdec	r6
 
-	//dhry_1.c, line 282
+	//dhry_1.c, line 283
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2983,7 +2988,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 283
+	//dhry_1.c, line 284
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2993,7 +2998,7 @@ l100: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//dhry_1.c, line 283
+	//dhry_1.c, line 284
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -3003,7 +3008,7 @@ l100: #
 	.int	l80
 	stdec	r6
 
-	//dhry_1.c, line 283
+	//dhry_1.c, line 284
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3014,7 +3019,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 284
+	//dhry_1.c, line 285
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3024,7 +3029,7 @@ l100: #
 	.int	l81
 	stdec	r6
 
-	//dhry_1.c, line 284
+	//dhry_1.c, line 285
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3035,7 +3040,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 285
+	//dhry_1.c, line 286
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3045,7 +3050,7 @@ l100: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//dhry_1.c, line 285
+	//dhry_1.c, line 286
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -3055,7 +3060,7 @@ l100: #
 	.int	l82
 	stdec	r6
 
-	//dhry_1.c, line 285
+	//dhry_1.c, line 286
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3066,7 +3071,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 286
+	//dhry_1.c, line 287
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3076,7 +3081,7 @@ l100: #
 	.int	l83
 	stdec	r6
 
-	//dhry_1.c, line 286
+	//dhry_1.c, line 287
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3087,7 +3092,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 287
+	//dhry_1.c, line 288
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3097,7 +3102,7 @@ l100: #
 	.int	l84
 	stdec	r6
 
-	//dhry_1.c, line 287
+	//dhry_1.c, line 288
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3109,7 +3114,7 @@ l100: #
 
 				// allocreg r2
 
-	//dhry_1.c, line 290
+	//dhry_1.c, line 291
 // code 0x1c
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -3138,7 +3143,7 @@ l100: #
 	st	r1
 				//save_temp done
 
-	//dhry_1.c, line 291
+	//dhry_1.c, line 292
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3147,7 +3152,7 @@ l100: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 291
+	//dhry_1.c, line 292
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -3157,7 +3162,7 @@ l100: #
 	.int	l85
 	stdec	r6
 
-	//dhry_1.c, line 291
+	//dhry_1.c, line 292
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3168,7 +3173,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 293
+	//dhry_1.c, line 294
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -3183,7 +3188,7 @@ l100: #
 	sgn
 	cmp	r1
 
-	//dhry_1.c, line 293
+	//dhry_1.c, line 294
 	cond	GE
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l87)-1)
@@ -3191,7 +3196,7 @@ l100: #
 		add	r7
 				// allocreg r2
 
-	//dhry_1.c, line 295
+	//dhry_1.c, line 296
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3201,7 +3206,7 @@ l100: #
 	.int	l88
 	stdec	r6
 
-	//dhry_1.c, line 295
+	//dhry_1.c, line 296
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3212,7 +3217,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 296
+	//dhry_1.c, line 297
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3222,7 +3227,7 @@ l100: #
 	.int	l89
 	stdec	r6
 
-	//dhry_1.c, line 296
+	//dhry_1.c, line 297
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3233,7 +3238,7 @@ l100: #
 	add	r6
 
 
-	//dhry_1.c, line 297
+	//dhry_1.c, line 298
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3243,7 +3248,7 @@ l100: #
 	.int	l90
 	stdec	r6
 
-	//dhry_1.c, line 297
+	//dhry_1.c, line 298
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3271,7 +3276,7 @@ l87: #
 				//save_temp done
 				// allocreg r3
 
-	//dhry_1.c, line 315
+	//dhry_1.c, line 316
 // code 0x1d
 					// (bitwise) loadreg
 					// (objtotemp)  reg r2
@@ -3284,7 +3289,7 @@ l87: #
 	mul	r3
 					// (save result) isreg
 
-	//dhry_1.c, line 315
+	//dhry_1.c, line 316
 // code 0x1e
 					// (bitwise) loadreg
 	//Call division routine
@@ -3312,7 +3317,8 @@ l87: #
 	ldinc	r7
 	.int	_Microseconds + 4
 	stmpdec	r0
- // WARNING - check that 4 has been added.				// freereg r3
+ // WARNING - check that 4 has been added.
+				// freereg r3
 				// allocreg r3
 // code 0x2
 					// (a/p assign)
@@ -3328,7 +3334,7 @@ l87: #
 				//save_temp done
 				// allocreg r4
 
-	//dhry_1.c, line 316
+	//dhry_1.c, line 317
 // code 0x1d
 					// (bitwise) loadreg
 					// (objtotemp)  reg r3
@@ -3341,7 +3347,7 @@ l87: #
 	mul	r4
 					// (save result) isreg
 
-	//dhry_1.c, line 316
+	//dhry_1.c, line 317
 // code 0x1e
 					// (bitwise) loadreg
 	//Call division routine
@@ -3366,9 +3372,10 @@ l87: #
 	ldinc	r7
 	.int	_Dhrystones_Per_Second + 4
 	stmpdec	r0
- // WARNING - check that 4 has been added.				// freereg r4
+ // WARNING - check that 4 has been added.
+				// freereg r4
 
-	//dhry_1.c, line 317
+	//dhry_1.c, line 318
 // code 0x1d
 					// (bitwise) loadreg
 					// (objtotemp)  const
@@ -3378,7 +3385,7 @@ l87: #
 	mul	r3
 					// (save result) isreg
 
-	//dhry_1.c, line 317
+	//dhry_1.c, line 318
 // code 0x1e
 					// (bitwise) loadreg
 	//Call division routine
@@ -3403,10 +3410,11 @@ l87: #
 	ldinc	r7
 	.int	_Vax_Mips + 4
 	stmpdec	r0
- // WARNING - check that 4 has been added.				// freereg r3
+ // WARNING - check that 4 has been added.
+				// freereg r3
 				// freereg r2
 
-	//dhry_1.c, line 319
+	//dhry_1.c, line 320
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3416,7 +3424,7 @@ l87: #
 	.int	l91
 	stdec	r6
 
-	//dhry_1.c, line 319
+	//dhry_1.c, line 320
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3427,7 +3435,7 @@ l87: #
 	add	r6
 
 
-	//dhry_1.c, line 320
+	//dhry_1.c, line 321
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3438,7 +3446,7 @@ l87: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 320
+	//dhry_1.c, line 321
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -3448,7 +3456,7 @@ l87: #
 	.int	l92
 	stdec	r6
 
-	//dhry_1.c, line 320
+	//dhry_1.c, line 321
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3459,7 +3467,7 @@ l87: #
 	add	r6
 
 
-	//dhry_1.c, line 321
+	//dhry_1.c, line 322
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3469,7 +3477,7 @@ l87: #
 	.int	l93
 	stdec	r6
 
-	//dhry_1.c, line 321
+	//dhry_1.c, line 322
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3480,7 +3488,7 @@ l87: #
 	add	r6
 
 
-	//dhry_1.c, line 322
+	//dhry_1.c, line 323
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3491,7 +3499,7 @@ l87: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 322
+	//dhry_1.c, line 323
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -3501,7 +3509,7 @@ l87: #
 	.int	l94
 	stdec	r6
 
-	//dhry_1.c, line 322
+	//dhry_1.c, line 323
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3512,7 +3520,7 @@ l87: #
 	add	r6
 
 
-	//dhry_1.c, line 323
+	//dhry_1.c, line 324
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3523,7 +3531,7 @@ l87: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 323
+	//dhry_1.c, line 324
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -3533,7 +3541,7 @@ l87: #
 	.int	l95
 	stdec	r6
 
-	//dhry_1.c, line 323
+	//dhry_1.c, line 324
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3544,7 +3552,7 @@ l87: #
 	add	r6
 
 
-	//dhry_1.c, line 324
+	//dhry_1.c, line 325
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3554,7 +3562,7 @@ l87: #
 	.int	l96
 	stdec	r6
 
-	//dhry_1.c, line 324
+	//dhry_1.c, line 325
 // code 0x2a
 					//call
 	ldinc	r7
@@ -3565,7 +3573,7 @@ l87: #
 	add	r6
 
 
-	//dhry_1.c, line 327
+	//dhry_1.c, line 328
 // code 0x5e
 					//setreturn
 					// (load_temp - type 3) not varadr
@@ -5634,7 +5642,7 @@ _Proc_1:
 				// allocreg r5
 				// allocreg r2
 
-	//dhry_1.c, line 337
+	//dhry_1.c, line 338
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -5652,7 +5660,7 @@ _Proc_1:
 	mr	r2
 				//save_temp done
 
-	//dhry_1.c, line 337
+	//dhry_1.c, line 338
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -5663,7 +5671,7 @@ _Proc_1:
 	mr	r5
 				//save_temp done
 
-	//dhry_1.c, line 342
+	//dhry_1.c, line 343
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -5700,7 +5708,7 @@ _Proc_1:
 	mr	r2
 				// allocreg r4
 
-	//dhry_1.c, line 343
+	//dhry_1.c, line 344
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
@@ -5715,7 +5723,7 @@ _Proc_1:
 	add	r4
 					// (save result) isreg
 
-	//dhry_1.c, line 343
+	//dhry_1.c, line 344
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -5729,7 +5737,7 @@ _Proc_1:
 				//save_temp done
 				// allocreg r3
 
-	//dhry_1.c, line 345
+	//dhry_1.c, line 346
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  reg r2
@@ -5741,7 +5749,7 @@ _Proc_1:
 	add	r3
 					// (save result) isreg
 
-	//dhry_1.c, line 345
+	//dhry_1.c, line 346
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -5756,7 +5764,7 @@ _Proc_1:
 				// freereg r4
 				// freereg r3
 
-	//dhry_1.c, line 346
+	//dhry_1.c, line 347
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -5775,7 +5783,7 @@ _Proc_1:
 	st	r2
 				//save_temp done
 
-	//dhry_1.c, line 347
+	//dhry_1.c, line 348
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -5783,7 +5791,7 @@ _Proc_1:
 	mt	r2
 	stdec	r6
 
-	//dhry_1.c, line 347
+	//dhry_1.c, line 348
 // code 0x2a
 					//call
 	ldinc	r7
@@ -5794,7 +5802,7 @@ _Proc_1:
 	add	r6
 
 
-	//dhry_1.c, line 350
+	//dhry_1.c, line 351
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  const
@@ -5803,7 +5811,7 @@ _Proc_1:
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 350
+	//dhry_1.c, line 351
 // code 0x44
 					// (test)
 					// (objtotemp)  deref 
@@ -5812,7 +5820,7 @@ _Proc_1:
 	and	r2
 				// freereg r2
 
-	//dhry_1.c, line 350
+	//dhry_1.c, line 351
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l105)-1)
@@ -5820,7 +5828,7 @@ _Proc_1:
 		add	r7
 				// allocreg r3
 
-	//dhry_1.c, line 353
+	//dhry_1.c, line 354
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  reg r5
@@ -5833,7 +5841,7 @@ _Proc_1:
 					// (save result) isreg
 				// allocreg r2
 
-	//dhry_1.c, line 353
+	//dhry_1.c, line 354
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  reg r5
@@ -5845,7 +5853,7 @@ _Proc_1:
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 353
+	//dhry_1.c, line 354
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -5858,7 +5866,7 @@ _Proc_1:
 	st	r2
 				//save_temp done
 
-	//dhry_1.c, line 355
+	//dhry_1.c, line 356
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -5868,7 +5876,7 @@ _Proc_1:
 				// freereg r3
 				// allocreg r3
 
-	//dhry_1.c, line 355
+	//dhry_1.c, line 356
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  var, auto|reg
@@ -5883,7 +5891,7 @@ _Proc_1:
 	add	r3
 					// (save result) isreg
 
-	//dhry_1.c, line 355
+	//dhry_1.c, line 356
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -5893,7 +5901,7 @@ _Proc_1:
 	stdec	r6
 				// freereg r3
 
-	//dhry_1.c, line 355
+	//dhry_1.c, line 356
 // code 0x2a
 					//call
 	ldinc	r7
@@ -5904,7 +5912,7 @@ _Proc_1:
 	add	r6
 
 
-	//dhry_1.c, line 356
+	//dhry_1.c, line 357
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -5923,7 +5931,7 @@ _Proc_1:
 	st	r5
 				//save_temp done
 
-	//dhry_1.c, line 358
+	//dhry_1.c, line 359
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -5931,7 +5939,7 @@ _Proc_1:
 	mt	r2
 	stdec	r6
 
-	//dhry_1.c, line 358
+	//dhry_1.c, line 359
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -5940,7 +5948,7 @@ _Proc_1:
 	li	IMW0(10)
 	stdec	r6
 
-	//dhry_1.c, line 358
+	//dhry_1.c, line 359
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -5950,7 +5958,7 @@ _Proc_1:
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 358
+	//dhry_1.c, line 359
 // code 0x2a
 					//call
 	ldinc	r7
@@ -5961,7 +5969,7 @@ _Proc_1:
 	add	r6
 
 
-	//dhry_1.c, line 361
+	//dhry_1.c, line 362
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l106)-1)
 	li	IMW0(PCREL(l106))
@@ -5969,7 +5977,7 @@ _Proc_1:
 l105: # 
 				// allocreg r2
 
-	//dhry_1.c, line 361
+	//dhry_1.c, line 362
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -5987,7 +5995,7 @@ l105: #
 	mr	r2
 				//save_temp done
 
-	//dhry_1.c, line 361
+	//dhry_1.c, line 362
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -6083,7 +6091,7 @@ _Proc_2:
 				//save_temp done
 				// allocreg r3
 
-	//dhry_1.c, line 375
+	//dhry_1.c, line 376
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  deref 
@@ -6098,7 +6106,7 @@ _Proc_2:
 l113: # 
 				// allocreg r2
 
-	//dhry_1.c, line 377
+	//dhry_1.c, line 378
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -6124,7 +6132,7 @@ l113: #
 	mr	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 377
+	//dhry_1.c, line 378
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 41 in 2 chunks
@@ -6134,14 +6142,14 @@ l113: #
 	cmp	r2
 				// freereg r2
 
-	//dhry_1.c, line 377
+	//dhry_1.c, line 378
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l112)-1)
 	li	IMW0(PCREL(l112))
 		add	r7
 
-	//dhry_1.c, line 380
+	//dhry_1.c, line 381
 // code 0x1c
 					// (bitwise) loadreg
 					// (objtotemp)  const
@@ -6150,7 +6158,7 @@ l113: #
 	sub	r3
 					// (save result) isreg
 
-	//dhry_1.c, line 381
+	//dhry_1.c, line 382
 // code 0x1c
 					// (bitwise) loadreg
 					// (objtotemp)  reg r3
@@ -6167,7 +6175,7 @@ l113: #
 	mt	r0
 	st	r4
 
-	//dhry_1.c, line 382
+	//dhry_1.c, line 383
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -6180,14 +6188,14 @@ l113: #
 				//save_temp done
 l112: # 
 
-	//dhry_1.c, line 384
+	//dhry_1.c, line 385
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r5
 	mt	r5
 	and	r5
 
-	//dhry_1.c, line 384
+	//dhry_1.c, line 385
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l113)-1)
@@ -6226,7 +6234,7 @@ _Proc_3:
 	mt	r2
 	stdec	r6
 
-	//dhry_1.c, line 396
+	//dhry_1.c, line 397
 // code 0x44
 					// (test)
 					// (objtotemp)  extern
@@ -6235,14 +6243,14 @@ _Proc_3:
 		//sizemod based on type 0xa
 	ldt
 
-	//dhry_1.c, line 396
+	//dhry_1.c, line 397
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l117)-1)
 	li	IMW0(PCREL(l117))
 		add	r7
 
-	//dhry_1.c, line 398
+	//dhry_1.c, line 399
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -6267,7 +6275,7 @@ _Proc_3:
 l117: # 
 				// allocreg r2
 
-	//dhry_1.c, line 399
+	//dhry_1.c, line 400
 // code 0x1b
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -6282,7 +6290,7 @@ l117: #
 	add	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 399
+	//dhry_1.c, line 400
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -6291,7 +6299,7 @@ l117: #
 	stdec	r6
 				// freereg r2
 
-	//dhry_1.c, line 399
+	//dhry_1.c, line 400
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -6302,7 +6310,7 @@ l117: #
 	ldt
 	stdec	r6
 
-	//dhry_1.c, line 399
+	//dhry_1.c, line 400
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -6311,7 +6319,7 @@ l117: #
 	li	IMW0(10)
 	stdec	r6
 
-	//dhry_1.c, line 399
+	//dhry_1.c, line 400
 // code 0x2a
 					//call
 	ldinc	r7
@@ -6345,7 +6353,7 @@ _Proc_4:
 	stdec	r6
 				// allocreg r2
 
-	//dhry_1.c, line 409
+	//dhry_1.c, line 410
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -6371,7 +6379,7 @@ _Proc_4:
 	mr	r2
 					// (save result) isreg
 
-	//dhry_1.c, line 409
+	//dhry_1.c, line 410
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 41 in 2 chunks
@@ -6381,7 +6389,7 @@ _Proc_4:
 	cmp	r2
 				// freereg r2
 
-	//dhry_1.c, line 409
+	//dhry_1.c, line 410
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l119)-1)
@@ -6389,7 +6397,7 @@ _Proc_4:
 		add	r7
 				// allocreg r2
 
-	//dhry_1.c, line 409
+	//dhry_1.c, line 410
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -6401,14 +6409,14 @@ _Proc_4:
 	mr	r2
 				//save_temp done
 
-	//dhry_1.c, line 409
+	//dhry_1.c, line 410
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l120)-1)
 	li	IMW0(PCREL(l120))
 	add	r7
 l119: # 
 
-	//dhry_1.c, line 409
+	//dhry_1.c, line 410
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -6421,7 +6429,7 @@ l119: #
 				//save_temp done
 l120: # 
 
-	//dhry_1.c, line 410
+	//dhry_1.c, line 411
 // code 0x10
 					// (bitwise) loadreg
 					// (objtotemp)  extern
@@ -6440,7 +6448,8 @@ l120: #
 	.int	_Bool_Glob + 4
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-	//dhry_1.c, line 411
+
+	//dhry_1.c, line 412
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -6478,7 +6487,7 @@ l120: #
 _Proc_5:
 	stdec	r6
 
-	//dhry_1.c, line 419
+	//dhry_1.c, line 420
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -6495,7 +6504,7 @@ _Proc_5:
 //Disposable, postinc doesn't matter.
 				//save_temp done
 
-	//dhry_1.c, line 420
+	//dhry_1.c, line 421
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)

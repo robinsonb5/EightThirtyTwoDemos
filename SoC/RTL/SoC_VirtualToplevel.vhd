@@ -215,6 +215,8 @@ signal cpu_wr : std_logic;
 signal cpu_bytesel : std_logic_vector(3 downto 0);
 signal mem_rd : std_logic; 
 signal mem_wr : std_logic; 
+signal mem_rd_d : std_logic; 
+signal mem_wr_d : std_logic; 
 signal cache_valid : std_logic;
 signal flushcaches : std_logic;
 
@@ -624,9 +626,12 @@ begin
 		mousesendtrigger<='0';
 		flushcaches<='0';
 		soft_reset_n<='1';
+		
+		mem_rd_d<=mem_rd;
+		mem_wr_d<=mem_wr;
 
 		-- Write from CPU?
-		if mem_wr='1' and mem_busy='1' then
+		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
 			case cpu_addr(31)&cpu_addr(10 downto 8) is
 
 				when X"E" =>	-- VGA controller at 0xFFFFFE00
@@ -699,7 +704,7 @@ begin
 					sdram_state<=read1;	-- read/write logic doesn't need to differ.
 			end case;
 
-		elsif mem_rd='1' and mem_busy='1' then -- Read from CPU?
+		elsif mem_rd='1' and mem_rd_d='0' and mem_busy='1' then -- Read from CPU?
 			case cpu_addr(31 downto 28) is
 
 				when X"F" =>	-- Peripherals
