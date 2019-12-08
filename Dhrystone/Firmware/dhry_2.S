@@ -43,7 +43,7 @@ _Proc_6:
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	ldidx	r6
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 
@@ -101,7 +101,7 @@ _Proc_6:
 					// (objtotemp)  const
 				// constant: 3 in 1 chunks
 	li	IMW0(3)
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 l3: # 
@@ -195,7 +195,7 @@ l5: #
 					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 
@@ -211,6 +211,7 @@ l6: #
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Int_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r1
 					// (objtotemp)  const
@@ -236,7 +237,7 @@ l6: #
 					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 
@@ -256,7 +257,7 @@ l8: #
 					// (objtotemp)  const
 				// constant: 3 in 1 chunks
 	li	IMW0(3)
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 
@@ -276,7 +277,7 @@ l10: #
 					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 
@@ -296,7 +297,7 @@ l12: #
 					// (objtotemp)  const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 l4: # 
@@ -451,7 +452,7 @@ _Proc_8:
 	li	IMW1(32)
 	li	IMW0(32)
 	ldidx	r6
-					// (save temp) store reg
+					// (save temp) store
 	st	r2
 				//save_temp done
 				// allocreg r3
@@ -477,7 +478,7 @@ _Proc_8:
 					// (objtotemp)  deref 
 	//(offset 0)
 	ld	r2
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 				// freereg r3
@@ -500,7 +501,7 @@ _Proc_8:
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r5
 	mt	r5
-					// (save temp) store reg
+					// (save temp) store
 	st	r2
 				//save_temp done
 				// freereg r2
@@ -606,7 +607,7 @@ l19: #
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r5
 	mt	r5
-					// (save temp) store reg
+					// (save temp) store
 	st	r2
 				//save_temp done
 				// freereg r2
@@ -776,7 +777,7 @@ l20: #
 					// (objtotemp)  deref 
 	//(offset 0)
 	ld	r3
-					// (save temp) store reg
+					// (save temp) store
 	st	r2
 				//save_temp done
 				// freereg r3
@@ -793,7 +794,7 @@ l20: #
 					// (objtotemp)  const
 				// constant: 5 in 1 chunks
 	li	IMW0(5)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 				// freereg r5
@@ -860,8 +861,7 @@ _Func_1:
 	//dhry_2.c, line 148
 // code 0x32
 					//FIXME convert
-					// (load_temp - type 1) nop
-				// constant: 1000000 in 5 chunks
+					// (load_temp - type 1)				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
@@ -945,9 +945,9 @@ l23: #
 					// (load_temp - type 1) not varadr
 					// (objtotemp)  reg r4
 	mt	r4
-					// (save temp) store prepped reg
+					// (save temp) store
 	stbinc	r1
-//Disposable, postinc doesn't matter
+//Disposable, postinc doesn't matter.
 				//save_temp done
 
 	//dhry_2.c, line 154

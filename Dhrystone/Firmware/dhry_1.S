@@ -19,13 +19,14 @@ __readMilliseconds:
 // code 0x5e
 					//setreturn
 					// (load_temp - type 4) not varadr
-					// (objtotemp)  const/deref # FIXME deal with different data sizes when dereferencing
-					// (prepobj r0) const/deref
+					// (objtotemp)  const/deref
+					// (prepobj tmp) deref
+			// const
 				// constant: ffffffc8 in 2 chunks
 	li	IMW1(-56)
 	li	IMW0(-56)
-	mr	r0
-	ld	r0
+		//sizemod based on type 0x4
+	ldt
 	mr	r0
 	ldinc	r6
 	mr	r7
@@ -80,7 +81,7 @@ _main:
 					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec1
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -94,7 +95,7 @@ _main:
 					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec2
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -108,7 +109,7 @@ _main:
 					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec1
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -123,7 +124,7 @@ _main:
 					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -138,7 +139,7 @@ _main:
 					// (objtotemp)  const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -154,7 +155,7 @@ _main:
 				// constant: 28 in 2 chunks
 	li	IMW1(40)
 	li	IMW0(40)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -281,7 +282,7 @@ _main:
 					// (objtotemp)  const
 				// constant: a in 1 chunks
 	li	IMW0(10)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -354,6 +355,7 @@ _main:
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Reg
+		//sizemod based on type 0x3
 	ldt
 
 	//dhry_1.c, line 145
@@ -462,6 +464,7 @@ l12: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -520,6 +523,7 @@ l12: #
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+		//sizemod based on type 0x3
 	ldt
 	mr	r1
 					// (objtotemp)  const
@@ -559,11 +563,12 @@ l97: #
 					// (prepobj r1) var, auto|reg
 	mt	r6
 	mr	r1
+
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -648,7 +653,7 @@ l97: #
 					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -659,6 +664,7 @@ l97: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Str_2_Loc
+		//sizemod based on type 0xa
 	stdec	r6
 
 	//dhry_1.c, line 183
@@ -668,6 +674,7 @@ l97: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Str_1_Loc
+		//sizemod based on type 0xa
 	stdec	r6
 
 	//dhry_1.c, line 183
@@ -746,7 +753,7 @@ l22: #
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r2
 	mt	r2
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -920,6 +927,7 @@ l101: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Arr_2_Glob
+		//sizemod based on type 0xa
 	stdec	r6
 
 	//dhry_1.c, line 194
@@ -929,6 +937,7 @@ l101: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Arr_1_Glob
+		//sizemod based on type 0xa
 	stdec	r6
 
 	//dhry_1.c, line 194
@@ -949,6 +958,7 @@ l101: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
+		//sizemod based on type 0xa
 	ldt
 	stdec	r6
 
@@ -977,9 +987,9 @@ l101: #
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-					// (save temp) store prepped reg
+					// (save temp) store
 	stbinc	r1
-//Disposable, postinc doesn't matter
+//Disposable, postinc doesn't matter.
 				//save_temp done
 				// allocreg r2
 
@@ -990,6 +1000,7 @@ l101: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ch_2_Glob
+		//sizemod based on type 0x1
 	byt
 	ldt
 	mr	r2
@@ -1229,7 +1240,7 @@ l99: #
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r5
 	mt	r5
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 l32: # 
@@ -1292,6 +1303,7 @@ l32: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ch_2_Glob
+		//sizemod based on type 0x1
 	byt
 	ldt
 	mr	r2
@@ -1410,6 +1422,7 @@ l102: #
 					// (prepobj r2) var, auto|reg
 	mt	r6
 	mr	r2
+
 					// (save result) isreg
 
 	//dhry_1.c, line 214
@@ -1446,6 +1459,7 @@ l102: #
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+		//sizemod based on type 0x3
 	ldt
 	sgn
 	cmp	r5
@@ -1566,6 +1580,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Int_Glob
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -1627,6 +1642,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Bool_Glob
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -1689,6 +1705,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ch_1_Glob
+		//sizemod based on type 0x1
 	byt
 	ldt
 	mr	r2
@@ -1776,6 +1793,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ch_2_Glob
+		//sizemod based on type 0x1
 	byt
 	ldt
 	mr	r2
@@ -1862,6 +1880,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Arr_1_Glob + 32
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -1923,6 +1942,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Arr_2_Glob + 1628
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -2053,6 +2073,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2129,6 +2150,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2205,6 +2227,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2281,6 +2304,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2425,6 +2449,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2501,6 +2526,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2577,6 +2603,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2653,6 +2680,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2962,6 +2990,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Str_1_Loc
+		//sizemod based on type 0xa
 	stdec	r6
 
 	//dhry_1.c, line 283
@@ -3013,6 +3042,7 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Str_2_Loc
+		//sizemod based on type 0xa
 	stdec	r6
 
 	//dhry_1.c, line 285
@@ -3085,11 +3115,13 @@ l100: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_End_Time
+		//sizemod based on type 0x4
 	ldt
 	mr	r2
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Begin_Time
+		//sizemod based on type 0x4
 	ldt
 	sub	r2
 					// (save result) isreg
@@ -3102,7 +3134,7 @@ l100: #
 					// (load_temp - type 4) not varadr
 					// (objtotemp)  reg r2
 	mt	r2
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 
@@ -3141,6 +3173,7 @@ l100: #
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
 	.int	_User_Time
+		//sizemod based on type 0x4
 	ldt
 	mr	r1
 					// (objtotemp)  const
@@ -3231,6 +3264,7 @@ l87: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_User_Time
+		//sizemod based on type 0x4
 	ldt
 					// (save temp) isreg
 	mr	r2
@@ -3262,6 +3296,7 @@ l87: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+		//sizemod based on type 0x4
 	ldt
 	mr	r2
 	ldinc	r7
@@ -3286,6 +3321,7 @@ l87: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+		//sizemod based on type 0x3
 	ldt
 					// (save temp) isreg
 	mr	r3
@@ -3398,6 +3434,7 @@ l87: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Microseconds
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -3450,6 +3487,7 @@ l87: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Dhrystones_Per_Second
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -3481,6 +3519,7 @@ l87: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Vax_Mips
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -5605,9 +5644,7 @@ _Proc_1:
 				// var FIXME - deref? reg 
 				// constant: 14 in 1 chunks
 	li	IMW0(20)
-	addt	r6
-	ldt
-//marker 1
+	ldidx	r6
 		//sizemod based on type 0xa
 	ldt
 //marker 2
@@ -5687,7 +5724,7 @@ _Proc_1:
 					// (objtotemp)  const
 				// constant: 5 in 1 chunks
 	li	IMW0(5)
-					// (save temp) store reg
+					// (save temp) store
 	st	r4
 				//save_temp done
 				// allocreg r3
@@ -5713,7 +5750,7 @@ _Proc_1:
 					// (objtotemp)  deref 
 	//(offset 0)
 	ld	r4
-					// (save temp) store reg
+					// (save temp) store
 	st	r3
 				//save_temp done
 				// freereg r4
@@ -5730,13 +5767,11 @@ _Proc_1:
 				// var FIXME - deref? reg 
 				// constant: 14 in 1 chunks
 	li	IMW0(20)
-	addt	r6
-	ldt
-//marker 1
+	ldidx	r6
 		//sizemod based on type 0xa
 	ldt
 //marker 2
-					// (save temp) store reg
+					// (save temp) store
 	st	r2
 				//save_temp done
 
@@ -5819,7 +5854,7 @@ _Proc_1:
 					// (objtotemp)  const
 				// constant: 6 in 1 chunks
 	li	IMW0(6)
-					// (save temp) store reg
+					// (save temp) store
 	st	r2
 				//save_temp done
 
@@ -5884,7 +5919,7 @@ _Proc_1:
 		//sizemod based on type 0xa
 	ldt
 //marker 2
-					// (save temp) store reg
+					// (save temp) store
 	st	r5
 				//save_temp done
 
@@ -5944,9 +5979,7 @@ l105: #
 				// var FIXME - deref? reg 
 				// constant: 14 in 1 chunks
 	li	IMW0(20)
-	addt	r6
-	ldt
-//marker 1
+	ldidx	r6
 		//sizemod based on type 0xa
 	ldt
 //marker 2
@@ -5961,9 +5994,7 @@ l105: #
 				// var FIXME - deref? reg 
 				// constant: 14 in 1 chunks
 	li	IMW0(20)
-	addt	r6
-	ldt
-//marker 1
+	ldidx	r6
 	mr	r1
 // Copying 12 words and 0 bytes to Ptr_Val_Par
 					// (load_temp - type 12) not varadr
@@ -6074,6 +6105,7 @@ l113: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ch_1_Glob
+		//sizemod based on type 0x1
 	byt
 	ldt
 	mr	r2
@@ -6127,6 +6159,7 @@ l113: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Int_Glob
+		//sizemod based on type 0x3
 	ldt
 	sub	r0
 					// (save result) store reg
@@ -6199,6 +6232,7 @@ _Proc_3:
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
+		//sizemod based on type 0xa
 	ldt
 
 	//dhry_1.c, line 396
@@ -6215,9 +6249,7 @@ _Proc_3:
 				// var FIXME - deref? reg 
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
-	addt	r6
-	ldt
-//marker 1
+	ldidx	r6
 	mr	r1
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
@@ -6229,7 +6261,7 @@ _Proc_3:
 		//sizemod based on type 0xa
 	ldt
 //marker 2
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 l117: # 
@@ -6241,6 +6273,7 @@ l117: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -6265,6 +6298,7 @@ l117: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Int_Glob
+		//sizemod based on type 0x3
 	ldt
 	stdec	r6
 
@@ -6318,6 +6352,7 @@ _Proc_4:
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ch_1_Glob
+		//sizemod based on type 0x1
 	byt
 	ldt
 	mr	r2
@@ -6392,6 +6427,7 @@ l120: #
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Bool_Glob
+		//sizemod based on type 0x3
 	ldt
 	mr	r0
 					// (objtotemp)  reg r2
@@ -6416,9 +6452,9 @@ l120: #
 				// constant: 42 in 2 chunks
 	li	IMW1(66)
 	li	IMW0(66)
-					// (save temp) store prepped reg
+					// (save temp) store
 	stbinc	r1
-//Disposable, postinc doesn't matter
+//Disposable, postinc doesn't matter.
 				//save_temp done
 				// freereg r2
 	ldinc	r6
@@ -6454,9 +6490,9 @@ _Proc_5:
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-					// (save temp) store prepped reg
+					// (save temp) store
 	stbinc	r1
-//Disposable, postinc doesn't matter
+//Disposable, postinc doesn't matter.
 				//save_temp done
 
 	//dhry_1.c, line 420
@@ -6470,7 +6506,7 @@ _Proc_5:
 					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
-					// (save temp) store prepped reg
+					// (save temp) store
 	st	r1
 				//save_temp done
 	ldinc	r6

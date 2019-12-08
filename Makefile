@@ -1,4 +1,4 @@
-PROJECTS=HelloWorld Interrupts LZ4 VGA
+PROJECTS=HelloWorld Interrupts LZ4 VGA SoC
 BOARDS_ALTERA = "de1 de2"
 BOARDS_XILINX = "minimig"
 
