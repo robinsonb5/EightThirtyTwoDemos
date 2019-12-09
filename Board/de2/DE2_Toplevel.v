@@ -333,7 +333,7 @@ assign VGA_B[1:0] = 2'b00;
 
 assign	VGA_BLANK	=	vga_window;
 assign	VGA_SYNC	=	1'b0;
-assign	VGA_CLK	=	sysclk;
+assign	VGA_CLK	=	slowclk;
 
 wire [15:0]    audio_left;
 wire [15:0]    audio_right;

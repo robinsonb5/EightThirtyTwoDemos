@@ -176,35 +176,21 @@ _main:
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 3 word tail to rec2
+// Copying 1 words to rec2
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 // Copying 3 byte tail to rec2
 	ldbinc	r0
 	stbinc	r1
@@ -232,35 +218,21 @@ _main:
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 3 word tail to Str_1_Loc
+// Copying 1 words to Str_1_Loc
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 // Copying 3 byte tail to Str_1_Loc
 	ldbinc	r0
 	stbinc	r1
@@ -602,35 +574,21 @@ l97: #
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 3 word tail to Str_2_Loc
+// Copying 1 words to Str_2_Loc
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 // Copying 3 byte tail to Str_2_Loc
 	ldbinc	r0
 	stbinc	r1
@@ -1183,35 +1141,21 @@ l99: #
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 3 word tail to Str_2_Loc
+// Copying 1 words to Str_2_Loc
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 // Copying 3 byte tail to Str_2_Loc
 	ldbinc	r0
 	stbinc	r1
@@ -5696,9 +5640,7 @@ _Proc_1:
 	mr	r1
 .cpywordloop4:
 	ldinc	r0
-	st	r2
-	li	4
-	add	r2
+	stinc	r2
 	mt	r2
 	cmp	r1
 	cond	NEQ
@@ -6019,9 +5961,7 @@ l105: #
 	mr	r2
 .cpyPtr_Val_Parwordloop5:
 	ldinc	r0
-	st	r1
-	li	4
-	add	r1
+	stinc	r1
 	mt	r1
 	cmp	r2
 	cond	NEQ
