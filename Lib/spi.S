@@ -723,72 +723,66 @@ l12: #
 		//tmp: yes
 	.section	.text.0
 	.global	_spi_spin
+
+
+_spi_spin:	// vbcc compiled equivalent, 25 bytes
+	stdec	r6
+	li	IMW1(0xffffffd4)
+	li	IMW0(0xffffffd4)
+	mr	r1
+	li	IMW1(200)
+	li	IMW0(200)
+	mr	r0
+.spinloop:
+	li	IMW0(-1)
+	st	r1
+	add	r0
+	cond	NEQ
+		li	IMW0(PCREL(.spinloop))
+		add	r7
+
+	ldinc	r6
+	mr	r7	// 15 bytes
+
+#if 0
 _spi_spin:
 	stdec	r6
 	mt	r2
 	stdec	r6
-				// allocreg r2
 
-	//../../Lib//spi.c, line 108
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
 	li	IMW0(0)
-					// (save temp) isreg
+
 	mr	r2
-				//save_temp done
+
 l18: # 
 
-	//../../Lib//spi.c, line 109
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-			// const
-				// constant: ffffffd4 in 2 chunks
 	li	IMW1(-44)
 	li	IMW0(-44)
 	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
-					// (save temp) store
-	st	r1
-				//save_temp done
 
-	//../../Lib//spi.c, line 109
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
+	li	IMW1(255)
+	li	IMW0(255)	// 10
+
+	st	r1
+
 	li	IMW0(1)
 	add	r2
-					// (save result) isreg
 
-	//../../Lib//spi.c, line 109
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: c8 in 2 chunks
 	li	IMW1(200)
 	li	IMW0(200)
 	sgn
 	cmp	r2
 
-	//../../Lib//spi.c, line 109
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l18)-1)
-	li	IMW0(PCREL(l18))
+	li	IMW0(PCREL(l18)) // 20
 		add	r7
-				// freereg r2
+
 	ldinc	r6
 	mr	r2
 	ldinc	r6
-	mr	r7
+	mr	r7  //25
+#endif
 
 // stacksize=0+??
 	//registers used:
@@ -803,6 +797,103 @@ l18: #
 		//tmp: yes
 	.section	.text.0
 	.global	_wait_initV2
+#if 0
+
+		// GCC ZPU equivalent: 120 bytes
+_wait_initV2:	// r0 is 1 on success, 0 on failure.
+	stdec	r6
+	mt	r5
+	stdec	r6
+	mt	r2
+	stdec	r6
+
+	li	IMW1(0xffffffd4)
+	li	IMW0(0xffffffd4)
+	mr	r1
+
+	li	IMW0(PCREL(_spi_spin))
+	add	r7
+
+	li	IMW3(20000)
+	li	IMW1(20000)
+	li	IMW0(20000)
+	mr	r2	// 11
+.initv2loop:
+	li	1
+	sub	r2
+	cond	EQ
+	  li	0
+	  mr	r0
+	  li	IMW1(PCREL(.initv2done-1))
+	  li	IMW0(PCREL(.initv2done))
+	  mr	r7	// Escape loop
+
+	li	0
+	stdec	r6
+	li	IMW2(cmd_CMD55)
+	li	IMW1(cmd_CMD55)
+	li	IMW0(cmd_CMD55)
+	stdec	r6
+	li	IMW1(PCREL(_spi_writecmd-1))
+	li	IMW0(PCREL(_spi_writecmd))
+	add	r7
+	li	8
+	add	r6
+	li	1
+	cmp	r0
+	cond	NEQ	// If we didn't get a 1, loop
+	  li	IMW0(PCREL(.initv2loop))
+	  mr	r7	// 20  ->  31
+
+	// CMD55 succeeded - try CMD41
+
+	li	-1
+	st	r5
+
+	li	IMW2(cmd_CMD41)
+	li	IMW1(cmd_CMD41)
+	li	IMW0(cmd_CMD41)
+	mr	r0
+
+	li	IMW0(lba_CMD41>>28)
+	mr	r1
+	li	28
+	shl	r1
+
+	li	IMW1(PCREL(SPI_Send-1))
+	li	IMW0(PCREL(SPI_Send))
+	add	r7
+
+	li	0
+	cmp	r0
+	li	-1
+	cond	EQ	// 17 -> 48
+
+	  st	r5
+	  sub	r0
+	  li	IMW0(PCREL(.initv2done))
+	  mr	r7	// 52
+
+	li	IMW1(PCREL(SPI_Spin-1))
+	li	IMW0(PCREL(SPI_Spin))
+	add	r7
+
+	li	IMW0(PCREL(.initv2loop))
+	mr	r7	// 57 bytes
+
+
+.initv2done:
+	ldinc	r6
+	mr	r2
+	ldinc	r6
+	mr	r5
+	ldinc	r6
+	mr	r7	// 63 bytes
+
+#endif
+
+#if 1
+
 _wait_initV2:
 	exg	r6
 	stmpdec	r6
@@ -1078,6 +1169,8 @@ l20: #
 	mr	r2
 	ldinc	r6
 	mr	r7
+
+#endif
 
 // stacksize=0+??
 	//registers used:

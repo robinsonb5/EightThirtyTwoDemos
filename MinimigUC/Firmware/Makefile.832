@@ -1,0 +1,95 @@
+BASE	= 
+CC      = ../../EightThirtyTwo/vbcc/bin/vbcc832
+GCC		= gcc
+LD      = gcc
+AS      = as
+CP      = objcopy
+DUMP    = objdump
+
+832DIR = ../../EightThirtyTwo
+ROMGENDIR=$(832DIR)/romgen
+ROMGEN = $(ROMGENDIR)/romgen
+
+# we use mincrt0.s from here
+STARTUP_DIR = $(832DIR)/Lib
+
+# we fetch ROM prologue / epilogue from here
+RTL_DIR = $(832DIR)/romgen/
+
+# we use printf from here
+COMMON_DIR = ../../Lib
+
+BUILD_DIR=832_obj
+
+MINSTARTUP_SRC = $(STARTUP_DIR)/start.S
+MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.S,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
+
+COMMON_SRC = $(COMMON_DIR)/small_printf.c $(COMMON_DIR)/swap.c
+COMMON_OBJ = $(patsubst $(COMMON_DIR)/%.c,$(BUILD_DIR)/%.o,$(COMMON_SRC))
+
+MAIN_PRJ = OSDBoot_832
+MAIN_SRC = boot.c minfat.c fpga.c fpga.h spi.c uart.c checksum.c
+MAIN_OBJ = $(COMMON_OBJ) $(patsubst %.c,$(BUILD_DIR)/%.o,$(MAIN_SRC))
+
+LINKMAP  = linkscript_832.ld
+
+
+# Commandline options for each tool.
+
+ZPUOPTS= -mno-poppcrel -mno-pushspadd -mno-callpcrel -mno-byteop -mno-shortop -mno-neg -mno-div -mno-mod # No-neg requires bugfixed toolchain
+CFLAGS  = -+ -O=1311 -DNULL=0 -DOSDNAME=\"OSD83201SYS\" -I. -I$(COMMON_DIR)/ -I$(STARTUP_DIR) -I../OSD/ -DDISABLE_UART_RX -DPRINTF_HEX_ONLY
+
+LFLAGS  = -Wl,--gc-sections -nostartfiles -nostdlib -Wl,--relax -Os
+
+
+# Our target.
+all: $(BUILD_DIR) $(MAIN_PRJ).bin $(MAIN_PRJ)_ROM.vhd $(MAIN_PRJ).rpt mkchecksum
+
+clean:
+	rm -f $(BUILD_DIR)/*.o *.hex *.elf *.map *.lst *.srec $(MAIN_PRJ).rom *~ */*.o *.bin
+
+%.S: %.c Makefile.832
+	$(CC) $(CFLAGS) -o=$@ $<
+
+# Convert ELF binary to bin file.
+%.bin: %.elf
+	$(CP) -O binary $< $@
+
+%.rpt: %.elf
+	echo >$@ -n "End of code:\t"
+	$(DUMP) -x $< | grep >>$@ _romend
+	echo >>$@ -n "Start of BSS:\t"
+	$(DUMP) -x $< | grep  >>$@ __bss_start__
+	echo >>$@ -n "End of BSS:\t"
+	$(DUMP) -x $< | grep >>$@ __bss_end__
+	cat $@
+
+$(ROMGEN): $(ROMGENDIR)/romgen.c
+	gcc -o $(ROMGENDIR)/romgen $(ROMGENDIR)/romgen.c
+
+mkchecksum: mkchecksum.c checksum.c
+	gcc -o $@ $+
+
+%_ROM.vhd: %.bin $(ROMGEN)
+	sed 's/dualportram/$*_ROM/' >$*_ROM.vhd <$(RTL_DIR)/rom_prologue.vhd
+	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
+	cat >>$*_ROM.vhd $(RTL_DIR)/rom_epilogue.vhd
+
+# Link - this produces an ELF binary.
+
+$(MAIN_PRJ).elf: $(MINSTARTUP_OBJ) $(MAIN_OBJ)
+	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+
+./%.S: ../EightThirtyTwo/Lib/%.c Makefile.832
+	$(CC) $(CFLAGS) -o=$@ $<
+
+
+$(BUILD_DIR)/%.o: %.S
+	$(GCC) -c -I$(COMMON_DIR) -I$(STARTUP_DIR) -o $@ $<
+
+$(BUILD_DIR)/%.o: $(STARTUP_DIR)/%.S
+	$(GCC) -c -I$(COMMON_DIR) -I$(STARTUP_DIR) -o $@ $<
+
+$(BUILD_DIR):
+	mkdir $(BUILD_DIR)
+

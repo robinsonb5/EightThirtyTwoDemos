@@ -1,5 +1,5 @@
-PROJECTS=HelloWorld Interrupts LZ4 VGA SoC
-BOARDS_ALTERA = "de1 de2"
+PROJECTS=HelloWorld Interrupts LZ4 VGA SoC Dhrystone
+BOARDS_ALTERA = "de1 de2 c3board"
 BOARDS_XILINX = "minimig"
 
 all:
