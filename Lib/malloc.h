@@ -20,7 +20,7 @@ extern "C" {
 struct free_arena_header;
 
 struct arena_header {
-	size_t type;
+	int type;
 	size_t size;
 	struct free_arena_header *next, *prev;
 };

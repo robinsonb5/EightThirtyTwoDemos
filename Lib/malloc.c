@@ -157,7 +157,7 @@ void malloc_add(void *p,size_t size)
 	fp->a.type = ARENA_TYPE_FREE;
 	fp->a.size = size & ~MALLOC_CHUNK_MASK; // Round down size to fit chunk mask
 
-	printf("Adding %d bytes at %d to the memory pool\n",size,p);
+	printf("Adding %x bytes at %x to the memory pool\n",size,p);
 
 	/* We need to insert this into the main block list in the proper
 	   place -- this list is required to be sorted.  Since we most likely
@@ -315,15 +315,18 @@ static unsigned int addresscheck(volatile int *base,int cachesize)
 	}
 	printf("SDRAM size (assuming no address faults) is 0x%d megabytes\n",size);
 	
-	return(size*(1<<20));
+	return((unsigned int)base+(size*(1<<20)));
 }
 
 extern char _end; // Defined by the linker script
-__attribute__((constructor(101)))  // Highest Priority
-static void _initMem(void)
+
+// FIXME - implement .ctors
+//__attribute__((constructor(101)))  // Highest Priority
+void _initMem(void)
 {
 	char *ramtop;
 	ramtop=(char *)addresscheck((volatile int *)&_end,0);
+	ramtop=(char*)((int)ramtop & 0xffff0000);
 	malloc_add(&_end,ramtop-&_end);	// Add the entire RAM to the free memory pool
 }
 
@@ -331,21 +334,25 @@ void malloc_dump()
 {
 	struct free_arena_header *h=&__malloc_head;
 	struct arena_header *a=&h->a;
+	int c=5;
 	printf("All chunks\n");
 	do
 	{
-		printf("Arena header at %x, type %d, size %d\n",a,a->type,a->size);
+		printf("Arena header at %x, type %x, size %x\n",a,a->type,a->size);
 		h=a->next;
 		a=&h->a;
-	} while(a && a->type!=ARENA_TYPE_HEAD);
+		--c;
+	} while(c && a && a->type!=ARENA_TYPE_HEAD);
 
 	printf("Free chunks\n");
 	a=&__malloc_head.a;
+	c=5;
 	do
 	{
-		printf("Arena header at %x, type %d, size %d\n",a,a->type,a->size);
+		printf("Arena header at %x, type %x, size %x\n",a,a->type,a->size);
 		h=h->next_free;
 		a=&h->a;
-	} while(a && a->type!=ARENA_TYPE_HEAD);
+		--c;
+	} while(c && a && a->type!=ARENA_TYPE_HEAD);
 }
 
