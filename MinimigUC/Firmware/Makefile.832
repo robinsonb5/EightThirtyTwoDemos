@@ -24,7 +24,7 @@ BUILD_DIR=832_obj
 MINSTARTUP_SRC = $(STARTUP_DIR)/start.S
 MINSTARTUP_OBJ = $(patsubst $(STARTUP_DIR)/%.S,$(BUILD_DIR)/%.o,$(MINSTARTUP_SRC))
 
-COMMON_SRC = $(COMMON_DIR)/small_printf.c $(COMMON_DIR)/swap.c
+COMMON_SRC = $(COMMON_DIR)/tiny_printf.c $(COMMON_DIR)/swap.c
 COMMON_OBJ = $(patsubst $(COMMON_DIR)/%.c,$(BUILD_DIR)/%.o,$(COMMON_SRC))
 
 MAIN_PRJ = OSDBoot_832

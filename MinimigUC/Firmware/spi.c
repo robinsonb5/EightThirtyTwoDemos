@@ -1,6 +1,6 @@
 #include "spi.h"
 #include "uart.h"
-#include "small_printf.h"
+#include "tiny_printf.h"
 
 int SDHCtype;
 

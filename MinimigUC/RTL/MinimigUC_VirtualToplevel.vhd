@@ -308,8 +308,8 @@ mysdram : entity work.sdram_cached
 	(
 		rows => sdram_rows,
 		cols => sdram_cols,
-		cache => true,
-		dcache => true
+		cache => false,
+		dcache => false
 	)
 	port map
 	(

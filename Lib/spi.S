@@ -1521,7 +1521,7 @@ _is_sdhc:
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1769,7 +1769,7 @@ l64: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1822,7 +1822,7 @@ l64: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1960,7 +1960,7 @@ l53: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2001,7 +2001,7 @@ l59: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2717,7 +2717,7 @@ l84: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -4395,7 +4395,7 @@ l156: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: c in 1 chunks
 	li	IMW0(12)
@@ -5136,7 +5136,7 @@ l164: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 10 in 1 chunks
 	li	IMW0(16)
@@ -5189,7 +5189,7 @@ l164: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -5269,7 +5269,7 @@ l164: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: c in 1 chunks
 	li	IMW0(12)
@@ -5366,7 +5366,7 @@ l176: #
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_tiny_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -5507,7 +5507,7 @@ l172:
 	.globl	_sd_size
 	.global	_sd_size
 	.lcomm	_sd_size,4
-	.globl	_small_printf
+	.globl	_tiny_printf
 	.globl	_SPI_R1
 	.global	_SPI_R1
 	.lcomm	_SPI_R1,6

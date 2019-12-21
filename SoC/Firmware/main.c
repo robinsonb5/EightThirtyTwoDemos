@@ -10,10 +10,11 @@
 #include "spi.h"
 #include "minfat.h"
 #include "cachecontrol.h"
-#include "small_printf.h"
+#include "tiny_printf.h"
 
 #define Breadcrumb(x) HW_UART(REG_UART)=x;
 
+#define BOOT_ADDR 0x10000000
 
 // RS232 boot code - falls back to this if SD boot fails.
 
@@ -28,6 +29,9 @@ int SREC_MAX_ADDR;
 
 void _boot()
 {
+	void (*f)();
+	f=(void(*f)())BOOT_ADDR;
+	f();
 	while(1)
 		;
 }
@@ -89,19 +93,11 @@ void HandleByte(char d0)
 			{
 				if(SREC_COLUMN<=((SREC_BYTECOUNT<<1)+1))	// Two characters for each output byte
 				{
-#ifdef DEBUG
-//					unsigned char *p=&SREC_TEMP;
-#else
-//					unsigned char *p=(unsigned char *)SREC_ADDR;
-#endif
 					SREC_TEMP=DoDecode(SREC_TEMP,d0);
 					--SREC_COUNTER;
 					if(SREC_COUNTER<0)
 					{
-//						printf("%x: %x\n",SREC_ADDR,SREC_TEMP&0xff);
-#ifndef DEBUG
 						*(unsigned char *)SREC_ADDR=SREC_TEMP;
-#endif
 						++SREC_ADDR;
 						if(SREC_ADDR>SREC_MAX_ADDR)
 							SREC_MAX_ADDR=SREC_ADDR;
@@ -110,18 +106,10 @@ void HandleByte(char d0)
 				}
 				else
 				{
-#ifdef DEBUG
-//					unsigned char *p=&SREC_TEMP;
-#else
-//					unsigned char *p=(unsigned char *)SREC_ADDR;
-#endif
 					if(SREC_COUNTER==0)
 					{
 						SREC_TEMP<<=4;
-#ifndef DEBUG
 						*(unsigned char *)SREC_ADDR=SREC_TEMP;
-#endif
-//						*p<<=4;
 					}
 				}
 			}
@@ -130,11 +118,11 @@ void HandleByte(char d0)
 				int checksum=0;
 				FLUSHCACHES;
 
-				for(SREC_ADDR=0;SREC_ADDR<SREC_MAX_ADDR;SREC_ADDR+=4)
+				printf("Checksumming from %d to %d... ",BOOT_ADDR,SREC_MAX_ADDR);
+				for(SREC_ADDR=BOOT_ADDR;SREC_ADDR<SREC_MAX_ADDR;SREC_ADDR+=4)
 					checksum+=*(int *)SREC_ADDR;
-				printf("Checksum to %d: %d\n",SREC_MAX_ADDR,checksum);
+				printf("%d\n",checksum);
 				Breadcrumb('B');
-//				printf("Booting to %x\n",SREC_ADDR);
 #ifdef DEBUG
 				exit(0);
 #else

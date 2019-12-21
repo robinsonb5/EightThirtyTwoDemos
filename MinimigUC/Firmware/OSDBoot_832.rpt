@@ -1,3 +1,3 @@
-End of code:	0000000000001695 l       .code	0000000000000000 _romend
-Start of BSS:	0000000000001698 g       .bss	0000000000000000 __bss_start__
-End of BSS:	0000000000001982 g       .bss	0000000000000000 __bss_end__
+End of code:	000000000000195d l       .code	0000000000000000 _romend
+Start of BSS:	0000000000001960 g       .bss	0000000000000000 __bss_start__
+End of BSS:	0000000000001bfa g       .bss	0000000000000000 __bss_end__

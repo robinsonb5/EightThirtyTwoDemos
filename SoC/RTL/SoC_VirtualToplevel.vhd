@@ -243,6 +243,20 @@ begin
 end process;
 
 
+-- Timer
+process(clk)
+begin
+	if rising_edge(clk) then
+		millisecond_tick<=millisecond_tick+1;
+		if millisecond_tick=sysclk_frequency*100 then
+			millisecond_counter<=millisecond_counter+1;
+			millisecond_tick<=X"00000";
+		end if;
+	end if;
+end process;
+
+
+
 -- UART
 
 myuart : entity work.simple_uart
