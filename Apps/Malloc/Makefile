@@ -32,7 +32,7 @@ clean :
 %.o : %.s Makefile
 	gcc -c $*.s
 
-Malloc.elf : start.o uart.o small_printf.o division.o malloc.o main.o
+Malloc.elf : start.o uart.o small_printf.o division.o malloc.o main.o hexdump.o
 	gcc -Wl,--build-id=none -Wl,--gc-sections -nostartfiles -nostdlib -Tldscript.ld -o $@ $+
 
 %.o : %.S Makefile ldscript.ld $(832DIR)/start.S
@@ -50,7 +50,7 @@ Malloc.elf : start.o uart.o small_printf.o division.o malloc.o main.o
 	gcc -c $(LIBDIR)/$*.S -I$(832DIR) -I$(LIBDIR) -o $*.o
 
 %.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(832DIR) $*.c
 	mv $*.asm $*.S
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c

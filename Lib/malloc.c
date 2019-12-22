@@ -11,6 +11,7 @@
 //#include "stdio.h"
 #include "malloc.h"
 #include "small_printf.h"
+#include "hexdump.h"
 
 // Re-implement sbrk, since the libgloss version doesn't know about our memory map.
 char *_sbrk(int nbytes)
@@ -157,7 +158,10 @@ void malloc_add(void *p,size_t size)
 	fp->a.type = ARENA_TYPE_FREE;
 	fp->a.size = size & ~MALLOC_CHUNK_MASK; // Round down size to fit chunk mask
 
+
 	printf("Adding %x bytes at %x to the memory pool\n",size,p);
+
+	printf("Malloc head: %x\n",(int)&__malloc_head);
 
 	/* We need to insert this into the main block list in the proper
 	   place -- this list is required to be sorted.  Since we most likely

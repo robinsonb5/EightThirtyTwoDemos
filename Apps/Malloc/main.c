@@ -10,13 +10,21 @@ int main(int argc, char **argv)
 {
 	char *p,*p2,*p3,*p4;
 	_initMem();
+
 	malloc_dump();
 	p=malloc(32768);
+	malloc_dump();
 	p2=malloc(80000);
+	malloc_dump();
 	p3=malloc(30000);
+	malloc_dump();
 	free(p);
+	malloc_dump();
 	free(p3);
+	malloc_dump();
 	free(p2);
+	malloc_dump();
+	return(0);
 
 	puts("Allocating memory...\n");
 	do
