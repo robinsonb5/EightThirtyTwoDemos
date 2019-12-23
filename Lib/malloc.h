@@ -6,8 +6,6 @@
 
 // #include <stdint.h>
 #include <stddef.h>
-// #include <klibc/sysconfig.h>
-#define _KLIBC_MALLOC_CHUNK_SIZE 512
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +34,7 @@ struct arena_header {
 #define ARENA_TYPE_HEAD 2
 #endif
 
-#define MALLOC_CHUNK_MASK (_KLIBC_MALLOC_CHUNK_SIZE-1)
+#define MALLOC_CHUNK_MASK 511
 
 #define ARENA_SIZE_MASK (~(sizeof(struct arena_header)-1))
 
@@ -63,7 +61,4 @@ void malloc_dump();
 }
 #endif
 
-/*
- * Internal variable used by brk/sbrk
- */
-// extern char *__current_brk;
+

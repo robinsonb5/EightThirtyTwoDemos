@@ -10,7 +10,8 @@ int main(int argc, char **argv)
 {
 	int i,a;
 	char *p,*p2,*p3,*p4;
-	_initMem();
+//  initMem will be called automatically via a ctor.
+//	_initMem();
 
 #if 0
 	malloc_dump();

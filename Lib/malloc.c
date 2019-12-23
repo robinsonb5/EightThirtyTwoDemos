@@ -13,14 +13,6 @@
 #include "small_printf.h"
 #include "hexdump.h"
 
-// Re-implement sbrk, since the libgloss version doesn't know about our memory map.
-char *_sbrk(int nbytes)
-{
-	// Since we add the entire memory in _premain() we can skip this.
-	printf("Custom sbrk asking for %d bytes\n",nbytes);
-	return(0);
-}
-
 
 /* Both the arena list and the free memory list are double linked
    list with head node.  This the head node. Note that the arena list
@@ -36,18 +28,9 @@ static struct free_arena_header __malloc_head = {
 	&__malloc_head
 };
 
-static inline void mark_block_dead(struct free_arena_header *ah)
-{
-#ifdef DEBUG_MALLOC
-	ah->a.type = ARENA_TYPE_DEAD;
-#endif
-}
-
 static inline void remove_from_main_chain(struct free_arena_header *ah)
 {
 	struct free_arena_header *ap, *an;
-
-	mark_block_dead(ah);
 
 	ap = ah->a.prev;
 	an = ah->a.next;
@@ -135,7 +118,6 @@ static struct free_arena_header *__free_block(struct free_arena_header *ah)
 		pah->a.size += ah->a.size;
 		pah->a.next = nah;
 		nah->a.prev = pah;
-		mark_block_dead(ah);
 
 		ah = pah;
 		pah = ah->a.prev;
@@ -232,49 +214,6 @@ void *malloc(size_t size)
 
 	fsize = (size + MALLOC_CHUNK_MASK) & ~MALLOC_CHUNK_MASK;
 
-#if 0 // AMR - using a fixed arena.
-
-	fp = (struct free_arena_header *)
-	    mmap(NULL, fsize, PROT_READ | PROT_WRITE,
-		 MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-
-	if (fp == (struct free_arena_header *)MAP_FAILED) {
-		return NULL;	/* Failed to get a block */
-	}
-#endif
-
-	fp = (struct free_arena_header *)_sbrk(fsize);
-	if(fp==0)
-		return(NULL);
-
-	/* Insert the block into the management chains.  We need to set
-	   up the size and the main block list pointer, the rest of
-	   the work is logically identical to free(). */
-	fp->a.type = ARENA_TYPE_FREE;
-	fp->a.size = fsize;
-
-	/* We need to insert this into the main block list in the proper
-	   place -- this list is required to be sorted.  Since we most likely
-	   get memory assignments in ascending order, search backwards for
-	   the proper place. */
-	for (pah = __malloc_head.a.prev; pah->a.type != ARENA_TYPE_HEAD;
-	     pah = pah->a.prev) {
-		if (pah < fp)
-			break;
-	}
-	/* Now pah points to the node that should be the predecessor of
-	   the new node */
-	fp->a.next = pah->a.next;
-	fp->a.prev = pah;
-	pah->a.next = fp;
-	fp->a.next->a.prev = fp;
-
-	/* Insert into the free chain and coalesce with adjacent blocks */
-	fp = __free_block(fp);
-
-	/* Now we can allocate from this block */
-	return __malloc_from_block(fp, size);
-
 	return NULL;
 }
 
@@ -294,62 +233,6 @@ void free(void *ptr)
 
 // Initialise memory for malloc.
 
-
-// Identify RAM size by searching for aliases - up to a maximum of 64 megabytes
-
-#define ADDRCHECKWORD 0x55aa44bb
-#define ADDRCHECKWORD2 0xf0e1d2c3
-
-static unsigned int addresscheck(volatile int *base,int cachesize)
-{
-	int i,j,k;
-	int a1,a2;
-	int aliases=0;
-	unsigned int size=64;
-	// Seed the RAM;
-	a1=19;
-	*base=ADDRCHECKWORD;
-	for(j=18;j<25;++j)
-	{
-		base[a1]=ADDRCHECKWORD;
-		a1<<=1;
-	}	
-
-	//	If we have a cache we need to flush it here.
-
-	// Now check for aliases
-	a1=1;
-	*base=ADDRCHECKWORD2;
-	for(j=1;j<25;++j)
-	{
-		if(base[a1]==ADDRCHECKWORD2)
-			aliases|=a1;
-		a1<<=1;
-	}
-
-	aliases<<=2;
-
-	while(aliases)
-	{
-		aliases=(aliases<<1)&0x3ffffff;	// Test currently supports up to 16m longwords = 64 megabytes.
-		size>>=1;
-	}
-	printf("SDRAM size (assuming no address faults) is 0x%d megabytes\n",size);
-	
-	return((unsigned int)base+(size*(1<<20)));
-}
-
-extern char _end; // Defined by the linker script
-
-// FIXME - implement .ctors
-//__attribute__((constructor(101)))  // Highest Priority
-void _initMem(void)
-{
-	char *ramtop;
-	ramtop=(char *)addresscheck((volatile int *)&_end,0);
-	ramtop=(char*)((int)ramtop & 0xffff0000);
-	malloc_add(&_end,ramtop-&_end);	// Add the entire RAM to the free memory pool
-}
 
 void malloc_dump()
 {
@@ -392,4 +275,56 @@ int availmem()
 	}
 	return(result);
 }
+
+
+extern char _end; // Defined by the linker script
+
+// Identify RAM size by searching for aliases - up to a maximum of 64 megabytes
+
+#define ADDRCHECKWORD 0x55aa44bb
+#define ADDRCHECKWORD2 0xf0e1d2c3
+
+__constructor(100) void _initMem()
+{
+	volatile int *base=(int*)&_end;
+	char *ramtop;
+	int i,j,k;
+	int a1,a2;
+	int aliases=0;
+	unsigned int size=64;
+	// Seed the RAM;
+	a1=19;
+	*base=ADDRCHECKWORD;
+	for(j=18;j<25;++j)
+	{
+		base[a1]=ADDRCHECKWORD;
+		a1<<=1;
+	}	
+
+	//	If we have a cache we need to flush it here.
+
+	// Now check for aliases
+	a1=1;
+	*base=ADDRCHECKWORD2;
+	for(j=1;j<25;++j)
+	{
+		if(base[a1]==ADDRCHECKWORD2)
+			aliases|=a1;
+		a1<<=1;
+	}
+
+	aliases<<=2;
+
+	while(aliases)
+	{
+		aliases=(aliases<<1)&0x3ffffff;	// Test currently supports up to 16m longwords = 64 megabytes.
+		size>>=1;
+	}
+	printf("SDRAM size (assuming no address faults) is 0x%d megabytes\n",size);
+	
+	ramtop=(char*)base+(size*(1<<20));
+	ramtop=(char*)((int)ramtop & 0xffff0000);
+	malloc_add(&_end,ramtop-&_end);	// Add the entire RAM to the free memory pool
+}
+
 

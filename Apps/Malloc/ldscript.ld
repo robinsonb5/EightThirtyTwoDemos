@@ -1,6 +1,6 @@
 MEMORY
 {
-   mem : ORIGIN = 0x10000000, LENGTH = 0x000fdfff
+	mem : ORIGIN = 0x10000000, LENGTH = 0x000fdfff
 }
 
 SECTIONS
@@ -14,16 +14,27 @@ SECTIONS
 	} >mem
 
 	.code : {
-	  *(.text)
-	  *(.rodata)
-	  *(.rodata.*)
-	  *(.data)
+		*(.text)
+		*(.text.*)
+		*(.rodata)
+		*(.rodata.*)
+		*(.data)
+		. = ALIGN(4);
+		__ctors_start__ = . ;
+		KEEP(*(SORT(.ctors)))
+		KEEP(*(SORT(.ctors.*)))
+		__ctors_end__ = . ;
+		. = ALIGN(4);
+		__dtors_start__ = . ;
+		KEEP(*(SORT(.dtors)))
+		KEEP(*(SORT(.dtors.*)))
+		__dtors_end__ = . ;
 	} >mem
 
 	.bss : {
 		__bss_start__ = . ;
-	  *(.bss)
-	  *(.bss.*)
+		*(.bss)
+		*(.bss.*)
 	  	__bss_end__ = . ;
 	} >mem
 	.=ALIGN(4);
@@ -31,8 +42,8 @@ SECTIONS
 	__end = . + 0x2000;
 
 	/DISCARD/ : {
-	  *(.eh_frame)
-	  *(.gnu.build-id)
+		*(.eh_frame)
+		*(.gnu.build-id)
 	} 
 }
 
