@@ -55,6 +55,7 @@ void malloc_add(void *p,size_t size);
 
 void *malloc(size_t);
 void free(void *m);
+int availmem();
 
 void malloc_dump();
 

@@ -113,11 +113,25 @@ static struct free_arena_header *__free_block(struct free_arena_header *ah)
 {
 	struct free_arena_header *pah, *nah;
 
+	printf("Free block: %x\n",(int)ah);
+
 	pah = ah->a.prev;
 	nah = ah->a.next;
+
+#if 0
+	hexdump(ah,sizeof(struct free_arena_header));
+	printf("Prev: %x\n",(int)pah);
+	hexdump(pah,sizeof(struct free_arena_header));
+	printf("Next: %x\n",(int)nah);
+	hexdump(nah,sizeof(struct free_arena_header));
+
+	printf("end of prev: %x\n",(int)((char *)pah + pah->a.size));
+#endif
+
 	if (pah->a.type == ARENA_TYPE_FREE &&
 	    (char *)pah + pah->a.size == (char *)ah) {
 		/* Coalesce into the previous block */
+		printf("Coalescing...\n");
 		pah->a.size += ah->a.size;
 		pah->a.next = nah;
 		nah->a.prev = pah;
@@ -129,10 +143,16 @@ static struct free_arena_header *__free_block(struct free_arena_header *ah)
 		/* Need to add this block to the free chain */
 		ah->a.type = ARENA_TYPE_FREE;
 
+//		hexdump(&__malloc_head,sizeof(struct free_arena_header));
+//		printf("Add to free chain: %x\n",(int)ah);
+
 		ah->next_free = __malloc_head.next_free;
 		ah->prev_free = &__malloc_head;
 		__malloc_head.next_free = ah;
 		ah->next_free->prev_free = ah;
+//		hexdump(&__malloc_head,sizeof(struct free_arena_header));
+//		hexdump(ah,sizeof(struct free_arena_header));
+//		hexdump(ah->next_free,sizeof(struct free_arena_header));
 	}
 
 	/* In either of the previous cases, we might be able to merge
@@ -140,6 +160,7 @@ static struct free_arena_header *__free_block(struct free_arena_header *ah)
 	if (nah->a.type == ARENA_TYPE_FREE &&
 	    (char *)ah + ah->a.size == (char *)nah) {
 		ah->a.size += nah->a.size;
+		printf("Merging with subsequent block: %x\n",(int)nah);
 
 		/* Remove the old block from the chains */
 		remove_from_chains(nah);
@@ -198,7 +219,6 @@ void *malloc(size_t size)
 
 	/* Add the obligatory arena header, and round up */
 	size = (size + 2 * sizeof(struct arena_header) - 1) & ARENA_SIZE_MASK;
-
 	for (fp = __malloc_head.next_free; fp->a.type != ARENA_TYPE_HEAD;
 	     fp = fp->next_free) {
 
@@ -262,14 +282,11 @@ void free(void *ptr)
 {
 	struct free_arena_header *ah;
 
-	printf("Freeing memory at %x\n",ptr);
-
 	if (!ptr)
 		return;
 
 	ah = (struct free_arena_header *)
 	    ((struct arena_header *)ptr - 1);
-	printf("Arena header at %x, %x, %d, %x, %x\n", ah,ah->a.type,ah->a.size,ah->a.next,ah->a.prev);
 	/* Merge into adjacent free blocks */
 	ah = __free_block(ah);
 }
@@ -343,6 +360,7 @@ void malloc_dump()
 	do
 	{
 		printf("Arena header at %x, type %x, size %x\n",a,a->type,a->size);
+//		hexdump(a,sizeof(struct free_arena_header));
 		h=a->next;
 		a=&h->a;
 		--c;
@@ -354,9 +372,24 @@ void malloc_dump()
 	do
 	{
 		printf("Arena header at %x, type %x, size %x\n",a,a->type,a->size);
+//		hexdump(a,sizeof(struct arena_header));
 		h=h->next_free;
 		a=&h->a;
 		--c;
 	} while(c && a && a->type!=ARENA_TYPE_HEAD);
+}
+
+int availmem()
+{
+	int result=0;
+	struct free_arena_header *h=__malloc_head.next_free;
+	while(h && h->a.type==ARENA_TYPE_FREE)
+	{
+		result+=h->a.size;
+//		hexdump(h,sizeof(struct free_arena_header));
+//		printf("Free: %d\n",result);
+		h=h->next_free;
+	}
+	return(result);
 }
 

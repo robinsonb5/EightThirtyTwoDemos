@@ -224,7 +224,7 @@ int main(int argc,char **argv)
 		while(timeout--)
 		{
 			int r=HW_UART(REG_UART);
-			if(r&UART_F_RXREADY)
+			if(r&(1<<REG_UART_RXINT))
 			{
 				c=r&255;
 				HandleByte(c);
