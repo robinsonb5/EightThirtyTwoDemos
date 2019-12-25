@@ -401,7 +401,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 
 -- Main CPU
 
-	mem_rom <='1' when cpu_addr(23 downto 16)=X"00" else '0';
+	mem_rom <='1' when cpu_addr(31 downto 24)=X"00" else '0';
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 

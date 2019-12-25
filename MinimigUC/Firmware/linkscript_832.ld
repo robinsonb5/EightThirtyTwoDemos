@@ -27,6 +27,6 @@ SECTIONS
 	  *(.gnu.build-id)
 	  *(.note.gnu.build-id)
 	} 
-	_prg_start = 0x2000;
+	_prg_start = 0x10000000;
 }
 

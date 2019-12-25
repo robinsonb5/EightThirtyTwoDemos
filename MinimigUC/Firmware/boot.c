@@ -25,7 +25,7 @@
 void _boot();
 void _break();
 
-extern char prg_start;
+extern int prg_start;
 
 char printbuf[32];
 
@@ -45,6 +45,9 @@ int SREC_MAX_ADDR;
 
 void _boot()
 {
+	void (*f)();
+	f=(void(*f)())(&prg_start);
+	f();
 	while(1)
 		;
 }
@@ -155,7 +158,7 @@ void HandleByte(char d0)
 #ifdef DEBUG
 				exit(0);
 #else
-				_boot();
+				((void (*)(void))prg_start)();
 #endif
 			}
 			else
@@ -227,7 +230,7 @@ int main(int argc,char **argv)
 				}
 				if(!error)
 				{
-//					((void (*)(void))prg_start)();
+					((void (*)(void))prg_start)();
 //					_boot();
 				}
 			}
@@ -242,8 +245,26 @@ int main(int argc,char **argv)
 	}
 //	else
 //		BootPrint("Failed to initialize SD card\n");
+
+	puts("Booting from RS232.");
+	SREC_MAX_ADDR=0;
 	while(1)
-		;
+	{
+		int c;
+		int timeout=1000000;
+		putchar('.');
+		while(timeout--)
+		{
+			int r=HW_UART(REG_UART);
+			if(r&(1<<REG_UART_RXINT))
+			{
+				c=r&255;
+				HandleByte(c);
+				timeout=1000000;
+			}
+		}
+	}
+
 	return(0);
 }
 
