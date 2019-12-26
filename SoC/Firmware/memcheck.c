@@ -1,6 +1,6 @@
 
 #include "uart.h"
-#include "small_printf.h"
+#include "printf.h"
 
 
 // FIXME - use a smaller LFSR - this one will fail for RAMs smaller than 8 meg.

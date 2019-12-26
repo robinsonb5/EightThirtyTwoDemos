@@ -4,7 +4,7 @@
 #include "malloc.h"
 
 #include "uart.h"
-#include "small_printf.h"
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {

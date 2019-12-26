@@ -1,7 +1,7 @@
 #include "uart.h"
 #include "stdarg.h"
 
-static char temp[80];
+static char temp[16];
 
 static int _cvt(int val, char *buf, int radix)
 {
@@ -30,15 +30,12 @@ static int _cvt(int val, char *buf, int radix)
 
 static char vpfbuf[sizeof(long)*8];
 
-int small_printf(const char *fmt, ...)
+__weak int vprintf(const char *fmt, va_list ap)
 {
-    va_list ap;
     int ret=0;
 	unsigned int c;
 	int length;
 	int nextfmt=0;
-
-    va_start(ap, fmt);
 
 	while((c=*fmt++))
 	{
@@ -95,7 +92,16 @@ int small_printf(const char *fmt, ...)
 				putchar(c);
 		}
 	}
-	va_end(ap);
     return (ret);
+}
+
+__weak int printf(const char *fmt, ...)
+{
+	int ret;
+    va_list ap;
+	va_start(ap,fmt);
+	ret=vprintf(fmt,ap);
+	va_end(ap);
+	return(ret);
 }
 

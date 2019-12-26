@@ -1,5 +1,5 @@
-#ifndef _FAT16_H_INCLUDED
-#define _FAT16_H_INCLUDED
+#ifndef _FAT_H
+#define _FAT_H
 
 #ifdef __cplusplus
 extern "C" {

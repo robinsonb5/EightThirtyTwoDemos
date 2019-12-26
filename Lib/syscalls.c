@@ -11,16 +11,9 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <sys/stat.h>
-//#include <fcntl.h>
-
-#include "small_printf.h"
-
-#define SYS_ftruncate 3000
-#define SYS_isatty 3001
-
-#define	_DEFUN(name, arglist, args)	name(args)
+#include <fcntl.h>
 
 // File table
 
@@ -45,7 +38,7 @@ extern void _init(void);
 static int sdcard_present;
 static int filesystem_present;
 
-__constructor(105) static void _initIO(void)
+__constructor(105) void _initIO(void)
 {
 	int t;
 	filesystem_present=0;
@@ -175,8 +168,12 @@ __weak int open(const char *buf,int flags, ...)
 				File(fd)=malloc(sizeof(RAFile));
 				if(File(fd))
 				{
+					printf("Opening rafile...\n");
 					if(RAOpen(File(fd),buf))
+					{
+						printf("Success - returning\n");
 						return(fd);
+					}
 					else
 						free(File(fd));
 					__errno = ENOENT;
@@ -258,6 +255,7 @@ __weak off_t lseek(int fd,  off_t offset, int whence)
 }
 
 /* we convert from bigendian to smallendian*/
+#if 0
 static long conv(char *a, int len) 
 {
 	long t=0;
@@ -268,7 +266,7 @@ static long conv(char *a, int len)
 	}
 	return t;
 }
-
+#endif
 #if 0
 static void convert(struct fio_stat *gdb_stat, struct stat *buf)
 {
@@ -291,13 +289,16 @@ __weak int fstat(int fd, struct stat *buf)
  */
 	printf("Clearing stat buffer at %x\n",buf);
 	memset(buf,0,sizeof(struct stat));
+	printf("Done\n");
 	if(fd<3)
 	{
+		printf("Setting mode to TTY\n",buf);
 		buf->st_mode = S_IFCHR;	/* Always pretend to be a tty */
 		buf->st_blksize = 0;
 	}
 	else if(File(fd))
 	{
+		printf("Setting mode to TTY\n",buf);
 		buf->st_size = File(fd)->size;
 		printf("Setting st_size (%d) to %d (Sizeof st_size: %d)\n",((char *)&buf->st_size)-((char *)buf),File(fd)->size, sizeof(buf->st_size));
 	}
@@ -336,7 +337,7 @@ int fprintf(FILE *f,const char *fmt, ...)
 		int ret;
 
 		va_start(ap, fmt);
-		ret = _vprintf(fmt, ap);
+		ret = vprintf(fmt, ap);
 		va_end(ap);
 		return (ret);
 //	}

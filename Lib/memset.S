@@ -10,7 +10,7 @@ _memset:
 	mr	r0
 	add	r1
 .loop:
-	mr	r3
+	mt	r3
 	cmp	r1
 	cond	NEQ
 		mt	r2

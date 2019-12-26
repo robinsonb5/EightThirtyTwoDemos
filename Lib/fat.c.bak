@@ -40,14 +40,15 @@ JB:
 
 #include <sys/types.h>
 #define NULL 0
-#include <stdio.h>
+//#include <stdio.h>
 #include <string.h>
 //#include <ctype.h>
 
 #include "spi.h"
 
 #include "fat.h"
-#include "swap_le.h"
+#include "swap.h"
+#include "small_printf.h"
 
 #define tolower(x) (x|32)
 
@@ -102,32 +103,26 @@ unsigned char t_sort_table[MAXDIRENTRIES];
 extern unsigned long GetTimer(unsigned long);
 #define ErrorMessage(x,y) puts(x)
 
-#if 0
 
 unsigned long SwapEndianL(unsigned long l)
 {
-#ifdef __EIGHTTHIRTYTWO
-	return(l);
-#else
 	unsigned char c[4];
 	c[0] = (unsigned char)(l & 0xff);
 	c[1] = (unsigned char)((l >> 8) & 0xff);
 	c[2] = (unsigned char)((l >> 16) & 0xff);
 	c[3] = (unsigned char)((l >> 24) & 0xff);
 	return((c[0]<<24)+(c[1]<<16)+(c[2]<<8)+c[3]);
-#endif
 }
-#endif
 
 void SwapPartitionBytes(int i)
 {
 	// We don't bother to byteswap the CHS geometry fields since we don't use them.
-	partitions[i].startlba=ConvBBBB_LE(partitions[i].startlba);
-	partitions[i].sectors=ConvBBBB_LE(partitions[i].sectors);
+	partitions[i].startlba=SwapEndianL(partitions[i].startlba);
+	partitions[i].sectors=SwapEndianL(partitions[i].sectors);
 }
 
 #define BootPrint(x) puts(x);
-#define bprintfl printf
+#define bprintfl small_printf
 #if 0
 void bprintfl(const char *fmt,unsigned long l)
 {
@@ -148,13 +143,14 @@ unsigned int FindDrive(void)
 	iSelectedEntry = 0;
 	iCurrentDirectory = 0;
 	iPreviousDirectory = 0;
+
 	BootPrint("Find drive...\n");
 
     if (!sd_read_sector(0, sector_buffer)) // read MBR
         return(0);
 
 	BootPrint("Read sector succeeded\n");
-	printf("MBR checksum %x\n",spi_checksum);
+	small_printf("MBR checksum %x\n",spi_checksum);
 	boot_sector=0;
 	partitioncount=1;
 
@@ -198,7 +194,7 @@ unsigned int FindDrive(void)
 				}
 				if (!sd_read_sector(boot_sector, sector_buffer)) // read discriptor
 				    return(0);
-				printf("Boot sector %d: %x\n",boot_sector,spi_checksum);
+				small_printf("Boot sector %d: %x\n",boot_sector,spi_checksum);
 				BootPrint("Read boot sector from first partition\n");
 				break;
 			default:
@@ -369,10 +365,8 @@ struct FileFind_Result *FileFind(const char *name)
             {
                 if (!(pEntry->Attributes & (ATTR_VOLUME | ATTR_DIRECTORY))) // not a volume nor directory
                 {
-					printf("Comparing %s with %s\n",pEntry->Name,name);
                     if (strncmp((const char*)pEntry->Name, name, 11) == 0)
                     {
-					printf("Found\n");
 			filefind_result.et.sector = iDirectorySector - 1;
 			filefind_result.et.index = iEntry & 0x0F;
 			filefind_result.de=pEntry;
@@ -406,8 +400,8 @@ unsigned int FileOpen(fileTYPE *file, const char *name)
 		pEntry=res->de;
                 strncpy(file->name, (const char*)pEntry->Name, sizeof(file->name));
                 file->attributes = pEntry->Attributes;
-                file->size = ConvBBBB_LE(pEntry->FileSize);
-                file->start_cluster = ConvBB_LE(pEntry->StartCluster) + (fat32 ? (ConvBB_LE(pEntry->HighCluster) & 0x0FFF) << 16 : 0); 
+                file->size = SwapBBBB(pEntry->FileSize);
+                file->start_cluster = SwapBB(pEntry->StartCluster) + (fat32 ? (SwapBB(pEntry->HighCluster) & 0x0FFF) << 16 : 0); 
                 file->cluster =  file->start_cluster;
                 file->sector = 0;
                 file->entry.sector = res->et.sector;
@@ -604,9 +598,9 @@ int ScanDirectory(unsigned long mode, char *extension, unsigned char options)
 				{
 					if (pEntry->Attributes != ATTR_LFN)
 					{
-						pEntry->StartCluster = ConvBB_LE(pEntry->StartCluster);
-						pEntry->HighCluster = ConvBB_LE(pEntry->HighCluster);
-						pEntry->FileSize = ConvBBBB_LE(pEntry->FileSize);
+						pEntry->StartCluster = SwapBB(pEntry->StartCluster);
+						pEntry->HighCluster = SwapBB(pEntry->HighCluster);
+						pEntry->FileSize = SwapBBBB(pEntry->FileSize);
 					}
 					pEntry++;
 				}		
@@ -1081,7 +1075,7 @@ unsigned long GetFATLink(unsigned long cluster)
     }
 
 //    return(fat32 ? fat_buffer.fat32[buffer_index] & 0x0FFFFFFF : fat_buffer.fat16[buffer_index]); // get FAT link
-    return(fat32 ? ConvBBBB_LE(fat_buffer.fat32[buffer_index]) & 0x0FFFFFFF : ConvBB_LE(fat_buffer.fat16[buffer_index])); // get FAT link for 68000
+    return(fat32 ? SwapBBBB(fat_buffer.fat32[buffer_index]) & 0x0FFFFFFF : SwapBB(fat_buffer.fat16[buffer_index])); // get FAT link for 68000
 }
 
 unsigned int FileNextSector(fileTYPE *file)
@@ -1117,7 +1111,7 @@ unsigned int FileNextSector(fileTYPE *file)
         }
 
 //        file->cluster = fat32 ? fat_buffer.fat32[i] & 0x0FFFFFFF: fat_buffer.fat16[i]; // get FAT link
-        file->cluster = fat32 ? ConvBBBB_LE(fat_buffer.fat32[i]) & 0x0FFFFFFF : ConvBB_LE(fat_buffer.fat16[i]); // get FAT link for 68000 
+        file->cluster = fat32 ? SwapBBBB(fat_buffer.fat32[i]) & 0x0FFFFFFF : SwapBB(fat_buffer.fat16[i]); // get FAT link for 68000 
     }
 
     return(1);
@@ -1170,16 +1164,16 @@ unsigned int FileSeek(fileTYPE *file, unsigned long offset, unsigned long origin
         }
 
 //        file->cluster = fat32 ? fat_buffer.fat32[i] & 0x0FFFFFFF : fat_buffer.fat16[i]; // get FAT-link
-//        file->cluster = fat32 ? ConvBBBB_LE(fat_buffer.fat32[i]) & 0x0FFFFFFF : ConvBB_LE(fat_buffer.fat16[i]); // get FAT-link for 68000
+//        file->cluster = fat32 ? SwapBBBB(fat_buffer.fat32[i]) & 0x0FFFFFFF : SwapBB(fat_buffer.fat16[i]); // get FAT-link for 68000
         if (fat32)
         {
-            file->cluster = ConvBBBB_LE(fat_buffer.fat32[i]) & 0x0FFFFFFF; // get FAT32 link
+            file->cluster = SwapBBBB(fat_buffer.fat32[i]) & 0x0FFFFFFF; // get FAT32 link
             if (file->cluster == 0x0FFFFFFF) // FAT32 EOC
                 return 0;
         }
         else
         {
-            file->cluster = ConvBB_LE(fat_buffer.fat16[i]); // get FAT16 link
+            file->cluster = SwapBB(fat_buffer.fat16[i]); // get FAT16 link
             if (file->cluster == 0xFFFF) // FAT16 EOC
                 return 0;
         }
@@ -1349,20 +1343,20 @@ unsigned int FileCreate(unsigned long iDirectory, fileTYPE *file)
                             memset((void*)pEntry, 0, sizeof(DIRENTRY));
                             memcpy((void*)pEntry->Name, file->name, 11);
                             pEntry->Attributes = file->attributes;
-                            pEntry->CreateDate = ConvBB_LE(FILEDATE(2009, 9, 1));
-                            pEntry->CreateTime = ConvBB_LE(FILETIME(0, 0, 0));
-                            pEntry->AccessDate = ConvBB_LE(FILEDATE(2009, 9, 1));
-                            pEntry->ModifyDate = ConvBB_LE(FILEDATE(2009, 9, 1));
-                            pEntry->ModifyTime = ConvBB_LE(FILETIME(0, 0, 0));
+                            pEntry->CreateDate = SwapBB(FILEDATE(2009, 9, 1));
+                            pEntry->CreateTime = SwapBB(FILETIME(0, 0, 0));
+                            pEntry->AccessDate = SwapBB(FILEDATE(2009, 9, 1));
+                            pEntry->ModifyDate = SwapBB(FILEDATE(2009, 9, 1));
+                            pEntry->ModifyTime = SwapBB(FILETIME(0, 0, 0));
 //                            pEntry->StartCluster = (unsigned short)(((cluster>>8)&0xFF)|((cluster<<8)&0xFF00)); // for 68000
 //                            pEntry->HighCluster = fat32 ? (unsigned short)(((cluster & 0x0F000000)>>24)|((cluster & 0xFF0000)>>8)) : 0; // for 68000
 //                            pEntry->FileSize = ((file->size>>24)&0xFF)|((file->size>>8)&0xFF00)|((file->size<<8)&0xFF0000)|((file->size<<24)&0xFF000000); // for 68000 
 //                            pEntry->StartCluster = (unsigned short)cluster;
 //                            pEntry->HighCluster = fat32 ? (unsigned short)(cluster >> 16) : 0;
 //                            pEntry->FileSize = file->size;
-                            pEntry->StartCluster = (unsigned short)ConvBB_LE(cluster); // for 68000
-                            pEntry->HighCluster = fat32 ? (unsigned short)ConvBB_LE(cluster >> 16) : 0; // for 68000
-                            pEntry->FileSize = ConvBBBB_LE(file->size); // for 68000
+                            pEntry->StartCluster = (unsigned short)SwapBB(cluster); // for 68000
+                            pEntry->HighCluster = fat32 ? (unsigned short)SwapBB(cluster >> 16) : 0; // for 68000
+                            pEntry->FileSize = SwapBBBB(file->size); // for 68000
 
                             // store dir entry
                             if (!sd_write_sector(iDirectorySector - 1, sector_buffer))
@@ -1422,17 +1416,17 @@ unsigned int UpdateEntry(fileTYPE *file)
     memcpy((void*)pEntry->Name, file->name, 11);
     pEntry->Attributes = file->attributes;
 
-    if ((ConvBBBB_LE(pEntry->FileSize) + cluster_size - 1) / (cluster_size << 9) != (file->size + cluster_size - 1) / (cluster_size << 9))
+    if ((SwapBBBB(pEntry->FileSize) + cluster_size - 1) / (cluster_size << 9) != (file->size + cluster_size - 1) / (cluster_size << 9))
     {
         printf("UpdateEntry(): different number of clusters!\r");
-        printf("pEntry->FileSize = %d\r", ConvBBBB_LE(pEntry->FileSize));
+        printf("pEntry->FileSize = %d\r", SwapBBBB(pEntry->FileSize));
         printf("file->size = %d\r", file->size);
         printf("cluster_size = %d\r", cluster_size);
         return(0);
     }
 
 //    pEntry->FileSize = file->size;
-      pEntry->FileSize = ConvBBBB_LE(file->size); // for 68000
+      pEntry->FileSize = SwapBBBB(file->size); // for 68000
 
     if (!sd_write_sector(file->entry.sector, sector_buffer))
     {
@@ -1516,8 +1510,8 @@ void ChangeDirectory(DIRENTRY *p)
 	// FIXME - save previous directory?
 	if(p)
 	{
-		current_directory_cluster = ConvBB_LE(p->StartCluster);
-		current_directory_cluster |= fat32 ? (ConvBB_LE(p->HighCluster) & 0x0FFF) << 16 : 0;
+		current_directory_cluster = SwapBB(p->StartCluster);
+		current_directory_cluster |= fat32 ? (SwapBB(p->HighCluster) & 0x0FFF) << 16 : 0;
 	}
 	if(current_directory_cluster)
 	{	

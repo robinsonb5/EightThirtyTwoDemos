@@ -429,12 +429,15 @@ mysdram : entity work.sdram_cached
 		vga_reservebank => vga_reservebank,
 		vga_reserveaddr => vga_reserveaddr,
 
-		datawr1 => from_cpu,
+		datawr1(31 downto 24) => from_cpu(7 downto 0),
+		datawr1(23 downto 16) => from_cpu(15 downto 8),
+		datawr1(15 downto 8) => from_cpu(23 downto 16),
+		datawr1(7 downto 0) => from_cpu(31 downto 24),
 		addr1 => cpu_addr,
 		req1 => sdram_req,
 		cachevalid => cache_valid,
 		wr1 => sdram_wr, -- active low
-		bytesel => cpu_bytesel,
+		bytesel => cpu_bytesel(0)&cpu_bytesel(1)&cpu_bytesel(2)&cpu_bytesel(3), -- cpu_bytesel,
 		dataout1 => sdram_read,
 		dtack1 => sdram_ack,
 		
@@ -785,7 +788,11 @@ begin
 		case sdram_state is
 			when read1 => -- read first word from RAM
 				if sdram_ack='0' or cache_valid='1' then
-					from_mem<=sdram_read;
+					-- Endian mangling for SDRAM
+					from_mem(7 downto 0)<=sdram_read(31 downto 24);
+					from_mem(15 downto 8)<=sdram_read(23 downto 16);
+					from_mem(23 downto 16)<=sdram_read(15 downto 8);
+					from_mem(31 downto 24)<=sdram_read(7 downto 0);
 					sdram_req<='0';
 					sdram_state<=idle;
 					mem_busy<='0';

@@ -1,5 +1,5 @@
+#include <stdio.h>
 #include "rafile.h"
-#include "small_printf.h"
 
 int RARead(RAFile *file,unsigned char *pBuffer, unsigned long bytes)
 {
@@ -83,9 +83,11 @@ int RAOpen(RAFile *file,const char *filename)
 	int result=1;
 	if(!file)
 		return(0);
+	printf("Opening file %s in filehandle %x\n",filename,&file);
 	result=FileOpen(&file->file,filename);
 	if(result)
 	{
+		printf("Success: file size is %d\n",file->file.size);
 		file->size=file->file.size;
 		file->ptr=0;
 	}

@@ -3,7 +3,6 @@
 
 #include <stddef.h>
 
-#define S_IFBLK 0
 #define S_IFCHR 1
 
 struct stat

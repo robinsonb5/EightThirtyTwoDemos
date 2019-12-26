@@ -20,7 +20,7 @@ l2:
 	exg	r6
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 35
+	//../../Lib//malloc.c, line 34
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 4
@@ -36,7 +36,7 @@ l2:
 	add	r3
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 35
+	//../../Lib//malloc.c, line 34
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -50,7 +50,7 @@ l2:
 				//save_temp done
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 36
+	//../../Lib//malloc.c, line 35
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -66,7 +66,7 @@ l2:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 36
+	//../../Lib//malloc.c, line 35
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -80,7 +80,7 @@ l2:
 				//save_temp done
 				// allocreg r4
 
-	//../../Lib//malloc.c, line 37
+	//../../Lib//malloc.c, line 36
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 5
@@ -93,7 +93,7 @@ l2:
 	add	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 37
+	//../../Lib//malloc.c, line 36
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -106,7 +106,7 @@ l2:
 				//save_temp done
 				// freereg r4
 
-	//../../Lib//malloc.c, line 38
+	//../../Lib//malloc.c, line 37
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -117,7 +117,7 @@ l2:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 38
+	//../../Lib//malloc.c, line 37
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -160,7 +160,7 @@ l5:
 	exg	r6
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 45
+	//../../Lib//malloc.c, line 44
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 4
@@ -176,7 +176,7 @@ l5:
 	add	r3
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 45
+	//../../Lib//malloc.c, line 44
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -190,7 +190,7 @@ l5:
 				//save_temp done
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 46
+	//../../Lib//malloc.c, line 45
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -206,7 +206,7 @@ l5:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 46
+	//../../Lib//malloc.c, line 45
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -220,7 +220,7 @@ l5:
 				//save_temp done
 				// allocreg r4
 
-	//../../Lib//malloc.c, line 47
+	//../../Lib//malloc.c, line 46
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 5
@@ -233,7 +233,7 @@ l5:
 	add	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 47
+	//../../Lib//malloc.c, line 46
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -246,7 +246,7 @@ l5:
 				//save_temp done
 				// freereg r4
 
-	//../../Lib//malloc.c, line 48
+	//../../Lib//malloc.c, line 47
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -257,7 +257,7 @@ l5:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 48
+	//../../Lib//malloc.c, line 47
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -294,7 +294,7 @@ l5:
 l8:
 	stdec	r6
 
-	//../../Lib//malloc.c, line 53
+	//../../Lib//malloc.c, line 52
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -305,7 +305,7 @@ l8:
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//malloc.c, line 53
+	//../../Lib//malloc.c, line 52
 // code 0x2a
 					//call
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
@@ -317,7 +317,7 @@ l8:
 	add	r6
 
 
-	//../../Lib//malloc.c, line 54
+	//../../Lib//malloc.c, line 53
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -328,7 +328,7 @@ l8:
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//malloc.c, line 54
+	//../../Lib//malloc.c, line 53
 // code 0x2a
 					//call
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
@@ -368,7 +368,7 @@ ___malloc_from_block:
 	sub	r6
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 62
+	//../../Lib//malloc.c, line 61
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -384,7 +384,7 @@ ___malloc_from_block:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 62
+	//../../Lib//malloc.c, line 61
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -402,7 +402,7 @@ ___malloc_from_block:
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 65
+	//../../Lib//malloc.c, line 64
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -420,7 +420,7 @@ ___malloc_from_block:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 65
+	//../../Lib//malloc.c, line 64
 // code 0x4d
 					// (compare) (q1 unsigned) (q2 unsigned)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x104
@@ -431,7 +431,7 @@ ___malloc_from_block:
 	cmp	r1
 				// freereg r2
 
-	//../../Lib//malloc.c, line 65
+	//../../Lib//malloc.c, line 64
 	cond	SLT
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l14)-1)
@@ -439,7 +439,7 @@ ___malloc_from_block:
 		add	r7
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 67
+	//../../Lib//malloc.c, line 66
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 4
@@ -459,7 +459,7 @@ ___malloc_from_block:
 					// (save result) isreg
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 68
+	//../../Lib//malloc.c, line 67
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -476,7 +476,7 @@ ___malloc_from_block:
 					// (save result) isreg
 				// allocreg r4
 
-	//../../Lib//malloc.c, line 68
+	//../../Lib//malloc.c, line 67
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -489,7 +489,7 @@ ___malloc_from_block:
 	mr	r4
 				//save_temp done
 
-	//../../Lib//malloc.c, line 70
+	//../../Lib//malloc.c, line 69
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -502,7 +502,7 @@ ___malloc_from_block:
 	st	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 71
+	//../../Lib//malloc.c, line 70
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -527,7 +527,7 @@ ___malloc_from_block:
  // WARNING - check that 4 has been added.
 				// allocreg r5
 
-	//../../Lib//malloc.c, line 71
+	//../../Lib//malloc.c, line 70
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
@@ -540,7 +540,7 @@ ___malloc_from_block:
 	add	r5
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 71
+	//../../Lib//malloc.c, line 70
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -556,7 +556,7 @@ ___malloc_from_block:
 				//save_temp done
 				// freereg r5
 
-	//../../Lib//malloc.c, line 72
+	//../../Lib//malloc.c, line 71
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -574,7 +574,7 @@ ___malloc_from_block:
 				//save_temp done
 				// allocreg r5
 
-	//../../Lib//malloc.c, line 73
+	//../../Lib//malloc.c, line 72
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 6
@@ -590,7 +590,7 @@ ___malloc_from_block:
 	add	r5
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 73
+	//../../Lib//malloc.c, line 72
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -608,7 +608,7 @@ ___malloc_from_block:
 				// freereg r5
 				// allocreg r5
 
-	//../../Lib//malloc.c, line 77
+	//../../Lib//malloc.c, line 76
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
@@ -621,7 +621,7 @@ ___malloc_from_block:
 	add	r5
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 77
+	//../../Lib//malloc.c, line 76
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -638,7 +638,7 @@ ___malloc_from_block:
 				// freereg r5
 				// allocreg r5
 
-	//../../Lib//malloc.c, line 78
+	//../../Lib//malloc.c, line 77
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
@@ -651,7 +651,7 @@ ___malloc_from_block:
 	add	r5
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 78
+	//../../Lib//malloc.c, line 77
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -664,7 +664,7 @@ ___malloc_from_block:
 				//save_temp done
 				// freereg r5
 
-	//../../Lib//malloc.c, line 79
+	//../../Lib//malloc.c, line 78
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 5
@@ -675,7 +675,7 @@ ___malloc_from_block:
 	add	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 79
+	//../../Lib//malloc.c, line 78
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -688,7 +688,7 @@ ___malloc_from_block:
 				//save_temp done
 				// freereg r4
 
-	//../../Lib//malloc.c, line 80
+	//../../Lib//malloc.c, line 79
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -702,7 +702,7 @@ ___malloc_from_block:
 				// freereg r2
 				// allocreg r4
 
-	//../../Lib//malloc.c, line 83
+	//../../Lib//malloc.c, line 82
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 5
@@ -718,7 +718,7 @@ ___malloc_from_block:
 	add	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 83
+	//../../Lib//malloc.c, line 82
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -732,7 +732,7 @@ ___malloc_from_block:
 				//save_temp done
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 83
+	//../../Lib//malloc.c, line 82
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -745,7 +745,7 @@ ___malloc_from_block:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 83
+	//../../Lib//malloc.c, line 82
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -759,7 +759,7 @@ ___malloc_from_block:
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 84
+	//../../Lib//malloc.c, line 83
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -775,7 +775,7 @@ ___malloc_from_block:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 84
+	//../../Lib//malloc.c, line 83
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
@@ -789,7 +789,7 @@ ___malloc_from_block:
 				//save_temp done
 				// allocreg r5
 
-	//../../Lib//malloc.c, line 84
+	//../../Lib//malloc.c, line 83
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
@@ -802,7 +802,7 @@ ___malloc_from_block:
 	add	r5
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 84
+	//../../Lib//malloc.c, line 83
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -815,7 +815,7 @@ ___malloc_from_block:
 				//save_temp done
 				// freereg r5
 
-	//../../Lib//malloc.c, line 85
+	//../../Lib//malloc.c, line 84
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 5
@@ -826,7 +826,7 @@ ___malloc_from_block:
 	add	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 85
+	//../../Lib//malloc.c, line 84
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -839,7 +839,7 @@ ___malloc_from_block:
 				//save_temp done
 				// freereg r4
 
-	//../../Lib//malloc.c, line 86
+	//../../Lib//malloc.c, line 85
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -850,7 +850,7 @@ ___malloc_from_block:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 86
+	//../../Lib//malloc.c, line 85
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -864,14 +864,14 @@ ___malloc_from_block:
 				// freereg r3
 				// freereg r2
 
-	//../../Lib//malloc.c, line 87
+	//../../Lib//malloc.c, line 86
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l15)-1)
 	li	IMW0(PCREL(l15))
 	add	r7
 l14: # 
 
-	//../../Lib//malloc.c, line 88
+	//../../Lib//malloc.c, line 87
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -888,7 +888,7 @@ l14: #
 	st	r1
 				//save_temp done
 
-	//../../Lib//malloc.c, line 89
+	//../../Lib//malloc.c, line 88
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -899,7 +899,7 @@ l14: #
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//malloc.c, line 89
+	//../../Lib//malloc.c, line 88
 // code 0x2a
 					//call
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
@@ -913,7 +913,7 @@ l14: #
 l15: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 92
+	//../../Lib//malloc.c, line 91
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -929,7 +929,7 @@ l15: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 92
+	//../../Lib//malloc.c, line 91
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
@@ -987,7 +987,7 @@ l16:
 	mr	r4
 				//save_temp done
 
-	//../../Lib//malloc.c, line 99
+	//../../Lib//malloc.c, line 98
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -995,7 +995,7 @@ l16:
 	mt	r4
 	stdec	r6
 
-	//../../Lib//malloc.c, line 99
+	//../../Lib//malloc.c, line 98
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1005,11 +1005,11 @@ l16:
 	.int	l19+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 99
+	//../../Lib//malloc.c, line 98
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1017,7 +1017,7 @@ l16:
 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 101
+	//../../Lib//malloc.c, line 100
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
@@ -1030,7 +1030,7 @@ l16:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 101
+	//../../Lib//malloc.c, line 100
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -1048,7 +1048,7 @@ l16:
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 102
+	//../../Lib//malloc.c, line 101
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
@@ -1061,7 +1061,7 @@ l16:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 102
+	//../../Lib//malloc.c, line 101
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -1075,7 +1075,7 @@ l16:
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 115
+	//../../Lib//malloc.c, line 114
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 					// (prepobj tmp) deref
@@ -1091,7 +1091,7 @@ l16:
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 115
+	//../../Lib//malloc.c, line 114
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l21)-1)
@@ -1099,7 +1099,7 @@ l16:
 		add	r7
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 115
+	//../../Lib//malloc.c, line 114
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1113,7 +1113,7 @@ l16:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 115
+	//../../Lib//malloc.c, line 114
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
@@ -1128,7 +1128,7 @@ l16:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 115
+	//../../Lib//malloc.c, line 114
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r4, offset -4, val 0
 	mt	r4
@@ -1136,14 +1136,14 @@ l16:
 	cmp	r2
 				// freereg r2
 
-	//../../Lib//malloc.c, line 115
+	//../../Lib//malloc.c, line 114
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l21)-1)
 	li	IMW0(PCREL(l21))
 		add	r7
 
-	//../../Lib//malloc.c, line 117
+	//../../Lib//malloc.c, line 116
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1153,11 +1153,11 @@ l16:
 	.int	l23+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 117
+	//../../Lib//malloc.c, line 116
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1165,7 +1165,7 @@ l16:
 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 118
+	//../../Lib//malloc.c, line 117
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1180,7 +1180,7 @@ l16:
 					// (save result) isreg
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 118
+	//../../Lib//malloc.c, line 117
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 4
@@ -1193,7 +1193,7 @@ l16:
 	add	r3
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 118
+	//../../Lib//malloc.c, line 117
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 3, 1
@@ -1215,7 +1215,7 @@ l16:
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 119
+	//../../Lib//malloc.c, line 118
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1229,7 +1229,7 @@ l16:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 119
+	//../../Lib//malloc.c, line 118
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1243,7 +1243,7 @@ l16:
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 120
+	//../../Lib//malloc.c, line 119
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
@@ -1256,7 +1256,7 @@ l16:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 120
+	//../../Lib//malloc.c, line 119
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1270,7 +1270,7 @@ l16:
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 122
+	//../../Lib//malloc.c, line 121
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -1282,14 +1282,14 @@ l16:
 	mr	r4
 				//save_temp done
 
-	//../../Lib//malloc.c, line 124
+	//../../Lib//malloc.c, line 123
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l24)-1)
 	li	IMW0(PCREL(l24))
 	add	r7
 l21: # 
 
-	//../../Lib//malloc.c, line 126
+	//../../Lib//malloc.c, line 125
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1303,7 +1303,7 @@ l21: #
 				//save_temp done
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 131
+	//../../Lib//malloc.c, line 130
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
@@ -1316,7 +1316,7 @@ l21: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 131
+	//../../Lib//malloc.c, line 130
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1333,7 +1333,7 @@ l21: #
 				//save_temp done
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 132
+	//../../Lib//malloc.c, line 131
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 4
@@ -1346,7 +1346,7 @@ l21: #
 	add	r3
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 132
+	//../../Lib//malloc.c, line 131
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1360,7 +1360,7 @@ l21: #
 				//save_temp done
 				// freereg r3
 
-	//../../Lib//malloc.c, line 133
+	//../../Lib//malloc.c, line 132
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) static
@@ -1375,7 +1375,7 @@ l21: #
 	st	r1
 				//save_temp done
 
-	//../../Lib//malloc.c, line 134
+	//../../Lib//malloc.c, line 133
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -1391,7 +1391,7 @@ l21: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 134
+	//../../Lib//malloc.c, line 133
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1405,7 +1405,7 @@ l21: #
 				// freereg r2
 l24: # 
 
-	//../../Lib//malloc.c, line 143
+	//../../Lib//malloc.c, line 142
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 	//(offset 4)
@@ -1418,7 +1418,7 @@ l24: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 143
+	//../../Lib//malloc.c, line 142
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l26)-1)
@@ -1426,7 +1426,7 @@ l24: #
 		add	r7
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 143
+	//../../Lib//malloc.c, line 142
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
@@ -1439,7 +1439,7 @@ l24: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 143
+	//../../Lib//malloc.c, line 142
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 3, 3
@@ -1453,7 +1453,7 @@ l24: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 143
+	//../../Lib//malloc.c, line 142
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r5, offset 4, val 0
 	mt	r5
@@ -1461,7 +1461,7 @@ l24: #
 	cmp	r2
 				// freereg r2
 
-	//../../Lib//malloc.c, line 143
+	//../../Lib//malloc.c, line 142
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l26)-1)
@@ -1469,7 +1469,7 @@ l24: #
 		add	r7
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 144
+	//../../Lib//malloc.c, line 143
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
@@ -1483,7 +1483,7 @@ l24: #
 					// (save result) isreg
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 144
+	//../../Lib//malloc.c, line 143
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 4
@@ -1496,7 +1496,7 @@ l24: #
 	add	r3
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 144
+	//../../Lib//malloc.c, line 143
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 3, 1
@@ -1517,7 +1517,7 @@ l24: #
 				// freereg r3
 				// freereg r2
 
-	//../../Lib//malloc.c, line 145
+	//../../Lib//malloc.c, line 144
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1525,7 +1525,7 @@ l24: #
 	mt	r5
 	stdec	r6
 
-	//../../Lib//malloc.c, line 145
+	//../../Lib//malloc.c, line 144
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1535,18 +1535,18 @@ l24: #
 	.int	l28+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 145
+	//../../Lib//malloc.c, line 144
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
 
-	//../../Lib//malloc.c, line 148
+	//../../Lib//malloc.c, line 147
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1554,7 +1554,7 @@ l24: #
 	mt	r5
 	stdec	r6
 
-	//../../Lib//malloc.c, line 148
+	//../../Lib//malloc.c, line 147
 // code 0x2a
 					//call
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
@@ -1567,7 +1567,7 @@ l24: #
 
 l26: # 
 
-	//../../Lib//malloc.c, line 152
+	//../../Lib//malloc.c, line 151
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
@@ -1682,7 +1682,7 @@ _malloc_add:
 	stdec	r6	// quickest way to decrement sp by 4
 				// allocreg r5
 
-	//../../Lib//malloc.c, line 160
+	//../../Lib//malloc.c, line 159
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -1699,7 +1699,7 @@ _malloc_add:
 	st	r1
 				//save_temp done
 
-	//../../Lib//malloc.c, line 161
+	//../../Lib//malloc.c, line 160
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1717,7 +1717,7 @@ _malloc_add:
 				//save_temp done
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 162
+	//../../Lib//malloc.c, line 161
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 0, 0, 4
@@ -1735,7 +1735,7 @@ _malloc_add:
 					// (save result) isreg
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 162
+	//../../Lib//malloc.c, line 161
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1751,7 +1751,7 @@ _malloc_add:
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 162
+	//../../Lib//malloc.c, line 161
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1765,7 +1765,7 @@ _malloc_add:
 				// freereg r3
 				// freereg r2
 
-	//../../Lib//malloc.c, line 165
+	//../../Lib//malloc.c, line 164
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1776,7 +1776,7 @@ _malloc_add:
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//malloc.c, line 165
+	//../../Lib//malloc.c, line 164
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1788,7 +1788,7 @@ _malloc_add:
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//malloc.c, line 165
+	//../../Lib//malloc.c, line 164
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -1798,18 +1798,18 @@ _malloc_add:
 	.int	l31+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 165
+	//../../Lib//malloc.c, line 164
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	add	r6
 
 
-	//../../Lib//malloc.c, line 167
+	//../../Lib//malloc.c, line 166
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1819,7 +1819,7 @@ _malloc_add:
 	.int	l1+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 167
+	//../../Lib//malloc.c, line 166
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1829,18 +1829,18 @@ _malloc_add:
 	.int	l32+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 167
+	//../../Lib//malloc.c, line 166
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
 
-	//../../Lib//malloc.c, line 173
+	//../../Lib//malloc.c, line 172
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -1855,7 +1855,7 @@ _malloc_add:
 	mr	r5
 				//save_temp done
 
-	//../../Lib//malloc.c, line 174
+	//../../Lib//malloc.c, line 173
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 					// (prepobj tmp) deref
@@ -1873,7 +1873,7 @@ _malloc_add:
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 174
+	//../../Lib//malloc.c, line 173
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l40)-1)
@@ -1881,7 +1881,7 @@ _malloc_add:
 		add	r7
 l39: # 
 
-	//../../Lib//malloc.c, line 175
+	//../../Lib//malloc.c, line 174
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0xa
@@ -1889,7 +1889,7 @@ l39: #
 	sgn
 	cmp	r5
 
-	//../../Lib//malloc.c, line 175
+	//../../Lib//malloc.c, line 174
 	cond	SLT
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l40)-1)
@@ -1897,7 +1897,7 @@ l39: #
 		add	r7
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 174
+	//../../Lib//malloc.c, line 173
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
@@ -1910,7 +1910,7 @@ l39: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 174
+	//../../Lib//malloc.c, line 173
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -1924,7 +1924,7 @@ l39: #
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 174
+	//../../Lib//malloc.c, line 173
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 	//(offset 4)
@@ -1937,7 +1937,7 @@ l39: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 174
+	//../../Lib//malloc.c, line 173
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l39)-1)
@@ -1946,7 +1946,7 @@ l39: #
 l40: # 
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 181
+	//../../Lib//malloc.c, line 180
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 4
@@ -1960,7 +1960,7 @@ l40: #
 					// (save result) isreg
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 181
+	//../../Lib//malloc.c, line 180
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1974,7 +1974,7 @@ l40: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 181
+	//../../Lib//malloc.c, line 180
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1989,7 +1989,7 @@ l40: #
 				//save_temp done
 				// allocreg r4
 
-	//../../Lib//malloc.c, line 182
+	//../../Lib//malloc.c, line 181
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 5
@@ -2003,7 +2003,7 @@ l40: #
 	add	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 182
+	//../../Lib//malloc.c, line 181
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -2016,7 +2016,7 @@ l40: #
 				//save_temp done
 				// freereg r4
 
-	//../../Lib//malloc.c, line 183
+	//../../Lib//malloc.c, line 182
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -2030,7 +2030,7 @@ l40: #
 				//save_temp done
 				// freereg r3
 
-	//../../Lib//malloc.c, line 184
+	//../../Lib//malloc.c, line 183
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -2046,7 +2046,7 @@ l40: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 184
+	//../../Lib//malloc.c, line 183
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -2060,7 +2060,7 @@ l40: #
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 187
+	//../../Lib//malloc.c, line 186
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2069,7 +2069,7 @@ l40: #
 	ld	r6
 	stdec	r6
 
-	//../../Lib//malloc.c, line 187
+	//../../Lib//malloc.c, line 186
 // code 0x2a
 					//call
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
@@ -2189,7 +2189,7 @@ _malloc:
 				//save_temp done
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 197
+	//../../Lib//malloc.c, line 196
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2197,7 +2197,7 @@ _malloc:
 	mt	r4
 	stdec	r6
 
-	//../../Lib//malloc.c, line 197
+	//../../Lib//malloc.c, line 196
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2207,32 +2207,32 @@ _malloc:
 	.int	l43+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 197
+	//../../Lib//malloc.c, line 196
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
 
-	//../../Lib//malloc.c, line 199
+	//../../Lib//malloc.c, line 198
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r4, offset -4, val 0
 	mt	r4
 	and	r4
 
-	//../../Lib//malloc.c, line 199
+	//../../Lib//malloc.c, line 198
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l45)-1)
 	li	IMW0(PCREL(l45))
 		add	r7
 
-	//../../Lib//malloc.c, line 200
+	//../../Lib//malloc.c, line 199
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
@@ -2241,7 +2241,7 @@ _malloc:
 	li	IMW0(0)
 	mr	r0
 
-	//../../Lib//malloc.c, line 203
+	//../../Lib//malloc.c, line 202
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l41)-1)
 	li	IMW0(PCREL(l41))
@@ -2249,7 +2249,7 @@ _malloc:
 l45: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 203
+	//../../Lib//malloc.c, line 202
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
@@ -2262,7 +2262,7 @@ l45: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 203
+	//../../Lib//malloc.c, line 202
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 3, 0, 5
@@ -2276,7 +2276,7 @@ l45: #
 					// (save result) isreg
 				// freereg r2
 
-	//../../Lib//malloc.c, line 204
+	//../../Lib//malloc.c, line 203
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2291,7 +2291,7 @@ l45: #
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 205
+	//../../Lib//malloc.c, line 204
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 					// (prepobj tmp) deref
@@ -2309,7 +2309,7 @@ l45: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 205
+	//../../Lib//malloc.c, line 204
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l53)-1)
@@ -2318,7 +2318,7 @@ l45: #
 l52: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 207
+	//../../Lib//malloc.c, line 206
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -2331,7 +2331,7 @@ l52: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 207
+	//../../Lib//malloc.c, line 206
 // code 0x4d
 					// (compare) (q1 unsigned) (q2 unsigned)					// (objtotemp)  deref 
 	//(offset 36)
@@ -2343,14 +2343,14 @@ l52: #
 	cmp	r1
 				// freereg r2
 
-	//../../Lib//malloc.c, line 207
+	//../../Lib//malloc.c, line 206
 	cond	SLT
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l51)-1)
 	li	IMW0(PCREL(l51))
 		add	r7
 
-	//../../Lib//malloc.c, line 209
+	//../../Lib//malloc.c, line 208
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2358,7 +2358,7 @@ l52: #
 	mt	r4
 	stdec	r6
 
-	//../../Lib//malloc.c, line 209
+	//../../Lib//malloc.c, line 208
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2366,7 +2366,7 @@ l52: #
 	mt	r3
 	stdec	r6
 
-	//../../Lib//malloc.c, line 209
+	//../../Lib//malloc.c, line 208
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2378,13 +2378,13 @@ l52: #
 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 209
+	//../../Lib//malloc.c, line 208
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r2
 
-	//../../Lib//malloc.c, line 209
+	//../../Lib//malloc.c, line 208
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
@@ -2393,7 +2393,7 @@ l52: #
 	mr	r0
 				// freereg r2
 
-	//../../Lib//malloc.c, line 210
+	//../../Lib//malloc.c, line 209
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l41)-1)
 	li	IMW0(PCREL(l41))
@@ -2401,7 +2401,7 @@ l52: #
 l51: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 205
+	//../../Lib//malloc.c, line 204
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -2414,7 +2414,7 @@ l51: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 205
+	//../../Lib//malloc.c, line 204
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2428,7 +2428,7 @@ l51: #
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 205
+	//../../Lib//malloc.c, line 204
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 	//(offset 0)
@@ -2441,7 +2441,7 @@ l51: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 205
+	//../../Lib//malloc.c, line 204
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l52)-1)
@@ -2449,7 +2449,7 @@ l51: #
 		add	r7
 l53: # 
 
-	//../../Lib//malloc.c, line 217
+	//../../Lib//malloc.c, line 216
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
@@ -2525,7 +2525,7 @@ _free:
 	mt	r2
 	stdec	r6
 
-	//../../Lib//malloc.c, line 224
+	//../../Lib//malloc.c, line 223
 // code 0x44
 					// (test)
 					// (objtotemp)  var, auto|reg
@@ -2534,7 +2534,7 @@ _free:
 	li	IMW0(8)
 	ldidx	r6
 
-	//../../Lib//malloc.c, line 224
+	//../../Lib//malloc.c, line 223
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l54)-1)
@@ -2542,7 +2542,7 @@ _free:
 		add	r7
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 228
+	//../../Lib//malloc.c, line 227
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -2558,7 +2558,7 @@ _free:
 	sub	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 230
+	//../../Lib//malloc.c, line 229
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2567,7 +2567,7 @@ _free:
 	stdec	r6
 				// freereg r2
 
-	//../../Lib//malloc.c, line 230
+	//../../Lib//malloc.c, line 229
 // code 0x2a
 					//call
 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
@@ -2609,7 +2609,7 @@ _malloc_dump:
 				// allocreg r4
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 240
+	//../../Lib//malloc.c, line 239
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2621,7 +2621,7 @@ _malloc_dump:
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 241
+	//../../Lib//malloc.c, line 240
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -2633,7 +2633,7 @@ _malloc_dump:
 	mr	r4
 				//save_temp done
 
-	//../../Lib//malloc.c, line 242
+	//../../Lib//malloc.c, line 241
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2643,11 +2643,11 @@ _malloc_dump:
 	.int	l60+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 242
+	//../../Lib//malloc.c, line 241
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2656,7 +2656,7 @@ _malloc_dump:
 l74: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 245
+	//../../Lib//malloc.c, line 244
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -2669,7 +2669,7 @@ l74: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 245
+	//../../Lib//malloc.c, line 244
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2680,7 +2680,7 @@ l74: #
 	stdec	r6
 				// freereg r2
 
-	//../../Lib//malloc.c, line 245
+	//../../Lib//malloc.c, line 244
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2690,7 +2690,7 @@ l74: #
 	ld	r3
 	stdec	r6
 
-	//../../Lib//malloc.c, line 245
+	//../../Lib//malloc.c, line 244
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -2698,7 +2698,7 @@ l74: #
 	mt	r3
 	stdec	r6
 
-	//../../Lib//malloc.c, line 245
+	//../../Lib//malloc.c, line 244
 // code 0x4e
 					// (a/p push)
 					// a: pushed 12, regnames[sp] r6
@@ -2708,11 +2708,11 @@ l74: #
 	.int	l64+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 245
+	//../../Lib//malloc.c, line 244
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 10 in 1 chunks
 	li	IMW0(16)
@@ -2720,7 +2720,7 @@ l74: #
 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 247
+	//../../Lib//malloc.c, line 246
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -2733,7 +2733,7 @@ l74: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 247
+	//../../Lib//malloc.c, line 246
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -2747,7 +2747,7 @@ l74: #
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 248
+	//../../Lib//malloc.c, line 247
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2758,7 +2758,7 @@ l74: #
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 249
+	//../../Lib//malloc.c, line 248
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 5, 0, 5
@@ -2769,35 +2769,35 @@ l74: #
 	sub	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 250
+	//../../Lib//malloc.c, line 249
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r4, offset 8, val 0
 	mt	r4
 	and	r4
 
-	//../../Lib//malloc.c, line 250
+	//../../Lib//malloc.c, line 249
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l76)-1)
 	li	IMW0(PCREL(l76))
 		add	r7
 
-	//../../Lib//malloc.c, line 250
+	//../../Lib//malloc.c, line 249
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r3, offset 4, val 0
 	mt	r3
 	and	r3
 
-	//../../Lib//malloc.c, line 250
+	//../../Lib//malloc.c, line 249
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l76)-1)
 	li	IMW0(PCREL(l76))
 		add	r7
 
-	//../../Lib//malloc.c, line 250
+	//../../Lib//malloc.c, line 249
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 	//(offset 4)
@@ -2810,7 +2810,7 @@ l74: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 250
+	//../../Lib//malloc.c, line 249
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l74)-1)
@@ -2818,7 +2818,7 @@ l74: #
 		add	r7
 l76: # 
 
-	//../../Lib//malloc.c, line 252
+	//../../Lib//malloc.c, line 251
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2828,18 +2828,18 @@ l76: #
 	.int	l67+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 252
+	//../../Lib//malloc.c, line 251
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
 
-	//../../Lib//malloc.c, line 253
+	//../../Lib//malloc.c, line 252
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2851,7 +2851,7 @@ l76: #
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 254
+	//../../Lib//malloc.c, line 253
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -2865,7 +2865,7 @@ l76: #
 l75: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 257
+	//../../Lib//malloc.c, line 256
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -2878,7 +2878,7 @@ l75: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 257
+	//../../Lib//malloc.c, line 256
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2889,7 +2889,7 @@ l75: #
 	stdec	r6
 				// freereg r2
 
-	//../../Lib//malloc.c, line 257
+	//../../Lib//malloc.c, line 256
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2899,7 +2899,7 @@ l75: #
 	ld	r3
 	stdec	r6
 
-	//../../Lib//malloc.c, line 257
+	//../../Lib//malloc.c, line 256
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -2907,7 +2907,7 @@ l75: #
 	mt	r3
 	stdec	r6
 
-	//../../Lib//malloc.c, line 257
+	//../../Lib//malloc.c, line 256
 // code 0x4e
 					// (a/p push)
 					// a: pushed 12, regnames[sp] r6
@@ -2917,11 +2917,11 @@ l75: #
 	.int	l71+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 257
+	//../../Lib//malloc.c, line 256
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 10 in 1 chunks
 	li	IMW0(16)
@@ -2929,7 +2929,7 @@ l75: #
 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 259
+	//../../Lib//malloc.c, line 258
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
@@ -2942,7 +2942,7 @@ l75: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 259
+	//../../Lib//malloc.c, line 258
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -2956,7 +2956,7 @@ l75: #
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 260
+	//../../Lib//malloc.c, line 259
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2967,7 +2967,7 @@ l75: #
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 261
+	//../../Lib//malloc.c, line 260
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 5, 0, 5
@@ -2978,35 +2978,35 @@ l75: #
 	sub	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 262
+	//../../Lib//malloc.c, line 261
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r4, offset 8, val 0
 	mt	r4
 	and	r4
 
-	//../../Lib//malloc.c, line 262
+	//../../Lib//malloc.c, line 261
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l77)-1)
 	li	IMW0(PCREL(l77))
 		add	r7
 
-	//../../Lib//malloc.c, line 262
+	//../../Lib//malloc.c, line 261
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r3, offset 4, val 0
 	mt	r3
 	and	r3
 
-	//../../Lib//malloc.c, line 262
+	//../../Lib//malloc.c, line 261
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l77)-1)
 	li	IMW0(PCREL(l77))
 		add	r7
 
-	//../../Lib//malloc.c, line 262
+	//../../Lib//malloc.c, line 261
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 	//(offset 4)
@@ -3019,7 +3019,7 @@ l75: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 262
+	//../../Lib//malloc.c, line 261
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l75)-1)
@@ -3168,7 +3168,7 @@ _availmem:
 				// allocreg r4
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 267
+	//../../Lib//malloc.c, line 266
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -3180,7 +3180,7 @@ _availmem:
 	mr	r4
 				//save_temp done
 
-	//../../Lib//malloc.c, line 268
+	//../../Lib//malloc.c, line 267
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -3195,21 +3195,21 @@ _availmem:
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r3, offset 4, val 0
 	mt	r3
 	and	r3
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l86)-1)
 	li	IMW0(PCREL(l86))
 		add	r7
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 	//(offset 4)
@@ -3222,7 +3222,7 @@ _availmem:
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l86)-1)
@@ -3231,7 +3231,7 @@ _availmem:
 l85: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 271
+	//../../Lib//malloc.c, line 270
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -3244,7 +3244,7 @@ l85: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 271
+	//../../Lib//malloc.c, line 270
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 3, 5
@@ -3258,7 +3258,7 @@ l85: #
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 274
+	//../../Lib//malloc.c, line 273
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -3271,7 +3271,7 @@ l85: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 274
+	//../../Lib//malloc.c, line 273
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -3285,21 +3285,21 @@ l85: #
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r3, offset 4, val 0
 	mt	r3
 	and	r3
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l86)-1)
 	li	IMW0(PCREL(l86))
 		add	r7
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
 	//(offset 4)
@@ -3312,7 +3312,7 @@ l85: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 269
+	//../../Lib//malloc.c, line 268
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l85)-1)
@@ -3320,7 +3320,7 @@ l85: #
 		add	r7
 l86: # 
 
-	//../../Lib//malloc.c, line 276
+	//../../Lib//malloc.c, line 275
 // code 0x5e
 					//setreturn
 					// (load_temp - type 3) not varadr
@@ -3368,7 +3368,7 @@ __initMem:
 				// allocreg r4
 				// allocreg r3
 
-	//../../Lib//malloc.c, line 289
+	//../../Lib//malloc.c, line 288
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -3383,7 +3383,7 @@ __initMem:
 	st	r1
 				//save_temp done
 
-	//../../Lib//malloc.c, line 293
+	//../../Lib//malloc.c, line 292
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -3395,7 +3395,7 @@ __initMem:
 	mr	r5
 				//save_temp done
 
-	//../../Lib//malloc.c, line 294
+	//../../Lib//malloc.c, line 293
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -3413,7 +3413,7 @@ __initMem:
 	st	r1
 				//save_temp done
 
-	//../../Lib//malloc.c, line 296
+	//../../Lib//malloc.c, line 295
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -3425,7 +3425,7 @@ __initMem:
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 297
+	//../../Lib//malloc.c, line 296
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -3446,7 +3446,7 @@ __initMem:
 	st	r1
 				//save_temp done
 
-	//../../Lib//malloc.c, line 298
+	//../../Lib//malloc.c, line 297
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -3515,7 +3515,7 @@ __initMem:
 l89: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 300
+	//../../Lib//malloc.c, line 299
 // code 0x1d
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
@@ -3528,7 +3528,7 @@ l89: #
 	mul	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 300
+	//../../Lib//malloc.c, line 299
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
@@ -3541,7 +3541,7 @@ l89: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 300
+	//../../Lib//malloc.c, line 299
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -3554,7 +3554,7 @@ l89: #
 				//save_temp done
 				// freereg r2
 
-	//../../Lib//malloc.c, line 301
+	//../../Lib//malloc.c, line 300
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 5, 0, 5
@@ -3565,7 +3565,7 @@ l89: #
 	shl	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 299
+	//../../Lib//malloc.c, line 298
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -3588,7 +3588,7 @@ l89: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//malloc.c, line 299
+	//../../Lib//malloc.c, line 298
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
@@ -3602,14 +3602,14 @@ l89: #
 	sgn
 	cmp	r1
 
-	//../../Lib//malloc.c, line 299
+	//../../Lib//malloc.c, line 298
 	cond	SLT
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l89)-1)
 	li	IMW0(PCREL(l89))
 		add	r7
 
-	//../../Lib//malloc.c, line 307
+	//../../Lib//malloc.c, line 306
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -3621,7 +3621,7 @@ l89: #
 	mr	r3
 				//save_temp done
 
-	//../../Lib//malloc.c, line 308
+	//../../Lib//malloc.c, line 307
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -3640,7 +3640,7 @@ l89: #
 	st	r1
 				//save_temp done
 
-	//../../Lib//malloc.c, line 309
+	//../../Lib//malloc.c, line 308
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -3682,7 +3682,7 @@ l89: #
 l93: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 311
+	//../../Lib//malloc.c, line 310
 // code 0x1d
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
@@ -3695,7 +3695,7 @@ l93: #
 	mul	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 311
+	//../../Lib//malloc.c, line 310
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
@@ -3708,7 +3708,7 @@ l93: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 311
+	//../../Lib//malloc.c, line 310
 // code 0x4d
 					// (compare) (q1 unsigned) (q2 unsigned)					// (objtotemp)  deref 
 	//(offset 40)
@@ -3720,14 +3720,14 @@ l93: #
 	cmp	r1
 				// freereg r2
 
-	//../../Lib//malloc.c, line 311
+	//../../Lib//malloc.c, line 310
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l98)-1)
 	li	IMW0(PCREL(l98))
 		add	r7
 
-	//../../Lib//malloc.c, line 312
+	//../../Lib//malloc.c, line 311
 // code 0x10
 					// (bitwise) loadreg
 	//ops: 4, 0, 1
@@ -3750,7 +3750,7 @@ l93: #
  // WARNING - check that 4 has been added.
 l98: # 
 
-	//../../Lib//malloc.c, line 313
+	//../../Lib//malloc.c, line 312
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 4, 0, 4
@@ -3761,7 +3761,7 @@ l98: #
 	shl	r3
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 310
+	//../../Lib//malloc.c, line 309
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 5
@@ -3772,7 +3772,7 @@ l98: #
 	add	r4
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 310
+	//../../Lib//malloc.c, line 309
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 19 in 1 chunks
@@ -3780,7 +3780,7 @@ l98: #
 	sgn
 	cmp	r4
 
-	//../../Lib//malloc.c, line 310
+	//../../Lib//malloc.c, line 309
 	cond	SLT
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l93)-1)
@@ -3799,7 +3799,7 @@ l98: #
 	mr	r5
 				//save_temp done
 
-	//../../Lib//malloc.c, line 316
+	//../../Lib//malloc.c, line 315
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 6, 0, 6
@@ -3810,14 +3810,14 @@ l98: #
 	shl	r5
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 318
+	//../../Lib//malloc.c, line 317
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r5, offset 4, val 0
 	mt	r5
 	and	r5
 
-	//../../Lib//malloc.c, line 318
+	//../../Lib//malloc.c, line 317
 	cond	EQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l108)-1)
@@ -3840,7 +3840,7 @@ l98: #
 l99: # 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 320
+	//../../Lib//malloc.c, line 319
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
@@ -3853,7 +3853,7 @@ l99: #
 	shl	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 320
+	//../../Lib//malloc.c, line 319
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 3, 4, 6
@@ -3866,7 +3866,7 @@ l99: #
 					// (save result) isreg
 				// freereg r2
 
-	//../../Lib//malloc.c, line 321
+	//../../Lib//malloc.c, line 320
 // code 0x1a
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -3889,14 +3889,14 @@ l99: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//malloc.c, line 318
+	//../../Lib//malloc.c, line 317
 // code 0x44
 					// (test)
 					// (objtotemp)  reg r5, offset 4, val 0
 	mt	r5
 	and	r5
 
-	//../../Lib//malloc.c, line 318
+	//../../Lib//malloc.c, line 317
 	cond	NEQ
 					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
 	li	IMW1(PCREL(l99)-1)
@@ -3904,7 +3904,7 @@ l99: #
 		add	r7
 l108: # 
 
-	//../../Lib//malloc.c, line 323
+	//../../Lib//malloc.c, line 322
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -3915,7 +3915,7 @@ l108: #
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//malloc.c, line 323
+	//../../Lib//malloc.c, line 322
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -3925,11 +3925,11 @@ l108: #
 	.int	l102+0
 	stdec	r6
 
-	//../../Lib//malloc.c, line 323
+	//../../Lib//malloc.c, line 322
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -3937,7 +3937,7 @@ l108: #
 
 				// allocreg r2
 
-	//../../Lib//malloc.c, line 325
+	//../../Lib//malloc.c, line 324
 // code 0x1d
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -3956,7 +3956,7 @@ l108: #
 	mul	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 325
+	//../../Lib//malloc.c, line 324
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
@@ -3969,7 +3969,7 @@ l108: #
 	add	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 326
+	//../../Lib//malloc.c, line 325
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -3982,7 +3982,7 @@ l108: #
 	and	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 327
+	//../../Lib//malloc.c, line 326
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -3994,7 +3994,7 @@ l108: #
 	sub	r2
 					// (save result) isreg
 
-	//../../Lib//malloc.c, line 327
+	//../../Lib//malloc.c, line 326
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -4003,7 +4003,7 @@ l108: #
 	stdec	r6
 				// freereg r2
 
-	//../../Lib//malloc.c, line 327
+	//../../Lib//malloc.c, line 326
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -4013,7 +4013,7 @@ l108: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//../../Lib//malloc.c, line 327
+	//../../Lib//malloc.c, line 326
 // code 0x2a
 					//call
 	ldinc	r7
@@ -4101,7 +4101,7 @@ l102:
 	.byte	115
 	.byte	10
 	.byte	0
-	.globl	_small_printf
+	.globl	_printf
 	.globl	__end
 	.section	.data
 	.align	4

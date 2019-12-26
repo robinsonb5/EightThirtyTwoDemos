@@ -8,9 +8,8 @@
  */
 
 #include <sys/types.h>
-//#include "stdio.h"
+#include <stdio.h>
 #include "malloc.h"
-#include "small_printf.h"
 #include "hexdump.h"
 
 

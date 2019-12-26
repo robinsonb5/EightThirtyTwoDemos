@@ -1,3 +1,6 @@
+#ifndef MALLOC_H
+#define MALLOC_H
+
 /*
  * malloc.h
  *
@@ -61,4 +64,4 @@ void malloc_dump();
 }
 #endif
 
-
+#endif

@@ -10,7 +10,7 @@ _strncpy:
 	mr	r0
 	add	r1
 .strnloop:
-	mr	r3
+	mt	r3
 	cmp	r1
 	cond	EQ
 		li	IMW0(PCREL(.done))

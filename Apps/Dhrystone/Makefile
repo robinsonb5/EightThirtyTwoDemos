@@ -43,11 +43,11 @@ Dhrystone.elf : start.o uart.o small_printf.o division.o strcmp.o dhry_1.o dhry_
 	mv $*.asm $*.S
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
-%.o : $(832DIR)/%.S Makefile ldscript.ld $(832DIR)/assembler.pp $(832DIR)/start.S
-	gcc -c $(832DIR)/$*.S -I$(832DIR) -DLDSTACK -o $*.o
-
 %.o : $(LIBDIR)/%.S Makefile ldscript.ld
 	gcc -c $(LIBDIR)/$*.S -I$(832DIR) -I$(LIBDIR) -o $*.o
+
+%.o : $(832DIR)/%.S Makefile ldscript.ld $(832DIR)/assembler.pp $(832DIR)/start.S
+	gcc -c $(832DIR)/$*.S -I$(832DIR) -DLDSTACK -o $*.o
 
 %.S : %.c Makefile
 	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
