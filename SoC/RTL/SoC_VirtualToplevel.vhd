@@ -429,10 +429,10 @@ mysdram : entity work.sdram_cached
 		vga_reservebank => vga_reservebank,
 		vga_reserveaddr => vga_reserveaddr,
 
-		datawr1(31 downto 24) => from_cpu(7 downto 0),
-		datawr1(23 downto 16) => from_cpu(15 downto 8),
-		datawr1(15 downto 8) => from_cpu(23 downto 16),
-		datawr1(7 downto 0) => from_cpu(31 downto 24),
+		datawr1(31 downto 24) => sdram_write(7 downto 0),
+		datawr1(23 downto 16) => sdram_write(15 downto 8),
+		datawr1(15 downto 8) => sdram_write(23 downto 16),
+		datawr1(7 downto 0) => sdram_write(31 downto 24),
 		addr1 => cpu_addr,
 		req1 => sdram_req,
 		cachevalid => cache_valid,
@@ -543,7 +543,7 @@ port map (
 	status => int_status
 );
 
-int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
+int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>kbdrecv or mouserecv, others => '0');
 
 
 -- ROM
@@ -601,13 +601,13 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 		littleendian => true,
 		dualthread => false,
 		prefetch => true,
-		interrupts => false
+		interrupts => true
 	)
 	port map
 	(
 		clk => clk,
 		reset_n => reset_n and soft_reset_n,
-		interrupt => int_req,
+		interrupt => int_req and int_enabled,
 
 		-- cpu fetch interface
 
