@@ -137,84 +137,15 @@ void HandleByte(char d0)
 }
 
 
-/* Load files named in a manifest file */
-
-static unsigned char Manifest[2048];
-
-
-void _break()
-{
-	while(1)
-		;
-}
-
-
 int main(int argc,char **argv)
 {
+	int havesd;
 	int i;
 
 	puts("Initializing SD card\n");
-	if(spi_init())
-	{
-		puts("Hunting for partition\n");
-		FindDrive();
-		if(LoadFile("MANIFESTMST",Manifest))
-		{
-			unsigned char *buffer=Manifest;
-			int ptr;
-			puts("Parsing manifest\n");
-			while(1)
-			{
-				unsigned char c=0;
-				ptr=0;
-				// Parse address
-				while((c=*buffer++)!=' ')
-				{
-					HW_UART(REG_UART)=c;
-					if(c=='#') // Comment line?
-						break;
-					if(c=='G')
-						_boot();
+	havesd=spi_init() && FindDrive();
 
-					if(c=='\n')
-						_break(); // Halt CPU
-
-					if(c=='L')
-						buffer=Manifest;
-
-					c=(c&~32)-('0'-32); // Convert to upper case
-					if(c>='9')
-						c-='A'-'0';
-					ptr<<=4;
-					ptr|=c;
-				}
-				// Parse filename
-				if(c!='#')
-				{
-					int i;
-					while((c=*buffer++)==' ')
-						;
-					--buffer;
-					// c-1 is now the filename pointer
-
-//					printf("Loading file %s to %d\n",fn,(long)ptr);
-//					buffer[11]=0;
-					LoadFile(buffer,(unsigned char *)ptr);
-//					HW_VGA(FRAMEBUFFERPTR)=ptr;
-				}
-
-				// Hunt for newline character
-				while((c=*buffer++)!='\n')
-					;
-			}
-		}
-		else
-		{
-			puts("Loading manifest failed\n");
-		}
-	}
-
-	puts("Booting from RS232.");
+	puts("RS232 boot - press ESC to boot from SD.");
 	SREC_MAX_ADDR=0;
 	while(1)
 	{
@@ -227,6 +158,16 @@ int main(int argc,char **argv)
 			if(r&(1<<REG_UART_RXINT))
 			{
 				c=r&255;
+				if(c==27)
+				{
+					if(havesd && LoadFile("BOOT832 BIN",BOOT_ADDR))
+					{
+						puts("Booting...\n");
+						_boot();
+					}
+					else
+						puts("SD boot failed\n");
+				}
 				HandleByte(c);
 				timeout=1000000;
 			}

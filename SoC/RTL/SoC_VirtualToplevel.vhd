@@ -536,14 +536,14 @@ generic map (
 )
 port map (
 	clk => clk,
-	reset_n => reset_n,
+	reset_n => reset_n and soft_reset_n,
 	trigger => int_triggers, -- Again, thanks ISE.
 	ack => int_ack,
 	int => int_req,
 	status => int_status
 );
 
-int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>kbdrecv or mouserecv, others => '0');
+int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, others => '0');
 
 
 -- ROM
@@ -818,6 +818,7 @@ begin
 			if ser_rxdata=X"04" then
 				soft_reset_n<='0';
 				ser_rxrecv<='0';
+				int_enabled<='0';
 			end if;
 		end if;
 

@@ -1,3 +1,4 @@
+#include "uart.h"
 #include "interrupts.h"
 
 void enable_irq(int irq);
@@ -12,11 +13,11 @@ static void dummy_handler()
 void SetIntHandler(void(*handler)())
 {
 	HW_INTERRUPT(REG_INTERRUPT_CTRL)=0;
-	*(void **)11=(void *)handler;
+	*(void **)12=(void *)handler;
 	puts("Set handler\n");
 }
 
-__constructor void intconstructor()
+__constructor(100) void intconstructor()
 {
 	puts("In interrupt constructor\n");
 	SetIntHandler(dummy_handler);

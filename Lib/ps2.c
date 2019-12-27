@@ -17,7 +17,7 @@ void ps2_ringbuffer_write(struct ps2_ringbuffer *r,int in)
 {
 	while(r->out_hw==((r->out_cpu+1)&(PS2_RINGBUFFER_SIZE-1)))
 		;
-//	printf("w: %d, %d\n, %d\n",r->out_hw,r->out_cpu,in);
+	printf("w: %d, %d\n, %d\n",r->out_hw,r->out_cpu,in);
 	DisableInterrupts();
 	r->outbuf[r->out_cpu]=in;
 	r->out_cpu=(r->out_cpu+1) & (PS2_RINGBUFFER_SIZE-1);
@@ -32,8 +32,10 @@ int ps2_ringbuffer_read(struct ps2_ringbuffer *r)
 //	printf("%d,%d\n",r->in_hw,r->in_cpu);
 	if(r->in_hw==r->in_cpu)
 		return(-1);	// No characters ready
+	DisableInterrupts();
 	result=r->inbuf[r->in_cpu];
 	r->in_cpu=(r->in_cpu+1) & (PS2_RINGBUFFER_SIZE-1);
+	EnableInterrupts();
 	return(result);
 }
 
@@ -85,6 +87,7 @@ void PS2Handler()
 			mousebuffer.out_hw=(mousebuffer.out_hw+1) & (PS2_RINGBUFFER_SIZE-1);
 		}
 	}
+
 	GetInterrupts();	// Clear interrupt bit
 	EnableInterrupts();
 }
