@@ -187,10 +187,10 @@ static int extSamplingFreq;
 //#define mt_paulaSetLen(i, x) AUD[i].LEN = x;
 //#define mt_paulaSetDat(i, x) AUD[i].DAT = x;
 
-#define word2AmigaWord(x) (x) // ZPU is also big-endian
-// (unsigned short)(((x) << 8) | ((x) >> 8))
-#define amigaWord2Word(x) (x) // ZPU is also big-endian
-// (unsigned short)(((x) >> 8) | ((x) << 8))
+//#define word2AmigaWord(x) (x) // ZPU is also big-endian
+#define word2AmigaWord(x) (unsigned short)(((x) << 8) | ((x) >> 8)) // EightThirtyTwo can be either but we're using it in LE mode.
+//#define amigaWord2Word(x) (x) // ZPU is also big-endian
+#define amigaWord2Word(x) (unsigned short)(((x) >> 8) | ((x) << 8)) // EightThirtyTwo can be either but we're using it in LE mode.
 
 /* CODE START */
 
@@ -233,22 +233,22 @@ static void mt_UpdateFunk(PT_CHN *ch)
     }
 }
 
-static void mt_SetGlissControl(PT_CHN *ch)
+void mt_SetGlissControl(PT_CHN *ch)
 {
     ch->n_glissfunk = (ch->n_glissfunk & 0xF0) | (ch->n_cmdlo & 0x0F);
 }
 
-static void mt_SetVibratoControl(PT_CHN *ch)
+void mt_SetVibratoControl(PT_CHN *ch)
 {
     ch->n_wavecontrol = (ch->n_wavecontrol & 0xF0) | (ch->n_cmdlo & 0x0F);
 }
 
-static void mt_SetFineTune(PT_CHN *ch)
+void mt_SetFineTune(PT_CHN *ch)
 {
     ch->n_finetune = ch->n_cmdlo & 0x0F;
 }
 
-static void mt_JumpLoop(PT_CHN *ch)
+void mt_JumpLoop(PT_CHN *ch)
 {
     unsigned int dat;
 
@@ -276,12 +276,12 @@ static void mt_JumpLoop(PT_CHN *ch)
     }
 }
 
-static void mt_SetTremoloControl(PT_CHN *ch)
+void mt_SetTremoloControl(PT_CHN *ch)
 {
     ch->n_wavecontrol = (ch->n_cmdlo << 4) | (ch->n_wavecontrol & 0x0F);
 }
 
-static void mt_RetrigNote(PT_CHN *ch)
+void mt_RetrigNote(PT_CHN *ch)
 {
     if (ch->n_cmdlo != 0x90) // empty param
     {
@@ -300,7 +300,7 @@ static void mt_RetrigNote(PT_CHN *ch)
     }
 }
 
-static void mt_VolumeSlide(PT_CHN *ch)
+void mt_VolumeSlide(PT_CHN *ch)
 {
 	putchar('0'+ch->n_index);
 	putchar('A');
@@ -322,7 +322,7 @@ static void mt_VolumeSlide(PT_CHN *ch)
     }
 }
 
-static void mt_VolumeFineUp(PT_CHN *ch)
+void mt_VolumeFineUp(PT_CHN *ch)
 {
     if (mt_counter == 0)
     {
@@ -333,7 +333,7 @@ static void mt_VolumeFineUp(PT_CHN *ch)
     }
 }
 
-static void mt_VolumeFineDown(PT_CHN *ch)
+void mt_VolumeFineDown(PT_CHN *ch)
 {
     if (mt_counter == 0)
     {
@@ -344,7 +344,7 @@ static void mt_VolumeFineDown(PT_CHN *ch)
     }
 }
 
-static void mt_NoteCut(PT_CHN *ch)
+void mt_NoteCut(PT_CHN *ch)
 {
     if (mt_counter == (ch->n_cmdlo & 0x0F))
     {
@@ -353,7 +353,7 @@ static void mt_NoteCut(PT_CHN *ch)
     }
 }
 
-static void mt_NoteDelay(PT_CHN *ch)
+void mt_NoteDelay(PT_CHN *ch)
 {
     if (mt_counter == (ch->n_cmdlo & 0x0F))
     {
@@ -368,7 +368,7 @@ static void mt_NoteDelay(PT_CHN *ch)
     }
 }
 
-static void mt_PatternDelay(PT_CHN *ch)
+void mt_PatternDelay(PT_CHN *ch)
 {
     if (mt_counter == 0)
     {
@@ -377,7 +377,7 @@ static void mt_PatternDelay(PT_CHN *ch)
     }
 }
 
-static void mt_FunkIt(PT_CHN *ch)
+void mt_FunkIt(PT_CHN *ch)
 {
     if (mt_counter == 0)
     {
@@ -386,14 +386,14 @@ static void mt_FunkIt(PT_CHN *ch)
     }
 }
 
-static void mt_PositionJump(PT_CHN *ch)
+void mt_PositionJump(PT_CHN *ch)
 {
     mt_SongPos = ch->n_cmdlo - 1;
     mt_PBreakPos = 0;
     mt_PosJumpFlag = 1;
 }
 
-static void mt_VolumeChange(PT_CHN *ch)
+void mt_VolumeChange(PT_CHN *ch)
 {
     ch->n_volume = ch->n_cmdlo;
     if (ch->n_volume > 64) ch->n_volume = 64;
@@ -401,7 +401,7 @@ static void mt_VolumeChange(PT_CHN *ch)
     mt_paulaSetVol(ch->n_index, ch->n_volume);
 }
 
-static void mt_PatternBreak(PT_CHN *ch)
+void mt_PatternBreak(PT_CHN *ch)
 {
     mt_PBreakPos = ((ch->n_cmdlo >> 4) * 10) + (ch->n_cmdlo & 0x0F);
     if (mt_PBreakPos > 63)
@@ -410,7 +410,7 @@ static void mt_PatternBreak(PT_CHN *ch)
     mt_PosJumpFlag = 1;
 }
 
-static void mt_SetSpeed(PT_CHN *ch)
+void mt_SetSpeed(PT_CHN *ch)
 {
     if (ch->n_cmdlo > 0)
     {
@@ -431,7 +431,7 @@ static void mt_SetSpeed(PT_CHN *ch)
     }
 }
 
-static void mt_Arpeggio(PT_CHN *ch)
+void mt_Arpeggio(PT_CHN *ch)
 {
     int i;
     unsigned int dat;
@@ -460,7 +460,7 @@ static void mt_Arpeggio(PT_CHN *ch)
     }
 }
 
-static void mt_PortaUp(PT_CHN *ch)
+void mt_PortaUp(PT_CHN *ch)
 {
     ch->n_period -= (ch->n_cmdlo & mt_LowMask);
     if (ch->n_period < 113) ch->n_period = 113;
@@ -469,7 +469,7 @@ static void mt_PortaUp(PT_CHN *ch)
     mt_LowMask = 0xFF;
 }
 
-static void mt_PortaDown(PT_CHN *ch)
+void mt_PortaDown(PT_CHN *ch)
 {
     ch->n_period += (ch->n_cmdlo & mt_LowMask);
     if (ch->n_period > 856) ch->n_period = 856;
@@ -478,7 +478,7 @@ static void mt_PortaDown(PT_CHN *ch)
     mt_LowMask = 0xFF;
 }
 
-static void mt_FinePortaUp(PT_CHN *ch)
+void mt_FinePortaUp(PT_CHN *ch)
 {
     if (mt_counter == 0)
     {
@@ -487,7 +487,7 @@ static void mt_FinePortaUp(PT_CHN *ch)
     }
 }
 
-static void mt_FinePortaDown(PT_CHN *ch)
+void mt_FinePortaDown(PT_CHN *ch)
 {
     if (mt_counter == 0)
     {
@@ -496,7 +496,7 @@ static void mt_FinePortaDown(PT_CHN *ch)
     }
 }
 
-static void mt_SetTonePorta(PT_CHN *ch)
+void mt_SetTonePorta(PT_CHN *ch)
 {
     int i;
     const int *portaPointer;
@@ -520,7 +520,7 @@ static void mt_SetTonePorta(PT_CHN *ch)
         ch->n_toneportdirec = 1;
 }
 
-static void mt_UpdateTonePortamento(PT_CHN *ch)
+void mt_UpdateTonePortamento(PT_CHN *ch)
 {
     int i;
     const int *portaPointer;
@@ -562,7 +562,7 @@ static void mt_UpdateTonePortamento(PT_CHN *ch)
     }
 }
 
-static void mt_TonePortamento(PT_CHN *ch)
+void mt_TonePortamento(PT_CHN *ch)
 {
     if (ch->n_cmdlo != 0)
     {
@@ -573,7 +573,7 @@ static void mt_TonePortamento(PT_CHN *ch)
     mt_UpdateTonePortamento(ch);
 }
 
-static void mt_UpdateVibrato(PT_CHN *ch)
+void mt_UpdateVibrato(PT_CHN *ch)
 {
     unsigned int vibratoTemp;
     int vibratoData; 
@@ -614,7 +614,7 @@ static void mt_UpdateVibrato(PT_CHN *ch)
     ch->n_vibratopos += ((ch->n_vibratocmd >> 2) & 0x3C);
 }
 
-static void mt_Vibrato(PT_CHN *ch)
+void mt_Vibrato(PT_CHN *ch)
 {
     if (ch->n_cmdlo != 0)
     {
@@ -628,19 +628,19 @@ static void mt_Vibrato(PT_CHN *ch)
     mt_UpdateVibrato(ch);
 }
 
-static void mt_TonePlusVolSlide(PT_CHN *ch)
+void mt_TonePlusVolSlide(PT_CHN *ch)
 {
     mt_UpdateTonePortamento(ch);
     mt_VolumeSlide(ch);
 }
 
-static void mt_VibratoPlusVolSlide(PT_CHN *ch)
+void mt_VibratoPlusVolSlide(PT_CHN *ch)
 {
     mt_UpdateVibrato(ch);
     mt_VolumeSlide(ch);
 }
 
-static void mt_UpdateTremolo(PT_CHN *ch)
+void mt_UpdateTremolo(PT_CHN *ch)
 {
     int tremoloData; 
     unsigned int tremoloTemp;
@@ -687,7 +687,7 @@ static void mt_UpdateTremolo(PT_CHN *ch)
     ch->n_tremolopos += ((ch->n_tremolocmd >> 2) & 0x3C);
 }
 
-static void mt_Tremolo(PT_CHN *ch)
+void mt_Tremolo(PT_CHN *ch)
 {
     if (ch->n_cmdlo != 0)
     {
@@ -701,7 +701,7 @@ static void mt_Tremolo(PT_CHN *ch)
     mt_UpdateTremolo(ch);
 }
 
-static void mt_SampleOffset(PT_CHN *ch)
+void mt_SampleOffset(PT_CHN *ch)
 {
     unsigned int newOffset;
 
@@ -721,7 +721,7 @@ static void mt_SampleOffset(PT_CHN *ch)
     }  
 }
 
-static void mt_E_Commands(PT_CHN *ch)
+void mt_E_Commands(PT_CHN *ch)
 {
     switch (ch->n_cmdlo >> 4)
     {
@@ -744,7 +744,7 @@ static void mt_E_Commands(PT_CHN *ch)
     }
 }
 
-static void mt_CheckMoreEfx(PT_CHN *ch)
+void mt_CheckMoreEfx(PT_CHN *ch)
 {
     mt_UpdateFunk(ch);
 	int c=ch->n_cmd>>8;
@@ -760,7 +760,7 @@ static void mt_CheckMoreEfx(PT_CHN *ch)
     }
 }
 
-static void mt_CheckEfx(PT_CHN *ch)
+void mt_CheckEfx(PT_CHN *ch)
 {
     mt_UpdateFunk(ch);
 
@@ -792,7 +792,7 @@ static void mt_CheckEfx(PT_CHN *ch)
     }
 }
 
-static void mt_SetPeriod(PT_CHN *ch)
+void mt_SetPeriod(PT_CHN *ch)
 {
     int i;
 
@@ -844,7 +844,7 @@ struct patterndata
 	unsigned char cmdlo;
 } *pattData; // __attribute__ ((packed)) *pattData;
 
-static void mt_PlayVoice(PT_CHN *ch, int pattPos)
+void mt_PlayVoice(PT_CHN *ch, int pattPos)
 {
     int cmd;
     unsigned int sample;
@@ -942,7 +942,7 @@ static void mt_PlayVoice(PT_CHN *ch, int pattPos)
     putchar(' ');
 }
 
-static void mt_nextPosition(void)
+void mt_nextPosition(void)
 {
     mt_PatternPos = mt_PBreakPos << 4;
     mt_PBreakPos = 0;
@@ -952,7 +952,7 @@ static void mt_nextPosition(void)
     if (mt_SongPos >= mt_SongDataPtr[950]) mt_SongPos = 0;
 }
 
-static void mt_dskip(void)
+void mt_dskip(void)
 {
     mt_PatternPos += 16;
 
@@ -992,34 +992,34 @@ void mt_music(void)
 
     if (mt_Enable == 1)
     {
-//		putchar('-');
+		putchar('-');
         mt_counter++;
         if (mt_counter >= mt_speed)
         {
-//			putchar('+');
+			putchar('+');
             mt_counter = 0;
 
             if (mt_PattDelTime2 == 0)
             {
 				int pattern=mt_SongDataPtr[952 + mt_SongPos];
-//				printf("Playing pattern %d\n",pattern);
+				printf("Playing pattern %d\n",pattern);
                 pattPos = (pattern << 10) + mt_PatternPos;
 
-//				printf("Pattpos %d\n",pattPos);
-//				puts("Playing voice 0\n");
+				printf("Pattpos %d\n",pattPos);
+				puts("Playing voice 0\n");
                 mt_PlayVoice(&mt_chan1temp, pattPos);
 				pattPos += 4;
-//				puts("Playing voice 1\n");
+				puts("Playing voice 1\n");
                 mt_PlayVoice(&mt_chan2temp, pattPos);
 				pattPos += 4;
-//				puts("Playing voice 2\n");
+				puts("Playing voice 2\n");
                 mt_PlayVoice(&mt_chan3temp, pattPos);
 				pattPos += 4;
-//				puts("Playing voice 3\n");
+				puts("Playing voice 3\n");
                 mt_PlayVoice(&mt_chan4temp, pattPos);
 				pattPos += 4;
 
-//				puts("Setting loops\n");
+				puts("Setting loops\n");
                 mt_paulaSetLoop(0, mt_chan1temp.n_loopstart, mt_chan1temp.n_replen);
                 mt_paulaSetLoop(1, mt_chan2temp.n_loopstart, mt_chan2temp.n_replen);
                 mt_paulaSetLoop(2, mt_chan3temp.n_loopstart, mt_chan3temp.n_replen);
@@ -1027,19 +1027,19 @@ void mt_music(void)
             }
             else
             {
-//				puts("Checking effects (on tick)\n");
+				puts("Checking effects (on tick)\n");
                 mt_CheckEfx(&mt_chan1temp);
                 mt_CheckEfx(&mt_chan2temp);
                 mt_CheckEfx(&mt_chan3temp);
                 mt_CheckEfx(&mt_chan4temp);
             }
 
-//			puts("dskip\n");
+			puts("dskip\n");
             mt_dskip();
         }
         else
         {
-//			puts("Checking effects (off tick)\n");
+			puts("Checking effects (off tick)\n");
             mt_CheckEfx(&mt_chan1temp);
             mt_CheckEfx(&mt_chan2temp);
             mt_CheckEfx(&mt_chan3temp);
@@ -1068,12 +1068,22 @@ void mt_init(unsigned char *mt_data)
     }
     pattNum++;
 
+	printf("%d patterns\n",pattNum);
+
     sampleStarts = (char *)&mt_SongDataPtr[1084 + (pattNum << 10)];
+
+	printf("samples start at %x\n",sampleStarts);
+
     for (i = 0; i < 31; ++i)
     {
+		int w=*((unsigned short *)&mt_SongDataPtr[42 + (i * 30)]);
+		printf("w: %x, %x\n",w,amigaWord2Word(w));
         mt_SampleStarts[i] = sampleStarts;
         sampleStarts += (amigaWord2Word(*((unsigned short *)&mt_SongDataPtr[42 + (i * 30)])) << 1);
+		printf("... %x\n",(int)sampleStarts);
     }
+
+	printf("samples end at %x\n",(int)sampleStarts);
 
     mt_speed = 6;
     mt_counter = 0;
@@ -1116,6 +1126,7 @@ int ptBuddyPlay(unsigned char *modData, char timerType)
 
 	puts("Setting up timer...\n");
 	DisableInterrupts();
+	puts("Setting tempo...\n");
 	SetTempo(125);	// Default tempo
 	puts("Setting interrupt handler...\n");
 	SetIntHandler(timer_interrupt);

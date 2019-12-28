@@ -308,9 +308,10 @@ l8:
 	//../../Lib//malloc.c, line 52
 // code 0x2a
 					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l5)-2)
 	li	IMW1(PCREL(l5)-1)
-	li	IMW0(PCREL(l5))
+	li	IMW0(PCREL(l5)-0)
 	add	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -331,9 +332,10 @@ l8:
 	//../../Lib//malloc.c, line 53
 // code 0x2a
 					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l2)-2)
 	li	IMW1(PCREL(l2)-1)
-	li	IMW0(PCREL(l2))
+	li	IMW0(PCREL(l2)-0)
 	add	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -433,9 +435,10 @@ ___malloc_from_block:
 
 	//../../Lib//malloc.c, line 64
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l14)-2)
 	li	IMW1(PCREL(l14)-1)
-	li	IMW0(PCREL(l14))
+	li	IMW0(PCREL(l14)-0)
 		add	r7
 				// allocreg r3
 
@@ -865,9 +868,10 @@ ___malloc_from_block:
 				// freereg r2
 
 	//../../Lib//malloc.c, line 86
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l15)-2)
 	li	IMW1(PCREL(l15)-1)
-	li	IMW0(PCREL(l15))
+	li	IMW0(PCREL(l15)-0)
 	add	r7
 l14: # 
 
@@ -902,9 +906,10 @@ l14: #
 	//../../Lib//malloc.c, line 88
 // code 0x2a
 					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l5)-2)
 	li	IMW1(PCREL(l5)-1)
-	li	IMW0(PCREL(l5))
+	li	IMW0(PCREL(l5)-0)
 	add	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1093,9 +1098,10 @@ l16:
 
 	//../../Lib//malloc.c, line 114
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l21)-2)
 	li	IMW1(PCREL(l21)-1)
-	li	IMW0(PCREL(l21))
+	li	IMW0(PCREL(l21)-0)
 		add	r7
 				// allocreg r2
 
@@ -1138,9 +1144,10 @@ l16:
 
 	//../../Lib//malloc.c, line 114
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l21)-2)
 	li	IMW1(PCREL(l21)-1)
-	li	IMW0(PCREL(l21))
+	li	IMW0(PCREL(l21)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 116
@@ -1283,9 +1290,10 @@ l16:
 				//save_temp done
 
 	//../../Lib//malloc.c, line 123
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l24)-2)
 	li	IMW1(PCREL(l24)-1)
-	li	IMW0(PCREL(l24))
+	li	IMW0(PCREL(l24)-0)
 	add	r7
 l21: # 
 
@@ -1351,7 +1359,7 @@ l21: #
 					// (a/p assign)
 					// (prepobj r1) deref
 				// reg r3 - no need to prep
-					// (load_temp - type 10)					// (prepobj tmp) static
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) static
 	ldinc	r7
 	.int	l1+0
 // static pe is varadr
@@ -1420,9 +1428,10 @@ l24: #
 
 	//../../Lib//malloc.c, line 142
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l26)-2)
 	li	IMW1(PCREL(l26)-1)
-	li	IMW0(PCREL(l26))
+	li	IMW0(PCREL(l26)-0)
 		add	r7
 				// allocreg r2
 
@@ -1463,9 +1472,10 @@ l24: #
 
 	//../../Lib//malloc.c, line 142
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l26)-2)
 	li	IMW1(PCREL(l26)-1)
-	li	IMW0(PCREL(l26))
+	li	IMW0(PCREL(l26)-0)
 		add	r7
 				// allocreg r2
 
@@ -1557,9 +1567,10 @@ l24: #
 	//../../Lib//malloc.c, line 147
 // code 0x2a
 					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l8)-2)
 	li	IMW1(PCREL(l8)-1)
-	li	IMW0(PCREL(l8))
+	li	IMW0(PCREL(l8)-0)
 	add	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1875,9 +1886,10 @@ _malloc_add:
 
 	//../../Lib//malloc.c, line 173
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l40)-2)
 	li	IMW1(PCREL(l40)-1)
-	li	IMW0(PCREL(l40))
+	li	IMW0(PCREL(l40)-0)
 		add	r7
 l39: # 
 
@@ -1891,9 +1903,10 @@ l39: #
 
 	//../../Lib//malloc.c, line 174
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l40)-2)
 	li	IMW1(PCREL(l40)-1)
-	li	IMW0(PCREL(l40))
+	li	IMW0(PCREL(l40)-0)
 		add	r7
 				// allocreg r2
 
@@ -1939,9 +1952,10 @@ l39: #
 
 	//../../Lib//malloc.c, line 173
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l39)-2)
 	li	IMW1(PCREL(l39)-1)
-	li	IMW0(PCREL(l39))
+	li	IMW0(PCREL(l39)-0)
 		add	r7
 l40: # 
 				// allocreg r3
@@ -2072,9 +2086,10 @@ l40: #
 	//../../Lib//malloc.c, line 186
 // code 0x2a
 					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l16)-2)
 	li	IMW1(PCREL(l16)-1)
-	li	IMW0(PCREL(l16))
+	li	IMW0(PCREL(l16)-0)
 	add	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2227,9 +2242,10 @@ _malloc:
 
 	//../../Lib//malloc.c, line 198
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l45)-2)
 	li	IMW1(PCREL(l45)-1)
-	li	IMW0(PCREL(l45))
+	li	IMW0(PCREL(l45)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 199
@@ -2242,9 +2258,10 @@ _malloc:
 	mr	r0
 
 	//../../Lib//malloc.c, line 202
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l41)-2)
 	li	IMW1(PCREL(l41)-1)
-	li	IMW0(PCREL(l41))
+	li	IMW0(PCREL(l41)-0)
 	add	r7
 l45: # 
 				// allocreg r2
@@ -2311,9 +2328,10 @@ l45: #
 
 	//../../Lib//malloc.c, line 204
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l53)-2)
 	li	IMW1(PCREL(l53)-1)
-	li	IMW0(PCREL(l53))
+	li	IMW0(PCREL(l53)-0)
 		add	r7
 l52: # 
 				// allocreg r2
@@ -2345,9 +2363,10 @@ l52: #
 
 	//../../Lib//malloc.c, line 206
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l51)-2)
 	li	IMW1(PCREL(l51)-1)
-	li	IMW0(PCREL(l51))
+	li	IMW0(PCREL(l51)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 208
@@ -2394,9 +2413,10 @@ l52: #
 				// freereg r2
 
 	//../../Lib//malloc.c, line 209
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l41)-2)
 	li	IMW1(PCREL(l41)-1)
-	li	IMW0(PCREL(l41))
+	li	IMW0(PCREL(l41)-0)
 	add	r7
 l51: # 
 				// allocreg r2
@@ -2443,9 +2463,10 @@ l51: #
 
 	//../../Lib//malloc.c, line 204
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l52)-2)
 	li	IMW1(PCREL(l52)-1)
-	li	IMW0(PCREL(l52))
+	li	IMW0(PCREL(l52)-0)
 		add	r7
 l53: # 
 
@@ -2536,9 +2557,10 @@ _free:
 
 	//../../Lib//malloc.c, line 223
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l54)-2)
 	li	IMW1(PCREL(l54)-1)
-	li	IMW0(PCREL(l54))
+	li	IMW0(PCREL(l54)-0)
 		add	r7
 				// allocreg r2
 
@@ -2570,9 +2592,10 @@ _free:
 	//../../Lib//malloc.c, line 229
 // code 0x2a
 					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l16)-2)
 	li	IMW1(PCREL(l16)-1)
-	li	IMW0(PCREL(l16))
+	li	IMW0(PCREL(l16)-0)
 	add	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2613,7 +2636,7 @@ _malloc_dump:
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 10)					// (prepobj tmp) static
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) static
 	ldinc	r7
 	.int	l1+0
 // static pe is varadr
@@ -2778,9 +2801,10 @@ l74: #
 
 	//../../Lib//malloc.c, line 249
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l76)-2)
 	li	IMW1(PCREL(l76)-1)
-	li	IMW0(PCREL(l76))
+	li	IMW0(PCREL(l76)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 249
@@ -2792,9 +2816,10 @@ l74: #
 
 	//../../Lib//malloc.c, line 249
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l76)-2)
 	li	IMW1(PCREL(l76)-1)
-	li	IMW0(PCREL(l76))
+	li	IMW0(PCREL(l76)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 249
@@ -2812,9 +2837,10 @@ l74: #
 
 	//../../Lib//malloc.c, line 249
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l74)-2)
 	li	IMW1(PCREL(l74)-1)
-	li	IMW0(PCREL(l74))
+	li	IMW0(PCREL(l74)-0)
 		add	r7
 l76: # 
 
@@ -2843,7 +2869,7 @@ l76: #
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 10)					// (prepobj tmp) static
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) static
 	ldinc	r7
 	.int	l1+0
 // static pe is varadr
@@ -2987,9 +3013,10 @@ l75: #
 
 	//../../Lib//malloc.c, line 261
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l77)-2)
 	li	IMW1(PCREL(l77)-1)
-	li	IMW0(PCREL(l77))
+	li	IMW0(PCREL(l77)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 261
@@ -3001,9 +3028,10 @@ l75: #
 
 	//../../Lib//malloc.c, line 261
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l77)-2)
 	li	IMW1(PCREL(l77)-1)
-	li	IMW0(PCREL(l77))
+	li	IMW0(PCREL(l77)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 261
@@ -3021,9 +3049,10 @@ l75: #
 
 	//../../Lib//malloc.c, line 261
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l75)-2)
 	li	IMW1(PCREL(l75)-1)
-	li	IMW0(PCREL(l75))
+	li	IMW0(PCREL(l75)-0)
 		add	r7
 l77: # 
 				// freereg r3
@@ -3204,9 +3233,10 @@ _availmem:
 
 	//../../Lib//malloc.c, line 268
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l86)-2)
 	li	IMW1(PCREL(l86)-1)
-	li	IMW0(PCREL(l86))
+	li	IMW0(PCREL(l86)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 268
@@ -3224,9 +3254,10 @@ _availmem:
 
 	//../../Lib//malloc.c, line 268
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l86)-2)
 	li	IMW1(PCREL(l86)-1)
-	li	IMW0(PCREL(l86))
+	li	IMW0(PCREL(l86)-0)
 		add	r7
 l85: # 
 				// allocreg r2
@@ -3294,9 +3325,10 @@ l85: #
 
 	//../../Lib//malloc.c, line 268
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l86)-2)
 	li	IMW1(PCREL(l86)-1)
-	li	IMW0(PCREL(l86))
+	li	IMW0(PCREL(l86)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 268
@@ -3314,9 +3346,10 @@ l85: #
 
 	//../../Lib//malloc.c, line 268
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l85)-2)
 	li	IMW1(PCREL(l85)-1)
-	li	IMW0(PCREL(l85))
+	li	IMW0(PCREL(l85)-0)
 		add	r7
 l86: # 
 
@@ -3375,7 +3408,7 @@ __initMem:
 	mt	r6
 	mr	r1
 
-					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	__end
 // extern pe is varadr
@@ -3604,9 +3637,10 @@ l89: #
 
 	//../../Lib//malloc.c, line 298
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l89)-2)
 	li	IMW1(PCREL(l89)-1)
-	li	IMW0(PCREL(l89))
+	li	IMW0(PCREL(l89)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 306
@@ -3722,9 +3756,10 @@ l93: #
 
 	//../../Lib//malloc.c, line 310
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l98)-2)
 	li	IMW1(PCREL(l98)-1)
-	li	IMW0(PCREL(l98))
+	li	IMW0(PCREL(l98)-0)
 		add	r7
 
 	//../../Lib//malloc.c, line 311
@@ -3782,9 +3817,10 @@ l98: #
 
 	//../../Lib//malloc.c, line 309
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l93)-2)
 	li	IMW1(PCREL(l93)-1)
-	li	IMW0(PCREL(l93))
+	li	IMW0(PCREL(l93)-0)
 		add	r7
 // code 0x2
 					// (a/p assign)
@@ -3819,9 +3855,10 @@ l98: #
 
 	//../../Lib//malloc.c, line 317
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l108)-2)
 	li	IMW1(PCREL(l108)-1)
-	li	IMW0(PCREL(l108))
+	li	IMW0(PCREL(l108)-0)
 		add	r7
 // code 0x2
 					// (a/p assign)
@@ -3898,9 +3935,10 @@ l99: #
 
 	//../../Lib//malloc.c, line 317
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 18 bits
+	li	IMW2(PCREL(l99)-2)
 	li	IMW1(PCREL(l99)-1)
-	li	IMW0(PCREL(l99))
+	li	IMW0(PCREL(l99)-0)
 		add	r7
 l108: # 
 

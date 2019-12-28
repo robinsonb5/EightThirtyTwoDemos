@@ -343,7 +343,7 @@ assign audio_lr_mix = 1'b0;
 
 //// audio ////
 audio_top audio_top (
-  .clk          (sysclk           ),  // 28MHz input clock
+  .clk          (slowclk          ),  // 28MHz input clock
   .rst_n        (SW[0]^!KEY[0]),  // active low reset (from sdram controller)
   // config
   .exchan       (audio_lr_switch  ),  // switch audio left / right channel

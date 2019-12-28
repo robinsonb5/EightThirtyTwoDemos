@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 //	if((ptr=LoadFile("ENIGMA     ")))
 //	if((ptr=LoadFile("GUITAR~1   ")))
 	{
-		printf("File successfully loaded to %d\n",ptr);
+		printf("File successfully loaded to %x\n",ptr);
 		ptBuddyPlay(ptr,0);
 //		REG_SOUNDCHANNEL[0].VOL=63;
 //		REG_SOUNDCHANNEL[0].PERIOD=200;
