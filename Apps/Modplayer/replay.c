@@ -767,6 +767,7 @@ void mt_CheckEfx(PT_CHN *ch)
     if (ch->n_cmd == 0)
     {
         mt_paulaSetPer(ch->n_index, ch->n_period);
+//		printf("Period on channel %d: %d\n",ch->n_index,ch->n_period);
         return;
     }
 
@@ -859,15 +860,15 @@ void mt_PlayVoice(PT_CHN *ch, int pattPos)
 
 //	putchar(48+ch->n_index);
 
-    ch->n_note = pattData->period & 0x0FFF;
+//    ch->n_note = pattData->period & 0x0FFF;  // Big endian
+	ch->n_note = amigaWord2Word(pattData->period)&0xfff;	// Little endian!
     ch->n_cmd =  ((pattData->sample & 0x0F) << 8) | pattData->cmdlo;
     ch->n_cmdlo = pattData->cmdlo;
 
-//	printf("Got note %d\n",ch->n_note);
-//	printf("Got cmd %d\n",ch->n_cmd);
-//	printf("Got cmdlo %d\n",ch->n_cmdlo);
+//	printf("n: %x, c: %x, cl: %x\n",ch->n_note,ch->n_cmd,ch->n_cmdlo);
     
-    sample = ((pattData->period & 0xF000)>>8) | (pattData->sample >> 4);
+//    sample = ((pattData->period & 0xF000)>>8) | (pattData->sample >> 4); // Big endian
+    sample = ((pattData->period & 0xF0)) | (pattData->sample >> 4);
     if ((sample >= 1) && (sample <= 32))
     {
         sample--;
@@ -1002,10 +1003,10 @@ void mt_music(void)
             if (mt_PattDelTime2 == 0)
             {
 				int pattern=mt_SongDataPtr[952 + mt_SongPos];
-				printf("Playing pattern %d\n",pattern);
+//				printf("Playing pattern %d\n",pattern);
                 pattPos = (pattern << 10) + mt_PatternPos;
 
-				printf("Pattpos %d\n",pattPos);
+//				printf("Pattpos %d\n",pattPos);
 				puts("Playing voice 0\n");
                 mt_PlayVoice(&mt_chan1temp, pattPos);
 				pattPos += 4;
