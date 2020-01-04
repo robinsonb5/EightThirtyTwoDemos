@@ -77,10 +77,12 @@ _main:
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+// extern pe not varadr
 	mr	r1
-					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec1
+// extern pe is varadr
 					// (save temp) store
 	st	r1
 				//save_temp done
@@ -91,10 +93,12 @@ _main:
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Ptr_Glob
+// extern pe not varadr
 	mr	r1
-					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec2
+// extern pe is varadr
 					// (save temp) store
 	st	r1
 				//save_temp done
@@ -105,10 +109,12 @@ _main:
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_rec2
+// extern pe not varadr
 	mr	r1
-					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec1
+// extern pe is varadr
 					// (save temp) store
 	st	r1
 				//save_temp done
@@ -119,6 +125,7 @@ _main:
 					// (prepobj r1) extern (offset 4)
 	ldinc	r7
 	.int	_rec2 + 4
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
@@ -134,6 +141,7 @@ _main:
 					// (prepobj r1) extern (offset 8)
 	ldinc	r7
 	.int	_rec2 + 8
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
@@ -149,6 +157,7 @@ _main:
 					// (prepobj r1) extern (offset 12)
 	ldinc	r7
 	.int	_rec2 + 12
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
@@ -165,18 +174,19 @@ _main:
 					// (prepobj r1) extern (offset 16)
 	ldinc	r7
 	.int	_rec2 + 16
+// extern pe not varadr
 	mr	r1
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to rec2
-					// (load_temp - type 1) not varadr
-					// (objtotemp) //static
+					// (load_temp - type 11) not varadr
+					// (objtotemp) //static not varadr
 				//statictotemp
 	ldinc	r7
-	.int	l3
+	.int	l3+0
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 1 words to rec2
+// Copying 7 words to rec2
 	ldinc	r0
 	stinc	r1
 	ldinc	r0
@@ -207,18 +217,19 @@ _main:
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Str_1_Loc
+// extern pe not varadr
 	mr	r1
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to Str_1_Loc
-					// (load_temp - type 1) not varadr
-					// (objtotemp) //static
+					// (load_temp - type 11) not varadr
+					// (objtotemp) //static not varadr
 				//statictotemp
 	ldinc	r7
-	.int	l4
+	.int	l4+0
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 1 words to Str_1_Loc
+// Copying 7 words to Str_1_Loc
 	ldinc	r0
 	stinc	r1
 	ldinc	r0
@@ -249,6 +260,7 @@ _main:
 					// (prepobj r1) extern (offset 1628)
 	ldinc	r7
 	.int	_Arr_2_Glob + 1628
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
@@ -262,17 +274,17 @@ _main:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l5
+	.int	l5+0
 	stdec	r6
 
 	//dhry_1.c, line 143
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -283,17 +295,17 @@ _main:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l6
+	.int	l6+0
 	stdec	r6
 
 	//dhry_1.c, line 144
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -304,17 +316,17 @@ _main:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l7
+	.int	l7+0
 	stdec	r6
 
 	//dhry_1.c, line 145
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -328,30 +340,31 @@ _main:
 	ldinc	r7
 	.int	_Reg
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 
 	//dhry_1.c, line 146
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l9)-1)
-	li	IMW0(PCREL(l9))
+	li	IMW0(PCREL(l9)-0)
 		add	r7
 
 	//dhry_1.c, line 148
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l10
+	.int	l10+0
 	stdec	r6
 
 	//dhry_1.c, line 148
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -362,17 +375,17 @@ _main:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l11
+	.int	l11+0
 	stdec	r6
 
 	//dhry_1.c, line 149
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -380,9 +393,9 @@ _main:
 
 
 	//dhry_1.c, line 152
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l12)-1)
-	li	IMW0(PCREL(l12))
+	li	IMW0(PCREL(l12)-0)
 	add	r7
 l9: # 
 
@@ -390,17 +403,17 @@ l9: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l13
+	.int	l13+0
 	stdec	r6
 
 	//dhry_1.c, line 153
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -411,17 +424,17 @@ l9: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l14
+	.int	l14+0
 	stdec	r6
 
 	//dhry_1.c, line 154
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -437,6 +450,7 @@ l12: #
 	ldinc	r7
 	.int	_Number_Of_Runs
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -444,17 +458,17 @@ l12: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l15
+	.int	l15+0
 	stdec	r6
 
 	//dhry_1.c, line 158
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -476,6 +490,7 @@ l12: #
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Begin_Time + 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
@@ -497,6 +512,7 @@ l12: #
 	ldinc	r7
 	.int	_Number_Of_Runs
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r1
 					// (objtotemp)  const
@@ -507,9 +523,9 @@ l12: #
 
 	//dhry_1.c, line 176
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l100)-1)
-	li	IMW0(PCREL(l100))
+	li	IMW0(PCREL(l100)-0)
 		add	r7
 				// freereg r2
 l97: # 
@@ -563,18 +579,19 @@ l97: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Str_2_Loc
+// extern pe not varadr
 	mr	r1
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to Str_2_Loc
-					// (load_temp - type 1) not varadr
-					// (objtotemp) //static
+					// (load_temp - type 11) not varadr
+					// (objtotemp) //static not varadr
 				//statictotemp
 	ldinc	r7
-	.int	l20
+	.int	l20+0
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 1 words to Str_2_Loc
+// Copying 7 words to Str_2_Loc
 	ldinc	r0
 	stinc	r1
 	ldinc	r0
@@ -664,9 +681,9 @@ l97: #
 
 	//dhry_1.c, line 184
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l21)-1)
-	li	IMW0(PCREL(l21))
+	li	IMW0(PCREL(l21)-0)
 		add	r7
 				// allocreg r2
 
@@ -683,9 +700,9 @@ l97: #
 				//save_temp done
 
 	//dhry_1.c, line 184
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l22)-1)
-	li	IMW0(PCREL(l22))
+	li	IMW0(PCREL(l22)-0)
 	add	r7
 l21: # 
 
@@ -708,6 +725,7 @@ l22: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Bool_Glob
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r2
@@ -729,9 +747,9 @@ l22: #
 
 	//dhry_1.c, line 186
 	cond	GE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l101)-1)
-	li	IMW0(PCREL(l101))
+	li	IMW0(PCREL(l101)-0)
 		add	r7
 				// freereg r2
 l98: # 
@@ -740,6 +758,7 @@ l98: #
 	//dhry_1.c, line 188
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
@@ -753,6 +772,7 @@ l98: #
 	//dhry_1.c, line 188
 // code 0x1c
 					// (bitwise) loadreg
+	//ops: 3, 5, 1
 					// (objtotemp)  reg r2
 	mt	r2
 	mr	r0
@@ -823,6 +843,7 @@ l98: #
 	//dhry_1.c, line 192
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 1
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
@@ -853,9 +874,9 @@ l98: #
 
 	//dhry_1.c, line 186
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l98)-1)
-	li	IMW0(PCREL(l98))
+	li	IMW0(PCREL(l98)-0)
 		add	r7
 l101: # 
 
@@ -920,6 +941,7 @@ l101: #
 	ldinc	r7
 	.int	_Ptr_Glob
 		//sizemod based on type 0xa
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -963,6 +985,7 @@ l101: #
 	.int	_Ch_2_Glob
 		//sizemod based on type 0x1
 	byt
+	//extern deref
 	ldt
 	mr	r2
 				// constant: 1000000 in 5 chunks
@@ -992,9 +1015,9 @@ l101: #
 
 	//dhry_1.c, line 200
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l102)-1)
-	li	IMW0(PCREL(l102))
+	li	IMW0(PCREL(l102)-0)
 		add	r7
 l99: # 
 
@@ -1072,15 +1095,14 @@ l99: #
 	mr	r1
 					// (objtotemp)  reg r2
 	mt	r2
-	sgn
 	cmp	r1
 				// freereg r2
 
 	//dhry_1.c, line 201
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l32)-1)
-	li	IMW0(PCREL(l32))
+	li	IMW0(PCREL(l32)-0)
 		add	r7
 				// allocreg r2
 
@@ -1130,18 +1152,19 @@ l99: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Str_2_Loc
+// extern pe not varadr
 	mr	r1
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to Str_2_Loc
-					// (load_temp - type 1) not varadr
-					// (objtotemp) //static
+					// (load_temp - type 11) not varadr
+					// (objtotemp) //static not varadr
 				//statictotemp
 	ldinc	r7
-	.int	l33
+	.int	l33+0
 	mr	r0
 	mt	r2
 	stdec	r6
-// Copying 1 words to Str_2_Loc
+// Copying 7 words to Str_2_Loc
 	ldinc	r0
 	stinc	r1
 	ldinc	r0
@@ -1183,6 +1206,7 @@ l99: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Int_Glob
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r5
@@ -1195,6 +1219,7 @@ l32: #
 	//dhry_1.c, line 200
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 1
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x1
 	byt
@@ -1252,6 +1277,7 @@ l32: #
 	.int	_Ch_2_Glob
 		//sizemod based on type 0x1
 	byt
+	//extern deref
 	ldt
 	mr	r2
 				// constant: 1000000 in 5 chunks
@@ -1280,15 +1306,17 @@ l32: #
 
 	//dhry_1.c, line 200
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l99)-1)
-	li	IMW0(PCREL(l99))
+	li	IMW0(PCREL(l99)-0)
 		add	r7
 l102: # 
 
 	//dhry_1.c, line 211
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
@@ -1298,6 +1326,7 @@ l102: #
 	//dhry_1.c, line 212
 // code 0x1e
 					// (bitwise) loadreg
+	//ops: 5, 0, 1
 	//Call division routine
 					// (objtotemp)  reg r4
 	mt	r4
@@ -1311,7 +1340,7 @@ l102: #
 	ldidx	r6
 	mr	r2
 	ldinc	r7
-	.int	_div_u32byu32
+	.int	_div_s32bys32
 	exg	r7
 	ldinc	r6
 	mr	r2
@@ -1330,6 +1359,7 @@ l102: #
 	//dhry_1.c, line 213
 // code 0x1c
 					// (bitwise) loadreg
+	//ops: 5, 0, 3
 					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
@@ -1344,6 +1374,8 @@ l102: #
 	//dhry_1.c, line 213
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 3, 0, 3
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  const
 				// constant: 7 in 1 chunks
 	li	IMW0(7)
@@ -1353,6 +1385,7 @@ l102: #
 	//dhry_1.c, line 213
 // code 0x1c
 					// (bitwise) loadreg
+	//ops: 3, 0, 5
 					// (objtotemp)  reg r2
 	mt	r2
 	mr	r4
@@ -1396,6 +1429,8 @@ l102: #
 	//dhry_1.c, line 176
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 6, 0, 6
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
@@ -1408,15 +1443,16 @@ l102: #
 	ldinc	r7
 	.int	_Number_Of_Runs
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	sgn
 	cmp	r5
 
 	//dhry_1.c, line 176
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l97)-1)
-	li	IMW0(PCREL(l97))
+	li	IMW0(PCREL(l97)-0)
 		add	r7
 l100: # 
 
@@ -1435,6 +1471,7 @@ l100: #
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_End_Time + 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
@@ -1442,17 +1479,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l34
+	.int	l34+0
 	stdec	r6
 
 	//dhry_1.c, line 237
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1463,17 +1500,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l35
+	.int	l35+0
 	stdec	r6
 
 	//dhry_1.c, line 238
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1484,17 +1521,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l36
+	.int	l36+0
 	stdec	r6
 
 	//dhry_1.c, line 239
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1505,17 +1542,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l37
+	.int	l37+0
 	stdec	r6
 
 	//dhry_1.c, line 240
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1530,6 +1567,7 @@ l100: #
 	ldinc	r7
 	.int	_Int_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -1537,17 +1575,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l38
+	.int	l38+0
 	stdec	r6
 
 	//dhry_1.c, line 241
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1567,17 +1605,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l39
+	.int	l39+0
 	stdec	r6
 
 	//dhry_1.c, line 242
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1592,6 +1630,7 @@ l100: #
 	ldinc	r7
 	.int	_Bool_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -1599,17 +1638,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l40
+	.int	l40+0
 	stdec	r6
 
 	//dhry_1.c, line 243
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1629,17 +1668,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l41
+	.int	l41+0
 	stdec	r6
 
 	//dhry_1.c, line 244
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1656,6 +1695,7 @@ l100: #
 	.int	_Ch_1_Glob
 		//sizemod based on type 0x1
 	byt
+	//extern deref
 	ldt
 	mr	r2
 				// constant: 1000000 in 5 chunks
@@ -1686,17 +1726,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l42
+	.int	l42+0
 	stdec	r6
 
 	//dhry_1.c, line 245
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1717,17 +1757,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l43
+	.int	l43+0
 	stdec	r6
 
 	//dhry_1.c, line 246
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1744,6 +1784,7 @@ l100: #
 	.int	_Ch_2_Glob
 		//sizemod based on type 0x1
 	byt
+	//extern deref
 	ldt
 	mr	r2
 				// constant: 1000000 in 5 chunks
@@ -1774,17 +1815,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l44
+	.int	l44+0
 	stdec	r6
 
 	//dhry_1.c, line 247
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1805,17 +1846,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l45
+	.int	l45+0
 	stdec	r6
 
 	//dhry_1.c, line 248
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1830,6 +1871,7 @@ l100: #
 	ldinc	r7
 	.int	_Arr_1_Glob + 32
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -1837,17 +1879,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l46
+	.int	l46+0
 	stdec	r6
 
 	//dhry_1.c, line 249
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1867,17 +1909,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l47
+	.int	l47+0
 	stdec	r6
 
 	//dhry_1.c, line 250
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1892,6 +1934,7 @@ l100: #
 	ldinc	r7
 	.int	_Arr_2_Glob + 1628
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -1899,17 +1942,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l48
+	.int	l48+0
 	stdec	r6
 
 	//dhry_1.c, line 251
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1920,17 +1963,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l49
+	.int	l49+0
 	stdec	r6
 
 	//dhry_1.c, line 252
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1941,17 +1984,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l50
+	.int	l50+0
 	stdec	r6
 
 	//dhry_1.c, line 253
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -1977,17 +2020,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l51
+	.int	l51+0
 	stdec	r6
 
 	//dhry_1.c, line 254
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -1998,17 +2041,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l52
+	.int	l52+0
 	stdec	r6
 
 	//dhry_1.c, line 255
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2019,10 +2062,12 @@ l100: #
 	//dhry_1.c, line 256
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2036,7 +2081,6 @@ l100: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2045,17 +2089,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l53
+	.int	l53+0
 	stdec	r6
 
 	//dhry_1.c, line 256
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2075,17 +2119,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l54
+	.int	l54+0
 	stdec	r6
 
 	//dhry_1.c, line 257
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2096,10 +2140,12 @@ l100: #
 	//dhry_1.c, line 258
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2113,7 +2159,6 @@ l100: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2122,17 +2167,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l55
+	.int	l55+0
 	stdec	r6
 
 	//dhry_1.c, line 258
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2152,17 +2197,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l56
+	.int	l56+0
 	stdec	r6
 
 	//dhry_1.c, line 259
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2173,10 +2218,12 @@ l100: #
 	//dhry_1.c, line 260
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2190,7 +2237,6 @@ l100: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2199,17 +2245,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l57
+	.int	l57+0
 	stdec	r6
 
 	//dhry_1.c, line 260
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2229,17 +2275,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l58
+	.int	l58+0
 	stdec	r6
 
 	//dhry_1.c, line 261
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2250,10 +2296,12 @@ l100: #
 	//dhry_1.c, line 262
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2275,17 +2323,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l59
+	.int	l59+0
 	stdec	r6
 
 	//dhry_1.c, line 262
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2296,17 +2344,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l60
+	.int	l60+0
 	stdec	r6
 
 	//dhry_1.c, line 263
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2317,17 +2365,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l61
+	.int	l61+0
 	stdec	r6
 
 	//dhry_1.c, line 264
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2353,17 +2401,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l62
+	.int	l62+0
 	stdec	r6
 
 	//dhry_1.c, line 265
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2374,17 +2422,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l63
+	.int	l63+0
 	stdec	r6
 
 	//dhry_1.c, line 266
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2395,10 +2443,12 @@ l100: #
 	//dhry_1.c, line 267
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2412,7 +2462,6 @@ l100: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2421,17 +2470,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l64
+	.int	l64+0
 	stdec	r6
 
 	//dhry_1.c, line 267
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2451,17 +2500,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l65
+	.int	l65+0
 	stdec	r6
 
 	//dhry_1.c, line 268
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2472,10 +2521,12 @@ l100: #
 	//dhry_1.c, line 269
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2489,7 +2540,6 @@ l100: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2498,17 +2548,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l66
+	.int	l66+0
 	stdec	r6
 
 	//dhry_1.c, line 269
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2528,17 +2578,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l67
+	.int	l67+0
 	stdec	r6
 
 	//dhry_1.c, line 270
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2549,10 +2599,12 @@ l100: #
 	//dhry_1.c, line 271
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2566,7 +2618,6 @@ l100: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2575,17 +2626,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l68
+	.int	l68+0
 	stdec	r6
 
 	//dhry_1.c, line 271
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2605,17 +2656,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l69
+	.int	l69+0
 	stdec	r6
 
 	//dhry_1.c, line 272
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2626,10 +2677,12 @@ l100: #
 	//dhry_1.c, line 274
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -2651,17 +2704,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l70
+	.int	l70+0
 	stdec	r6
 
 	//dhry_1.c, line 274
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2672,17 +2725,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l71
+	.int	l71+0
 	stdec	r6
 
 	//dhry_1.c, line 275
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2702,17 +2755,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l72
+	.int	l72+0
 	stdec	r6
 
 	//dhry_1.c, line 276
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2732,17 +2785,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l73
+	.int	l73+0
 	stdec	r6
 
 	//dhry_1.c, line 277
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2761,17 +2814,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l74
+	.int	l74+0
 	stdec	r6
 
 	//dhry_1.c, line 278
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2791,17 +2844,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l75
+	.int	l75+0
 	stdec	r6
 
 	//dhry_1.c, line 279
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2823,17 +2876,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l76
+	.int	l76+0
 	stdec	r6
 
 	//dhry_1.c, line 280
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2853,17 +2906,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l77
+	.int	l77+0
 	stdec	r6
 
 	//dhry_1.c, line 281
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2885,17 +2938,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l78
+	.int	l78+0
 	stdec	r6
 
 	//dhry_1.c, line 282
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2915,17 +2968,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l79
+	.int	l79+0
 	stdec	r6
 
 	//dhry_1.c, line 283
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2946,17 +2999,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l80
+	.int	l80+0
 	stdec	r6
 
 	//dhry_1.c, line 284
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2967,17 +3020,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l81
+	.int	l81+0
 	stdec	r6
 
 	//dhry_1.c, line 285
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -2998,17 +3051,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l82
+	.int	l82+0
 	stdec	r6
 
 	//dhry_1.c, line 286
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -3019,17 +3072,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l83
+	.int	l83+0
 	stdec	r6
 
 	//dhry_1.c, line 287
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -3040,17 +3093,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l84
+	.int	l84+0
 	stdec	r6
 
 	//dhry_1.c, line 288
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -3061,16 +3114,19 @@ l100: #
 	//dhry_1.c, line 291
 // code 0x1c
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_End_Time
 		//sizemod based on type 0x4
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Begin_Time
 		//sizemod based on type 0x4
+	//extern deref
 	ldt
 	sub	r2
 					// (save result) isreg
@@ -3079,6 +3135,7 @@ l100: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_User_Time
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 4) not varadr
 					// (objtotemp)  reg r2
@@ -3100,17 +3157,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l85
+	.int	l85+0
 	stdec	r6
 
 	//dhry_1.c, line 292
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -3123,6 +3180,7 @@ l100: #
 	ldinc	r7
 	.int	_User_Time
 		//sizemod based on type 0x4
+	//extern deref
 	ldt
 	mr	r1
 					// (objtotemp)  const
@@ -3134,9 +3192,9 @@ l100: #
 
 	//dhry_1.c, line 294
 	cond	GE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l87)-1)
-	li	IMW0(PCREL(l87))
+	li	IMW0(PCREL(l87)-0)
 		add	r7
 				// allocreg r2
 
@@ -3144,17 +3202,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l88
+	.int	l88+0
 	stdec	r6
 
 	//dhry_1.c, line 296
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -3165,17 +3223,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l89
+	.int	l89+0
 	stdec	r6
 
 	//dhry_1.c, line 297
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -3186,17 +3244,17 @@ l100: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l90
+	.int	l90+0
 	stdec	r6
 
 	//dhry_1.c, line 298
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -3214,6 +3272,7 @@ l87: #
 	ldinc	r7
 	.int	_User_Time
 		//sizemod based on type 0x4
+	//extern deref
 	ldt
 					// (save temp) isreg
 	mr	r2
@@ -3223,6 +3282,7 @@ l87: #
 	//dhry_1.c, line 316
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 3, 0, 4
 					// (objtotemp)  reg r2
 	mt	r2
 	mr	r3
@@ -3236,6 +3296,7 @@ l87: #
 	//dhry_1.c, line 316
 // code 0x1e
 					// (bitwise) loadreg
+	//ops: 4, 0, 1
 	//Call division routine
 					// (objtotemp)  reg r3
 	mt	r3
@@ -3246,10 +3307,11 @@ l87: #
 	ldinc	r7
 	.int	_Number_Of_Runs
 		//sizemod based on type 0x4
+	//extern deref
 	ldt
 	mr	r2
 	ldinc	r7
-	.int	_div_u32byu32
+	.int	_div_s32bys32
 	exg	r7
 	ldinc	r6
 	mr	r2
@@ -3260,6 +3322,7 @@ l87: #
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Microseconds + 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 				// freereg r3
@@ -3272,6 +3335,7 @@ l87: #
 	ldinc	r7
 	.int	_Number_Of_Runs
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 					// (save temp) isreg
 	mr	r3
@@ -3281,6 +3345,7 @@ l87: #
 	//dhry_1.c, line 317
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 4, 0, 5
 					// (objtotemp)  reg r3
 	mt	r3
 	mr	r4
@@ -3294,6 +3359,7 @@ l87: #
 	//dhry_1.c, line 317
 // code 0x1e
 					// (bitwise) loadreg
+	//ops: 5, 3, 1
 	//Call division routine
 					// (objtotemp)  reg r4
 	mt	r4
@@ -3304,7 +3370,7 @@ l87: #
 	mt	r2
 	mr	r2
 	ldinc	r7
-	.int	_div_u32byu32
+	.int	_div_s32bys32
 	exg	r7
 	ldinc	r6
 	mr	r2
@@ -3315,6 +3381,7 @@ l87: #
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Dhrystones_Per_Second + 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 				// freereg r4
@@ -3322,6 +3389,8 @@ l87: #
 	//dhry_1.c, line 318
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  const
 				// constant: 239 in 2 chunks
 	li	IMW1(569)
@@ -3332,6 +3401,7 @@ l87: #
 	//dhry_1.c, line 318
 // code 0x1e
 					// (bitwise) loadreg
+	//ops: 4, 3, 1
 	//Call division routine
 					// (objtotemp)  reg r3
 	mt	r3
@@ -3342,7 +3412,7 @@ l87: #
 	mt	r2
 	mr	r2
 	ldinc	r7
-	.int	_div_u32byu32
+	.int	_div_s32bys32
 	exg	r7
 	ldinc	r6
 	mr	r2
@@ -3353,6 +3423,7 @@ l87: #
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Vax_Mips + 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 				// freereg r3
@@ -3362,17 +3433,17 @@ l87: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l91
+	.int	l91+0
 	stdec	r6
 
 	//dhry_1.c, line 320
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -3387,6 +3458,7 @@ l87: #
 	ldinc	r7
 	.int	_Microseconds
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -3394,17 +3466,17 @@ l87: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l92
+	.int	l92+0
 	stdec	r6
 
 	//dhry_1.c, line 321
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -3415,17 +3487,17 @@ l87: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l93
+	.int	l93+0
 	stdec	r6
 
 	//dhry_1.c, line 322
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -3440,6 +3512,7 @@ l87: #
 	ldinc	r7
 	.int	_Dhrystones_Per_Second
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -3447,17 +3520,17 @@ l87: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l94
+	.int	l94+0
 	stdec	r6
 
 	//dhry_1.c, line 323
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -3472,6 +3545,7 @@ l87: #
 	ldinc	r7
 	.int	_Vax_Mips
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -3479,17 +3553,17 @@ l87: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l95
+	.int	l95+0
 	stdec	r6
 
 	//dhry_1.c, line 324
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -3500,17 +3574,17 @@ l87: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l96
+	.int	l96+0
 	stdec	r6
 
 	//dhry_1.c, line 325
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -5653,6 +5727,7 @@ _Proc_1:
 	//dhry_1.c, line 344
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 5
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 14 in 1 chunks
@@ -5682,6 +5757,7 @@ _Proc_1:
 	//dhry_1.c, line 346
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 3, 0, 4
 					// (objtotemp)  reg r2
 	mt	r2
 	mr	r3
@@ -5698,7 +5774,6 @@ _Proc_1:
 				// reg r3 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r4
 					// (save temp) store
 	st	r3
@@ -5747,6 +5822,8 @@ _Proc_1:
 	//dhry_1.c, line 351
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 3, 0, 3
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -5757,22 +5834,21 @@ _Proc_1:
 // code 0x44
 					// (test)
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
-	and	r2
 				// freereg r2
 
 	//dhry_1.c, line 351
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l105)-1)
-	li	IMW0(PCREL(l105))
+	li	IMW0(PCREL(l105)-0)
 		add	r7
 				// allocreg r3
 
 	//dhry_1.c, line 354
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 6, 0, 4
 					// (objtotemp)  reg r5
 	mt	r5
 	mr	r3
@@ -5786,6 +5862,7 @@ _Proc_1:
 	//dhry_1.c, line 354
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 6, 0, 3
 					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
@@ -5821,6 +5898,7 @@ _Proc_1:
 	//dhry_1.c, line 356
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 4
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 18 in 1 chunks
@@ -5838,7 +5916,6 @@ _Proc_1:
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r3
 	stdec	r6
 				// freereg r3
@@ -5895,7 +5972,6 @@ _Proc_1:
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -5912,9 +5988,9 @@ _Proc_1:
 
 
 	//dhry_1.c, line 362
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l106)-1)
-	li	IMW0(PCREL(l106))
+	li	IMW0(PCREL(l106)-0)
 	add	r7
 l105: # 
 				// allocreg r2
@@ -6034,8 +6110,8 @@ _Proc_2:
 	//dhry_1.c, line 376
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 5, 0, 4
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r4
 	mr	r3
 					// (objtotemp)  const
@@ -6055,6 +6131,7 @@ l113: #
 	.int	_Ch_1_Glob
 		//sizemod based on type 0x1
 	byt
+	//extern deref
 	ldt
 	mr	r2
 				// constant: 1000000 in 5 chunks
@@ -6078,20 +6155,21 @@ l113: #
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-	sgn
 	cmp	r2
 				// freereg r2
 
 	//dhry_1.c, line 378
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l112)-1)
-	li	IMW0(PCREL(l112))
+	li	IMW0(PCREL(l112)-0)
 		add	r7
 
 	//dhry_1.c, line 381
 // code 0x1c
 					// (bitwise) loadreg
+	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
@@ -6101,6 +6179,7 @@ l113: #
 	//dhry_1.c, line 382
 // code 0x1c
 					// (bitwise) loadreg
+	//ops: 4, 0, 1
 					// (objtotemp)  reg r3
 	mt	r3
 	mr	r0
@@ -6108,6 +6187,7 @@ l113: #
 	ldinc	r7
 	.int	_Int_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	sub	r0
 					// (save result) store reg
@@ -6137,9 +6217,9 @@ l112: #
 
 	//dhry_1.c, line 385
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l113)-1)
-	li	IMW0(PCREL(l113))
+	li	IMW0(PCREL(l113)-0)
 		add	r7
 				// freereg r3
 				// freereg r4
@@ -6181,13 +6261,14 @@ _Proc_3:
 	ldinc	r7
 	.int	_Ptr_Glob
 		//sizemod based on type 0xa
+	//extern deref
 	ldt
 
 	//dhry_1.c, line 397
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l117)-1)
-	li	IMW0(PCREL(l117))
+	li	IMW0(PCREL(l117)-0)
 		add	r7
 
 	//dhry_1.c, line 399
@@ -6218,10 +6299,12 @@ l117: #
 	//dhry_1.c, line 400
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Ptr_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r2
 					// (objtotemp)  const
@@ -6247,6 +6330,7 @@ l117: #
 	ldinc	r7
 	.int	_Int_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	stdec	r6
 
@@ -6302,6 +6386,7 @@ _Proc_4:
 	.int	_Ch_1_Glob
 		//sizemod based on type 0x1
 	byt
+	//extern deref
 	ldt
 	mr	r2
 				// constant: 1000000 in 5 chunks
@@ -6325,15 +6410,14 @@ _Proc_4:
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-	sgn
 	cmp	r2
 				// freereg r2
 
 	//dhry_1.c, line 410
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l119)-1)
-	li	IMW0(PCREL(l119))
+	li	IMW0(PCREL(l119)-0)
 		add	r7
 				// allocreg r2
 
@@ -6350,9 +6434,9 @@ _Proc_4:
 				//save_temp done
 
 	//dhry_1.c, line 410
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l120)-1)
-	li	IMW0(PCREL(l120))
+	li	IMW0(PCREL(l120)-0)
 	add	r7
 l119: # 
 
@@ -6372,10 +6456,12 @@ l120: #
 	//dhry_1.c, line 411
 // code 0x10
 					// (bitwise) loadreg
+	//ops: 0, 3, 1
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_Bool_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r0
 					// (objtotemp)  reg r2
@@ -6386,6 +6472,7 @@ l120: #
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Bool_Glob + 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
@@ -6395,6 +6482,7 @@ l120: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Ch_2_Glob
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 1) not varadr
 					// (objtotemp)  const
@@ -6433,6 +6521,7 @@ _Proc_5:
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Ch_1_Glob
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 1) not varadr
 					// (objtotemp)  const
@@ -6450,6 +6539,7 @@ _Proc_5:
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Bool_Glob
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
@@ -6472,7 +6562,7 @@ _Reg:
 _Number_Of_Runs:
 	.int	25000
 	.globl	_strcpy
-	.globl	_small_printf
+	.globl	_printf
 	.globl	_Ptr_Glob
 	.section	.bss
 	.global	_Ptr_Glob

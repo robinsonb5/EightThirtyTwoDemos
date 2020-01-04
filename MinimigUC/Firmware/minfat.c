@@ -49,7 +49,7 @@ JB:
 #include "minfat.h"
 #include "swap_le.h"
 #include "uart.h"
-#include "tiny_printf.h"
+#include "printf.h"
 
 #define tolower(x) (x|32)
 

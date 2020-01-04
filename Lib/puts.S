@@ -1,6 +1,11 @@
 #include "assembler.pp"
 
-#include "uart.h"
+#define UARTBASE 0xFFFFFFC0
+#define HW_UART(x) *(volatile unsigned int *)(UARTBASE+x)
+
+#define REG_UART 0x0
+#define REG_UART_RXINT 9
+#define REG_UART_TXREADY 8
 
 Puts:	// Sends the string pointed to by r0 to the UART
 	stdec	r6
@@ -16,8 +21,8 @@ Puts:	// Sends the string pointed to by r0 to the UART
 .txwait:
 	ld	r1
 	mr	r2
-	li	IMW1(UART_F_TXREADY)	// TX Ready flag
-	li	IMW0(UART_F_TXREADY)
+	li	IMW1((1<<REG_UART_TXREADY))	// TX Ready flag
+	li	IMW0((1<<REG_UART_TXREADY))
 	and	r2
 	cond	EQ
 		li	IMW0(PCREL(.txwait))

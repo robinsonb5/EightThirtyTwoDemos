@@ -42,8 +42,6 @@ l2:
 					// (prepobj r1) reg r3 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 8)
-	//(val 0)
 	ld	r3
 					// (save temp) isreg
 	mr	r3
@@ -72,8 +70,6 @@ l2:
 					// (prepobj r1) reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 12)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r2
@@ -84,7 +80,7 @@ l2:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 5
-					// (objtotemp)  reg r3, offset 0, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r4
 					// (objtotemp)  const
@@ -99,7 +95,7 @@ l2:
 					// (prepobj r1) deref
 				// reg r4 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r2, offset 4, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 					// (save temp) store
 	st	r4
@@ -123,7 +119,7 @@ l2:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r3, offset 0, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r2
@@ -182,8 +178,6 @@ l5:
 					// (prepobj r1) reg r3 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 8)
-	//(val 0)
 	ld	r3
 					// (save temp) isreg
 	mr	r3
@@ -212,8 +206,6 @@ l5:
 					// (prepobj r1) reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 12)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r2
@@ -224,7 +216,7 @@ l5:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 5
-					// (objtotemp)  reg r3, offset 0, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r4
 					// (objtotemp)  const
@@ -239,7 +231,7 @@ l5:
 					// (prepobj r1) deref
 				// reg r4 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r2, offset 4, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 					// (save temp) store
 	st	r4
@@ -263,7 +255,7 @@ l5:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r3, offset 0, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r2
@@ -308,8 +300,7 @@ l8:
 	//../../Lib//malloc.c, line 52
 // code 0x2a
 					//call
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l5)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l5)-1)
 	li	IMW0(PCREL(l5)-0)
 	add	r7
@@ -332,8 +323,7 @@ l8:
 	//../../Lib//malloc.c, line 53
 // code 0x2a
 					//call
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l2)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l2)-1)
 	li	IMW0(PCREL(l2)-0)
 	add	r7
@@ -395,8 +385,6 @@ ___malloc_from_block:
 
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  deref 
-	//(offset 20)
-	//(val 0)
 	ld	r2
 					// (save temp) store
 	st	r1
@@ -428,15 +416,14 @@ ___malloc_from_block:
 		//sizemod based on type 0x104
 	ld	r6
 	mr	r1
-					// (objtotemp)  reg r2, offset 32, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	cmp	r1
 				// freereg r2
 
 	//../../Lib//malloc.c, line 64
 	cond	SLT
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l14)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l14)-1)
 	li	IMW0(PCREL(l14)-0)
 		add	r7
@@ -485,8 +472,6 @@ ___malloc_from_block:
 					// (prepobj r1) reg r4 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 100)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r4
@@ -534,7 +519,7 @@ ___malloc_from_block:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r5
 					// (objtotemp)  const
@@ -615,7 +600,7 @@ ___malloc_from_block:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r5
 					// (objtotemp)  const
@@ -645,7 +630,7 @@ ___malloc_from_block:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r5
 					// (objtotemp)  const
@@ -660,7 +645,7 @@ ___malloc_from_block:
 					// (prepobj r1) deref
 				// reg r5 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r4, offset 8, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 					// (save temp) store
 	st	r5
@@ -684,7 +669,7 @@ ___malloc_from_block:
 					// (prepobj r1) deref
 				// reg r4 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r4
@@ -697,7 +682,7 @@ ___malloc_from_block:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r2
@@ -727,8 +712,6 @@ ___malloc_from_block:
 					// (prepobj r1) reg r4 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 72)
-	//(val 0)
 	ld	r4
 					// (save temp) isreg
 	mr	r4
@@ -739,7 +722,7 @@ ___malloc_from_block:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -754,7 +737,7 @@ ___malloc_from_block:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r4, offset 12, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 					// (save temp) store
 	st	r2
@@ -784,8 +767,6 @@ ___malloc_from_block:
 					// (prepobj r1) reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 80)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r2
@@ -796,7 +777,7 @@ ___malloc_from_block:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 6
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r5
 					// (objtotemp)  const
@@ -811,7 +792,7 @@ ___malloc_from_block:
 					// (prepobj r1) deref
 				// reg r5 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r2, offset 16, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 					// (save temp) store
 	st	r5
@@ -835,7 +816,7 @@ ___malloc_from_block:
 					// (prepobj r1) deref
 				// reg r4 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r4
@@ -859,7 +840,7 @@ ___malloc_from_block:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r2
@@ -868,8 +849,7 @@ ___malloc_from_block:
 				// freereg r2
 
 	//../../Lib//malloc.c, line 86
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l15)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l15)-1)
 	li	IMW0(PCREL(l15)-0)
 	add	r7
@@ -906,8 +886,7 @@ l14: #
 	//../../Lib//malloc.c, line 88
 // code 0x2a
 					//call
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l5)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l5)-1)
 	li	IMW0(PCREL(l5)-0)
 	add	r7
@@ -923,7 +902,7 @@ l15: #
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
+		//sizemod based on type 0x4
 				// constant: 1c in 1 chunks
 	li	IMW0(28)
 	ldidx	r6
@@ -938,7 +917,7 @@ l15: #
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r2, offset 96, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r0
 				// freereg r2
@@ -996,7 +975,7 @@ l16:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	stdec	r6
 
@@ -1026,7 +1005,7 @@ l16:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -1044,8 +1023,6 @@ l16:
 
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 16)
-	//(val 0)
 	ld	r2
 					// (save temp) store
 	st	r1
@@ -1057,7 +1034,7 @@ l16:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -1072,8 +1049,6 @@ l16:
 					// (prepobj r1) reg r5 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 20)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r5
@@ -1098,8 +1073,7 @@ l16:
 
 	//../../Lib//malloc.c, line 114
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l21)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l21)-1)
 	li	IMW0(PCREL(l21)-0)
 		add	r7
@@ -1124,8 +1098,6 @@ l16:
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
 					// (objtotemp)  deref 
-	//(offset 24)
-	//(val 0)
 	ld	r2
 	mr	r2
 					// (objtotemp)  var, auto|reg
@@ -1136,7 +1108,7 @@ l16:
 
 	//../../Lib//malloc.c, line 114
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r4, offset -4, val 0
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r4
 	mt	r4
 	sgn
 	cmp	r2
@@ -1144,8 +1116,7 @@ l16:
 
 	//../../Lib//malloc.c, line 114
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l21)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l21)-1)
 	li	IMW0(PCREL(l21)-0)
 		add	r7
@@ -1191,7 +1162,7 @@ l16:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 4
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r3
 					// (objtotemp)  const
@@ -1205,13 +1176,9 @@ l16:
 					// (bitwise) loadreg
 	//ops: 4, 3, 1
 					// (objtotemp)  deref 
-	//(offset 40)
-	//(val 0)
 	ld	r3
 	mr	r0
 					// (objtotemp)  deref 
-	//(offset 36)
-	//(val 0)
 	ld	r2
 	add	r0
 					// (save result) store reg
@@ -1242,7 +1209,7 @@ l16:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 					// (save temp) store
 	st	r2
@@ -1254,7 +1221,7 @@ l16:
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
 					// (objtotemp)  const
@@ -1290,8 +1257,7 @@ l16:
 				//save_temp done
 
 	//../../Lib//malloc.c, line 123
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l24)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l24)-1)
 	li	IMW0(PCREL(l24)-0)
 	add	r7
@@ -1315,7 +1281,7 @@ l21: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -1345,7 +1311,7 @@ l21: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 4
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r3
 					// (objtotemp)  const
@@ -1377,7 +1343,7 @@ l21: #
 // static pe not varadr
 	mr	r1
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 					// (save temp) store
 	st	r1
@@ -1389,8 +1355,6 @@ l21: #
 	//ops: 3, 0, 3
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  deref 
-	//(offset 128)
-	//(val 0)
 	ld	r2
 	mr	r2
 					// (objtotemp)  const
@@ -1405,7 +1369,7 @@ l21: #
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 					// (save temp) store
 	st	r2
@@ -1416,8 +1380,6 @@ l24: #
 	//../../Lib//malloc.c, line 142
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r5
 	mr	r1
 					// (objtotemp)  const
@@ -1428,8 +1390,7 @@ l24: #
 
 	//../../Lib//malloc.c, line 142
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l26)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l26)-1)
 	li	IMW0(PCREL(l26)-0)
 		add	r7
@@ -1439,7 +1400,7 @@ l24: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -1453,18 +1414,16 @@ l24: #
 					// (bitwise) loadreg
 	//ops: 5, 3, 3
 					// (objtotemp)  deref 
-	//(offset 60)
-	//(val 0)
 	ld	r2
 	mr	r2
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	add	r2
 					// (save result) isreg
 
 	//../../Lib//malloc.c, line 142
 // code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r5, offset 4, val 0
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r5
 	mt	r5
 	sgn
 	cmp	r2
@@ -1472,8 +1431,7 @@ l24: #
 
 	//../../Lib//malloc.c, line 142
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l26)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l26)-1)
 	li	IMW0(PCREL(l26)-0)
 		add	r7
@@ -1483,7 +1441,7 @@ l24: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -1497,7 +1455,7 @@ l24: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 4
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r3
 					// (objtotemp)  const
@@ -1511,13 +1469,9 @@ l24: #
 					// (bitwise) loadreg
 	//ops: 4, 3, 1
 					// (objtotemp)  deref 
-	//(offset 72)
-	//(val 0)
 	ld	r3
 	mr	r0
 					// (objtotemp)  deref 
-	//(offset 68)
-	//(val 0)
 	ld	r2
 	add	r0
 					// (save result) store reg
@@ -1531,7 +1485,7 @@ l24: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	stdec	r6
 
@@ -1560,15 +1514,14 @@ l24: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	stdec	r6
 
 	//../../Lib//malloc.c, line 147
 // code 0x2a
 					//call
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l8)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l8)-1)
 	li	IMW0(PCREL(l8)-0)
 	add	r7
@@ -1582,7 +1535,7 @@ l26: #
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r0
 				// freereg r4
@@ -1768,7 +1721,7 @@ _malloc_add:
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r3, offset 8, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r2
@@ -1886,8 +1839,7 @@ _malloc_add:
 
 	//../../Lib//malloc.c, line 173
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l40)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l40)-1)
 	li	IMW0(PCREL(l40)-0)
 		add	r7
@@ -1903,8 +1855,7 @@ l39: #
 
 	//../../Lib//malloc.c, line 174
 	cond	SLT
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l40)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l40)-1)
 	li	IMW0(PCREL(l40)-0)
 		add	r7
@@ -1914,7 +1865,7 @@ l39: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
 					// (objtotemp)  const
@@ -1929,8 +1880,6 @@ l39: #
 					// (prepobj r1) reg r5 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 28)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r5
@@ -1940,8 +1889,6 @@ l39: #
 	//../../Lib//malloc.c, line 173
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r5
 	mr	r1
 					// (objtotemp)  const
@@ -1952,8 +1899,7 @@ l39: #
 
 	//../../Lib//malloc.c, line 173
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l39)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l39)-1)
 	li	IMW0(PCREL(l39)-0)
 		add	r7
@@ -1964,7 +1910,7 @@ l40: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 4
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r3
 					// (objtotemp)  const
@@ -1995,8 +1941,6 @@ l40: #
 				// reg r2 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 68)
-	//(val 0)
 	ld	r3
 					// (save temp) store
 	st	r2
@@ -2023,7 +1967,7 @@ l40: #
 					// (prepobj r1) deref
 				// reg r4 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 					// (save temp) store
 	st	r4
@@ -2050,8 +1994,6 @@ l40: #
 	//ops: 3, 0, 3
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  deref 
-	//(offset 72)
-	//(val 0)
 	ld	r2
 	mr	r2
 					// (objtotemp)  const
@@ -2086,8 +2028,7 @@ l40: #
 	//../../Lib//malloc.c, line 186
 // code 0x2a
 					//call
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l16)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l16)-1)
 	li	IMW0(PCREL(l16)-0)
 	add	r7
@@ -2208,7 +2149,7 @@ _malloc:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	stdec	r6
 
@@ -2236,14 +2177,13 @@ _malloc:
 	//../../Lib//malloc.c, line 198
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	and	r4
 
 	//../../Lib//malloc.c, line 198
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l45)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l45)-1)
 	li	IMW0(PCREL(l45)-0)
 		add	r7
@@ -2258,8 +2198,7 @@ _malloc:
 	mr	r0
 
 	//../../Lib//malloc.c, line 202
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l41)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l41)-1)
 	li	IMW0(PCREL(l41)-0)
 	add	r7
@@ -2270,7 +2209,7 @@ l45: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -2283,7 +2222,7 @@ l45: #
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 3, 0, 5
-					// (objtotemp)  reg r2, offset 24, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r4
 					// (objtotemp)  const
@@ -2328,8 +2267,7 @@ l45: #
 
 	//../../Lib//malloc.c, line 204
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l53)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l53)-1)
 	li	IMW0(PCREL(l53)-0)
 		add	r7
@@ -2340,7 +2278,7 @@ l52: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 0, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -2352,19 +2290,16 @@ l52: #
 	//../../Lib//malloc.c, line 206
 // code 0x4d
 					// (compare) (q1 unsigned) (q2 unsigned)					// (objtotemp)  deref 
-	//(offset 36)
-	//(val 0)
 	ld	r2
 	mr	r1
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	cmp	r1
 				// freereg r2
 
 	//../../Lib//malloc.c, line 206
 	cond	SLT
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l51)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l51)-1)
 	li	IMW0(PCREL(l51)-0)
 		add	r7
@@ -2373,7 +2308,7 @@ l52: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r4, offset -4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	stdec	r6
 
@@ -2381,7 +2316,7 @@ l52: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r3, offset 0, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	stdec	r6
 
@@ -2407,14 +2342,13 @@ l52: #
 // code 0x5e
 					//setreturn
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r2, offset 40, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r0
 				// freereg r2
 
 	//../../Lib//malloc.c, line 209
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l41)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l41)-1)
 	li	IMW0(PCREL(l41)-0)
 	add	r7
@@ -2425,7 +2359,7 @@ l51: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 0, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -2440,8 +2374,6 @@ l51: #
 					// (prepobj r1) reg r3 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 44)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r3
@@ -2451,8 +2383,6 @@ l51: #
 	//../../Lib//malloc.c, line 204
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
-	//(offset 0)
-	//(val 0)
 	ld	r3
 	mr	r1
 					// (objtotemp)  const
@@ -2463,8 +2393,7 @@ l51: #
 
 	//../../Lib//malloc.c, line 204
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l52)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l52)-1)
 	li	IMW0(PCREL(l52)-0)
 		add	r7
@@ -2557,8 +2486,7 @@ _free:
 
 	//../../Lib//malloc.c, line 223
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l54)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l54)-1)
 	li	IMW0(PCREL(l54)-0)
 		add	r7
@@ -2569,7 +2497,7 @@ _free:
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
+		//sizemod based on type 0x4
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	ldidx	r6
@@ -2584,7 +2512,7 @@ _free:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 0, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2
@@ -2592,8 +2520,7 @@ _free:
 	//../../Lib//malloc.c, line 229
 // code 0x2a
 					//call
-			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l16)-2)
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l16)-1)
 	li	IMW0(PCREL(l16)-0)
 	add	r7
@@ -2683,7 +2610,7 @@ l74: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -2697,8 +2624,6 @@ l74: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 16)
-	//(val 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2708,8 +2633,6 @@ l74: #
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r3
 	stdec	r6
 
@@ -2717,7 +2640,7 @@ l74: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	stdec	r6
 
@@ -2747,7 +2670,7 @@ l74: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -2762,8 +2685,6 @@ l74: #
 					// (prepobj r1) reg r5 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 24)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r5
@@ -2775,7 +2696,7 @@ l74: #
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r5, offset 0, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 					// (save temp) isreg
 	mr	r3
@@ -2795,14 +2716,13 @@ l74: #
 	//../../Lib//malloc.c, line 249
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r4, offset 8, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	and	r4
 
 	//../../Lib//malloc.c, line 249
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l76)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l76)-1)
 	li	IMW0(PCREL(l76)-0)
 		add	r7
@@ -2810,14 +2730,13 @@ l74: #
 	//../../Lib//malloc.c, line 249
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	and	r3
 
 	//../../Lib//malloc.c, line 249
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l76)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l76)-1)
 	li	IMW0(PCREL(l76)-0)
 		add	r7
@@ -2825,8 +2744,6 @@ l74: #
 	//../../Lib//malloc.c, line 249
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r3
 	mr	r1
 					// (objtotemp)  const
@@ -2837,8 +2754,7 @@ l74: #
 
 	//../../Lib//malloc.c, line 249
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l74)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l74)-1)
 	li	IMW0(PCREL(l74)-0)
 		add	r7
@@ -2895,7 +2811,7 @@ l75: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -2909,8 +2825,6 @@ l75: #
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 32)
-	//(val 0)
 	ld	r2
 	stdec	r6
 				// freereg r2
@@ -2920,8 +2834,6 @@ l75: #
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r3
 	stdec	r6
 
@@ -2929,7 +2841,7 @@ l75: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	stdec	r6
 
@@ -2959,7 +2871,7 @@ l75: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
-					// (objtotemp)  reg r5, offset 0, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
 					// (objtotemp)  const
@@ -2974,8 +2886,6 @@ l75: #
 					// (prepobj r1) reg r5 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 40)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r5
@@ -2987,7 +2897,7 @@ l75: #
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
 					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r5, offset 0, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 					// (save temp) isreg
 	mr	r3
@@ -3007,14 +2917,13 @@ l75: #
 	//../../Lib//malloc.c, line 261
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r4, offset 8, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	and	r4
 
 	//../../Lib//malloc.c, line 261
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l77)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l77)-1)
 	li	IMW0(PCREL(l77)-0)
 		add	r7
@@ -3022,14 +2931,13 @@ l75: #
 	//../../Lib//malloc.c, line 261
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	and	r3
 
 	//../../Lib//malloc.c, line 261
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l77)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l77)-1)
 	li	IMW0(PCREL(l77)-0)
 		add	r7
@@ -3037,8 +2945,6 @@ l75: #
 	//../../Lib//malloc.c, line 261
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r3
 	mr	r1
 					// (objtotemp)  const
@@ -3049,8 +2955,7 @@ l75: #
 
 	//../../Lib//malloc.c, line 261
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l75)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l75)-1)
 	li	IMW0(PCREL(l75)-0)
 		add	r7
@@ -3227,14 +3132,13 @@ _availmem:
 	//../../Lib//malloc.c, line 268
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	and	r3
 
 	//../../Lib//malloc.c, line 268
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l86)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l86)-1)
 	li	IMW0(PCREL(l86)-0)
 		add	r7
@@ -3242,8 +3146,6 @@ _availmem:
 	//../../Lib//malloc.c, line 268
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r3
 	mr	r1
 					// (objtotemp)  const
@@ -3254,8 +3156,7 @@ _availmem:
 
 	//../../Lib//malloc.c, line 268
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l86)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l86)-1)
 	li	IMW0(PCREL(l86)-0)
 		add	r7
@@ -3266,7 +3167,7 @@ l85: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -3281,8 +3182,6 @@ l85: #
 	//ops: 5, 3, 5
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  deref 
-	//(offset 8)
-	//(val 0)
 	ld	r2
 	add	r4
 					// (save result) isreg
@@ -3293,7 +3192,7 @@ l85: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -3308,8 +3207,6 @@ l85: #
 					// (prepobj r1) reg r3 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  deref 
-	//(offset 24)
-	//(val 0)
 	ld	r2
 					// (save temp) isreg
 	mr	r3
@@ -3319,14 +3216,13 @@ l85: #
 	//../../Lib//malloc.c, line 268
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	and	r3
 
 	//../../Lib//malloc.c, line 268
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l86)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l86)-1)
 	li	IMW0(PCREL(l86)-0)
 		add	r7
@@ -3334,8 +3230,6 @@ l85: #
 	//../../Lib//malloc.c, line 268
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  deref 
-	//(offset 4)
-	//(val 0)
 	ld	r3
 	mr	r1
 					// (objtotemp)  const
@@ -3346,8 +3240,7 @@ l85: #
 
 	//../../Lib//malloc.c, line 268
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l85)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l85)-1)
 	li	IMW0(PCREL(l85)-0)
 		add	r7
@@ -3357,7 +3250,7 @@ l86: #
 // code 0x5e
 					//setreturn
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r4, offset 0, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r0
 				// freereg r3
@@ -3499,7 +3392,7 @@ __initMem:
 	mr	r1
 
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r1
@@ -3513,7 +3406,7 @@ __initMem:
 	mr	r1
 
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r4, offset 12, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 					// (save temp) store
 	st	r1
@@ -3552,7 +3445,7 @@ l89: #
 // code 0x1d
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset 4, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -3565,11 +3458,11 @@ l89: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
-					// (objtotemp)  reg r2, offset 36, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r2
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
+		//sizemod based on type 0x4
 	ld	r6
 	add	r2
 					// (save result) isreg
@@ -3580,7 +3473,7 @@ l89: #
 					// (prepobj r1) deref
 				// reg r2 - no need to prep
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r3, offset 5, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	st	r2
@@ -3637,8 +3530,7 @@ l89: #
 
 	//../../Lib//malloc.c, line 298
 	cond	SLT
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l89)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l89)-1)
 	li	IMW0(PCREL(l89)-0)
 		add	r7
@@ -3694,7 +3586,7 @@ l89: #
 	mr	r1
 
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 					// (save temp) store
 	st	r1
@@ -3720,7 +3612,7 @@ l93: #
 // code 0x1d
 					// (bitwise) loadreg
 	//ops: 4, 0, 3
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r2
 					// (objtotemp)  const
@@ -3733,11 +3625,11 @@ l93: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
-					// (objtotemp)  reg r2, offset 36, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r2
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
+		//sizemod based on type 0x4
 	ld	r6
 	add	r2
 					// (save result) isreg
@@ -3745,19 +3637,16 @@ l93: #
 	//../../Lib//malloc.c, line 310
 // code 0x4d
 					// (compare) (q1 unsigned) (q2 unsigned)					// (objtotemp)  deref 
-	//(offset 40)
-	//(val 0)
 	ld	r2
 	mr	r1
-					// (objtotemp)  reg r5, offset 10, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	cmp	r1
 				// freereg r2
 
 	//../../Lib//malloc.c, line 310
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l98)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l98)-1)
 	li	IMW0(PCREL(l98)-0)
 		add	r7
@@ -3766,7 +3655,7 @@ l93: #
 // code 0x10
 					// (bitwise) loadreg
 	//ops: 4, 0, 1
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	mr	r0
 					// (objtotemp)  var, auto|reg
@@ -3817,8 +3706,7 @@ l98: #
 
 	//../../Lib//malloc.c, line 309
 	cond	SLT
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l93)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l93)-1)
 	li	IMW0(PCREL(l93)-0)
 		add	r7
@@ -3849,14 +3737,13 @@ l98: #
 	//../../Lib//malloc.c, line 317
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	and	r5
 
 	//../../Lib//malloc.c, line 317
 	cond	EQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l108)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l108)-1)
 	li	IMW0(PCREL(l108)-0)
 		add	r7
@@ -3881,7 +3768,7 @@ l99: #
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
 					// (objtotemp)  const
@@ -3894,10 +3781,10 @@ l99: #
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 3, 4, 6
-					// (objtotemp)  reg r2, offset 60, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r5
-					// (objtotemp)  reg r3, offset 12, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	and	r5
 					// (save result) isreg
@@ -3929,14 +3816,13 @@ l99: #
 	//../../Lib//malloc.c, line 317
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	and	r5
 
 	//../../Lib//malloc.c, line 317
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - reach of 18 bits
-	li	IMW2(PCREL(l99)-2)
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l99)-1)
 	li	IMW0(PCREL(l99)-0)
 		add	r7
@@ -3998,7 +3884,7 @@ l108: #
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 3, 3
-					// (objtotemp)  reg r2, offset 76, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r2
 					// (objtotemp)  var, auto|reg
@@ -4020,6 +3906,13 @@ l108: #
 	and	r2
 					// (save result) isreg
 
+	//../../Lib//malloc.c, line 325
+// code 0x32
+					//FIXME convert
+					// (convert -> assign)
+					// (prepobj r1) reg r2 - no need to prep
+					// (load_temp - type 10)
+
 	//../../Lib//malloc.c, line 326
 // code 0x1c
 					// (bitwise) loadreg
@@ -4036,7 +3929,7 @@ l108: #
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 104, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2

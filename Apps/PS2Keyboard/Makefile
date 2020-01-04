@@ -1,4 +1,5 @@
 832DIR=../../EightThirtyTwo/Lib/
+INCDIR=../../EightThirtyTwo/include/
 LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
@@ -33,14 +34,14 @@ clean :
 	gcc -c $*.s
 
 PS2Keyboard.elf : start.o premain.o uart.o small_printf.o division.o malloc.o hexdump.o swap.o spi.o\
-	syscalls.o fat.o rafile.o memset.o strcpy.o strcmp.o ps2.o interrupts.o keyboard.o main.o
+	syscalls.o fat.o rafile.o string.o ps2.o interrupts.o keyboard.o main.o
 	gcc -Wl,--build-id=none -Wl,--gc-sections -nostartfiles -nostdlib -T$(LIBDIR)/stdapp.ld -o $@ $+
 
 %.o : %.S Makefile
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
 %.o : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
 	mv $*.asm $*.S
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
@@ -51,7 +52,7 @@ PS2Keyboard.elf : start.o premain.o uart.o small_printf.o division.o malloc.o he
 	gcc -c $(832DIR)/$*.S -I$(832DIR) -DLDSTACK -o $*.o
 
 %.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
 	mv $*.asm $*.S
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c

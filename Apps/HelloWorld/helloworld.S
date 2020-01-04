@@ -19,17 +19,17 @@ _main:
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
+					// (objtotemp) //static varadr
 				//statictotemp
 	ldinc	r7
-	.int	l2
+	.int	l2+0
 	stdec	r6
 
 	//helloworld.c, line 5
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_small_printf
+	.int	_printf
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -65,4 +65,4 @@ l2:
 	.byte	33
 	.byte	10
 	.byte	0
-	.globl	_small_printf
+	.globl	_printf

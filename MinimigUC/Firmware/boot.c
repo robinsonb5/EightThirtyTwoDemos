@@ -20,12 +20,12 @@
 #include "spi.h"
 #include "minfat.h"
 #include "checksum.h"
-#include "tiny_printf.h"
+#include "printf.h"
 
 void _boot();
 void _break();
 
-extern int prg_start;
+extern char prg_start;
 
 char printbuf[32];
 
@@ -45,9 +45,7 @@ int SREC_MAX_ADDR;
 
 void _boot()
 {
-	void (*f)();
-	f=(void(*f)())(&prg_start);
-	f();
+	((void (*)(void))(&prg_start))();
 	while(1)
 		;
 }
@@ -150,7 +148,7 @@ void HandleByte(char d0)
 				int checksum=0;
 				FLUSHCACHES;
 
-				for(SREC_ADDR=0;SREC_ADDR<SREC_MAX_ADDR;SREC_ADDR+=4)
+				for(SREC_ADDR=(int)&prg_start;SREC_ADDR<SREC_MAX_ADDR;SREC_ADDR+=4)
 					checksum+=*(int *)SREC_ADDR;
 				printf("Checksum to %d: %d\n",SREC_MAX_ADDR,checksum);
 				Breadcrumb('B');
@@ -158,7 +156,7 @@ void HandleByte(char d0)
 #ifdef DEBUG
 				exit(0);
 #else
-				((void (*)(void))prg_start)();
+				((void (*)(void))(&prg_start))();
 #endif
 			}
 			else

@@ -15,7 +15,7 @@
 __boot:
 	stdec	r6
 
-	//boot.c, line 50
+	//boot.c, line 48
 // code 0x2a
 					//call
 	ldinc	r7
@@ -24,10 +24,10 @@ __boot:
 
 l5: # 
 
-	//boot.c, line 51
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 49
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l5)-1)
-	li	IMW0(PCREL(l5))
+	li	IMW0(PCREL(l5)-0)
 	add	r7
 	ldinc	r6
 	mr	r7
@@ -63,7 +63,7 @@ _DoDecode:
 	mr	r2
 				//save_temp done
 
-	//boot.c, line 57
+	//boot.c, line 55
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -75,7 +75,7 @@ _DoDecode:
 	and	r2
 					// (save result) isreg
 
-	//boot.c, line 58
+	//boot.c, line 56
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -87,7 +87,7 @@ _DoDecode:
 	sub	r2
 					// (save result) isreg
 
-	//boot.c, line 59
+	//boot.c, line 57
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 0 in 1 chunks
@@ -95,14 +95,14 @@ _DoDecode:
 	sgn
 	cmp	r2
 
-	//boot.c, line 59
+	//boot.c, line 57
 	cond	GE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l9)-1)
-	li	IMW0(PCREL(l9))
+	li	IMW0(PCREL(l9)-0)
 		add	r7
 
-	//boot.c, line 60
+	//boot.c, line 58
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -115,7 +115,7 @@ _DoDecode:
 					// (save result) isreg
 l9: # 
 
-	//boot.c, line 61
+	//boot.c, line 59
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -138,7 +138,7 @@ l9: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 62
+	//boot.c, line 60
 // code 0x10
 					// (bitwise) loadreg
 	//ops: 0, 3, 1
@@ -148,7 +148,7 @@ l9: #
 	li	IMW0(8)
 	ldidx	r6
 	mr	r0
-					// (objtotemp)  reg r2, offset -8, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	or	r0
 					// (save result) store reg
@@ -160,7 +160,7 @@ l9: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 63
+	//boot.c, line 61
 // code 0x5e
 					//setreturn
 					// (load_temp - type 3) not varadr
@@ -199,9 +199,10 @@ _HandleByte:
 	exg	r6
 				// allocreg r5
 				// allocreg r4
+				// allocreg r3
 // code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
+					// (prepobj r1) reg r3 - no need to prep
 					// (load_temp - type 10) not varadr
 					// (objtotemp)  const
 				// constant: da8000 in 5 chunks
@@ -211,11 +212,10 @@ _HandleByte:
 	li	IMW1(14319616)
 	li	IMW0(14319616)
 					// (save temp) isreg
-	mr	r4
+	mr	r3
 				//save_temp done
-				// allocreg r3
 
-	//boot.c, line 68
+	//boot.c, line 66
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -240,7 +240,7 @@ _HandleByte:
  // WARNING - check that 4 has been added.
 				// allocreg r2
 
-	//boot.c, line 70
+	//boot.c, line 68
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -266,7 +266,7 @@ _HandleByte:
 	mr	r2
 					// (save result) isreg
 
-	//boot.c, line 70
+	//boot.c, line 68
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 53 in 2 chunks
@@ -276,14 +276,14 @@ _HandleByte:
 	cmp	r2
 				// freereg r2
 
-	//boot.c, line 70
+	//boot.c, line 68
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l12)-1)
-	li	IMW0(PCREL(l12))
+	li	IMW0(PCREL(l12)-0)
 		add	r7
 
-	//boot.c, line 72
+	//boot.c, line 70
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -299,7 +299,7 @@ _HandleByte:
 	st	r1
 				//save_temp done
 
-	//boot.c, line 73
+	//boot.c, line 71
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -315,7 +315,7 @@ _HandleByte:
 	st	r1
 				//save_temp done
 
-	//boot.c, line 74
+	//boot.c, line 72
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -331,7 +331,7 @@ _HandleByte:
 	st	r1
 				//save_temp done
 
-	//boot.c, line 75
+	//boot.c, line 73
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -347,28 +347,28 @@ _HandleByte:
 	st	r1
 				//save_temp done
 
-	//boot.c, line 76
+	//boot.c, line 74
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
-				// reg r4 - no need to prep
+				// reg r3 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
 				// constant: 53 in 2 chunks
 	li	IMW1(83)
 	li	IMW0(83)
 					// (save temp) store
-	st	r4
+	st	r3
 				//save_temp done
 
-	//boot.c, line 79
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 77
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 	add	r7
 l12: # 
 
-	//boot.c, line 80
+	//boot.c, line 78
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -383,29 +383,29 @@ l12: #
 	sgn
 	cmp	r1
 
-	//boot.c, line 80
+	//boot.c, line 78
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l15)-1)
-	li	IMW0(PCREL(l15))
+	li	IMW0(PCREL(l15)-0)
 		add	r7
 
-	//boot.c, line 83
+	//boot.c, line 81
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
-				// reg r4 - no need to prep
+				// reg r3 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
 				// constant: 74 in 2 chunks
 	li	IMW1(116)
 	li	IMW0(116)
 					// (save temp) store
-	st	r4
+	st	r3
 				//save_temp done
 				// allocreg r2
 
-	//boot.c, line 84
+	//boot.c, line 82
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -431,16 +431,16 @@ l12: #
 	mr	r2
 					// (save result) isreg
 
-	//boot.c, line 84
+	//boot.c, line 82
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 8, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2
 
-	//boot.c, line 84
+	//boot.c, line 82
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -452,7 +452,7 @@ l12: #
 	ldt
 	stdec	r6
 
-	//boot.c, line 84
+	//boot.c, line 82
 // code 0x2a
 					//call
 	ldinc	r7
@@ -463,7 +463,7 @@ l12: #
 	add	r6
 
 
-	//boot.c, line 84
+	//boot.c, line 82
 // code 0x5d
 					// (getreturn)					// (save result) store reg
 // Store_reg to type 0x3
@@ -474,7 +474,7 @@ l12: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 84
+	//boot.c, line 82
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r5 - no need to prep
@@ -489,7 +489,7 @@ l12: #
 	mr	r5
 				//save_temp done
 
-	//boot.c, line 86
+	//boot.c, line 84
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 3 in 1 chunks
@@ -497,14 +497,14 @@ l12: #
 	sgn
 	cmp	r5
 
-	//boot.c, line 86
+	//boot.c, line 84
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l17)-1)
-	li	IMW0(PCREL(l17))
+	li	IMW0(PCREL(l17)-0)
 		add	r7
 
-	//boot.c, line 87
+	//boot.c, line 85
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 0, 6, 6
@@ -513,7 +513,7 @@ l12: #
 				// constant: a in 1 chunks
 	li	IMW0(10)
 	mr	r0
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	sub	r0
 					// (save result) isreg
@@ -522,11 +522,11 @@ l12: #
 l17: # 
 				// allocreg r2
 
-	//boot.c, line 89
+	//boot.c, line 87
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 3
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
 					// (objtotemp)  const
@@ -535,11 +535,11 @@ l17: #
 	add	r2
 					// (save result) isreg
 
-	//boot.c, line 89
+	//boot.c, line 87
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 3, 0, 1
-					// (objtotemp)  reg r2, offset 20, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r0
 					// (objtotemp)  const
@@ -556,11 +556,11 @@ l17: #
  // WARNING - check that 4 has been added.
 				// freereg r2
 
-	//boot.c, line 92
+	//boot.c, line 90
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 1
-					// (objtotemp)  reg r5, offset 4, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	mr	r0
 					// (objtotemp)  const
@@ -571,16 +571,16 @@ l17: #
 					// (save result) store reg
 // Store_reg to type 0x3
 	mt	r0
-	st	r4
+	st	r3
 
-	//boot.c, line 94
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 92
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 	add	r7
 l15: # 
 
-	//boot.c, line 94
+	//boot.c, line 92
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -595,14 +595,14 @@ l15: #
 	sgn
 	cmp	r1
 
-	//boot.c, line 94
+	//boot.c, line 92
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 		add	r7
 
-	//boot.c, line 94
+	//boot.c, line 92
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -617,14 +617,14 @@ l15: #
 	sgn
 	cmp	r1
 
-	//boot.c, line 94
+	//boot.c, line 92
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 		add	r7
 
-	//boot.c, line 96
+	//boot.c, line 94
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -643,9 +643,9 @@ l15: #
 					// (save result) store reg
 // Store_reg to type 0x3
 	mt	r0
-	st	r4
+	st	r3
 
-	//boot.c, line 97
+	//boot.c, line 95
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -660,15 +660,15 @@ l15: #
 	sgn
 	cmp	r1
 
-	//boot.c, line 97
+	//boot.c, line 95
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l23)-1)
-	li	IMW0(PCREL(l23))
+	li	IMW0(PCREL(l23)-0)
 		add	r7
 				// allocreg r2
 
-	//boot.c, line 99
+	//boot.c, line 97
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -694,16 +694,16 @@ l15: #
 	mr	r2
 					// (save result) isreg
 
-	//boot.c, line 99
+	//boot.c, line 97
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 12, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2
 
-	//boot.c, line 99
+	//boot.c, line 97
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -715,7 +715,7 @@ l15: #
 	ldt
 	stdec	r6
 
-	//boot.c, line 99
+	//boot.c, line 97
 // code 0x2a
 					//call
 	ldinc	r7
@@ -726,7 +726,7 @@ l15: #
 	add	r6
 
 
-	//boot.c, line 99
+	//boot.c, line 97
 // code 0x5d
 					// (getreturn)					// (save result) store reg
 // Store_reg to type 0x3
@@ -737,15 +737,15 @@ l15: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 102
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 100
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 	add	r7
 l23: # 
 				// allocreg r2
 
-	//boot.c, line 102
+	//boot.c, line 100
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -762,7 +762,7 @@ l23: #
 	add	r2
 					// (save result) isreg
 
-	//boot.c, line 102
+	//boot.c, line 100
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -771,21 +771,21 @@ l23: #
 	//extern deref
 	ldt
 	mr	r1
-					// (objtotemp)  reg r2, offset 12, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	sgn
 	cmp	r1
 				// freereg r2
 
-	//boot.c, line 102
+	//boot.c, line 100
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l26)-1)
-	li	IMW0(PCREL(l26))
+	li	IMW0(PCREL(l26)-0)
 		add	r7
 				// allocreg r2
 
-	//boot.c, line 104
+	//boot.c, line 102
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -811,16 +811,16 @@ l23: #
 	mr	r2
 					// (save result) isreg
 
-	//boot.c, line 104
+	//boot.c, line 102
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 16, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2
 
-	//boot.c, line 104
+	//boot.c, line 102
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -832,7 +832,7 @@ l23: #
 	ldt
 	stdec	r6
 
-	//boot.c, line 104
+	//boot.c, line 102
 // code 0x2a
 					//call
 	ldinc	r7
@@ -843,7 +843,7 @@ l23: #
 	add	r6
 
 
-	//boot.c, line 104
+	//boot.c, line 102
 // code 0x5d
 					// (getreturn)					// (save result) store reg
 // Store_reg to type 0x3
@@ -854,7 +854,7 @@ l23: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 105
+	//boot.c, line 103
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -870,14 +870,14 @@ l23: #
 	st	r1
 				//save_temp done
 
-	//boot.c, line 108
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 106
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 	add	r7
 l26: # 
 
-	//boot.c, line 108
+	//boot.c, line 106
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -892,14 +892,14 @@ l26: #
 	sgn
 	cmp	r1
 
-	//boot.c, line 108
+	//boot.c, line 106
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l29)-1)
-	li	IMW0(PCREL(l29))
+	li	IMW0(PCREL(l29)-0)
 		add	r7
 
-	//boot.c, line 108
+	//boot.c, line 106
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -914,15 +914,15 @@ l26: #
 	sgn
 	cmp	r1
 
-	//boot.c, line 108
+	//boot.c, line 106
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l29)-1)
-	li	IMW0(PCREL(l29))
+	li	IMW0(PCREL(l29)-0)
 		add	r7
 				// allocreg r2
 
-	//boot.c, line 110
+	//boot.c, line 108
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -939,7 +939,7 @@ l26: #
 	shl	r2
 					// (save result) isreg
 
-	//boot.c, line 110
+	//boot.c, line 108
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 3, 0, 3
@@ -950,7 +950,7 @@ l26: #
 	add	r2
 					// (save result) isreg
 
-	//boot.c, line 110
+	//boot.c, line 108
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -959,21 +959,21 @@ l26: #
 	//extern deref
 	ldt
 	mr	r1
-					// (objtotemp)  reg r2, offset 20, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	sgn
 	cmp	r1
 				// freereg r2
 
-	//boot.c, line 110
+	//boot.c, line 108
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l32)-1)
-	li	IMW0(PCREL(l32))
+	li	IMW0(PCREL(l32)-0)
 		add	r7
 				// allocreg r2
 
-	//boot.c, line 117
+	//boot.c, line 115
 // code 0x32
 					//FIXME convert
 					// (load_temp - type 1) not varadr
@@ -999,16 +999,16 @@ l26: #
 	mr	r2
 					// (save result) isreg
 
-	//boot.c, line 117
+	//boot.c, line 115
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 24, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2
 
-	//boot.c, line 117
+	//boot.c, line 115
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1020,7 +1020,7 @@ l26: #
 	ldt
 	stdec	r6
 
-	//boot.c, line 117
+	//boot.c, line 115
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1031,7 +1031,7 @@ l26: #
 	add	r6
 
 
-	//boot.c, line 117
+	//boot.c, line 115
 // code 0x5d
 					// (getreturn)					// (save result) store reg
 // Store_reg to type 0x3
@@ -1043,7 +1043,7 @@ l26: #
  // WARNING - check that 4 has been added.
 				// allocreg r2
 
-	//boot.c, line 118
+	//boot.c, line 116
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1067,13 +1067,13 @@ l26: #
 // extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r2, offset 124, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 					// (save temp) store
 	st	r1
 				//save_temp done
 
-	//boot.c, line 119
+	//boot.c, line 117
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 0 in 1 chunks
@@ -1082,15 +1082,15 @@ l26: #
 	cmp	r2
 				// freereg r2
 
-	//boot.c, line 119
+	//boot.c, line 117
 	cond	GE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 		add	r7
 				// allocreg r2
 
-	//boot.c, line 123
+	//boot.c, line 121
 // code 0x32
 					//FIXME convert
 					// (convert -> assign)
@@ -1106,7 +1106,7 @@ l26: #
 	mr	r2
 				//save_temp done
 
-	//boot.c, line 123
+	//boot.c, line 121
 // code 0x32
 					//FIXME convert
 					// (convert -> assign)
@@ -1127,7 +1127,7 @@ l26: #
 				// freereg r2
 				// allocreg r2
 
-	//boot.c, line 125
+	//boot.c, line 123
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1151,13 +1151,13 @@ l26: #
 // extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r2, offset 136, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 					// (save temp) store
 	st	r1
 				//save_temp done
 
-	//boot.c, line 126
+	//boot.c, line 124
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -1169,14 +1169,14 @@ l26: #
 	cmp	r2
 				// freereg r2
 
-	//boot.c, line 126
+	//boot.c, line 124
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l36)-1)
-	li	IMW0(PCREL(l36))
+	li	IMW0(PCREL(l36)-0)
 		add	r7
 
-	//boot.c, line 127
+	//boot.c, line 125
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -1196,7 +1196,7 @@ l26: #
 				//save_temp done
 l36: # 
 
-	//boot.c, line 128
+	//boot.c, line 126
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -1212,14 +1212,14 @@ l36: #
 	st	r1
 				//save_temp done
 
-	//boot.c, line 132
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 130
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 	add	r7
 l32: # 
 
-	//boot.c, line 138
+	//boot.c, line 136
 // code 0x44
 					// (test)
 					// (objtotemp)  extern
@@ -1229,30 +1229,29 @@ l32: #
 	//extern deref
 	ldt
 
-	//boot.c, line 138
+	//boot.c, line 136
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 		add	r7
-				// freereg r3
-				// allocreg r3
+				// allocreg r2
 
-	//boot.c, line 140
+	//boot.c, line 138
 // code 0x19
 					// (bitwise) loadreg
-	//ops: 0, 0, 4
+	//ops: 0, 0, 3
 					// (objtotemp)  extern
 	ldinc	r7
 	.int	_SREC_TEMP
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r3
+	mr	r2
 					// (objtotemp)  const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
-	shl	r3
+	shl	r2
 					// (save result) isreg
 // code 0x2
 					// (a/p assign)
@@ -1262,54 +1261,39 @@ l32: #
 // extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r3, offset 152, val 0
-	mt	r3
+					// (objtotemp)  reg r2
+	mt	r2
 					// (save temp) store
 	st	r1
 				//save_temp done
-				// allocreg r2
 
-	//boot.c, line 142
-// code 0x32
-					//FIXME convert
-					// (convert -> assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_SREC_ADDR
-		//sizemod based on type 0xa
-	//extern deref
-	ldt
-					// (save temp) isreg
-	mr	r2
-				//save_temp done
-
-	//boot.c, line 142
+	//boot.c, line 140
 // code 0x32
 					//FIXME convert
 					// (convert -> assign)
 					// (prepobj r1) deref
-				// reg r2 - no need to prep
+				// var FIXME - deref?
+	ldinc	r7
+	.int	_SREC_ADDR
+	ldt
+	mr	r1
 					// (load_temp - type 1) not varadr
-					// (objtotemp)  reg r3, offset 152, val 0
-	mt	r3
+					// (objtotemp)  reg r2
+	mt	r2
 					// (save temp) store
-	stbinc	r2
+	stbinc	r1
 //Disposable, postinc doesn't matter.
 				//save_temp done
-				// freereg r3
 				// freereg r2
 
-	//boot.c, line 148
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 146
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 	add	r7
 l29: # 
-				// allocreg r3
 
-	//boot.c, line 148
+	//boot.c, line 146
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -1324,26 +1308,26 @@ l29: #
 	sgn
 	cmp	r1
 
-	//boot.c, line 148
+	//boot.c, line 146
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l42)-1)
-	li	IMW0(PCREL(l42))
+	li	IMW0(PCREL(l42)-0)
 		add	r7
 
-	//boot.c, line 150
+	//boot.c, line 148
 // code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
+					// (prepobj r1) reg r4 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 					// (save temp) isreg
-	mr	r3
+	mr	r4
 				//save_temp done
 
-	//boot.c, line 151
+	//boot.c, line 149
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
@@ -1360,7 +1344,7 @@ l29: #
 	st	r1
 				//save_temp done
 
-	//boot.c, line 153
+	//boot.c, line 151
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -1368,41 +1352,42 @@ l29: #
 	.int	_SREC_ADDR
 // extern pe not varadr
 	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (load_temp - type 3) (varadr)					// (prepobj tmp) extern (offset 0)
+	ldinc	r7
+	.int	_prg_start
+// extern pe is varadr
 					// (save temp) store
 	st	r1
 				//save_temp done
 
-	//boot.c, line 154
+	//boot.c, line 152
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
+	ldinc	r7
+	.int	_prg_start
+		//sizemod based on type 0x3
+	mr	r1
+					// (objtotemp)  extern
 	ldinc	r7
 	.int	_SREC_MAX_ADDR
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r1
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
 	sgn
 	cmp	r1
 
-	//boot.c, line 154
-	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 152
+	cond	GE
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l50)-1)
-	li	IMW0(PCREL(l50))
+	li	IMW0(PCREL(l50)-0)
 		add	r7
 l49: # 
 
-	//boot.c, line 154
+	//boot.c, line 152
 // code 0x1b
 					// (bitwise) loadreg
-	//ops: 4, 0, 4
+	//ops: 5, 0, 5
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  deref 
 					// (prepobj tmp) deref
@@ -1413,11 +1398,11 @@ l49: #
 		//sizemod based on type 0x3
 	ldt
 //marker 2
-	add	r3
+	add	r4
 					// (save result) isreg
 				// allocreg r2
 
-	//boot.c, line 154
+	//boot.c, line 152
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1441,13 +1426,13 @@ l49: #
 // extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r2, offset 176, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 					// (save temp) store
 	st	r1
 				//save_temp done
 
-	//boot.c, line 154
+	//boot.c, line 152
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
 	ldinc	r7
@@ -1459,23 +1444,23 @@ l49: #
 	cmp	r2
 				// freereg r2
 
-	//boot.c, line 154
+	//boot.c, line 152
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l49)-1)
-	li	IMW0(PCREL(l49))
+	li	IMW0(PCREL(l49)-0)
 		add	r7
 l50: # 
 
-	//boot.c, line 155
+	//boot.c, line 153
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r3, offset 16, val 0
-	mt	r3
+					// (objtotemp)  reg r4
+	mt	r4
 	stdec	r6
 
-	//boot.c, line 155
+	//boot.c, line 153
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1487,7 +1472,7 @@ l50: #
 	ldt
 	stdec	r6
 
-	//boot.c, line 155
+	//boot.c, line 153
 // code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
@@ -1497,48 +1482,47 @@ l50: #
 	.int	l47+0
 	stdec	r6
 
-	//boot.c, line 155
+	//boot.c, line 153
 // code 0x2a
 					//call
 	ldinc	r7
-	.int	_tiny_printf
+	.int	_printf
 	exg	r7
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	add	r6
 
 
-	//boot.c, line 156
+	//boot.c, line 154
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
-				// reg r4 - no need to prep
+				// reg r3 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
 				// constant: 42 in 2 chunks
 	li	IMW1(66)
 	li	IMW0(66)
 					// (save temp) store
-	st	r4
+	st	r3
 				//save_temp done
 
-	//boot.c, line 161
+	//boot.c, line 159
 // code 0x2a
 					//call
 	ldinc	r7
 	.int	_prg_start
-	ldt	// deref function ptr
 	exg	r7
 
 
-	//boot.c, line 165
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 163
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l48)-1)
-	li	IMW0(PCREL(l48))
+	li	IMW0(PCREL(l48)-0)
 	add	r7
 l42: # 
 
-	//boot.c, line 165
+	//boot.c, line 163
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -1557,7 +1541,7 @@ l42: #
 					// (save result) store reg
 // Store_reg to type 0x3
 	mt	r0
-	st	r4
+	st	r3
 l48: # 
 				// freereg r3
 				// freereg r4
@@ -1632,7 +1616,7 @@ _cvx:
 				// allocreg r4
 				// allocreg r3
 
-	//boot.c, line 176
+	//boot.c, line 174
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r4 - no need to prep
@@ -1646,7 +1630,7 @@ _cvx:
 l59: # 
 				// allocreg r2
 
-	//boot.c, line 178
+	//boot.c, line 176
 // code 0x1a
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -1663,11 +1647,11 @@ l59: #
 	shr	r2
 					// (save result) isreg
 
-	//boot.c, line 178
+	//boot.c, line 176
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 3, 0, 4
-					// (objtotemp)  reg r2, offset 8, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	mr	r3
 					// (objtotemp)  const
@@ -1677,7 +1661,7 @@ l59: #
 					// (save result) isreg
 				// freereg r2
 
-	//boot.c, line 179
+	//boot.c, line 177
 // code 0x19
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -1700,7 +1684,7 @@ l59: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 180
+	//boot.c, line 178
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 9 in 1 chunks
@@ -1708,14 +1692,14 @@ l59: #
 	sgn
 	cmp	r3
 
-	//boot.c, line 180
+	//boot.c, line 178
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l57)-1)
-	li	IMW0(PCREL(l57))
+	li	IMW0(PCREL(l57)-0)
 		add	r7
 
-	//boot.c, line 181
+	//boot.c, line 179
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 4
@@ -1727,14 +1711,14 @@ l59: #
 	add	r3
 					// (save result) isreg
 
-	//boot.c, line 183
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 181
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l58)-1)
-	li	IMW0(PCREL(l58))
+	li	IMW0(PCREL(l58)-0)
 	add	r7
 l57: # 
 
-	//boot.c, line 183
+	//boot.c, line 181
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 4
@@ -1747,21 +1731,21 @@ l57: #
 					// (save result) isreg
 l58: # 
 
-	//boot.c, line 184
+	//boot.c, line 182
 // code 0x32
 					//FIXME convert
 					// (convert -> assign)
 					// (prepobj r1) deref
 				// reg r5 - no need to prep
 					// (load_temp - type 1) not varadr
-					// (objtotemp)  reg r3, offset 4, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) store
 	byt
 	st	r5
 				//save_temp done
 
-	//boot.c, line 184
+	//boot.c, line 182
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 6, 0, 6
@@ -1772,7 +1756,7 @@ l58: #
 	add	r5
 					// (save result) isreg
 
-	//boot.c, line 177
+	//boot.c, line 175
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 5, 0, 5
@@ -1783,7 +1767,7 @@ l58: #
 	add	r4
 					// (save result) isreg
 
-	//boot.c, line 177
+	//boot.c, line 175
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 8 in 1 chunks
@@ -1791,11 +1775,11 @@ l58: #
 	sgn
 	cmp	r4
 
-	//boot.c, line 177
+	//boot.c, line 175
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l59)-1)
-	li	IMW0(PCREL(l59))
+	li	IMW0(PCREL(l59)-0)
 		add	r7
 				// freereg r3
 				// freereg r4
@@ -1839,7 +1823,7 @@ _main:
 				// allocreg r4
 				// allocreg r3
 
-	//boot.c, line 194
+	//boot.c, line 192
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1849,7 +1833,7 @@ _main:
 	.int	l62+0
 	stdec	r6
 
-	//boot.c, line 194
+	//boot.c, line 192
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1860,7 +1844,7 @@ _main:
 	add	r6
 
 
-	//boot.c, line 195
+	//boot.c, line 193
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1869,28 +1853,28 @@ _main:
 
 				// allocreg r2
 
-	//boot.c, line 195
+	//boot.c, line 193
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r2
 
-	//boot.c, line 195
+	//boot.c, line 193
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r2, offset 8, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	and	r2
 				// freereg r2
 
-	//boot.c, line 195
+	//boot.c, line 193
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l81)-1)
-	li	IMW0(PCREL(l81))
+	li	IMW0(PCREL(l81)-0)
 		add	r7
 
-	//boot.c, line 197
+	//boot.c, line 195
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1900,7 +1884,7 @@ _main:
 	.int	l65+0
 	stdec	r6
 
-	//boot.c, line 197
+	//boot.c, line 195
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1911,7 +1895,7 @@ _main:
 	add	r6
 
 
-	//boot.c, line 198
+	//boot.c, line 196
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1920,28 +1904,28 @@ _main:
 
 				// allocreg r2
 
-	//boot.c, line 198
+	//boot.c, line 196
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r2
 
-	//boot.c, line 198
+	//boot.c, line 196
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r2, offset 16, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	and	r2
 				// freereg r2
 
-	//boot.c, line 198
+	//boot.c, line 196
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l67)-1)
-	li	IMW0(PCREL(l67))
+	li	IMW0(PCREL(l67)-0)
 		add	r7
 
-	//boot.c, line 202
+	//boot.c, line 200
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -1951,7 +1935,7 @@ _main:
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//boot.c, line 202
+	//boot.c, line 200
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -1961,7 +1945,7 @@ _main:
 	.int	l70+0
 	stdec	r6
 
-	//boot.c, line 202
+	//boot.c, line 200
 // code 0x2a
 					//call
 	ldinc	r7
@@ -1972,27 +1956,27 @@ _main:
 	add	r6
 
 
-	//boot.c, line 202
+	//boot.c, line 200
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r3
 
-	//boot.c, line 202
+	//boot.c, line 200
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r3, offset 20, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	and	r3
 
-	//boot.c, line 202
+	//boot.c, line 200
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l81)-1)
-	li	IMW0(PCREL(l81))
+	li	IMW0(PCREL(l81)-0)
 		add	r7
 
-	//boot.c, line 204
+	//boot.c, line 202
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -2009,7 +1993,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//boot.c, line 205
+	//boot.c, line 203
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -2018,7 +2002,7 @@ _main:
 	addt	r6
 	mr	r1
 
-					// (load_temp - type 10)					// (prepobj tmp) extern (offset 0)
+					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_prg_start
 // extern pe is varadr
@@ -2026,7 +2010,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//boot.c, line 206
+	//boot.c, line 204
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -2043,7 +2027,7 @@ _main:
 	st	r1
 				//save_temp done
 
-	//boot.c, line 207
+	//boot.c, line 205
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 4, 0, 4
@@ -2054,7 +2038,7 @@ _main:
 	add	r3
 					// (save result) isreg
 
-	//boot.c, line 208
+	//boot.c, line 206
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 4, 0, 4
@@ -2065,7 +2049,7 @@ _main:
 	and	r3
 					// (save result) isreg
 
-	//boot.c, line 209
+	//boot.c, line 207
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 4, 6
@@ -2074,20 +2058,20 @@ _main:
 	.int	_prg_start
 		//sizemod based on type 0x3
 	mr	r5
-					// (objtotemp)  reg r3, offset 20, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 	add	r5
 					// (save result) isreg
 
-	//boot.c, line 210
+	//boot.c, line 208
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r5, offset 24, val 0
+					// (objtotemp)  reg r5
 	mt	r5
 	stdec	r6
 
-	//boot.c, line 210
+	//boot.c, line 208
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2097,7 +2081,7 @@ _main:
 	.int	l73+0
 	stdec	r6
 
-	//boot.c, line 210
+	//boot.c, line 208
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2109,28 +2093,28 @@ _main:
 
 				// allocreg r2
 
-	//boot.c, line 210
+	//boot.c, line 208
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r2
 
-	//boot.c, line 210
+	//boot.c, line 208
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r2, offset 64, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	and	r2
 				// freereg r2
 
-	//boot.c, line 210
+	//boot.c, line 208
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l95)-1)
-	li	IMW0(PCREL(l95))
+	li	IMW0(PCREL(l95)-0)
 		add	r7
 
-	//boot.c, line 212
+	//boot.c, line 210
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 1ff in 2 chunks
@@ -2139,15 +2123,15 @@ _main:
 	sgn
 	cmp	r3
 
-	//boot.c, line 212
+	//boot.c, line 210
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l95)-1)
-	li	IMW0(PCREL(l95))
+	li	IMW0(PCREL(l95)-0)
 		add	r7
 l92: # 
 
-	//boot.c, line 214
+	//boot.c, line 212
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2158,7 +2142,7 @@ l92: #
 	stdec	r6
 				// allocreg r2
 
-	//boot.c, line 214
+	//boot.c, line 212
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 3
@@ -2176,16 +2160,16 @@ l92: #
 	add	r2
 					// (save result) isreg
 
-	//boot.c, line 214
+	//boot.c, line 212
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 72, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2
 
-	//boot.c, line 214
+	//boot.c, line 212
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2197,26 +2181,26 @@ l92: #
 
 				// allocreg r2
 
-	//boot.c, line 214
+	//boot.c, line 212
 // code 0x5d
 					// (getreturn)					// (save result) isreg
 	mt	r0
 	mr	r2
 
-	//boot.c, line 214
+	//boot.c, line 212
 // code 0x32
 					//FIXME convert
 					// (convert -> assign)
 					// (prepobj r1) reg r4 - no need to prep
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r2, offset 76, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
 				// freereg r2
 
-	//boot.c, line 215
+	//boot.c, line 213
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) var, auto|reg
@@ -2225,14 +2209,12 @@ l92: #
 
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  deref 
-	//(offset 24)
-	//(val 0)
 	ldinc	r5
 					// (save temp) store
 	st	r1
 				//save_temp done
 
-	//boot.c, line 216
+	//boot.c, line 214
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -2256,7 +2238,7 @@ l92: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 217
+	//boot.c, line 215
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 4, 0, 4
@@ -2268,7 +2250,7 @@ l92: #
 	sub	r3
 					// (save result) isreg
 
-	//boot.c, line 218
+	//boot.c, line 216
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
@@ -2276,14 +2258,14 @@ l92: #
 	sgn
 	cmp	r4
 
-	//boot.c, line 218
+	//boot.c, line 216
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l78)-1)
-	li	IMW0(PCREL(l78))
+	li	IMW0(PCREL(l78)-0)
 		add	r7
 
-	//boot.c, line 220
+	//boot.c, line 218
 // code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
@@ -2306,7 +2288,7 @@ l92: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//boot.c, line 221
+	//boot.c, line 219
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2316,7 +2298,7 @@ l92: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//boot.c, line 221
+	//boot.c, line 219
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2327,7 +2309,7 @@ l92: #
 	ldidx	r6
 	stdec	r6
 
-	//boot.c, line 221
+	//boot.c, line 219
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2338,7 +2320,7 @@ l92: #
 	add	r6
 
 
-	//boot.c, line 222
+	//boot.c, line 220
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 8)
@@ -2356,7 +2338,7 @@ l92: #
 //Disposable, postinc doesn't matter.
 				//save_temp done
 
-	//boot.c, line 223
+	//boot.c, line 221
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2366,15 +2348,15 @@ l92: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//boot.c, line 223
+	//boot.c, line 221
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r4, offset 68, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	stdec	r6
 
-	//boot.c, line 223
+	//boot.c, line 221
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2385,7 +2367,7 @@ l92: #
 	add	r6
 
 
-	//boot.c, line 224
+	//boot.c, line 222
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 17)
@@ -2403,7 +2385,7 @@ l92: #
 //Disposable, postinc doesn't matter.
 				//save_temp done
 
-	//boot.c, line 225
+	//boot.c, line 223
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2413,7 +2395,7 @@ l92: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//boot.c, line 225
+	//boot.c, line 223
 // code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
@@ -2424,7 +2406,7 @@ l92: #
 	ldidx	r6
 	stdec	r6
 
-	//boot.c, line 225
+	//boot.c, line 223
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2435,7 +2417,7 @@ l92: #
 	add	r6
 
 
-	//boot.c, line 226
+	//boot.c, line 224
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 26)
@@ -2452,7 +2434,7 @@ l92: #
 //Disposable, postinc doesn't matter.
 				//save_temp done
 
-	//boot.c, line 227
+	//boot.c, line 225
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2462,7 +2444,7 @@ l92: #
 		//sizemod based on type 0xa
 	stdec	r6
 
-	//boot.c, line 227
+	//boot.c, line 225
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2474,7 +2456,7 @@ l92: #
 
 l78: # 
 
-	//boot.c, line 212
+	//boot.c, line 210
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 1ff in 2 chunks
@@ -2483,15 +2465,15 @@ l78: #
 	sgn
 	cmp	r3
 
-	//boot.c, line 212
+	//boot.c, line 210
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l92)-1)
-	li	IMW0(PCREL(l92))
+	li	IMW0(PCREL(l92)-0)
 		add	r7
 l95: # 
 
-	//boot.c, line 231
+	//boot.c, line 229
 // code 0x44
 					// (test)
 					// (objtotemp)  var, auto|reg
@@ -2500,30 +2482,59 @@ l95: #
 	li	IMW0(8)
 	ldidx	r6
 
-	//boot.c, line 231
+	//boot.c, line 229
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l81)-1)
-	li	IMW0(PCREL(l81))
+	li	IMW0(PCREL(l81)-0)
 		add	r7
+				// allocreg r2
 
-	//boot.c, line 233
-// code 0x2a
-					//call
+	//boot.c, line 231
+// code 0x32
+					//FIXME convert
+					// (load_temp - type 1) not varadr
+					// (objtotemp)  extern
 	ldinc	r7
 	.int	_prg_start
-	ldt	// deref function ptr
+		//sizemod based on type 0x1
+	byt
+	//extern deref
+	ldt
+	mr	r2
+				// constant: 1000000 in 5 chunks
+	li	IMW4(16777216)
+	li	IMW3(16777216)
+	li	IMW2(16777216)
+	li	IMW1(16777216)
+	li	IMW0(16777216)
+	mul	r2
+				// constant: 100 in 2 chunks
+	li	IMW1(256)
+	li	IMW0(256)
+	sgn
+	mul	r2
+	mr	r2
+					// (save result) isreg
+
+	//boot.c, line 231
+// code 0x2a
+					//call
+					// (objtotemp)  deref 
+	mt	r2
+//FIXME - unhandled type 15
 	exg	r7
 
+				// freereg r2
 
-	//boot.c, line 241
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 239
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l81)-1)
-	li	IMW0(PCREL(l81))
+	li	IMW0(PCREL(l81)-0)
 	add	r7
 l67: # 
 
-	//boot.c, line 243
+	//boot.c, line 241
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2533,7 +2544,7 @@ l67: #
 	.int	l82+0
 	stdec	r6
 
-	//boot.c, line 243
+	//boot.c, line 241
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2545,7 +2556,7 @@ l67: #
 
 l81: # 
 
-	//boot.c, line 249
+	//boot.c, line 247
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2555,7 +2566,7 @@ l81: #
 	.int	l83+0
 	stdec	r6
 
-	//boot.c, line 249
+	//boot.c, line 247
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2566,7 +2577,7 @@ l81: #
 	add	r6
 
 
-	//boot.c, line 250
+	//boot.c, line 248
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) extern (offset 0)
@@ -2597,7 +2608,7 @@ l81: #
 				//save_temp done
 l84: # 
 
-	//boot.c, line 255
+	//boot.c, line 253
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
@@ -2607,7 +2618,7 @@ l84: #
 	li	IMW0(46)
 	stdec	r6
 
-	//boot.c, line 255
+	//boot.c, line 253
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2618,7 +2629,7 @@ l84: #
 	add	r6
 
 
-	//boot.c, line 256
+	//boot.c, line 254
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2634,26 +2645,24 @@ l84: #
 				//save_temp done
 l94: # 
 
-	//boot.c, line 258
+	//boot.c, line 256
 // code 0x32
 					//FIXME convert
 					// (convert -> assign)
 					// (prepobj r1) reg r4 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  deref 
-	//(offset 22)
-	//(val 0)
 	ld	r5
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
 				// allocreg r2
 
-	//boot.c, line 259
+	//boot.c, line 257
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset 124, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -2663,27 +2672,27 @@ l94: #
 	and	r2
 					// (save result) isreg
 
-	//boot.c, line 259
+	//boot.c, line 257
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r2, offset 132, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	and	r2
 				// freereg r2
 
-	//boot.c, line 259
+	//boot.c, line 257
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l91)-1)
-	li	IMW0(PCREL(l91))
+	li	IMW0(PCREL(l91)-0)
 		add	r7
 				// allocreg r2
 
-	//boot.c, line 261
+	//boot.c, line 259
 // code 0x12
 					// (bitwise) loadreg
 	//ops: 5, 0, 3
-					// (objtotemp)  reg r4, offset 124, val 0
+					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
 					// (objtotemp)  const
@@ -2693,16 +2702,16 @@ l94: #
 	and	r2
 					// (save result) isreg
 
-	//boot.c, line 262
+	//boot.c, line 260
 // code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2, offset 108, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	stdec	r6
 				// freereg r2
 
-	//boot.c, line 262
+	//boot.c, line 260
 // code 0x2a
 					//call
 	ldinc	r7
@@ -2713,7 +2722,7 @@ l94: #
 	add	r6
 
 
-	//boot.c, line 263
+	//boot.c, line 261
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r3 - no need to prep
@@ -2730,18 +2739,18 @@ l94: #
 l91: # 
 				// allocreg r2
 
-	//boot.c, line 256
+	//boot.c, line 254
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) reg r2 - no need to prep
 					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r3, offset 112, val 0
+					// (objtotemp)  reg r3
 	mt	r3
 					// (save temp) isreg
 	mr	r2
 				//save_temp done
 
-	//boot.c, line 256
+	//boot.c, line 254
 // code 0x1c
 					// (bitwise) loadreg
 	//ops: 4, 0, 4
@@ -2752,25 +2761,25 @@ l91: #
 	sub	r3
 					// (save result) isreg
 
-	//boot.c, line 256
+	//boot.c, line 254
 // code 0x44
 					// (test)
-					// (objtotemp)  reg r2, offset 124, val 0
+					// (objtotemp)  reg r2
 	mt	r2
 	and	r2
 				// freereg r2
 
-	//boot.c, line 256
+	//boot.c, line 254
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l94)-1)
-	li	IMW0(PCREL(l94))
+	li	IMW0(PCREL(l94)-0)
 		add	r7
 
-	//boot.c, line 251
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+	//boot.c, line 249
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l84)-1)
-	li	IMW0(PCREL(l84))
+	li	IMW0(PCREL(l84)-0)
 	add	r7
 				// freereg r3
 				// freereg r4
@@ -2919,7 +2928,7 @@ l83:
 	.globl	_FindDrive
 	.globl	_LoadFile
 	.globl	_checksum
-	.globl	_tiny_printf
+	.globl	_printf
 	.globl	_prg_start
 	.globl	_printbuf
 	.section	.bss

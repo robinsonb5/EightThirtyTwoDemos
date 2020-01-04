@@ -45,7 +45,8 @@ char *LoadFile(const char *filename)
 int main(int argc, char **argv)
 {
 	char *ptr;
-	if((ptr=LoadFile("SCARPTCHMOD")))
+	if((ptr=LoadFile("DEEPHOUSMOD")))
+//	if((ptr=LoadFile("SCARPTCHMOD")))
 //	if((ptr=LoadFile("JOYRIDE MOD")))
 //	if((ptr=LoadFile("ENIGMA     ")))
 //	if((ptr=LoadFile("GUITAR~1   ")))

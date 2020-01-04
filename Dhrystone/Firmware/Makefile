@@ -1,4 +1,5 @@
 832DIR=../../EightThirtyTwo/Lib/
+INCDIR=../../EightThirtyTwo/include/
 LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
@@ -25,14 +26,14 @@ clean :
 %.o : %.s Makefile
 	gcc -c $*.s
 
-Dhrystone.elf : start.o uart.o small_printf.o division.o strcmp.o dhry_1.o dhry_2.o
+Dhrystone.elf : start.o uart.o small_printf.o division.o string.o dhry_1.o dhry_2.o
 	gcc -Wl,--build-id=none -Wl,--gc-sections -nostartfiles -nostdlib -Tldscript.ld -o $@ $+
 
 %.o : %.S Makefile ldscript.ld $(832DIR)/start.S
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
 %.o : %.c Makefile ldscript.ld $(832DIR)/start.S
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
 	mv $*.asm $*.S
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
@@ -43,7 +44,7 @@ Dhrystone.elf : start.o uart.o small_printf.o division.o strcmp.o dhry_1.o dhry_
 	gcc -c $(LIBDIR)/$*.S -I$(832DIR) -I$(LIBDIR) -o $*.o
 
 %.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
 	mv $*.asm $*.S
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c

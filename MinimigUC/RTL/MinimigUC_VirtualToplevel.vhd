@@ -199,6 +199,19 @@ begin
 end process;
 
 
+-- Timer
+process(clk)
+begin
+	if rising_edge(clk) then
+		millisecond_tick<=millisecond_tick+1;
+		if millisecond_tick=sysclk_frequency*100 then
+			millisecond_counter<=millisecond_counter+1;
+			millisecond_tick<=X"00000";
+		end if;
+	end if;
+end process;
+
+
 -- UART
 
 myuart : entity work.simple_uart
@@ -401,7 +414,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 
 -- Main CPU
 
-	mem_rom <='1' when cpu_addr(31 downto 24)=X"00" else '0';
+	mem_rom <='1' when cpu_addr(31 downto 28)=X"0" and cpu_addr(23 downto 20)=X"0" else '0';
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 
@@ -441,7 +454,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 	(
 		littleendian => true,
 		dualthread => false,
-		prefetch => true,
+		prefetch => false,
 		interrupts => false
 	)
 	port map
@@ -489,10 +502,6 @@ begin
 		-- Write from CPU?
 		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
 			case cpu_addr(23 downto 20) is
-
-				when X"E" =>	-- Timer controller at 0xFFFFFC00
-					timer_reg_req<='1';
-					mem_busy<='0';	-- Audio controller never blocks the CPU
 
 				when X"D" =>	-- UART and SPI
 					case cpu_addr(15 downto 12)&cpu_addr(3 downto 0) is

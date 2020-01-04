@@ -10,7 +10,7 @@
 #include "spi.h"
 #include "minfat.h"
 #include "cachecontrol.h"
-#include "tiny_printf.h"
+#include "printf.h"
 
 #define Breadcrumb(x) HW_UART(REG_UART)=x;
 

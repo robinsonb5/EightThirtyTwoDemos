@@ -118,6 +118,8 @@ signal cpu_wr : std_logic;
 signal cpu_bytesel : std_logic_vector(3 downto 0);
 signal mem_rd : std_logic; 
 signal mem_wr : std_logic; 
+signal mem_rd_d : std_logic; 
+signal mem_wr_d : std_logic; 
 
 signal to_rom : ToROM;
 signal from_rom : FromROM;
@@ -239,7 +241,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 
 	rom : entity work.Dhrystone_rom
 	generic map(
-		maxAddrBitBRAM => 13
+		maxAddrBitBRAM => 14
 	)
 	port map(
 		clk => clk,
@@ -318,8 +320,11 @@ begin
 		int_ack<='0';
 		timer_reg_req<='0';
 
+		mem_rd_d<=mem_rd;
+		mem_wr_d<=mem_wr;
+
 		-- Write from CPU?
-		if mem_wr='1' and mem_busy='1' then
+		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
 			case cpu_addr(31)&cpu_addr(10 downto 8) is
 				when X"C" =>	-- Timer controller at 0xFFFFFC00
 					timer_reg_req<='1';
@@ -345,7 +350,7 @@ begin
 					null;
 			end case;
 
-		elsif mem_rd='1' and mem_busy='1' then -- Read from CPU?
+		elsif mem_rd='1' and mem_rd_d='0' and mem_busy='1' then -- Read from CPU?
 			case cpu_addr(31 downto 28) is
 
 				when X"F" =>	-- Peripherals

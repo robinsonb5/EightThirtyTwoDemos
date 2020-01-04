@@ -86,9 +86,9 @@ _Proc_6:
 
 	//dhry_2.c, line 63
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l3)-1)
-	li	IMW0(PCREL(l3))
+	li	IMW0(PCREL(l3)-0)
 		add	r7
 				// allocreg r2
 
@@ -129,60 +129,55 @@ l3: #
 					// (objtotemp)  const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
-	sgn
 	cmp	r1
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l5)-1)
-	li	IMW0(PCREL(l5))
+	li	IMW0(PCREL(l5)-0)
 		add	r7
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
-	sgn
 	cmp	r2
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l6)-1)
-	li	IMW0(PCREL(l6))
+	li	IMW0(PCREL(l6)-0)
 		add	r7
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
-	sgn
 	cmp	r2
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l10)-1)
-	li	IMW0(PCREL(l10))
+	li	IMW0(PCREL(l10)-0)
 		add	r7
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 3 in 1 chunks
 	li	IMW0(3)
-	sgn
 	cmp	r2
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l4)-1)
-	li	IMW0(PCREL(l4))
+	li	IMW0(PCREL(l4)-0)
 		add	r7
 // code 0x4d
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
-	sgn
 	cmp	r2
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l12)-1)
-	li	IMW0(PCREL(l12))
+	li	IMW0(PCREL(l12)-0)
 		add	r7
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l4)-1)
-	li	IMW0(PCREL(l4))
+	li	IMW0(PCREL(l4)-0)
 	add	r7
 l5: # 
 
@@ -200,9 +195,9 @@ l5: #
 				//save_temp done
 
 	//dhry_2.c, line 70
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l4)-1)
-	li	IMW0(PCREL(l4))
+	li	IMW0(PCREL(l4)-0)
 	add	r7
 l6: # 
 
@@ -212,6 +207,7 @@ l6: #
 	ldinc	r7
 	.int	_Int_Glob
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 	mr	r1
 					// (objtotemp)  const
@@ -223,9 +219,9 @@ l6: #
 
 	//dhry_2.c, line 72
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l8)-1)
-	li	IMW0(PCREL(l8))
+	li	IMW0(PCREL(l8)-0)
 		add	r7
 
 	//dhry_2.c, line 74
@@ -242,9 +238,9 @@ l6: #
 				//save_temp done
 
 	//dhry_2.c, line 75
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l4)-1)
-	li	IMW0(PCREL(l4))
+	li	IMW0(PCREL(l4)-0)
 	add	r7
 l8: # 
 
@@ -262,9 +258,9 @@ l8: #
 				//save_temp done
 
 	//dhry_2.c, line 76
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l4)-1)
-	li	IMW0(PCREL(l4))
+	li	IMW0(PCREL(l4)-0)
 	add	r7
 l10: # 
 
@@ -282,9 +278,9 @@ l10: #
 				//save_temp done
 
 	//dhry_2.c, line 79
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l4)-1)
-	li	IMW0(PCREL(l4))
+	li	IMW0(PCREL(l4)-0)
 	add	r7
 l12: # 
 
@@ -332,6 +328,7 @@ _Proc_7:
 	//dhry_2.c, line 103
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 8 in 1 chunks
@@ -347,6 +344,7 @@ _Proc_7:
 	//dhry_2.c, line 104
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 3, 1
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 				// constant: c in 1 chunks
@@ -395,16 +393,18 @@ _Proc_8:
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
+	stdec	r6	// quickest way to decrement sp by 4
 				// allocreg r5
-				// allocreg r4
 
 	//dhry_2.c, line 120
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 6
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
-				// constant: 1c in 1 chunks
-	li	IMW0(28)
+				// constant: 20 in 2 chunks
+	li	IMW1(32)
+	li	IMW0(32)
 	ldidx	r6
 	mr	r5
 					// (objtotemp)  const
@@ -412,60 +412,88 @@ _Proc_8:
 	li	IMW0(5)
 	add	r5
 					// (save result) isreg
-				// allocreg r2
+				// allocreg r4
 
 	//dhry_2.c, line 121
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 6, 0, 5
 					// (objtotemp)  reg r5
 	mt	r5
-	mr	r2
+	mr	r4
 					// (objtotemp)  const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
-	mul	r2
+	mul	r4
 					// (save result) isreg
 
 	//dhry_2.c, line 121
 // code 0x1b
 					// (bitwise) loadreg
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r2
+	//ops: 0, 5, 5
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
+		//sizemod based on type 0x4
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
 	ldidx	r6
-	add	r2
+	add	r4
 					// (save result) isreg
 
 	//dhry_2.c, line 121
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
-				// reg r2 - no need to prep
+				// reg r4 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
-				// constant: 20 in 2 chunks
-	li	IMW1(32)
-	li	IMW0(32)
+				// constant: 24 in 2 chunks
+	li	IMW1(36)
+	li	IMW0(36)
 	ldidx	r6
 					// (save temp) store
-	st	r2
+	st	r4
 				//save_temp done
-				// allocreg r3
+				// allocreg r2
 
 	//dhry_2.c, line 122
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 6, 0, 3
+					// (objtotemp)  reg r5
+	mt	r5
+	mr	r2
+					// (objtotemp)  const
+				// constant: 1 in 1 chunks
+	li	IMW0(1)
+	add	r2
+					// (save result) isreg
+				// allocreg r3
+
+	//dhry_2.c, line 122
+// code 0x1d
+					// (bitwise) loadreg
+	//ops: 3, 0, 4
 					// (objtotemp)  reg r2
 	mt	r2
 	mr	r3
 					// (objtotemp)  const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
+	mul	r3
+					// (save result) isreg
+
+	//dhry_2.c, line 122
+// code 0x1b
+					// (bitwise) loadreg
+	//ops: 0, 4, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp)  var, auto|reg
+		//sizemod based on type 0x4
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
+	ldidx	r6
 	add	r3
 					// (save result) isreg
 
@@ -476,59 +504,77 @@ _Proc_8:
 				// reg r3 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r2
+	ld	r4
 					// (save temp) store
 	st	r3
 				//save_temp done
+				// freereg r4
 				// freereg r3
+				// allocreg r3
 
 	//dhry_2.c, line 123
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 6, 0, 4
+					// (objtotemp)  reg r5
+	mt	r5
+	mr	r3
 					// (objtotemp)  const
-				// constant: 78 in 2 chunks
-	li	IMW1(120)
-	li	IMW0(120)
-	add	r2
+				// constant: 1e in 1 chunks
+	li	IMW0(30)
+	add	r3
+					// (save result) isreg
+
+	//dhry_2.c, line 123
+// code 0x1d
+					// (bitwise) loadreg
+	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp)  const
+				// constant: 4 in 1 chunks
+	li	IMW0(4)
+	mul	r3
+					// (save result) isreg
+
+	//dhry_2.c, line 123
+// code 0x1b
+					// (bitwise) loadreg
+	//ops: 0, 4, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp)  var, auto|reg
+		//sizemod based on type 0x4
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
+	ldidx	r6
+	add	r3
 					// (save result) isreg
 
 	//dhry_2.c, line 123
 // code 0x2
 					// (a/p assign)
 					// (prepobj r1) deref
-				// reg r2 - no need to prep
+				// reg r3 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r5
 	mt	r5
 					// (save temp) store
-	st	r2
+	st	r3
 				//save_temp done
-				// freereg r2
+				// freereg r3
 
 	//dhry_2.c, line 124
 // code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
+					// (prepobj r1) var, auto|reg
+	mt	r6
+	mr	r1
+
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  reg r5
 	mt	r5
-					// (save temp) isreg
-	mr	r4
+					// (save temp) store
+	st	r1
 				//save_temp done
-				// allocreg r2
-
-	//dhry_2.c, line 125
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  reg r5
-	mt	r5
-	mr	r2
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	add	r2
-					// (save result) isreg
 
 	//dhry_2.c, line 125
 // code 0x4d
@@ -540,16 +586,28 @@ _Proc_8:
 
 	//dhry_2.c, line 125
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l20)-1)
-	li	IMW0(PCREL(l20))
+	li	IMW0(PCREL(l20)-0)
 		add	r7
-l19: # 
+				// allocreg r4
+// code 0x2
+					// (a/p assign)
+					// (prepobj r1) reg r4 - no need to prep
+					// (load_temp - type 3) not varadr
+					// (objtotemp)  var, auto|reg
+		//sizemod based on type 0x3
+	ld	r6
+					// (save temp) isreg
+	mr	r4
+				//save_temp done
+l15: # 
 				// allocreg r3
 
 	//dhry_2.c, line 126
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 6, 0, 4
 					// (objtotemp)  reg r5
 	mt	r5
 	mr	r3
@@ -563,13 +621,12 @@ l19: #
 	//dhry_2.c, line 126
 // code 0x1b
 					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r3
+	//ops: 0, 4, 4
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
+		//sizemod based on type 0x4
+				// constant: 1c in 1 chunks
+	li	IMW0(28)
 	ldidx	r6
 	add	r3
 					// (save result) isreg
@@ -578,6 +635,7 @@ l19: #
 	//dhry_2.c, line 126
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 5, 0, 3
 					// (objtotemp)  reg r4
 	mt	r4
 	mr	r2
@@ -590,9 +648,8 @@ l19: #
 	//dhry_2.c, line 126
 // code 0x1b
 					// (bitwise) loadreg
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r2
+	//ops: 4, 3, 3
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  reg r3
 	mt	r3
 	add	r2
@@ -615,6 +672,8 @@ l19: #
 	//dhry_2.c, line 125
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
@@ -625,6 +684,7 @@ l19: #
 	//dhry_2.c, line 125
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 6, 0, 3
 					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
@@ -644,45 +704,99 @@ l19: #
 
 	//dhry_2.c, line 125
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l19)-1)
-	li	IMW0(PCREL(l19))
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
+	li	IMW1(PCREL(l15)-1)
+	li	IMW0(PCREL(l15)-0)
 		add	r7
 l20: # 
 				// freereg r4
-				// allocreg r4
+				// allocreg r3
 
 	//dhry_2.c, line 128
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 6, 0, 4
 					// (objtotemp)  reg r5
 	mt	r5
-	mr	r4
+	mr	r3
 					// (objtotemp)  const
 				// constant: c8 in 2 chunks
 	li	IMW1(200)
 	li	IMW0(200)
-	mul	r4
+	mul	r3
 					// (save result) isreg
 
 	//dhry_2.c, line 128
 // code 0x1b
 					// (bitwise) loadreg
-					// (objtotemp)  reg r4
-	mt	r4
-	mr	r4
+	//ops: 0, 4, 4
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
+		//sizemod based on type 0x4
+				// constant: 1c in 1 chunks
+	li	IMW0(28)
 	ldidx	r6
-	add	r4
+	add	r3
 					// (save result) isreg
 				// allocreg r2
 
 	//dhry_2.c, line 128
+// code 0x1c
+					// (bitwise) loadreg
+	//ops: 6, 0, 3
+					// (objtotemp)  reg r5
+	mt	r5
+	mr	r2
+					// (objtotemp)  const
+				// constant: 1 in 1 chunks
+	li	IMW0(1)
+	sub	r2
+					// (save result) isreg
+
+	//dhry_2.c, line 128
 // code 0x1d
 					// (bitwise) loadreg
+	//ops: 3, 0, 3
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp)  const
+				// constant: 4 in 1 chunks
+	li	IMW0(4)
+	mul	r2
+					// (save result) isreg
+
+	//dhry_2.c, line 128
+// code 0x1b
+					// (bitwise) loadreg
+	//ops: 4, 3, 3
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp)  reg r3
+	mt	r3
+	add	r2
+					// (save result) isreg
+				// freereg r3
+
+	//dhry_2.c, line 128
+// code 0x1b
+					// (bitwise) loadreg
+	//ops: 3, 0, 1
+					// (objtotemp)  deref 
+	ld	r2
+	mr	r0
+					// (objtotemp)  const
+				// constant: 1 in 1 chunks
+	li	IMW0(1)
+	add	r0
+					// (save result) store reg
+// Store_reg to type 0x3
+	mt	r0
+	st	r2
+				// freereg r2
+				// allocreg r2
+
+	//dhry_2.c, line 129
+// code 0x1d
+					// (bitwise) loadreg
+	//ops: 6, 0, 3
 					// (objtotemp)  reg r5
 	mt	r5
 	mr	r2
@@ -693,75 +807,65 @@ l20: #
 					// (save result) isreg
 				// allocreg r3
 
-	//dhry_2.c, line 128
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  reg r4
-	mt	r4
-	mr	r3
-					// (objtotemp)  reg r2
-	mt	r2
-	add	r3
-					// (save result) isreg
-
-	//dhry_2.c, line 128
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	sub	r3
-					// (save result) isreg
-
-	//dhry_2.c, line 128
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r3
-	mr	r0
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	add	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-	mt	r0
-	st	r3
-				// freereg r3
-				// allocreg r3
-
 	//dhry_2.c, line 129
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 3, 4
 					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
+		//sizemod based on type 0x4
+				// constant: 18 in 1 chunks
+	li	IMW0(24)
 	ldidx	r6
 	mr	r3
 					// (objtotemp)  reg r2
 	mt	r2
 	add	r3
 					// (save result) isreg
+				// allocreg r4
 
 	//dhry_2.c, line 129
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 6, 0, 5
+					// (objtotemp)  reg r5
+	mt	r5
+	mr	r4
 					// (objtotemp)  const
-				// constant: fa0 in 3 chunks
-	li	IMW2(4000)
-	li	IMW1(4000)
-	li	IMW0(4000)
+				// constant: 14 in 1 chunks
+	li	IMW0(20)
+	add	r4
+					// (save result) isreg
+
+	//dhry_2.c, line 129
+// code 0x1d
+					// (bitwise) loadreg
+	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp)  const
+				// constant: c8 in 2 chunks
+	li	IMW1(200)
+	li	IMW0(200)
+	mul	r4
+					// (save result) isreg
+
+	//dhry_2.c, line 129
+// code 0x1b
+					// (bitwise) loadreg
+	//ops: 0, 5, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp)  var, auto|reg
+		//sizemod based on type 0x4
+				// constant: 1c in 1 chunks
+	li	IMW0(28)
+	ldidx	r6
 	add	r4
 					// (save result) isreg
 
 	//dhry_2.c, line 129
 // code 0x1b
 					// (bitwise) loadreg
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r2
+	//ops: 5, 3, 3
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  reg r4
 	mt	r4
 	add	r2
@@ -775,7 +879,6 @@ l20: #
 				// reg r2 - no need to prep
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  deref 
-	//(offset 0)
 	ld	r3
 					// (save temp) store
 	st	r2
@@ -789,6 +892,7 @@ l20: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Int_Glob
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 3) not varadr
 					// (objtotemp)  const
@@ -798,6 +902,7 @@ l20: #
 	st	r1
 				//save_temp done
 				// freereg r5
+	ldinc	r6	// quickest way to add 4 to sp
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -861,7 +966,8 @@ _Func_1:
 	//dhry_2.c, line 149
 // code 0x32
 					//FIXME convert
-					// (load_temp - type 1)				// constant: 1000000 in 5 chunks
+					// (load_temp - type 1)
+				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
@@ -914,9 +1020,9 @@ _Func_1:
 
 	//dhry_2.c, line 149
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l23)-1)
-	li	IMW0(PCREL(l23))
+	li	IMW0(PCREL(l23)-0)
 		add	r7
 
 	//dhry_2.c, line 151
@@ -929,9 +1035,9 @@ _Func_1:
 	mr	r0
 
 	//dhry_2.c, line 152
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l24)-1)
-	li	IMW0(PCREL(l24))
+	li	IMW0(PCREL(l24)-0)
 	add	r7
 l23: # 
 
@@ -941,6 +1047,7 @@ l23: #
 					// (prepobj r1) extern (offset 0)
 	ldinc	r7
 	.int	_Ch_1_Glob
+// extern pe not varadr
 	mr	r1
 					// (load_temp - type 1) not varadr
 					// (objtotemp)  reg r4
@@ -1023,6 +1130,7 @@ l40: #
 	//dhry_2.c, line 174
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 0, 3
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 18 in 1 chunks
@@ -1038,6 +1146,8 @@ l40: #
 	//dhry_2.c, line 174
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 3, 4, 3
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  reg r3
 	mt	r3
 	add	r2
@@ -1079,6 +1189,7 @@ l40: #
 	//dhry_2.c, line 174
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 0, 4, 3
 					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 18 in 1 chunks
@@ -1150,9 +1261,9 @@ l40: #
 
 	//dhry_2.c, line 174
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l30)-1)
-	li	IMW0(PCREL(l30))
+	li	IMW0(PCREL(l30)-0)
 		add	r7
 				// allocreg r2
 
@@ -1172,6 +1283,8 @@ l40: #
 	//dhry_2.c, line 178
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp)  const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
@@ -1189,9 +1302,9 @@ l30: #
 
 	//dhry_2.c, line 172
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l40)-1)
-	li	IMW0(PCREL(l40))
+	li	IMW0(PCREL(l40)-0)
 		add	r7
 				// freereg r2
 				// allocreg r2
@@ -1230,9 +1343,9 @@ l30: #
 
 	//dhry_2.c, line 180
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l32)-1)
-	li	IMW0(PCREL(l32))
+	li	IMW0(PCREL(l32)-0)
 		add	r7
 				// allocreg r2
 
@@ -1270,9 +1383,9 @@ l30: #
 
 	//dhry_2.c, line 180
 	cond	GE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l32)-1)
-	li	IMW0(PCREL(l32))
+	li	IMW0(PCREL(l32)-0)
 		add	r7
 				// allocreg r2
 
@@ -1319,15 +1432,14 @@ l32: #
 				// constant: 52 in 2 chunks
 	li	IMW1(82)
 	li	IMW0(82)
-	sgn
 	cmp	r2
 				// freereg r2
 
 	//dhry_2.c, line 183
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l35)-1)
-	li	IMW0(PCREL(l35))
+	li	IMW0(PCREL(l35)-0)
 		add	r7
 				// allocreg r2
 
@@ -1341,9 +1453,9 @@ l32: #
 	mr	r0
 
 	//dhry_2.c, line 186
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l39)-1)
-	li	IMW0(PCREL(l39))
+	li	IMW0(PCREL(l39)-0)
 	add	r7
 				// freereg r2
 l35: # 
@@ -1406,15 +1518,16 @@ l35: #
 
 	//dhry_2.c, line 188
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l38)-1)
-	li	IMW0(PCREL(l38))
+	li	IMW0(PCREL(l38)-0)
 		add	r7
 				// allocreg r2
 
 	//dhry_2.c, line 191
 // code 0x1b
 					// (bitwise) loadreg
+	//ops: 4, 0, 1
 					// (objtotemp)  reg r3
 	mt	r3
 	mr	r0
@@ -1427,6 +1540,7 @@ l35: #
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Int_Glob + 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
@@ -1440,9 +1554,9 @@ l35: #
 	mr	r0
 
 	//dhry_2.c, line 194
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l39)-1)
-	li	IMW0(PCREL(l39))
+	li	IMW0(PCREL(l39)-0)
 	add	r7
 l38: # 
 
@@ -1495,14 +1609,13 @@ _Func_3:
 					// (objtotemp)  const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
-	sgn
 	cmp	r1
 
 	//dhry_2.c, line 210
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l44)-1)
-	li	IMW0(PCREL(l44))
+	li	IMW0(PCREL(l44)-0)
 		add	r7
 
 	//dhry_2.c, line 212
@@ -1515,9 +1628,9 @@ _Func_3:
 	mr	r0
 
 	//dhry_2.c, line 213
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
+			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l45)-1)
-	li	IMW0(PCREL(l45))
+	li	IMW0(PCREL(l45)-0)
 	add	r7
 l44: # 
 

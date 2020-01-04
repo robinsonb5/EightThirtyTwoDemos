@@ -1,4 +1,5 @@
 832DIR=../../EightThirtyTwo/Lib/
+INCDIR=../../EightThirtyTwo/include/
 LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
@@ -6,7 +7,7 @@ CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 CFLAGS = -+ -speed
 COPT = -O=1311
 
-LIB_OBJ=start.o uart.o small_printf.o division.o strcmp.o
+LIB_OBJ=start.o uart.o small_printf.o division.o string.o
 
 PRJ_OBJ=helloworld.o
 

@@ -1,4 +1,5 @@
 832DIR=../../EightThirtyTwo/Lib/
+INCDIR=../../EightThirtyTwo/include
 LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
@@ -32,7 +33,7 @@ SoC.elf : start.o uart.o tiny_printf.o spi.o minfat.o swap.o main.o
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
 %.o : %.c Makefile ldscript.ld $(832DIR)/start.S
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(832DIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
 	mv $*.asm $*.S
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
@@ -43,7 +44,7 @@ SoC.elf : start.o uart.o tiny_printf.o spi.o minfat.o swap.o main.o
 	gcc -c $(LIBDIR)/$*.S -I$(832DIR) -I$(LIBDIR) -I$(832DIR) -o $*.o
 
 %.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(832DIR) $*.c
+	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
 	mv $*.asm $*.S
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c
