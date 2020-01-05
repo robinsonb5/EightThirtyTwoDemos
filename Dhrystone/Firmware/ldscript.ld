@@ -26,6 +26,9 @@ SECTIONS
 	  *(.bss.*)
 	  	__bss_end__ = . ;
 	} >mem
+	.=ALIGN(4);
+	STACKTOP = . + 0x200;
+	_romend = . + 0x200;
 
 	/DISCARD/ : {
 	  *(.eh_frame)

@@ -739,15 +739,12 @@ l22: #
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
-	mr	r1
-					// (objtotemp)  reg r4
-	mt	r4
 	sgn
-	cmp	r1
+	cmp	r4
 
 	//dhry_1.c, line 186
-	cond	GE
-					//conditional branch regular			//pcreltotemp - reach of 12 bits
+	cond	LE
+					//conditional branch reversed			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l101)-1)
 	li	IMW0(PCREL(l101)-0)
 		add	r7
@@ -866,15 +863,12 @@ l98: #
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
-	mr	r1
-					// (objtotemp)  reg r4
-	mt	r4
 	sgn
-	cmp	r1
+	cmp	r4
 
 	//dhry_1.c, line 186
-	cond	SLT
-					//conditional branch regular			//pcreltotemp - reach of 12 bits
+	cond	SGT
+					//conditional branch reversed			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l98)-1)
 	li	IMW0(PCREL(l98)-0)
 		add	r7
@@ -1092,15 +1086,12 @@ l99: #
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	ldidx	r6
-	mr	r1
-					// (objtotemp)  reg r2
-	mt	r2
-	cmp	r1
+	cmp	r2
 				// freereg r2
 
 	//dhry_1.c, line 201
 	cond	NEQ
-					//conditional branch regular			//pcreltotemp - reach of 12 bits
+					//conditional branch reversed			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l32)-1)
 	li	IMW0(PCREL(l32)-0)
 		add	r7

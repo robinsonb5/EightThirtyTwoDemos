@@ -4,9 +4,10 @@ LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
+DUMP=objdump
 CFLAGS = -+ -speed
 COPT = -O=1311
-all: Dhrystone_ROM.vhd
+all: Dhrystone_ROM.vhd Dhrystone.bin Dhrystone.rpt
 
 clean :
 	rm *.S
@@ -19,6 +20,14 @@ clean :
 	sed 's/dualportram/$*_rom/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
 	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
 	cat >>$*_ROM.vhd $(ROMGENDIR)/rom_epilogue.vhd
+
+%.rpt: %.elf
+	@echo -n "End of code:\t"
+	@$(DUMP) -x $< | grep _romend
+	@echo -n "Start of BSS:\t"
+	@$(DUMP) -x $< | grep __bss_start__
+	@echo -n "End of BSS:\t"
+	@$(DUMP) -x $< | grep __bss_end__
 
 %.bin : %.elf Makefile
 	objcopy -Obinary $< $@
@@ -38,10 +47,10 @@ Dhrystone.elf : start.o uart.o small_printf.o division.o string.o dhry_1.o dhry_
 	gcc -I. -I$(832DIR) -c $*.S -o $*.o
 
 %.o : $(832DIR)/%.S Makefile ldscript.ld $(832DIR)/assembler.pp $(832DIR)/start.S
-	gcc -c $(832DIR)/$*.S -I$(832DIR) -o $*.o
+	gcc -c $(832DIR)/$*.S -DLDSTACK -I$(832DIR) -o $*.o
 
 %.o : $(LIBDIR)/%.S Makefile ldscript.ld
-	gcc -c $(LIBDIR)/$*.S -I$(832DIR) -I$(LIBDIR) -o $*.o
+	gcc -c $(LIBDIR)/$*.S -DLDSTACK -I$(832DIR) -I$(LIBDIR) -o $*.o
 
 %.S : %.c Makefile
 	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
