@@ -4,7 +4,7 @@ LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
-CFLAGS = -+ -speed
+CFLAGS = -+ -size
 COPT = -O=1311
 all: SoC_ROM.vhd
 

@@ -4,8 +4,8 @@
 #include "ps2.h"
 #include "keyboard.h"
 
-short MouseX=0,MouseY=0,MouseZ=0,MouseButtons=0;
-short mouseactive=0;
+int MouseX=0,MouseY=0,MouseZ=0,MouseButtons=0;
+int mouseactive=0;
 
 int main(int argc, char **argv)
 {
@@ -36,16 +36,16 @@ int main(int argc, char **argv)
 		{
 			while(PS2MouseBytesReady()>=3) // FIXME - institute some kind of timeout here to re-sync if sync lost.
 			{
-				short nx;
-				short w1,w2,w3,w4;
+				int nx;
+				int w1,w2,w3,w4;
 				w1=PS2MouseRead();
 				w2=PS2MouseRead();
 				w3=PS2MouseRead();
 				MouseButtons=w1&0x7;
 				if(w1 & (1<<5))
-					w3|=0xff00;
+					w3|=0xffffff00;
 				if(w1 & (1<<4))
-					w2|=0xff00;
+					w2|=0xffffff00;
 
 				nx=MouseX+w2;
 #if 0

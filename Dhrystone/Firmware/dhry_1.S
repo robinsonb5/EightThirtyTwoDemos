@@ -1,8 +1,6 @@
 #include "assembler.pp"
 
 	//registers used:
-		//r0: yes
-		//r1: yes
 		//r2: no
 		//r3: no
 		//r4: no
@@ -14,13 +12,13 @@
 	.global	__readMilliseconds
 __readMilliseconds:
 	stdec	r6
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 86
-// code 0x5e
 					//setreturn
-					// (load_temp - type 4) not varadr
-					// (objtotemp)  const/deref
-					// (prepobj tmp) deref
+					// (objtotemp) flags 21 // const/deref
+					// (prepobj tmp)// deref
 			// const
 				// constant: ffffffc8 in 2 chunks
 	li	IMW1(-56)
@@ -31,10 +29,7 @@ __readMilliseconds:
 	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
-		//r1: yes
 		//r2: yes
 		//r3: yes
 		//r4: yes
@@ -47,298 +42,297 @@ __readMilliseconds:
 _main:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
-	sub	r6
+				// constant: fffffff0 in 1 chunks
+	li	IMW0(-16)
+	add	r6
+// clearing tmp
+// clearing r0
 				// allocreg r5
 				// allocreg r4
-// code 0x2
+				// allocreg r3
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  var, auto|reg
+					// (prepobj r0) reg r3 - no need to prep
+					// (objtotemp) flags 102 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	ldidx	r6
 					// (save temp) isreg
-	mr	r4
+	mr	r3
 				//save_temp done
-				// allocreg r2
+				// allocreg r1
 
 	//dhry_1.c, line 125
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj r0) extern (offset 0)
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
+	mr	r0
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec1
+// clearing tmp
 // extern pe is varadr
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 126
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj r0) extern (offset 0)
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
+	mr	r0
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec2
+// clearing tmp
 // extern pe is varadr
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 128
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj r0) extern (offset 0)
 	ldinc	r7
 	.int	_rec2
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 10) (varadr)					// (prepobj tmp) extern (offset 0)
+	mr	r0
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_rec1
+// clearing tmp
 // extern pe is varadr
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 129
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 4)
+					// (prepobj r0) extern (offset 4)
 	ldinc	r7
 	.int	_rec2 + 4
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 130
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 8)
+					// (prepobj r0) extern (offset 8)
 	ldinc	r7
 	.int	_rec2 + 8
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 131
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 12)
+					// (prepobj r0) extern (offset 12)
 	ldinc	r7
 	.int	_rec2 + 12
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 28 in 2 chunks
 	li	IMW1(40)
 	li	IMW0(40)
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 135
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 16)
+// clearing r0
+// clearing tmp
+//using reg r2 for dst pointer
+//using reg noreg for counter
+					// (prepobj r2) extern (offset 16)
 	ldinc	r7
 	.int	_rec2 + 16
+// clearing tmp
 // extern pe not varadr
-	mr	r1
+	mr	r2
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to rec2
-					// (load_temp - type 11) not varadr
-					// (objtotemp) //static not varadr
+					// (objtotemp) flags 2 //static not varadr
 				//statictotemp
 	ldinc	r7
 	.int	l3+0
+// clearing tmp
 	mr	r0
-	mt	r2
-	stdec	r6
 // Copying 7 words to rec2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 // Copying 3 byte tail to rec2
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
-	ldinc	r6
-	mr	r2
+	stbinc	r2
 
 	//dhry_1.c, line 136
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+// clearing r0
+// clearing tmp
+//using reg r2 for dst pointer
+//using reg noreg for counter
+					// (prepobj r2) extern (offset 0)
 	ldinc	r7
 	.int	_Str_1_Loc
+// clearing tmp
 // extern pe not varadr
-	mr	r1
+	mr	r2
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to Str_1_Loc
-					// (load_temp - type 11) not varadr
-					// (objtotemp) //static not varadr
+					// (objtotemp) flags 2 //static not varadr
 				//statictotemp
 	ldinc	r7
 	.int	l4+0
+// clearing tmp
 	mr	r0
-	mt	r2
-	stdec	r6
 // Copying 7 words to Str_1_Loc
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 // Copying 3 byte tail to Str_1_Loc
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
-	ldinc	r6
-	mr	r2
+	stbinc	r2
 
 	//dhry_1.c, line 138
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 1628)
+					// (prepobj r0) extern (offset 1628)
 	ldinc	r7
 	.int	_Arr_2_Glob + 1628
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: a in 1 chunks
 	li	IMW0(10)
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 143
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l5+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 143
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 144
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l6+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 144
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 145
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l7+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 145
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 146
-// code 0x44
 					// (test)
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Reg
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
@@ -348,478 +342,476 @@ _main:
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l9)-1)
 	li	IMW0(PCREL(l9)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
 
 	//dhry_1.c, line 148
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l10+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 148
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 149
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l11+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 149
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 152
 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l12)-1)
 	li	IMW0(PCREL(l12)-0)
+// clearing tmp
+// clearing tmp
 	add	r7
 l9: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 153
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l13+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 153
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 154
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l14+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 154
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 l12: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 158
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 158
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l15+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 158
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 173
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	__readMilliseconds
+// clearing tmp
 	exg	r7
 
+// clearing tmp
 
 	//dhry_1.c, line 173
-// code 0x5d
-					// (getreturn)					// (save result) store reg
-// Store_reg to type 0x4
+					// (getreturn)					// (save result) // Store_reg to type 0x4
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Begin_Time + 4
+// clearing tmp
 // extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
+// clearing tmp
 
 	//dhry_1.c, line 175
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r4 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 					// (save temp) isreg
-	mr	r5
+	mr	r4
 				//save_temp done
 
 	//dhry_1.c, line 176
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r1
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 	sgn
-	cmp	r1
+	cmp	r0
 
 	//dhry_1.c, line 176
 	cond	LE
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l100)-1)
 	li	IMW0(PCREL(l100)-0)
+// clearing tmp
 		add	r7
-				// freereg r2
+// clearing tmp
+				// freereg r1
 l97: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 177
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_5
+// clearing tmp
 	exg	r7
 
+// clearing tmp
 
 	//dhry_1.c, line 178
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_4
+// clearing tmp
 	exg	r7
 
+// clearing tmp
 
 	//dhry_1.c, line 180
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) var, auto|reg
+					// (prepobj r0) var, auto|reg
 	mt	r6
-	mr	r1
+// clearing tmp
+	mr	r0
 
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 181
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r3 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 3 in 1 chunks
 	li	IMW0(3)
 					// (save temp) isreg
-	mr	r4
+	mr	r3
 				//save_temp done
 
 	//dhry_1.c, line 182
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+// clearing r0
+// clearing tmp
+//using reg r2 for dst pointer
+//using reg noreg for counter
+					// (prepobj r2) extern (offset 0)
 	ldinc	r7
 	.int	_Str_2_Loc
+// clearing tmp
 // extern pe not varadr
-	mr	r1
+	mr	r2
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to Str_2_Loc
-					// (load_temp - type 11) not varadr
-					// (objtotemp) //static not varadr
+					// (objtotemp) flags 2 //static not varadr
 				//statictotemp
 	ldinc	r7
 	.int	l20+0
+// clearing tmp
 	mr	r0
-	mt	r2
-	stdec	r6
 // Copying 7 words to Str_2_Loc
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 // Copying 3 byte tail to Str_2_Loc
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
-	ldinc	r6
-	mr	r2
+	stbinc	r2
 
 	//dhry_1.c, line 183
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) var, auto|reg
+					// (prepobj r0) var, auto|reg
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	addt	r6
-	mr	r1
+// clearing tmp
+	mr	r0
 
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
 	//dhry_1.c, line 184
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Str_2_Loc
-		//sizemod based on type 0xa
+// clearing tmp
+// extern pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 184
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Str_1_Loc
-		//sizemod based on type 0xa
+// clearing tmp
+// extern pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 184
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Func_2
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 184
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
-
-	//dhry_1.c, line 184
-// code 0x44
 					// (test)
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r2
-				// freereg r2
+					// (objtotemp) flags 4a // reg r0
+	mt	r0
+	and	r0
+				// freereg r1
 
 	//dhry_1.c, line 184
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l21)-1)
 	li	IMW0(PCREL(l21)-0)
+// clearing tmp
 		add	r7
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 184
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r1 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 					// (save temp) isreg
-	mr	r2
+	mr	r1
 				//save_temp done
 
 	//dhry_1.c, line 184
 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l22)-1)
 	li	IMW0(PCREL(l22)-0)
+// clearing tmp
+// clearing tmp
 	add	r7
 l21: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 184
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r1 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 					// (save temp) isreg
-	mr	r2
+	mr	r1
 				//save_temp done
 l22: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 184
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
-	.int	_Bool_Glob
+	.int	_Bool_Glob + 4
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r2
-	mt	r2
-					// (save temp) store
-	st	r1
-				//save_temp done
+		//sizemod based on type 0x3
+	stmpdec	r1
+// clearing tmp
 
 	//dhry_1.c, line 186
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 	sgn
-	cmp	r4
+	cmp	r3
 
 	//dhry_1.c, line 186
 	cond	LE
 					//conditional branch reversed			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l101)-1)
 	li	IMW0(PCREL(l101)-0)
+// clearing tmp
 		add	r7
-				// freereg r2
+// clearing tmp
+				// freereg r1
 l98: # 
-				// allocreg r2
+// clearing tmp
+// clearing r0
+				// allocreg r1
 
 	//dhry_1.c, line 188
-// code 0x1d
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  var, auto|reg
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 5 in 1 chunks
 	li	IMW0(5)
-	mul	r2
-					// (save result) isreg
+	mul	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 188
-// code 0x1c
 					// (bitwise) loadreg
-	//ops: 3, 5, 1
-					// (objtotemp)  reg r2
-	mt	r2
+	//ops: 2, 4, 1
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	mr	r0
-					// (objtotemp)  reg r4
-	mt	r4
+					// (objtotemp) flags 42 // reg r3
+	mt	r3
 	sub	r0
-					// (save result) store reg
-// Store_reg to type 0x3
+					// (save result) // Store_reg to type 0x3
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) var, auto|reg
 				// constant: 10 in 1 chunks
 	li	IMW0(16)
 	addt	r6
+// clearing tmp
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-				// freereg r2
-				// allocreg r2
+// clearing tmp
+				// freereg r1
+				// allocreg r1
 
 	//dhry_1.c, line 190
-// code 0x28
-					// (address)
-					// (prepobj r2) var, auto|reg
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 82 					// (prepobj tmp) var, auto|reg
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	addt	r6
-	mr	r2
-
-					// (save result) isreg
-
-	//dhry_1.c, line 190
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+// clearing tmp
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 190
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r4
-	mt	r4
+					// (objtotemp) flags 42 // reg r3
+	mt	r3
 	stdec	r6
 
 	//dhry_1.c, line 190
-// code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -827,58 +819,63 @@ l98: #
 	stdec	r6
 
 	//dhry_1.c, line 190
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_7
+// clearing tmp
 	exg	r7
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 192
-// code 0x1b
 					// (bitwise) loadreg
 	//ops: 0, 0, 1
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 	mr	r0
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 	add	r0
-					// (save result) store reg
-// Store_reg to type 0x3
+					// (save result) // Store_reg to type 0x3
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) var, auto|reg
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	addt	r6
+// clearing tmp
 	stmpdec	r0
  // WARNING - check that 4 has been added.
+// clearing tmp
 
 	//dhry_1.c, line 186
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 	sgn
-	cmp	r4
+	cmp	r3
 
 	//dhry_1.c, line 186
 	cond	SGT
 					//conditional branch reversed			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l98)-1)
 	li	IMW0(PCREL(l98)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
 l101: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 195
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: c in 1 chunks
 	li	IMW0(12)
@@ -886,10 +883,9 @@ l101: #
 	stdec	r6
 
 	//dhry_1.c, line 195
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
@@ -897,1110 +893,1061 @@ l101: #
 	stdec	r6
 
 	//dhry_1.c, line 195
-// code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Arr_2_Glob
-		//sizemod based on type 0xa
+// clearing tmp
+// extern pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 195
-// code 0x4e
 					// (a/p push)
 					// a: pushed 12, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Arr_1_Glob
-		//sizemod based on type 0xa
+// clearing tmp
+// extern pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 195
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_8
+// clearing tmp
 	exg	r7
 				// constant: 10 in 1 chunks
 	li	IMW0(16)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 197
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0xa
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 197
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_1
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 198
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	mr	r1
-
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r5 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-					// (save temp) store
-	stbinc	r1
-//Disposable, postinc doesn't matter.
+					// (save temp) isreg
+	mr	r5
 				//save_temp done
-				// allocreg r2
+				// allocreg r1
 
 	//dhry_1.c, line 200
-// code 0x32
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ch_2_Glob
+// clearing tmp
 		//sizemod based on type 0x1
 	byt
 	//extern deref
 	ldt
-	mr	r2
+	mr	r1
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r2
+	mul	r1
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r2
-	mr	r2
-					// (save result) isreg
+	mul	r1
+	mr	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 200
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 // const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
 	sgn
-	cmp	r2
-				// freereg r2
+	cmp	r1
+				// freereg r1
 
 	//dhry_1.c, line 200
 	cond	SLT
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l102)-1)
 	li	IMW0(PCREL(l102)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
 l99: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 201
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 43 in 2 chunks
 	li	IMW1(67)
 	li	IMW0(67)
 	stdec	r6
-				// allocreg r2
+				// allocreg r1
 
 	//dhry_1.c, line 201
-// code 0x32
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x1
-	byt
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	ldidx	r6
-	mr	r2
+					// (objtotemp) flags 42 // reg r5
+	mt	r5
+	mr	r1
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r2
+	mul	r1
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r2
-	mr	r2
-					// (save result) isreg
+	mul	r1
+	mr	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 201
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 201
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Func_1
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 201
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
-
-	//dhry_1.c, line 201
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	ldidx	r6
-	cmp	r2
-				// freereg r2
+	cmp	r0
+				// freereg r1
 
 	//dhry_1.c, line 201
 	cond	NEQ
 					//conditional branch reversed			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l32)-1)
 	li	IMW0(PCREL(l32)-0)
+// clearing tmp
 		add	r7
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 204
-// code 0x28
-					// (address)
-					// (prepobj r2) var, auto|reg
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 82 					// (prepobj tmp) var, auto|reg
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	addt	r6
-	mr	r2
-
-					// (save result) isreg
-
-	//dhry_1.c, line 204
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+// clearing tmp
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 204
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 	stdec	r6
 
 	//dhry_1.c, line 204
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_6
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 205
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+// clearing r0
+// clearing tmp
+//using reg r2 for dst pointer
+//using reg noreg for counter
+					// (prepobj r2) extern (offset 0)
 	ldinc	r7
 	.int	_Str_2_Loc
+// clearing tmp
 // extern pe not varadr
-	mr	r1
+	mr	r2
 // (char with size!=1 -> array of unknown type)
 // Copying 7 words and 3 bytes to Str_2_Loc
-					// (load_temp - type 11) not varadr
-					// (objtotemp) //static not varadr
+					// (objtotemp) flags 2 //static not varadr
 				//statictotemp
 	ldinc	r7
 	.int	l33+0
+// clearing tmp
 	mr	r0
-	mt	r2
-	stdec	r6
 // Copying 7 words to Str_2_Loc
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 	ldinc	r0
-	stinc	r1
+	stinc	r2
 // Copying 3 byte tail to Str_2_Loc
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
+	stbinc	r2
 	ldbinc	r0
-	stbinc	r1
-	ldinc	r6
-	mr	r2
+	stbinc	r2
 
 	//dhry_1.c, line 206
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
+					// (prepobj r0) reg r3 - no need to prep
+					// (objtotemp) flags 42 // reg r4
+	mt	r4
 					// (save temp) isreg
-	mr	r4
+	mr	r3
 				//save_temp done
 
 	//dhry_1.c, line 207
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
-	.int	_Int_Glob
+	.int	_Int_Glob + 4
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r1
-				//save_temp done
+		//sizemod based on type 0x3
+	stmpdec	r4
+// clearing tmp
 l32: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 200
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 1
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x1
-	byt
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	ldidx	r6
-	mr	r0
-					// (objtotemp)  const
+	//ops: 6, 0, 6
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
-	add	r0
-					// (save result) store reg
-// Store_reg to type 0x1
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	exg	r0
-	stbinc	r0	//WARNING - pointer / reg not restored, might cause trouble!
-				// allocreg r3
+	add	r5
+					// (save result) // isreg
+				// allocreg r2
 
 	//dhry_1.c, line 200
-// code 0x32
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x1
-	byt
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	ldidx	r6
-	mr	r3
+					// (objtotemp) flags 42 // reg r5
+	mt	r5
+	mr	r2
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r3
+	mul	r2
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r3
-	mr	r3
-					// (save result) isreg
-				// allocreg r2
+	mul	r2
+	mr	r2
+					// (save result) // isreg
+				// allocreg r1
 
 	//dhry_1.c, line 200
-// code 0x32
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ch_2_Glob
+// clearing tmp
 		//sizemod based on type 0x1
 	byt
 	//extern deref
 	ldt
-	mr	r2
+	mr	r1
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r2
+	mul	r1
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r2
-	mr	r2
-					// (save result) isreg
+	mul	r1
+	mr	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 200
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  reg r2
-	mt	r2
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	sgn
-	cmp	r3
-				// freereg r3
+	cmp	r2
 				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 200
 	cond	LE
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l99)-1)
 	li	IMW0(PCREL(l99)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
 l102: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 211
-// code 0x1d
 					// (bitwise) loadreg
-	//ops: 5, 0, 5
+	//ops: 4, 0, 4
 		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
-	mul	r4
-					// (save result) isreg
+	mul	r3
+					// (save result) // isreg
 
 	//dhry_1.c, line 212
-// code 0x1e
 					// (bitwise) loadreg
-	//ops: 5, 0, 1
+	//ops: 4, 0, 1
 	//Call division routine
-					// (objtotemp)  reg r4
-	mt	r4
-	mr	r1
+	mt	r1
+	stdec	r6
 	mt	r2
 	stdec	r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 42 // reg r3
+	mt	r3
+	mr	r1
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
+				// constant: 14 in 1 chunks
+	li	IMW0(20)
 	ldidx	r6
 	mr	r2
 	ldinc	r7
 	.int	_div_s32bys32
 	exg	r7
+// clearing r0
 	ldinc	r6
 	mr	r2
-	mt	r0
-	mr	r0
-					// (save result) store reg
-// Store_reg to type 0x3
+// clearing tmp
+	ldinc	r6
+	mr	r1
+// clearing tmp
+					// (save result) // Store_reg to type 0x3
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) var, auto|reg
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	addt	r6
+// clearing tmp
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 213
-// code 0x1c
 					// (bitwise) loadreg
-	//ops: 5, 0, 3
-					// (objtotemp)  reg r4
-	mt	r4
-	mr	r2
-					// (objtotemp)  var, auto|reg
+	//ops: 4, 0, 2
+					// (objtotemp) flags 42 // reg r3
+	mt	r3
+	mr	r1
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	ldidx	r6
-	sub	r2
-					// (save result) isreg
+	sub	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 213
-// code 0x1d
 					// (bitwise) loadreg
-	//ops: 3, 0, 3
+	//ops: 2, 0, 2
 		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 7 in 1 chunks
 	li	IMW0(7)
-	mul	r2
-					// (save result) isreg
+	mul	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 213
-// code 0x1c
 					// (bitwise) loadreg
-	//ops: 3, 0, 5
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r4
-					// (objtotemp)  var, auto|reg
+	//ops: 2, 0, 4
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
+	mr	r3
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
-	sub	r4
-					// (save result) isreg
-				// freereg r2
-				// allocreg r2
+	sub	r3
+					// (save result) // isreg
+				// freereg r1
+				// allocreg r1
 
 	//dhry_1.c, line 215
-// code 0x28
-					// (address)
-					// (prepobj r2) var, auto|reg
-	mt	r6
-	mr	r2
-
-					// (save result) isreg
-
-	//dhry_1.c, line 215
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 82 					// (prepobj tmp) var, auto|reg
+	mt	r6
+// clearing tmp
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 215
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_2
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 176
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 6, 0, 6
+	//ops: 5, 0, 5
 		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
-	add	r5
-					// (save result) isreg
+	add	r4
+					// (save result) // isreg
 
 	//dhry_1.c, line 176
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	sgn
-	cmp	r5
+	cmp	r4
 
 	//dhry_1.c, line 176
 	cond	LE
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l97)-1)
 	li	IMW0(PCREL(l97)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
 l100: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 233
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	__readMilliseconds
+// clearing tmp
 	exg	r7
 
+// clearing tmp
 
 	//dhry_1.c, line 233
-// code 0x5d
-					// (getreturn)					// (save result) store reg
-// Store_reg to type 0x4
+					// (getreturn)					// (save result) // Store_reg to type 0x4
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_End_Time + 4
+// clearing tmp
 // extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
+// clearing tmp
 
 	//dhry_1.c, line 237
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l34+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 237
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 238
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l35+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 238
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 239
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l36+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 239
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 240
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l37+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 240
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 241
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Int_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 241
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l38+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 241
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 242
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 5 in 1 chunks
 	li	IMW0(5)
 	stdec	r6
 
 	//dhry_1.c, line 242
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l39+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 242
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 243
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Bool_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 243
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l40+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 243
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 244
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 	stdec	r6
 
 	//dhry_1.c, line 244
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l41+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 244
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 245
-// code 0x32
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ch_1_Glob
+// clearing tmp
 		//sizemod based on type 0x1
 	byt
 	//extern deref
 	ldt
-	mr	r2
+	mr	r1
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r2
+	mul	r1
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r2
-	mr	r2
-					// (save result) isreg
+	mul	r1
+	mr	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 245
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 245
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l42+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 245
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 246
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
 	stdec	r6
 
 	//dhry_1.c, line 246
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l43+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 246
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 247
-// code 0x32
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ch_2_Glob
+// clearing tmp
 		//sizemod based on type 0x1
 	byt
 	//extern deref
 	ldt
-	mr	r2
+	mr	r1
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r2
+	mul	r1
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r2
-	mr	r2
-					// (save result) isreg
+	mul	r1
+	mr	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 247
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 247
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l44+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 247
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 248
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 42 in 2 chunks
 	li	IMW1(66)
 	li	IMW0(66)
 	stdec	r6
 
 	//dhry_1.c, line 248
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l45+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 248
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 249
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Arr_1_Glob + 32
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 249
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l46+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 249
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 250
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 7 in 1 chunks
 	li	IMW0(7)
 	stdec	r6
 
 	//dhry_1.c, line 250
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l47+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 250
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 251
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Arr_2_Glob + 1628
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 251
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l48+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 251
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 252
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l49+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 252
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 253
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l50+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 253
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 254
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
+					// (objtotemp) flags 22 // deref 
+					// (prepobj tmp)// deref
 				// var FIXME - deref?
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 	ldt
 		//sizemod based on type 0x3
 	ldt
@@ -2008,380 +1955,373 @@ l100: #
 	stdec	r6
 
 	//dhry_1.c, line 254
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l51+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 254
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 255
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l52+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 255
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 256
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 256
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r2
+					// (objtotemp) flags 6a // deref 
+	ld	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 256
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l53+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 256
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 257
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 	stdec	r6
 
 	//dhry_1.c, line 257
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l54+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 257
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 258
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 258
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r2
+					// (objtotemp) flags 6a // deref 
+	ld	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 258
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l55+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 258
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 259
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 2 in 1 chunks
 	li	IMW0(2)
 	stdec	r6
 
 	//dhry_1.c, line 259
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l56+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 259
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 260
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: c in 1 chunks
 	li	IMW0(12)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 260
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r2
+					// (objtotemp) flags 6a // deref 
+	ld	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 260
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l57+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 260
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 261
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 11 in 1 chunks
 	li	IMW0(17)
 	stdec	r6
 
 	//dhry_1.c, line 261
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l58+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 261
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 262
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 10 in 1 chunks
 	li	IMW0(16)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 262
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 262
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l59+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 262
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 263
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l60+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 263
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 264
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l61+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 264
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 265
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
+					// (objtotemp) flags 22 // deref 
+					// (prepobj tmp)// deref
 				// var FIXME - deref?
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+// clearing tmp
 	ldt
 		//sizemod based on type 0x3
 	ldt
@@ -2389,474 +2329,462 @@ l100: #
 	stdec	r6
 
 	//dhry_1.c, line 265
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l62+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 265
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 266
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l63+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 266
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 267
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 267
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r2
+					// (objtotemp) flags 6a // deref 
+	ld	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 267
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l64+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 267
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 268
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 	stdec	r6
 
 	//dhry_1.c, line 268
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l65+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 268
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 269
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 269
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r2
+					// (objtotemp) flags 6a // deref 
+	ld	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 269
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l66+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 269
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 270
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 	stdec	r6
 
 	//dhry_1.c, line 270
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l67+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 270
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 271
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: c in 1 chunks
 	li	IMW0(12)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 271
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r2
+					// (objtotemp) flags 6a // deref 
+	ld	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 271
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l68+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 271
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 272
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 12 in 1 chunks
 	li	IMW0(18)
 	stdec	r6
 
 	//dhry_1.c, line 272
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l69+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 272
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 274
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Next_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 10 in 1 chunks
 	li	IMW0(16)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 274
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 274
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l70+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 274
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 275
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l71+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 275
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 276
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 	stdec	r6
 
 	//dhry_1.c, line 276
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l72+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 276
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 277
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 5 in 1 chunks
 	li	IMW0(5)
 	stdec	r6
 
 	//dhry_1.c, line 277
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l73+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 277
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 278
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r4
-	mt	r4
+					// (objtotemp) flags 42 // reg r3
+	mt	r3
 	stdec	r6
 
 	//dhry_1.c, line 278
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l74+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 278
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 279
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: d in 1 chunks
 	li	IMW0(13)
 	stdec	r6
 
 	//dhry_1.c, line 279
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l75+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 279
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 280
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: c in 1 chunks
 	li	IMW0(12)
@@ -2864,61 +2792,59 @@ l100: #
 	stdec	r6
 
 	//dhry_1.c, line 280
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l76+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 280
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 281
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 7 in 1 chunks
 	li	IMW0(7)
 	stdec	r6
 
 	//dhry_1.c, line 281
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l77+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 281
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 282
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 // var, auto|reg
 		//sizemod based on type 0x3
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
@@ -2926,377 +2852,376 @@ l100: #
 	stdec	r6
 
 	//dhry_1.c, line 282
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l78+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 282
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 283
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 	stdec	r6
 
 	//dhry_1.c, line 283
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l79+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 283
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 284
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Str_1_Loc
-		//sizemod based on type 0xa
+// clearing tmp
+// extern pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 284
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l80+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 284
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 285
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l81+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 285
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 286
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 82 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Str_2_Loc
-		//sizemod based on type 0xa
+// clearing tmp
+// extern pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 286
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l82+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 286
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 287
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l83+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 287
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 288
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l84+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 288
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 291
-// code 0x1c
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_End_Time
+// clearing tmp
 		//sizemod based on type 0x4
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  extern
+	mr	r1
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Begin_Time
+// clearing tmp
 		//sizemod based on type 0x4
 	//extern deref
 	ldt
-	sub	r2
-					// (save result) isreg
-// code 0x2
+	sub	r1
+					// (save result) // isreg
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
-	.int	_User_Time
+	.int	_User_Time + 4
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 4) not varadr
-					// (objtotemp)  reg r2
-	mt	r2
-					// (save temp) store
-	st	r1
-				//save_temp done
+		//sizemod based on type 0x4
+	stmpdec	r1
+// clearing tmp
 
 	//dhry_1.c, line 292
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 292
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l85+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 292
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 294
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  extern
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_User_Time
+// clearing tmp
 		//sizemod based on type 0x4
 	//extern deref
 	ldt
-	mr	r1
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 78 in 2 chunks
 	li	IMW1(120)
 	li	IMW0(120)
 	sgn
-	cmp	r1
+	cmp	r0
 
 	//dhry_1.c, line 294
 	cond	GE
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l87)-1)
 	li	IMW0(PCREL(l87)-0)
+// clearing tmp
 		add	r7
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 296
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l88+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 296
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 297
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l89+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 297
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 298
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l90+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 298
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
-				// freereg r2
-				// freereg r4
+// clearing tmp
+				// freereg r1
+				// freereg r3
 l87: # 
-				// allocreg r2
-// code 0x2
+// clearing tmp
+// clearing r0
+				// allocreg r1
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 4) not varadr
-					// (objtotemp)  extern
+					// (prepobj r0) reg r1 - no need to prep
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_User_Time
+// clearing tmp
 		//sizemod based on type 0x4
 	//extern deref
 	ldt
 					// (save temp) isreg
-	mr	r2
+	mr	r1
 				//save_temp done
-				// allocreg r3
+				// allocreg r2
 
 	//dhry_1.c, line 316
-// code 0x1d
 					// (bitwise) loadreg
-	//ops: 3, 0, 4
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r3
-					// (objtotemp)  const
+	//ops: 2, 0, 3
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
+	mr	r2
+					// (objtotemp) flags 1 // const
 				// constant: 3e8 in 2 chunks
 	li	IMW1(1000)
 	li	IMW0(1000)
-	mul	r3
-					// (save result) isreg
+	mul	r2
+					// (save result) // isreg
 
 	//dhry_1.c, line 316
-// code 0x1e
 					// (bitwise) loadreg
-	//ops: 4, 0, 1
+	//ops: 3, 0, 1
 	//Call division routine
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r1
+	mt	r1
+	stdec	r6
 	mt	r2
 	stdec	r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 4a // reg r2
+	mt	r2
+	mr	r1
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+// clearing tmp
 		//sizemod based on type 0x4
 	//extern deref
 	ldt
@@ -3304,296 +3229,308 @@ l87: #
 	ldinc	r7
 	.int	_div_s32bys32
 	exg	r7
+// clearing r0
 	ldinc	r6
 	mr	r2
-	mt	r0
-	mr	r0
-					// (save result) store reg
-// Store_reg to type 0x4
+// clearing tmp
+	ldinc	r6
+	mr	r1
+// clearing tmp
+					// (save result) // Store_reg to type 0x4
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Microseconds + 4
+// clearing tmp
 // extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-				// freereg r3
-				// allocreg r3
-// code 0x2
+// clearing tmp
+				// freereg r2
+				// allocreg r2
 					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  extern
+					// (prepobj r0) reg r2 - no need to prep
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Number_Of_Runs
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 					// (save temp) isreg
-	mr	r3
+	mr	r2
 				//save_temp done
-				// allocreg r4
+				// allocreg r3
 
 	//dhry_1.c, line 317
-// code 0x1d
 					// (bitwise) loadreg
-	//ops: 4, 0, 5
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r4
-					// (objtotemp)  const
+	//ops: 3, 0, 4
+					// (objtotemp) flags 4a // reg r2
+	mt	r2
+	mr	r3
+					// (objtotemp) flags 1 // const
 				// constant: 3e8 in 2 chunks
 	li	IMW1(1000)
 	li	IMW0(1000)
-	mul	r4
-					// (save result) isreg
+	mul	r3
+					// (save result) // isreg
 
 	//dhry_1.c, line 317
-// code 0x1e
 					// (bitwise) loadreg
-	//ops: 5, 3, 1
+	//ops: 4, 2, 1
 	//Call division routine
-					// (objtotemp)  reg r4
-	mt	r4
-	mr	r1
+	mt	r1
+	stdec	r6
 	mt	r2
 	stdec	r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r3
+	mt	r3
+	exg	r1
 	mr	r2
 	ldinc	r7
 	.int	_div_s32bys32
 	exg	r7
+// clearing r0
 	ldinc	r6
 	mr	r2
-	mt	r0
-	mr	r0
-					// (save result) store reg
-// Store_reg to type 0x4
+// clearing tmp
+	ldinc	r6
+	mr	r1
+// clearing tmp
+					// (save result) // Store_reg to type 0x4
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Dhrystones_Per_Second + 4
+// clearing tmp
 // extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-				// freereg r4
+// clearing tmp
+				// freereg r3
 
 	//dhry_1.c, line 318
-// code 0x1d
 					// (bitwise) loadreg
-	//ops: 4, 0, 4
+	//ops: 3, 0, 3
 		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 239 in 2 chunks
 	li	IMW1(569)
 	li	IMW0(569)
-	mul	r3
-					// (save result) isreg
+	mul	r2
+					// (save result) // isreg
 
 	//dhry_1.c, line 318
-// code 0x1e
 					// (bitwise) loadreg
-	//ops: 4, 3, 1
+	//ops: 3, 2, 1
 	//Call division routine
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r1
+	mt	r1
+	stdec	r6
 	mt	r2
 	stdec	r6
-					// (objtotemp)  reg r2
+					// (objtotemp) flags 4a // reg r2
 	mt	r2
+	exg	r1
 	mr	r2
 	ldinc	r7
 	.int	_div_s32bys32
 	exg	r7
+// clearing r0
 	ldinc	r6
 	mr	r2
-	mt	r0
-	mr	r0
-					// (save result) store reg
-// Store_reg to type 0x4
+// clearing tmp
+	ldinc	r6
+	mr	r1
+// clearing tmp
+					// (save result) // Store_reg to type 0x4
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Vax_Mips + 4
+// clearing tmp
 // extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-				// freereg r3
+// clearing tmp
 				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 320
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l91+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 320
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 321
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Microseconds
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 321
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l92+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 321
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 322
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l93+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 322
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 323
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Dhrystones_Per_Second
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 323
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l94+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 323
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 324
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Vax_Mips
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 324
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l95+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 324
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 325
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static varadr
-				//statictotemp
+					// (objtotemp) flags 82 					// (prepobj tmp) static
 	ldinc	r7
 	.int	l96+0
+// static pe is varadr
 	stdec	r6
 
 	//dhry_1.c, line 325
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_printf
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 328
-// code 0x5e
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 	mr	r0
+				// freereg r4
 				// freereg r5
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
-	add	r6
+				// constant: fffffff0 in 1 chunks
+	li	IMW0(-16)
+	sub	r6
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -3601,11 +3538,8 @@ l87: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	.section	.rodata
 l10:
 	.byte	80
@@ -5629,8 +5563,6 @@ l85:
 	.byte	10
 	.byte	0
 	//registers used:
-		//r0: yes
-		//r1: yes
 		//r2: yes
 		//r3: yes
 		//r4: yes
@@ -5643,401 +5575,373 @@ l85:
 _Proc_1:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
+// clearing tmp
+// clearing r0
 				// allocreg r5
-				// allocreg r2
-
-	//dhry_1.c, line 338
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
-				// var FIXME - deref? reg 
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
-	ldidx	r6
+					// (prepobj r0) reg r5 - no need to prep
+					// (objtotemp) flags 102 // var, auto|reg
 		//sizemod based on type 0xa
-	ldt
-//marker 2
-					// (save temp) isreg
-	mr	r2
-				//save_temp done
-
-	//dhry_1.c, line 338
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  reg r2
-	mt	r2
+				// constant: 10 in 1 chunks
+	li	IMW0(16)
+	ldidx	r6
 					// (save temp) isreg
 	mr	r5
 				//save_temp done
+				// allocreg r4
+				// allocreg r3
+
+	//dhry_1.c, line 338
+					// (a/p assign)
+					// (prepobj r0) reg r3 - no need to prep
+					// (objtotemp) flags 62 // deref 
+	ld	r5
+					// (save temp) isreg
+	mr	r3
+				//save_temp done
+
+	//dhry_1.c, line 338
+					// (a/p assign)
+					// (prepobj r0) reg r4 - no need to prep
+					// (objtotemp) flags 4a // reg r3
+	mt	r3
+					// (save temp) isreg
+	mr	r4
+				//save_temp done
 
 	//dhry_1.c, line 343
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r2 - no need to prep
+// clearing r0
+// clearing tmp
+//using reg r2 for dst pointer
+	mt	r3
+	stdec	r6
+//using reg r3 for counter
+					// (prepobj r2)// deref
+				// reg r3 - no need to prep
 			//Swapping dest and counter registers
 // Copying 12 words and 0 bytes to 
-					// (load_temp - type 12) not varadr
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
+					// (objtotemp) flags 22 // deref 
+					// (prepobj tmp)// deref
 				// var FIXME - deref?
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 	ldt
 	mr	r0
-	mt	r2
-	stdec	r6
 // Copying 12 words to 
 				// constant: 30 in 2 chunks
 	li	IMW1(48)
 	li	IMW0(48)
-	addt	r2
-	mr	r1
+	addt	r3
+	mr	r2
 .cpywordloop4:
 	ldinc	r0
-	stinc	r2
-	mt	r2
-	cmp	r1
+	stinc	r3
+	mt	r3
+	cmp	r2
 	cond	NEQ
 		li	IMW0(PCREL(.cpywordloop4))
 		add	r7
 	ldinc	r6
 	mr	r2
-				// allocreg r4
+				// allocreg r2
 
 	//dhry_1.c, line 344
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 5
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
-	ldidx	r6
-	mr	r4
-					// (objtotemp)  const
+	//ops: 6, 0, 3
+					// (objtotemp) flags 42 // reg r5
+	mt	r5
+	mr	r2
+					// (objtotemp) flags 1 // const
 				// constant: c in 1 chunks
 	li	IMW0(12)
-	add	r4
-					// (save result) isreg
+	add	r2
+					// (save result) // isreg
 
 	//dhry_1.c, line 344
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0)// deref
+				// reg r2 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 5 in 1 chunks
 	li	IMW0(5)
 					// (save temp) store
-	st	r4
+	st	r2
 				//save_temp done
-				// allocreg r3
+				// allocreg r1
 
 	//dhry_1.c, line 346
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 3, 0, 4
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r3
-					// (objtotemp)  const
+	//ops: 4, 0, 2
+					// (objtotemp) flags 4a // reg r3
+	mt	r3
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: c in 1 chunks
 	li	IMW0(12)
-	add	r3
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 346
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)// deref
+				// reg r1 - no need to prep
+					// (objtotemp) flags 6a // deref 
+	ld	r2
+					// (save temp) store
+	st	r1
+				//save_temp done
+				// freereg r2
+				// freereg r1
+
+	//dhry_1.c, line 347
+					// (a/p assign)
+					// (prepobj r0)// deref
 				// reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  deref 
-	ld	r4
+					// (objtotemp) flags 62 // deref 
+	ld	r5
 					// (save temp) store
 	st	r3
 				//save_temp done
-				// freereg r4
-				// freereg r3
-
-	//dhry_1.c, line 347
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r2 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
-				// var FIXME - deref? reg 
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
-	ldidx	r6
-		//sizemod based on type 0xa
-	ldt
-//marker 2
-					// (save temp) store
-	st	r2
-				//save_temp done
 
 	//dhry_1.c, line 348
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r3
+	mt	r3
 	stdec	r6
 
 	//dhry_1.c, line 348
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_3
+// clearing tmp
 	exg	r7
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
 	add	r6
 
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 351
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 3, 0, 3
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp)  const
+	//ops: 4, 0, 2
+					// (objtotemp) flags 4a // reg r3
+	mt	r3
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 4 in 1 chunks
 	li	IMW0(4)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
+				// freereg r3
 
 	//dhry_1.c, line 351
-// code 0x44
 					// (test)
-					// (objtotemp)  deref 
-	ld	r2
-				// freereg r2
+					// (objtotemp) flags 6a // deref 
+	ld	r1
+				// freereg r1
 
 	//dhry_1.c, line 351
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l105)-1)
 	li	IMW0(PCREL(l105)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
+				// allocreg r1
+
+	//dhry_1.c, line 354
+					// (bitwise) loadreg
+	//ops: 5, 0, 2
+					// (objtotemp) flags 42 // reg r4
+	mt	r4
+	mr	r1
+					// (objtotemp) flags 1 // const
+				// constant: 8 in 1 chunks
+	li	IMW0(8)
+	add	r1
+					// (save result) // isreg
 				// allocreg r3
 
 	//dhry_1.c, line 354
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 6, 0, 4
-					// (objtotemp)  reg r5
-	mt	r5
+	//ops: 5, 0, 4
+					// (objtotemp) flags 42 // reg r4
+	mt	r4
 	mr	r3
-					// (objtotemp)  const
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r3
-					// (save result) isreg
-				// allocreg r2
-
-	//dhry_1.c, line 354
-// code 0x1b
-					// (bitwise) loadreg
-	//ops: 6, 0, 3
-					// (objtotemp)  reg r5
-	mt	r5
-	mr	r2
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: c in 1 chunks
 	li	IMW0(12)
-	add	r2
-					// (save result) isreg
+	add	r3
+					// (save result) // isreg
 
 	//dhry_1.c, line 354
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0)// deref
+				// reg r3 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 6 in 1 chunks
 	li	IMW0(6)
 					// (save temp) store
-	st	r2
+	st	r3
 				//save_temp done
 
 	//dhry_1.c, line 356
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r3
-	mt	r3
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r3
-				// allocreg r3
+				// freereg r1
+				// allocreg r1
 
 	//dhry_1.c, line 356
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 4
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
-	ldidx	r6
-	mr	r3
-					// (objtotemp)  const
+	//ops: 6, 0, 2
+					// (objtotemp) flags 42 // reg r5
+	mt	r5
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
-	add	r3
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 356
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r3
+					// (objtotemp) flags 6a // deref 
+	ld	r1
 	stdec	r6
-				// freereg r3
+				// freereg r1
 
 	//dhry_1.c, line 356
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_6
+// clearing tmp
 	exg	r7
 				// constant: 8 in 1 chunks
 	li	IMW0(8)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 357
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r5 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
+					// (prepobj r0)// deref
+				// reg r4 - no need to prep
+					// (objtotemp) flags 22 // deref 
+					// (prepobj tmp)// deref
 				// var FIXME - deref?
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 	ldt
 		//sizemod based on type 0xa
 	ldt
 //marker 2
 					// (save temp) store
-	st	r5
+	st	r4
 				//save_temp done
 
 	//dhry_1.c, line 359
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r3
+	mt	r3
 	stdec	r6
 
 	//dhry_1.c, line 359
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: a in 1 chunks
 	li	IMW0(10)
 	stdec	r6
 
 	//dhry_1.c, line 359
-// code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp)  deref 
-	ld	r2
+					// (objtotemp) flags 6a // deref 
+	ld	r3
 	stdec	r6
-				// freereg r2
+				// freereg r3
 
 	//dhry_1.c, line 359
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_7
+// clearing tmp
 	exg	r7
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	add	r6
 
+// clearing tmp
 
 	//dhry_1.c, line 362
 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l106)-1)
 	li	IMW0(PCREL(l106)-0)
+// clearing tmp
+// clearing tmp
 	add	r7
 l105: # 
-				// allocreg r2
+// clearing tmp
+// clearing r0
+				// allocreg r1
 
 	//dhry_1.c, line 362
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
-				// var FIXME - deref? reg 
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
-	ldidx	r6
-		//sizemod based on type 0xa
-	ldt
-//marker 2
+					// (prepobj r0) reg r1 - no need to prep
+					// (objtotemp) flags 62 // deref 
+	ld	r5
 					// (save temp) isreg
-	mr	r2
+	mr	r1
 				//save_temp done
 
 	//dhry_1.c, line 362
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// var FIXME - deref? reg 
-				// constant: 14 in 1 chunks
-	li	IMW0(20)
-	ldidx	r6
-	mr	r1
+// clearing r0
+// clearing tmp
+//using reg r2 for dst pointer
+//using reg r3 for counter
+					// (prepobj r2)// deref
+				// reg r5 - no need to prep
+	mt	r5
+	mr	r2
 // Copying 12 words and 0 bytes to Ptr_Val_Par
-					// (load_temp - type 12) not varadr
-					// (objtotemp)  deref 
+					// (objtotemp) flags 6a // deref 
 //FIXME - unhandled type 12
 	mr	r0
-	mt	r2
-	stdec	r6
 // Copying 12 words to Ptr_Val_Par
 				// constant: 30 in 2 chunks
 	li	IMW1(48)
 	li	IMW0(48)
-	addt	r1
-	mr	r2
+	addt	r2
+	mr	r3
 .cpyPtr_Val_Parwordloop5:
 	ldinc	r0
-	stinc	r1
-	mt	r1
-	cmp	r2
+	stinc	r2
+	mt	r2
+	cmp	r3
 	cond	NEQ
 		li	IMW0(PCREL(.cpyPtr_Val_Parwordloop5))
 		add	r7
-	ldinc	r6
-	mr	r2
-				// freereg r2
+				// freereg r1
 l106: # 
+// clearing tmp
+// clearing r0
+				// freereg r4
 				// freereg r5
 	ldinc	r6
 	mr	r5
@@ -6046,14 +5950,9 @@ l106: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
-		//r1: yes
 		//r2: yes
 		//r3: yes
 		//r4: yes
@@ -6066,156 +5965,177 @@ l106: #
 _Proc_2:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-	stdec	r6	// quickest way to decrement sp by 4
+				// constant: fffffffc in 1 chunks
+	li	IMW0(-4)
+	add	r6
+// clearing tmp
+// clearing r0
 				// allocreg r5
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-					// (save temp) isreg
-	mr	r5
-				//save_temp done
-				// allocreg r4
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0xa
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
-	ldidx	r6
-					// (save temp) isreg
-	mr	r4
-				//save_temp done
-				// allocreg r3
-
-	//dhry_1.c, line 376
-// code 0x1b
-					// (bitwise) loadreg
-	//ops: 5, 0, 4
-					// (objtotemp)  deref 
-	ld	r4
-	mr	r3
-					// (objtotemp)  const
-				// constant: a in 1 chunks
-	li	IMW0(10)
-	add	r3
-					// (save result) isreg
-l113: # 
-				// allocreg r2
-
-	//dhry_1.c, line 378
-// code 0x32
-					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
+					// (prepobj r0) reg r5 - no need to prep
+					// (objtotemp) flags 102 // extern
 	ldinc	r7
 	.int	_Ch_1_Glob
+// clearing tmp
 		//sizemod based on type 0x1
 	byt
 	//extern deref
 	ldt
+					// (save temp) isreg
+	mr	r5
+				//save_temp done
+				// allocreg r4
+					// (a/p assign)
+					// (prepobj r0) reg r4 - no need to prep
+					// (objtotemp) flags 102 // var, auto|reg
+		//sizemod based on type 0x3
+	ld	r6
+					// (save temp) isreg
+	mr	r4
+				//save_temp done
+				// allocreg r3
+					// (a/p assign)
+					// (prepobj r0) reg r3 - no need to prep
+					// (objtotemp) flags 102 // var, auto|reg
+		//sizemod based on type 0xa
+				// constant: 14 in 1 chunks
+	li	IMW0(20)
+	ldidx	r6
+					// (save temp) isreg
+	mr	r3
+				//save_temp done
+				// allocreg r2
+
+	//dhry_1.c, line 376
+					// (bitwise) loadreg
+	//ops: 4, 0, 3
+					// (objtotemp) flags 62 // deref 
+	ld	r3
 	mr	r2
+					// (objtotemp) flags 1 // const
+				// constant: a in 1 chunks
+	li	IMW0(10)
+	add	r2
+					// (save result) // isreg
+l113: # 
+// clearing tmp
+// clearing r0
+				// allocreg r1
+
+	//dhry_1.c, line 378
+					//FIXME convert
+					// (objtotemp) flags 42 // reg r5
+	mt	r5
+	mr	r1
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r2
+	mul	r1
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r2
-	mr	r2
-					// (save result) isreg
+	mul	r1
+	mr	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 378
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 // const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-	cmp	r2
-				// freereg r2
+	cmp	r1
+				// freereg r1
 
 	//dhry_1.c, line 378
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l112)-1)
 	li	IMW0(PCREL(l112)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
 
 	//dhry_1.c, line 381
-// code 0x1c
 					// (bitwise) loadreg
-	//ops: 4, 0, 4
+	//ops: 3, 0, 3
 		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
-	sub	r3
-					// (save result) isreg
+	sub	r2
+					// (save result) // isreg
 
 	//dhry_1.c, line 382
-// code 0x1c
 					// (bitwise) loadreg
-	//ops: 4, 0, 1
-					// (objtotemp)  reg r3
-	mt	r3
+	//ops: 3, 0, 1
+					// (objtotemp) flags 42 // reg r2
+	mt	r2
 	mr	r0
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Int_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	sub	r0
-					// (save result) store reg
-// Store_reg to type 0x3
+					// (save result) // Store_reg to type 0x3
 	mt	r0
-	st	r4
+	st	r3
 
 	//dhry_1.c, line 383
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r4 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 					// (save temp) isreg
-	mr	r5
+	mr	r4
 				//save_temp done
 l112: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 385
-// code 0x44
 					// (test)
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r5
+					// (objtotemp) flags 42 // reg r4
+	mt	r4
+	and	r4
 
 	//dhry_1.c, line 385
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l113)-1)
 	li	IMW0(PCREL(l113)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
+					// (a/p assign)
+					// (prepobj tmp) extern (offset 0)
+	ldinc	r7
+	.int	_Ch_1_Glob + 4
+// clearing tmp
+// extern pe not varadr
+		//sizemod based on type 0x1
+	byt
+	stmpdec	r5
+// clearing tmp
+				// freereg r2
 				// freereg r3
 				// freereg r4
 				// freereg r5
-	ldinc	r6	// quickest way to add 4 to sp
+				// constant: fffffffc in 1 chunks
+	li	IMW0(-4)
+	sub	r6
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -6223,15 +6143,10 @@ l112: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
-		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: no
 		//r4: no
 		//r5: no
@@ -6242,15 +6157,15 @@ l112: #
 	.global	_Proc_3
 _Proc_3:
 	stdec	r6
-	mt	r2
-	stdec	r6
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 397
-// code 0x44
 					// (test)
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0xa
 	//extern deref
 	ldt
@@ -6260,100 +6175,99 @@ _Proc_3:
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l117)-1)
 	li	IMW0(PCREL(l117)-0)
+// clearing tmp
 		add	r7
+// clearing tmp
 
 	//dhry_1.c, line 399
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// var FIXME - deref? reg 
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+					// (prepobj r0)// deref
+				// var FIXME - deref?// reg 
+				// constant: 4 in 1 chunks
+	li	IMW0(4)
 	ldidx	r6
-	mr	r1
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
+// clearing tmp
+	mr	r0
+// clearing r0
+					// (objtotemp) flags 22 // deref 
+					// (prepobj tmp)// deref
 				// var FIXME - deref?
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 	ldt
 		//sizemod based on type 0xa
 	ldt
 //marker 2
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 l117: # 
-				// allocreg r2
+// clearing tmp
+// clearing r0
+				// allocreg r1
 
 	//dhry_1.c, line 400
-// code 0x1b
 					// (bitwise) loadreg
-	//ops: 0, 0, 3
-					// (objtotemp)  extern
+	//ops: 0, 0, 2
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ptr_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
-	mr	r2
-					// (objtotemp)  const
+	mr	r1
+					// (objtotemp) flags 1 // const
 				// constant: c in 1 chunks
 	li	IMW0(12)
-	add	r2
-					// (save result) isreg
+	add	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 400
-// code 0x4e
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a // reg r1
+	mt	r1
 	stdec	r6
-				// freereg r2
+				// freereg r1
 
 	//dhry_1.c, line 400
-// code 0x4e
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Int_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	stdec	r6
 
 	//dhry_1.c, line 400
-// code 0x4e
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp)  const
+					// (objtotemp) flags 1 // const
 				// constant: a in 1 chunks
 	li	IMW0(10)
 	stdec	r6
 
 	//dhry_1.c, line 400
-// code 0x2a
 					//call
 	ldinc	r7
 	.int	_Proc_7
+// clearing tmp
 	exg	r7
 				// constant: c in 1 chunks
 	li	IMW0(12)
 	add	r6
 
-	ldinc	r6
-	mr	r2
+// clearing tmp
 	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
-		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: no
 		//r4: no
 		//r5: no
@@ -6364,136 +6278,136 @@ l117: #
 	.global	_Proc_4
 _Proc_4:
 	stdec	r6
-	mt	r2
-	stdec	r6
-				// allocreg r2
+// clearing tmp
+// clearing r0
+				// allocreg r1
 
 	//dhry_1.c, line 410
-// code 0x32
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Ch_1_Glob
+// clearing tmp
 		//sizemod based on type 0x1
 	byt
 	//extern deref
 	ldt
-	mr	r2
+	mr	r1
+// clearing tmp
 				// constant: 1000000 in 5 chunks
 	li	IMW4(16777216)
 	li	IMW3(16777216)
 	li	IMW2(16777216)
 	li	IMW1(16777216)
 	li	IMW0(16777216)
-	mul	r2
+	mul	r1
 				// constant: 100 in 2 chunks
 	li	IMW1(256)
 	li	IMW0(256)
 	sgn
-	mul	r2
-	mr	r2
-					// (save result) isreg
+	mul	r1
+	mr	r1
+					// (save result) // isreg
 
 	//dhry_1.c, line 410
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 // const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
-	cmp	r2
-				// freereg r2
+	cmp	r1
+				// freereg r1
 
 	//dhry_1.c, line 410
 	cond	EQ
 					//conditional branch regular			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l119)-1)
 	li	IMW0(PCREL(l119)-0)
+// clearing tmp
 		add	r7
-				// allocreg r2
+// clearing tmp
+				// allocreg r1
 
 	//dhry_1.c, line 410
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r1 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 					// (save temp) isreg
-	mr	r2
+	mr	r1
 				//save_temp done
 
 	//dhry_1.c, line 410
 			//pcreltotemp - reach of 12 bits
 	li	IMW1(PCREL(l120)-1)
 	li	IMW0(PCREL(l120)-0)
+// clearing tmp
+// clearing tmp
 	add	r7
 l119: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 410
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+					// (prepobj r0) reg r1 - no need to prep
+					// (objtotemp) flags 1 // const
 				// constant: 1 in 1 chunks
 	li	IMW0(1)
 					// (save temp) isreg
-	mr	r2
+	mr	r1
 				//save_temp done
 l120: # 
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 411
-// code 0x10
 					// (bitwise) loadreg
-	//ops: 0, 3, 1
-					// (objtotemp)  extern
+	//ops: 0, 2, 1
+					// (objtotemp) flags 2 // extern
 	ldinc	r7
 	.int	_Bool_Glob
+// clearing tmp
 		//sizemod based on type 0x3
 	//extern deref
 	ldt
 	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 42 // reg r1
+	mt	r1
 	or	r0
-					// (save result) store reg
-// Store_reg to type 0x3
+					// (save result) // Store_reg to type 0x3
+// clearing tmp
+// clearing r0
 					// (prepobj tmp) extern (offset 0)
 	ldinc	r7
 	.int	_Bool_Glob + 4
+// clearing tmp
 // extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
+// clearing tmp
 
 	//dhry_1.c, line 412
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj r0) extern (offset 0)
 	ldinc	r7
 	.int	_Ch_2_Glob
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 42 in 2 chunks
 	li	IMW1(66)
 	li	IMW0(66)
 					// (save temp) store
-	stbinc	r1
+	stbinc	r0
 //Disposable, postinc doesn't matter.
 				//save_temp done
-				// freereg r2
-	ldinc	r6
-	mr	r2
+				// freereg r1
 	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
-		//r1: yes
 		//r2: no
 		//r3: no
 		//r4: no
@@ -6505,44 +6419,43 @@ l120: #
 	.global	_Proc_5
 _Proc_5:
 	stdec	r6
+// clearing tmp
+// clearing r0
 
 	//dhry_1.c, line 420
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj r0) extern (offset 0)
 	ldinc	r7
 	.int	_Ch_1_Glob
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 41 in 2 chunks
 	li	IMW1(65)
 	li	IMW0(65)
 					// (save temp) store
-	stbinc	r1
+	stbinc	r0
 //Disposable, postinc doesn't matter.
 				//save_temp done
 
 	//dhry_1.c, line 421
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
+					// (prepobj r0) extern (offset 0)
 	ldinc	r7
 	.int	_Bool_Glob
+// clearing tmp
 // extern pe not varadr
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
+	mr	r0
+					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
 	li	IMW0(0)
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	.globl	_Reg
 	.section	.data
 	.align	4

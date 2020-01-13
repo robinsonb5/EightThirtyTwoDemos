@@ -13,7 +13,7 @@ static void dummy_handler()
 void SetIntHandler(void(*handler)())
 {
 	HW_INTERRUPT(REG_INTERRUPT_CTRL)=0;
-	*(void **)12=(void *)handler;
+	*(void **)13=(void *)handler;
 	puts("Set handler\n");
 }
 

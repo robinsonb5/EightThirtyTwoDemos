@@ -7,8 +7,8 @@ CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 
 STACKTOP=0x10002000
 
-CFLAGS = -+ -speed
-COPT = -O=1311
+CFLAGS = -+
+COPT = -O=1311 -speed
 all: Dhrystone.srec
 
 clean :
