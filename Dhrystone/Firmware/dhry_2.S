@@ -1,5 +1,7 @@
 #include "assembler.pp"
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: no
 		//r3: yes
@@ -14,8 +16,6 @@ _Proc_6:
 	stdec	r6
 	mt	r3
 	stdec	r6
-// clearing tmp
-// clearing r0
 				// allocreg r3
 					// (a/p assign)
 					// (prepobj r0) reg r3 - no need to prep
@@ -44,11 +44,8 @@ _Proc_6:
 	//dhry_2.c, line 63
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) flags 2 // var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	ldidx	r6
+					// (objtotemp) flags 2 
+// required value found in tmp
 	stdec	r6
 
 	//dhry_2.c, line 63
@@ -106,11 +103,8 @@ l3: #
 					// (save temp) isreg
 	mr	r1
 				//save_temp done
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	ldidx	r6
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 
+// required value found in tmp
 	mr	r0
 					// (objtotemp) flags 1 // const
 				// constant: 0 in 1 chunks
@@ -310,6 +304,8 @@ l4: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: no
 		//r3: no
@@ -322,8 +318,6 @@ l4: #
 	.global	_Proc_7
 _Proc_7:
 	stdec	r6
-// clearing tmp
-// clearing r0
 				// allocreg r1
 
 	//dhry_2.c, line 103
@@ -369,6 +363,8 @@ _Proc_7:
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: yes
 		//r3: yes
@@ -386,8 +382,6 @@ _Proc_8:
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-// clearing tmp
-// clearing r0
 				// allocreg r5
 				// allocreg r4
 
@@ -543,8 +537,8 @@ _Proc_8:
 	//dhry_2.c, line 124
 					// (a/p assign)
 					// (prepobj r0) reg r5 - no need to prep
-					// (objtotemp) flags 42 // reg r4
-	mt	r4
+					// (objtotemp) flags 42 
+// required value found in tmp
 					// (save temp) isreg
 	mr	r5
 				//save_temp done
@@ -855,6 +849,8 @@ l20: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: yes
 		//r3: yes
@@ -870,8 +866,6 @@ _Func_1:
 	stmpdec	r6
 	stmpdec	r3
 	exg	r6
-// clearing tmp
-// clearing r0
 				// allocreg r3
 
 	//dhry_2.c, line 147
@@ -899,20 +893,15 @@ _Func_1:
 
 	//dhry_2.c, line 149
 					//FIXME convert
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r2
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r2
-	mr	r2
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r2
+	cond	GE
+		or	r2
+	cond	SLT
+		xor	r2
+	cond	EX
 					// (save result) // isreg
 				// allocreg r1
 
@@ -925,20 +914,15 @@ _Func_1:
 	li	IMW0(12)
 	ldidx	r6
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_2.c, line 149
@@ -1003,6 +987,8 @@ l24: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: yes
 		//r3: yes
@@ -1022,8 +1008,6 @@ _Func_2:
 				// constant: fffffffc in 1 chunks
 	li	IMW0(-4)
 	add	r6
-// clearing tmp
-// clearing r0
 				// allocreg r4
 					// (a/p assign)
 					// (prepobj r0) reg r4 - no need to prep
@@ -1083,20 +1067,15 @@ l40: #
 	byt
 	ld	r1
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_2.c, line 174
@@ -1128,20 +1107,15 @@ l40: #
 	byt
 	ld	r1
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_2.c, line 174
@@ -1229,20 +1203,15 @@ l30: #
 					// (objtotemp) flags 42 // reg r4
 	mt	r4
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_2.c, line 180
@@ -1269,20 +1238,15 @@ l30: #
 					// (objtotemp) flags 42 // reg r4
 	mt	r4
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_2.c, line 180
@@ -1324,20 +1288,15 @@ l32: #
 					// (objtotemp) flags 42 // reg r4
 	mt	r4
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_2.c, line 183
@@ -1498,6 +1457,8 @@ l39: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: no
 		//r3: no
@@ -1510,8 +1471,6 @@ l39: #
 	.global	_Func_3
 _Func_3:
 	stdec	r6
-// clearing tmp
-// clearing r0
 
 	//dhry_2.c, line 210
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 // var, auto|reg

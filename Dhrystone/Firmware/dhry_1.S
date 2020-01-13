@@ -1,5 +1,7 @@
 #include "assembler.pp"
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: no
 		//r3: no
@@ -12,8 +14,6 @@
 	.global	__readMilliseconds
 __readMilliseconds:
 	stdec	r6
-// clearing tmp
-// clearing r0
 
 	//dhry_1.c, line 86
 					//setreturn
@@ -29,6 +29,8 @@ __readMilliseconds:
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: yes
 		//r3: yes
@@ -49,8 +51,6 @@ _main:
 				// constant: fffffff0 in 1 chunks
 	li	IMW0(-16)
 	add	r6
-// clearing tmp
-// clearing r0
 				// allocreg r5
 				// allocreg r4
 				// allocreg r3
@@ -971,20 +971,15 @@ l101: #
 	//extern deref
 	ldt
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_1.c, line 200
@@ -1023,20 +1018,15 @@ l99: #
 					// (objtotemp) flags 42 // reg r5
 	mt	r5
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_1.c, line 201
@@ -1192,20 +1182,15 @@ l32: #
 					// (objtotemp) flags 42 // reg r5
 	mt	r5
 	mr	r2
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r2
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r2
-	mr	r2
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r2
+	cond	GE
+		or	r2
+	cond	SLT
+		xor	r2
+	cond	EX
 					// (save result) // isreg
 				// allocreg r1
 
@@ -1220,20 +1205,15 @@ l32: #
 	//extern deref
 	ldt
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_1.c, line 200
@@ -1640,20 +1620,15 @@ l100: #
 	//extern deref
 	ldt
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_1.c, line 245
@@ -1727,20 +1702,15 @@ l100: #
 	//extern deref
 	ldt
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_1.c, line 247
@@ -5562,6 +5532,8 @@ l85:
 	.byte	100
 	.byte	10
 	.byte	0
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: yes
 		//r3: yes
@@ -5579,8 +5551,6 @@ _Proc_1:
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-// clearing tmp
-// clearing r0
 				// allocreg r5
 					// (a/p assign)
 					// (prepobj r0) reg r5 - no need to prep
@@ -5952,6 +5922,8 @@ l106: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: yes
 		//r3: yes
@@ -5972,8 +5944,6 @@ _Proc_2:
 				// constant: fffffffc in 1 chunks
 	li	IMW0(-4)
 	add	r6
-// clearing tmp
-// clearing r0
 				// allocreg r5
 					// (a/p assign)
 					// (prepobj r0) reg r5 - no need to prep
@@ -6031,20 +6001,15 @@ l113: #
 					// (objtotemp) flags 42 // reg r5
 	mt	r5
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_1.c, line 378
@@ -6145,6 +6110,8 @@ l112: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: no
 		//r3: no
@@ -6157,8 +6124,6 @@ l112: #
 	.global	_Proc_3
 _Proc_3:
 	stdec	r6
-// clearing tmp
-// clearing r0
 
 	//dhry_1.c, line 397
 					// (test)
@@ -6266,6 +6231,8 @@ l117: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: no
 		//r3: no
@@ -6278,8 +6245,6 @@ l117: #
 	.global	_Proc_4
 _Proc_4:
 	stdec	r6
-// clearing tmp
-// clearing r0
 				// allocreg r1
 
 	//dhry_1.c, line 410
@@ -6293,20 +6258,15 @@ _Proc_4:
 	//extern deref
 	ldt
 	mr	r1
-// clearing tmp
-				// constant: 1000000 in 5 chunks
-	li	IMW4(16777216)
-	li	IMW3(16777216)
-	li	IMW2(16777216)
-	li	IMW1(16777216)
-	li	IMW0(16777216)
-	mul	r1
-				// constant: 100 in 2 chunks
-	li	IMW1(256)
-	li	IMW0(256)
-	sgn
-	mul	r1
-	mr	r1
+				// constant: ffffff80 in 2 chunks
+	li	IMW1(-128)
+	li	IMW0(-128)
+	add	r1
+	cond	GE
+		or	r1
+	cond	SLT
+		xor	r1
+	cond	EX
 					// (save result) // isreg
 
 	//dhry_1.c, line 410
@@ -6407,6 +6367,8 @@ l120: #
 	ldinc	r6
 	mr	r7
 
+// clearing tmp
+// clearing r0
 	//registers used:
 		//r2: no
 		//r3: no
@@ -6419,8 +6381,6 @@ l120: #
 	.global	_Proc_5
 _Proc_5:
 	stdec	r6
-// clearing tmp
-// clearing r0
 
 	//dhry_1.c, line 420
 					// (a/p assign)
