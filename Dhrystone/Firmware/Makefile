@@ -4,17 +4,20 @@ LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
+AS=../../EightThirtyTwo/832a/832a
+LD=../../EightThirtyTwo/832a/832l
 DUMP=objdump
 CFLAGS = -+ -speed
-COPT = -O=1311
-all: Dhrystone_ROM.vhd Dhrystone.bin Dhrystone.rpt
+COPT = -O=32767
+all: Dhrystone_ROM.vhd Dhrystone.bin
 
 clean :
-	rm *.S
-	rm *.o
-	rm *.vhd
-	rm *.bin
-	rm *.elf
+	-rm *.S
+	-rm *.asm
+	-rm *.o
+	-rm *.vhd
+	-rm *.bin
+	-rm *.elf
 
 %_ROM.vhd: %.bin $(ROMGEN)
 	sed 's/dualportram/$*_rom/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
@@ -29,32 +32,30 @@ clean :
 	@echo -n "End of BSS:\t"
 	@$(DUMP) -x $< | grep __bss_end__
 
-%.bin : %.elf Makefile
-	objcopy -Obinary $< $@
-
-%.o : %.s Makefile
-	gcc -c $*.s
-
-Dhrystone.elf : start.o uart.o small_printf.o division.o string.o dhry_1.o dhry_2.o
-	gcc -Wl,--build-id=none -Wl,--gc-sections -nostartfiles -nostdlib -Tldscript.ld -o $@ $+
+Dhrystone.bin : start.o uart.o small_printf.o division.o string.o dhry_1.o dhry_2.o
+	$(LD) -o $@ $+
 
 %.o : %.S Makefile ldscript.ld $(832DIR)/start.S
-	gcc -I. -I$(832DIR) -c $*.S -o $*.o
+	$(AS) -o $*.o $*.S
 
 %.o : %.c Makefile ldscript.ld $(832DIR)/start.S
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
-	mv $*.asm $*.S
-	gcc -I. -I$(832DIR) -c $*.S -o $*.o
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
+	$(AS) -o $*.o $*.asm
 
 %.o : $(832DIR)/%.S Makefile ldscript.ld $(832DIR)/assembler.pp $(832DIR)/start.S
-	gcc -c $(832DIR)/$*.S -DLDSTACK -I$(832DIR) -o $*.o
+	$(AS) -o $*.o $(832DIR)/$*.S
+
+%.o : $(832DIR)/%.asm Makefile ldscript.ld $(832DIR)/assembler.pp $(832DIR)/start.S
+	$(AS) -o $*.o $(832DIR)/$*.asm
 
 %.o : $(LIBDIR)/%.S Makefile ldscript.ld
-	gcc -c $(LIBDIR)/$*.S -DLDSTACK -I$(832DIR) -I$(LIBDIR) -o $*.o
+	$(AS) -o $*.o $(LIBDIR)/$*.S
 
-%.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
-	mv $*.asm $*.S
+%.o : $(LIBDIR)/%.asm Makefile ldscript.ld
+	$(AS) -o $*.o $(LIBDIR)/$*.asm
+
+%.asm : %.c Makefile
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c
 	gcc -o $(ROMGENDIR)/romgen $(ROMGENDIR)/romgen.c

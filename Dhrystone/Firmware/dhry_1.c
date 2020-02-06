@@ -77,7 +77,7 @@ long            Microseconds,
 int             Number_Of_Runs = 25000;
 
 
-long _readMilliseconds()
+volatile long _readMilliseconds()
 {
 #ifdef __GNUC__
 	static int t=0;
