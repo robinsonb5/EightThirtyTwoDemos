@@ -30,7 +30,6 @@ static struct free_arena_header __malloc_head = {
 static inline void remove_from_main_chain(struct free_arena_header *ah)
 {
 	struct free_arena_header *ap, *an;
-
 	ap = ah->a.prev;
 	an = ah->a.next;
 	ap->a.next = an;
@@ -40,7 +39,6 @@ static inline void remove_from_main_chain(struct free_arena_header *ah)
 static inline void remove_from_free_chain(struct free_arena_header *ah)
 {
 	struct free_arena_header *ap, *an;
-
 	ap = ah->prev_free;
 	an = ah->next_free;
 	ap->next_free = an;
@@ -276,7 +274,8 @@ int availmem()
 }
 
 
-extern char _end; // Defined by the linker script
+extern char _bss_end__; // Defined by the linker script
+extern char STACKSIZE 
 
 // Identify RAM size by searching for aliases - up to a maximum of 64 megabytes
 
@@ -285,7 +284,8 @@ extern char _end; // Defined by the linker script
 
 __constructor(100) void _initMem()
 {
-	volatile int *base=(int*)&_end;
+	int ss=(int)&STACKSIZE;
+	volatile int *base=(int*)&_bss_end__;
 	char *ramtop;
 	int i,j,k;
 	int a1,a2;
@@ -323,7 +323,7 @@ __constructor(100) void _initMem()
 	
 	ramtop=(char*)base+(size*(1<<20));
 	ramtop=(char*)((int)ramtop & 0xffff0000);
-	malloc_add(&_end,ramtop-&_end);	// Add the entire RAM to the free memory pool
+	malloc_add(base,ramtop-base);	// Add the entire RAM to the free memory pool
 }
 
 
