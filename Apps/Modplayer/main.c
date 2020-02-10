@@ -28,6 +28,7 @@ char *LoadFile(const char *filename)
 		int n=statbuf.st_size; // 64-bit
 		printf("File size is %d\n",n);
 		result=(char *)malloc(n);
+		printf("Got buffer at %x\n",(int)result);
 		if(result)
 		{
 			if(read(fd,result,n)<0)

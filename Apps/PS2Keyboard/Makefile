@@ -1,15 +1,13 @@
 832DIR=../../EightThirtyTwo/Lib/
 INCDIR=../../EightThirtyTwo/include/
 LIBDIR=../../Lib/
-ROMGENDIR = ../../EightThirtyTwo/romgen
-ROMGEN = $(ROMGENDIR)/romgen
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
+AS=../../EightThirtyTwo/832a/832a
+LD=../../EightThirtyTwo/832a/832l
 
-STACKTOP=0x10002000
-
-CFLAGS = -+ -c99 -speed -DNULL=0 -DDISABLE_FILESYSTEM
-COPT = -O=1311
-all: PS2Keyboard.srec
+CFLAGS = -+ -DNULL=0
+COPT = -O=32767 -speed
+all: PS2Keyboard.bin PS2Keyboard.srec
 
 clean :
 	- rm *.srec
@@ -18,45 +16,47 @@ clean :
 	- rm *.vhd
 	- rm *.o
 	- rm *.S
+	- rm *.asm
 
-%_ROM.vhd: %.bin $(ROMGEN)
-	sed 's/dualportram/$*_rom/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
-	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
-	cat >>$*_ROM.vhd $(ROMGENDIR)/rom_epilogue.vhd
-
-%.bin : %.elf Makefile
-	objcopy -Obinary $< $@
-
-%.srec : %.elf Makefile
-	objcopy -Osrec $< $@
+%.srec : %.bin Makefile
+	objcopy -Ibinary $*.bin --adjust-vma 0x10000000 -O srec $@
 
 %.o : %.s Makefile
 	gcc -c $*.s
 
-PS2Keyboard.elf : start.o premain.o uart.o small_printf.o division.o malloc.o hexdump.o swap.o spi.o\
-	syscalls.o fat.o rafile.o string.o ps2.o interrupts.o keyboard.o main.o
-	gcc -Wl,--build-id=none -Wl,--gc-sections -nostartfiles -nostdlib -T$(LIBDIR)/stdapp.ld -o $@ $+
+PS2Keyboard.bin : start.o premain.o uart.o small_printf.o division.o string.o keyboard.o interrupts.o ps2.o main.o
+	$(LD) -b 0x10000000 -o $@ $+
 
-%.o : %.S Makefile
-	gcc -I. -I$(832DIR) -c $*.S -o $*.o
+%.o : %.S Makefile $(832DIR)/start.S
+	$(AS) -o $*.o $*.S
 
-%.o : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
-	mv $*.asm $*.S
-	gcc -I. -I$(832DIR) -c $*.S -o $*.o
+%.o : %.c Makefile $(832DIR)/start.S
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
+	$(AS) -o $*.o $*.asm
+
+%.o : $(832DIR)/%.S Makefile $(832DIR)/start.S
+	$(AS) -o $*.o $(832DIR)/$*.S
 
 %.o : $(LIBDIR)/%.S Makefile
-	gcc -c $(LIBDIR)/$*.S -I$(832DIR) -I$(LIBDIR) -o $*.o
+	$(AS) -o $*.o $(LIBDIR)/$*.S
 
-%.o : $(832DIR)/%.S Makefile
-	gcc -c $(832DIR)/$*.S -I$(832DIR) -DLDSTACK -o $*.o
+%.o : $(LIBDIR)/%.asm Makefile
+	$(AS) -o $*.o $(LIBDIR)/$*.asm
 
-%.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
-	mv $*.asm $*.S
+%.o : $(832DIR)/%.asm Makefile
+	$(AS) -o $*.o $(832DIR)/$*.asm
 
-$(ROMGEN): $(ROMGENDIR)/romgen.c
-	gcc -o $(ROMGENDIR)/romgen $(ROMGENDIR)/romgen.c
+%.o : %.asm Makefile
+	$(AS) -o $*.o $*.asm
+
+%.asm : %.c Makefile
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
+
+%.asm : $(832DIR)/%.c Makefile
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $(832DIR)/$*.c
+
+%.asm : $(LIBDIR)/%.c Makefile
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $(LIBDIR)/$*.c
 
 force:
 

@@ -1,4 +1,3 @@
-#include "assembler.pp"
 
 	//registers used:
 		//r0: yes
@@ -21,12 +20,10 @@ _SPI_PUMP_LE:
 	mt	r5
 	stdec	r6
 
-	li	IMW1(0xffffffd4)
-	li	IMW0(0xffffffd4)
+	.liconst 0xffffffd4
 	mr	r5
 
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst 255
 	mr	r1
 
 	st	r5	// 10 bytes - Write 0xff to SPI register
@@ -65,170 +62,6 @@ _SPI_PUMP_LE:
 	ldinc	r6
 	mr	r7	// 36 bytes  -  reduced from 116 bytes
 
-#if 0
-_SPI_PUMP_LE:
-	exg	r6
-	stmpdec	r6
-	stmpdec	r2
-	stmpdec	r3
-	stmpdec	r4
-	exg	r6
-
-	li	IMW1(36)
-	li	IMW0(36)
-	sub	r6
-
-	li	IMW1(255)
-	li	IMW0(255)
-	mr	r4
-
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r3
-
-	mt	r4
-	st	r3
-
-	ld	r3
-	mr	r2
-
-	mt	r4 // 20
-	and	r2
-
-	mt	r4
-	st	r3
-
-	ld	r3
-	mr	r0
-
-	mt	r4
-	and	r0
-
-	li	IMW0(4)
-	addt	r6
-	stmpdec	r0
-
-	ld	r6
-	mr	r0
-
-	li	IMW0(8)
-	shl	r0
-
-	li	IMW0(8)
-	addt	r6
-	stmpdec	r0
-
-	li	IMW0(8)
-	addt	r6
-	mr	r1  //40 
-
-	mt	r2
-	st	r1
-
-	mt	r2
-	mr	r2
-
-	li	IMW0(4)
-	ldidx	r6
-	or	r2
-
-	mt	r4
-	st	r3
-
-	ld	r3
-	mr	r0
-
-	mt	r4
-	and	r0
-
-	li	IMW0(16)
-	addt	r6
-	stmpdec	r0
-
-	li	IMW0(12)
-	ldidx	r6
-	mr	r0
-
-	li	IMW0(16)  //60
-	shl	r0
-
-	li	IMW0(20)
-	addt	r6
-	stmpdec	r0
-
-	li	IMW0(20)
-	addt	r6
-	mr	r1
-
-	mt	r2
-
-	st	r1
-
-	mt	r2
-	mr	r2
-
-	li	IMW0(16)
-	ldidx	r6
-	or	r2
-
-	mt	r4
-	st	r3
-
-	ld	r3
-	mr	r0
-
-	mt	r4
-	and	r0 // 80
-
-	li	IMW0(28)
-	addt	r6
-	stmpdec	r0
-
-	li	IMW0(24)
-	ldidx	r6
-	mr	r0
-
-	li	IMW0(24)
-	shl	r0
-
-	li	IMW1(32)
-	li	IMW0(32)
-	addt	r6
-	stmpdec	r0
-
-	li	IMW1(32)
-	li	IMW0(32)
-	addt	r6
-	mr	r1
-
-
-	mt	r2
-
-	st	r1
-
-	mt	r2
-	mr	r2  // 100
-
-	li	IMW0(28)
-	ldidx	r6
-	or	r2
-
-	mt	r2
-	mr	r0
-
-	li	IMW1(36)
-	li	IMW0(36)
-	add	r6
-	ldinc	r6
-	mr	r4
-	ldinc	r6
-	mr	r3
-	ldinc	r6
-	mr	r2
-	ldinc	r6
-	mr	r7  // 116
-#endif
-
 
 // stacksize=0+??
 	//registers used:
@@ -250,12 +83,10 @@ _SPI_PUMP:
 	mt	r5
 	stdec	r6
 
-	li	IMW1(0xffffffd4)
-	li	IMW0(0xffffffd4)
+	.liconst	0xffffffd4
 	mr	r5
 
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	255
 	mr	r1
 
 	st	r5	// 10 bytes - Write 0xff to SPI register
@@ -293,110 +124,6 @@ _SPI_PUMP:
 	mr	r7	// 34 bytes  -  reduced from 94 bytes  (70 bytes removing unneccesary and from C code)
 
 
-#if 0
-// Manually optimising the compiled C code...
-_SPI_PUMP:
-	exg	r6
-	stmpdec	r6
-	stmpdec	r2
-	stmpdec	r3
-	exg	r6
-
-	li	IMW0(12)
-	sub	r6
-
-	li	IMW1(-44)
-	li	IMW0(-44)
-
-	mr	r3 // 10
-
-	li	IMW1(255)
-	li	IMW0(255)
-
-	st	r3
-
-	ld	r3
-
-	mr	r2
-
-	li	IMW1(255)
-	li	IMW0(255)
-
-	st	r3
-
-//	mt	r2
-//	mr	r0 // 20
-
-	li	IMW0(8)
-	shl	r2
-
-//	li	IMW0(4)
-//	addt	r6
-//	stmpdec	r0
-
-	ld	r3
-	or	r2
-
-//	ld	r6
-//	or	r2
-
-	li	IMW1(255) // 30
-	li	IMW0(255)
-
-	st	r3
-
-	mt	r2
-	mr	r0
-
-	li	IMW0(8)
-	shl	r0
-
-	li	IMW0(8)
-	addt	r6
-	stmpdec	r0 // 40
-
-	ld	r3
-	mr	r2
-
-	li	IMW0(4)
-	ldidx	r6
-	or	r2
-
-	li	IMW1(255)
-	li	IMW0(255)
-
-	st	r3
-
-	mt	r2
-	mr	r0 // 50
-
-	li	IMW0(8)
-	shl	r0
-
-	li	IMW0(12)
-	addt	r6
-	stmpdec	r0
-
-	ld	r3
-	mr	r2
-
-	li	IMW0(8)
-	ldidx	r6
-	or	r2 // 60
-
-	mt	r2
-	mr	r0
-
-	li	IMW0(12)
-	add	r6
-	ldinc	r6
-	mr	r3
-	ldinc	r6
-	mr	r2
-	ldinc	r6
-	mr	r7 // 70
-
-#endif
 
 // stacksize=0+??
 	//registers used:
@@ -417,8 +144,7 @@ _cmd_write:
 	mt	r5
 	stdec	r6
 
-	li	IMW1(0xffffffd4)
-	li	IMW0(0xffffffd4)
+	.liconst	0xffffffd4
 	mr	r5
 
 	li	12
@@ -432,8 +158,7 @@ _cmd_write:
 	st	r5	// SPI(cmd&255); // Assume only low 8 bits are active.
 
 	// FIXME - better to do this only for read / write commands
-	li	IMW1(PCREL(_sd_is_sdhc-1))
-	li	IMW0(PCREL(_sd_is_sdhc))
+	.lipcrel	_sd_is_sdhc
 	ldidx r7
 
 	cond	EQ
@@ -442,7 +167,7 @@ _cmd_write:
 		cond	EX	// 21 bytes
 	
 
-	li	IMW0(24)
+	li	24
 	ror	r1	// Rotate left 8 bits -  BBCCDDAA
 	exg	r1
 	st	r5	// LBA high bits
@@ -466,19 +191,16 @@ _cmd_write:
 	ror	r0
 	mt	r0
 	st	r5	// CRC byte, if necessary.	//  40 bytes
-	li	IMW2(40000)
-	li	IMW1(40000)
-	li	IMW0(40000)
+	.liconst	40000
 	mr	r1
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	255
 	mr	r0
 .loop:
 	ld	r5
 	exg	r0
 	cmp	r0
 	cond	NEQ
-		li	IMW0(PCREL(.done))
+		.lipcrel	IMW0.done
 		add	r7	// 54 bytes
 
 	exg	r0
@@ -487,7 +209,7 @@ _cmd_write:
 	li	1
 	sub	r1
 	cond	NEQ
-		li	IMW0(PCREL(.loop))
+		.lipcrel	IMW0.loop
 		add	r7
 
 .done:
@@ -497,218 +219,6 @@ _cmd_write:
 	mr	r7	// 64 bytes  -  GCC compiled ZPU equivalent 128 bytes
 
 
-#if 0
-
-_cmd_write:
-	exg	r6
-	stmpdec	r6
-	stmpdec	r2
-	stmpdec	r3
-	stmpdec	r4
-	stmpdec	r5
-	exg	r6
-
-	li	IMW1(-44)
-	li	IMW0(-44)
-
-	mr	r5 // 10
-
-	li	IMW0(20)
-	ldidx	r6
-	mr	r0
-
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r0
-
-	mt	r0
-	st	r5
-
-
-	ldinc	r7
-	.int	_sd_is_sdhc // 20
-
-	ldt
-
-
-	cond	NEQ
-
-	li	IMW1(PCREL(l5)-1)
-	li	IMW0(PCREL(l5))
-		add	r7
-
-	li	IMW0(24)
-	ldidx	r6
-	mr	r0
-
-	li	IMW0(9)
-	shl	r0 // 30
-
-	li	IMW0(28)
-	addt	r6
-	stmpdec	r0
-
-l5: # 
-
-	li	IMW0(24)
-	ldidx	r6
-	mr	r2
-
-	li	IMW0(24)
-	shr	r2
-
-	mt	r2
-	mr	r0 // 40
-
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r0
-
-	mt	r0
-	st	r5
-
-	li	IMW0(24)
-	ldidx	r6
-	mr	r2
-
-	li	IMW0(16)
-	shr	r2 // 50
-
-	mt	r2
-	mr	r0
-
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r0
-
-	mt	r0
-	st	r5
-
-	li	IMW0(24)
-	ldidx	r6
-	mr	r2  //60
-
-	li	IMW0(8)
-	shr	r2
-
-	mt	r2
-	mr	r0
-
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r0
-
-	mt	r0
-	st	r5
-
-	li	IMW0(24) // 80
-	ldidx	r6
-	mr	r0
-
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r0
-
-	mt	r0
-	st	r5
-
-	li	IMW0(20)
-	ldidx	r6
-	mr	r2 // 90
-
-	li	IMW0(16)
-	shr	r2
-
-	mt	r2
-	mr	r0
-
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r0
-
-	mt	r0
-	st	r5
-
-	ld	r5  // 100
-	mr	r4
-
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r4
-
-	li	IMW2(39999)
-	li	IMW1(39999)
-	li	IMW0(39999)
-
-	mr	r3
-
-	li	IMW1(255)
-	li	IMW0(255)  //110 
-	sgn
-	cmp	r4
-
-
-	cond	NEQ
-
-	li	IMW1(PCREL(l12)-1)
-	li	IMW0(PCREL(l12))
-		add	r7
-
-	li	IMW1(255)
-	li	IMW0(255)
-
-	mr	r2
-
-l6: # 
-
-
-	mt	r2  // 120
-
-	st	r5
-
-	ld	r5
-	mr	r4
-
-	mt	r2
-	and	r4
-
-	li	IMW0(1)
-	sub	r3
-
-	mt	r3
-	and	r3
-
-	cond	EQ  //130 
-
-	li	IMW1(PCREL(l12)-1)
-	li	IMW0(PCREL(l12))
-		add	r7
-
-	mt	r2
-	sgn
-	cmp	r4
-
-	cond	EQ
-
-	li	IMW1(PCREL(l6)-1)
-	li	IMW0(PCREL(l6))
-		add	r7  //140
-l12: # 
-
-	mt	r4
-	mr	r0
-
-	ldinc	r6
-	mr	r5
-	ldinc	r6
-	mr	r4
-	ldinc	r6
-	mr	r3
-	ldinc	r6
-	mr	r2  // 150
-	ldinc	r6
-	mr	r7  // 152
-#endif
 
 // stacksize=0+??
 	//registers used:
@@ -727,62 +237,21 @@ l12: #
 
 _spi_spin:	// vbcc compiled equivalent, 25 bytes
 	stdec	r6
-	li	IMW1(0xffffffd4)
-	li	IMW0(0xffffffd4)
+	.liconst	0xffffffd4
 	mr	r1
-	li	IMW1(200)
-	li	IMW0(200)
+	.liconst	200
 	mr	r0
 .spinloop:
-	li	IMW0(-1)
+	li	-1
 	st	r1
 	add	r0
 	cond	NEQ
-		li	IMW0(PCREL(.spinloop))
+		.lipcrel	IMW0.spinloop
 		add	r7
 
 	ldinc	r6
 	mr	r7	// 15 bytes
 
-#if 0
-_spi_spin:
-	stdec	r6
-	mt	r2
-	stdec	r6
-
-	li	IMW0(0)
-
-	mr	r2
-
-l18: # 
-
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-
-	li	IMW1(255)
-	li	IMW0(255)	// 10
-
-	st	r1
-
-	li	IMW0(1)
-	add	r2
-
-	li	IMW1(200)
-	li	IMW0(200)
-	sgn
-	cmp	r2
-
-	cond	SLT
-	li	IMW1(PCREL(l18)-1)
-	li	IMW0(PCREL(l18)) // 20
-		add	r7
-
-	ldinc	r6
-	mr	r2
-	ldinc	r6
-	mr	r7  //25
-#endif
 
 // stacksize=0+??
 	//registers used:
@@ -807,16 +276,13 @@ _wait_initV2:	// r0 is 1 on success, 0 on failure.
 	mt	r2
 	stdec	r6
 
-	li	IMW1(0xffffffd4)
-	li	IMW0(0xffffffd4)
+	.liconst	0xffffffd4
 	mr	r1
 
-	li	IMW0(PCREL(_spi_spin))
+	.lipcrel	IMW0_spi_spin
 	add	r7
 
-	li	IMW3(20000)
-	li	IMW1(20000)
-	li	IMW0(20000)
+	.liconst	20000
 	mr	r2	// 11
 .initv2loop:
 	li	1
@@ -824,25 +290,23 @@ _wait_initV2:	// r0 is 1 on success, 0 on failure.
 	cond	EQ
 	  li	0
 	  mr	r0
-	  li	IMW1(PCREL(.initv2done-1))
-	  li	IMW0(PCREL(.initv2done))
+	  .lipcrel	.initv2done
 	  mr	r7	// Escape loop
 
 	li	0
 	stdec	r6
 	li	IMW2(cmd_CMD55)
-	li	IMW1(cmd_CMD55)
+	.liconst	(cmd_CMD55)
 	li	IMW0(cmd_CMD55)
 	stdec	r6
-	li	IMW1(PCREL(_spi_writecmd-1))
-	li	IMW0(PCREL(_spi_writecmd))
+	.lipcrel	_spi_writecmd
 	add	r7
 	li	8
 	add	r6
 	li	1
 	cmp	r0
 	cond	NEQ	// If we didn't get a 1, loop
-	  li	IMW0(PCREL(.initv2loop))
+	  .lipcrel	.initv2loop
 	  mr	r7	// 20  ->  31
 
 	// CMD55 succeeded - try CMD41
@@ -850,9 +314,7 @@ _wait_initV2:	// r0 is 1 on success, 0 on failure.
 	li	-1
 	st	r5
 
-	li	IMW2(cmd_CMD41)
-	li	IMW1(cmd_CMD41)
-	li	IMW0(cmd_CMD41)
+	.liabs	cmd_CMD41
 	mr	r0
 
 	li	IMW0(lba_CMD41>>28)
@@ -860,8 +322,8 @@ _wait_initV2:	// r0 is 1 on success, 0 on failure.
 	li	28
 	shl	r1
 
-	li	IMW1(PCREL(SPI_Send-1))
-	li	IMW0(PCREL(SPI_Send))
+	.liconst	SPI_Send-1
+	li	IMW0SPI_Send
 	add	r7
 
 	li	0
@@ -871,14 +333,14 @@ _wait_initV2:	// r0 is 1 on success, 0 on failure.
 
 	  st	r5
 	  sub	r0
-	  li	IMW0(PCREL(.initv2done))
+	  li	IMW0.initv2done
 	  mr	r7	// 52
 
-	li	IMW1(PCREL(SPI_Spin-1))
-	li	IMW0(PCREL(SPI_Spin))
+	.liconst	SPI_Spin-1
+	li	IMW0SPI_Spin
 	add	r7
 
-	li	IMW0(PCREL(.initv2loop))
+	li	IMW0.initv2loop
 	mr	r7	// 57 bytes
 
 
@@ -897,265 +359,208 @@ _wait_initV2:	// r0 is 1 on success, 0 on failure.
 _wait_initV2:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
 				// allocreg r5
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 4) not varadr
-					// (objtotemp)  const
-				// constant: ff0077 in 5 chunks
-	li	IMW4(16711799)
-	li	IMW3(16711799)
-	li	IMW2(16711799)
-	li	IMW1(16711799)
-	li	IMW0(16711799)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	16711799
 					// (save temp) isreg
 	mr	r5
 				//save_temp done
 				// allocreg r4
 				// allocreg r3
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 4) not varadr
-					// (objtotemp)  const
-				// constant: 40000000 in 6 chunks
-	li	IMW5(1073741824)
-	li	IMW4(1073741824)
-	li	IMW3(1073741824)
-	li	IMW2(1073741824)
-	li	IMW1(1073741824)
-	li	IMW0(1073741824)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	1073741824
 					// (save temp) isreg
 	mr	r3
 				//save_temp done
 
-	//../../Lib//spi.c, line 118
-// code 0x2a
+	//../../Lib//spi_c.c, line 118
 					//call
-	ldinc	r7
-	.int	_spi_spin
-	exg	r7
+			//pcreltotemp
+	.lipcrel	_spi_spin
+	add	r7
 
 
-	//../../Lib//spi.c, line 119
-// code 0x2
+	//../../Lib//spi_c.c, line 119
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 4e1f in 3 chunks
-	li	IMW2(19999)
-	li	IMW1(19999)
-	li	IMW0(19999)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	19999
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
-l29: # 
+l34: # 
 
-	//../../Lib//spi.c, line 121
-// code 0x4e
+	//../../Lib//spi_c.c, line 121
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi.c, line 121
-// code 0x4e
+	//../../Lib//spi_c.c, line 121
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r5
+					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
 	mt	r5
 	stdec	r6
 
-	//../../Lib//spi.c, line 121
-// code 0x2a
+	//../../Lib//spi_c.c, line 121
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
 	add	r6
 
-				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 121
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
+	//../../Lib//spi_c.c, line 121
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	cmp	r0
+				// freereg r1
 
-	//../../Lib//spi.c, line 121
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	sgn
-	cmp	r2
-				// freereg r2
-
-	//../../Lib//spi.c, line 121
+	//../../Lib//spi_c.c, line 121
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l25)-1)
-	li	IMW0(PCREL(l25))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l30
 		add	r7
 
-	//../../Lib//spi.c, line 123
-// code 0x2
+	//../../Lib//spi_c.c, line 123
 					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)
+ // deref
 			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 124
-// code 0x4e
+	//../../Lib//spi_c.c, line 124
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
 	mt	r3
 	stdec	r6
 
-	//../../Lib//spi.c, line 124
-// code 0x4e
+	//../../Lib//spi_c.c, line 124
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 870069 in 5 chunks
-	li	IMW4(8847465)
-	li	IMW3(8847465)
-	li	IMW2(8847465)
-	li	IMW1(8847465)
-	li	IMW0(8847465)
+					// (objtotemp) flags 1 
+// const
+	.liconst	8847465
 	stdec	r6
 
-	//../../Lib//spi.c, line 124
-// code 0x2a
+	//../../Lib//spi_c.c, line 124
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
 	add	r6
 
-				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 124
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
-
-	//../../Lib//spi.c, line 124
-// code 0x44
+	//../../Lib//spi_c.c, line 124
 					// (test)
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r2
-				// freereg r2
+					// (objtotemp) flags 4a 
+// reg r0 - don't bother matching
+	mt	r0
+	and	r0
+				// freereg r1
 
-	//../../Lib//spi.c, line 124
+	//../../Lib//spi_c.c, line 124
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l27)-1)
-	li	IMW0(PCREL(l27))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l32
 		add	r7
 
-	//../../Lib//spi.c, line 126
-// code 0x2
+	//../../Lib//spi_c.c, line 126
 					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)
+ // deref
 			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 127
-// code 0x5e
+	//../../Lib//spi_c.c, line 127
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	mr	r0
 
-	//../../Lib//spi.c, line 128
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l20)-1)
-	li	IMW0(PCREL(l20))
+	//../../Lib//spi_c.c, line 128
+			//pcreltotemp
+	.lipcrel	l24
 	add	r7
-l27: # 
+l32: # 
 
-	//../../Lib//spi.c, line 129
-// code 0x2a
+	//../../Lib//spi_c.c, line 129
 					//call
-	ldinc	r7
-	.int	_spi_spin
-	exg	r7
+			//pcreltotemp
+	.lipcrel	_spi_spin
+	add	r7
 
-l25: # 
+l30: # 
 
-	//../../Lib//spi.c, line 119
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+	//../../Lib//spi_c.c, line 119
+					// (bitwise/arithmetic) 	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	sub	r4
-					// (save result) isreg
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 119
-// code 0x44
+	//../../Lib//spi_c.c, line 119
 					// (test)
-					// (objtotemp)  reg r4
+					// (objtotemp) flags 42 
+// reg r4 - don't bother matching
 	mt	r4
 	and	r4
 
-	//../../Lib//spi.c, line 119
+	//../../Lib//spi_c.c, line 119
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l29)-1)
-	li	IMW0(PCREL(l29))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l34
 		add	r7
 
-	//../../Lib//spi.c, line 136
-// code 0x5e
+	//../../Lib//spi_c.c, line 136
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	mr	r0
-l20: # 
+l24: # 
 				// freereg r3
 				// freereg r4
 				// freereg r5
@@ -1166,17 +571,13 @@ l20: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
 #endif
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
 		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: yes
 		//r4: yes
 		//r5: no
@@ -1188,203 +589,169 @@ l20: #
 _wait_init:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	exg	r6
 				// allocreg r4
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 4) not varadr
-					// (objtotemp)  const
-				// constant: ff0041 in 5 chunks
-	li	IMW4(16711745)
-	li	IMW3(16711745)
-	li	IMW2(16711745)
-	li	IMW1(16711745)
-	li	IMW0(16711745)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	16711745
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
 				// allocreg r3
 
-	//../../Lib//spi.c, line 144
-// code 0x2
+	//../../Lib//spi_c.c, line 144
 					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)
+ // deref
 			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 145
-// code 0x4e
+	//../../Lib//spi_c.c, line 145
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l32
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l38,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 145
-// code 0x2a
+	//../../Lib//spi_c.c, line 145
 					//call
-	ldinc	r7
-	.int	_puts
-	exg	r7
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+			//pcreltotemp
+	.lipcrel	_puts
+	add	r7
+	.liconst	4
 	add	r6
 
 
-	//../../Lib//spi.c, line 146
-// code 0x2
+	//../../Lib//spi_c.c, line 146
 					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 13 in 1 chunks
-	li	IMW0(19)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	19
 					// (save temp) isreg
 	mr	r3
 				//save_temp done
-l39: # 
+l45: # 
 
-	//../../Lib//spi.c, line 148
-// code 0x4e
+	//../../Lib//spi_c.c, line 148
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi.c, line 148
-// code 0x4e
+	//../../Lib//spi_c.c, line 148
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r4
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
 	mt	r4
 	stdec	r6
 
-	//../../Lib//spi.c, line 148
-// code 0x2a
+	//../../Lib//spi_c.c, line 148
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
 	add	r6
 
-				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 148
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
-
-	//../../Lib//spi.c, line 148
-// code 0x44
+	//../../Lib//spi_c.c, line 148
 					// (test)
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r2
-				// freereg r2
+					// (objtotemp) flags 4a 
+// reg r0 - don't bother matching
+	mt	r0
+	and	r0
+				// freereg r1
 
-	//../../Lib//spi.c, line 148
+	//../../Lib//spi_c.c, line 148
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l37)-1)
-	li	IMW0(PCREL(l37))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l43
 		add	r7
 
-	//../../Lib//spi.c, line 151
-// code 0x2
+	//../../Lib//spi_c.c, line 151
 					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)
+ // deref
 			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 152
-// code 0x5e
+	//../../Lib//spi_c.c, line 152
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	mr	r0
 
-	//../../Lib//spi.c, line 153
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l31)-1)
-	li	IMW0(PCREL(l31))
+	//../../Lib//spi_c.c, line 153
+			//pcreltotemp
+	.lipcrel	l36
 	add	r7
-l37: # 
+l43: # 
 
-	//../../Lib//spi.c, line 158
-// code 0x2a
+	//../../Lib//spi_c.c, line 158
 					//call
-	ldinc	r7
-	.int	_spi_spin
-	exg	r7
+			//pcreltotemp
+	.lipcrel	_spi_spin
+	add	r7
 
 
-	//../../Lib//spi.c, line 146
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+	//../../Lib//spi_c.c, line 146
+					// (bitwise/arithmetic) 	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	sub	r3
-					// (save result) isreg
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 146
-// code 0x44
+	//../../Lib//spi_c.c, line 146
 					// (test)
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 42 
+// reg r3 - don't bother matching
 	mt	r3
 	and	r3
 
-	//../../Lib//spi.c, line 146
+	//../../Lib//spi_c.c, line 146
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l39)-1)
-	li	IMW0(PCREL(l39))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l45
 		add	r7
 
-	//../../Lib//spi.c, line 160
-// code 0x5e
+	//../../Lib//spi_c.c, line 160
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	mr	r0
-l31: # 
+l36: # 
 				// freereg r3
 				// freereg r4
 	ldinc	r6
@@ -1392,21 +759,17 @@ l31: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	.section	.rodata
-l32:
+l38:
 	.byte	67
 	.byte	77
 	.byte	68
 	.byte	0
 	//registers used:
-		//r0: yes
 		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: yes
 		//r4: yes
 		//r5: yes
@@ -1418,659 +781,541 @@ l32:
 _is_sdhc:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-	stdec	r6	// quickest way to decrement sp by 4
 				// allocreg r5
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
-					// (save temp) isreg
-	mr	r5
-				//save_temp done
 				// allocreg r4
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	-44
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
+
+	//../../Lib//spi_c.c, line 168
+					//call
+			//pcreltotemp
+	.lipcrel	_spi_spin
+	add	r7
+
+
+	//../../Lib//spi_c.c, line 170
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 1 
+// const
+	.liconst	426
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 170
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 1 
+// const
+	.liconst	8847432
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 170
+					//call
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
+	add	r6
+
 				// allocreg r3
 
-	//../../Lib//spi.c, line 168
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_spi_spin
-	exg	r7
-
-
-	//../../Lib//spi.c, line 170
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 1aa in 2 chunks
-	li	IMW1(426)
-	li	IMW0(426)
-	stdec	r6
-
-	//../../Lib//spi.c, line 170
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 870048 in 5 chunks
-	li	IMW4(8847432)
-	li	IMW3(8847432)
-	li	IMW2(8847432)
-	li	IMW1(8847432)
-	li	IMW0(8847432)
-	stdec	r6
-
-	//../../Lib//spi.c, line 170
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-				// allocreg r2
-
-	//../../Lib//spi.c, line 170
-// code 0x5d
-					// (getreturn)					// (save result) isreg
+	//../../Lib//spi_c.c, line 170
+					// (getreturn)					// (save result) // isreg
 	mt	r0
-	mr	r2
+	mr	r3
 
-	//../../Lib//spi.c, line 171
-// code 0x4e
+	//../../Lib//spi_c.c, line 171
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a 
+// reg r3 - don't bother matching
+	mt	r3
 	stdec	r6
 
-	//../../Lib//spi.c, line 171
-// code 0x4e
+	//../../Lib//spi_c.c, line 171
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l42
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l49,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 171
-// code 0x2a
+	//../../Lib//spi_c.c, line 171
 					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	8
 	add	r6
 
 
-	//../../Lib//spi.c, line 172
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	sgn
-	cmp	r2
-				// freereg r2
+	//../../Lib//spi_c.c, line 172
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	cmp	r3
+				// freereg r3
 
-	//../../Lib//spi.c, line 172
+	//../../Lib//spi_c.c, line 172
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l44)-1)
-	li	IMW0(PCREL(l44))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l51
 		add	r7
+				// allocreg r3
 
-	//../../Lib//spi.c, line 175
-// code 0x2a
+	//../../Lib//spi_c.c, line 175
 					//call
-	ldinc	r7
-	.int	_wait_init
-	exg	r7
+			//pcreltotemp
+	.lipcrel	_wait_init
+	add	r7
 
 
-	//../../Lib//spi.c, line 177
-// code 0x5e
+	//../../Lib//spi_c.c, line 177
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	mr	r0
 
-	//../../Lib//spi.c, line 178
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l41)-1)
-	li	IMW0(PCREL(l41))
+	//../../Lib//spi_c.c, line 178
+			//pcreltotemp
+	.lipcrel	l47
 	add	r7
-l44: # 
+l51: # 
 
-	//../../Lib//spi.c, line 180
-// code 0x2a
+	//../../Lib//spi_c.c, line 180
 					//call
-	ldinc	r7
-	.int	_SPI_PUMP
-	exg	r7
+			//pcreltotemp
+	.lipcrel	_SPI_PUMP
+	add	r7
 
-				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 180
-// code 0x5d
-					// (getreturn)					// (save result) isreg
+	//../../Lib//spi_c.c, line 180
+					// (getreturn)					// (save result) // isreg
 	mt	r0
-	mr	r2
-
-	//../../Lib//spi.c, line 181
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: ffff in 3 chunks
-	li	IMW2(65535)
-	li	IMW1(65535)
-	li	IMW0(65535)
-	and	r2
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 181
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 1aa in 2 chunks
-	li	IMW1(426)
-	li	IMW0(426)
-	sgn
-	cmp	r2
-				// freereg r2
-
-	//../../Lib//spi.c, line 181
-	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l46)-1)
-	li	IMW0(PCREL(l46))
-		add	r7
-
-	//../../Lib//spi.c, line 184
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_wait_init
-	exg	r7
-
-
-	//../../Lib//spi.c, line 186
-// code 0x5e
-					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-	mr	r0
-
-	//../../Lib//spi.c, line 187
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l41)-1)
-	li	IMW0(PCREL(l41))
-	add	r7
-l46: # 
-
-	//../../Lib//spi.c, line 189
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 196
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) var, auto|reg
-	mt	r6
 	mr	r1
 
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 31 in 2 chunks
-	li	IMW1(49)
-	li	IMW0(49)
-					// (save temp) store
-	st	r1
-				//save_temp done
-l64: # 
+	//../../Lib//spi_c.c, line 181
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	65535
+	and	r1
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 198
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_wait_initV2
-	exg	r7
+	//../../Lib//spi_c.c, line 181
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	426
+	cmp	r1
+				// freereg r1
 
-				// allocreg r2
-
-	//../../Lib//spi.c, line 198
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
-
-	//../../Lib//spi.c, line 198
-// code 0x44
-					// (test)
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r2
-				// freereg r2
-
-	//../../Lib//spi.c, line 198
+	//../../Lib//spi_c.c, line 181
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l59)-1)
-	li	IMW0(PCREL(l59))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l53
 		add	r7
 
-	//../../Lib//spi.c, line 200
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-	stdec	r6
-
-	//../../Lib//spi.c, line 200
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: ff007a in 5 chunks
-	li	IMW4(16711802)
-	li	IMW3(16711802)
-	li	IMW2(16711802)
-	li	IMW1(16711802)
-	li	IMW0(16711802)
-	stdec	r6
-
-	//../../Lib//spi.c, line 200
-// code 0x2a
+	//../../Lib//spi_c.c, line 184
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//../../Lib//spi.c, line 200
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r3
-
-	//../../Lib//spi.c, line 200
-// code 0x44
-					// (test)
-					// (objtotemp)  reg r3
-	mt	r3
-	and	r3
-
-	//../../Lib//spi.c, line 200
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l53)-1)
-	li	IMW0(PCREL(l53))
-		add	r7
-
-	//../../Lib//spi.c, line 202
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r3
-	mt	r3
-	stdec	r6
-
-	//../../Lib//spi.c, line 202
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l54
-	stdec	r6
-
-	//../../Lib//spi.c, line 202
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//../../Lib//spi.c, line 203
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 204
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r4
-	mr	r3
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 205
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r3
-	mt	r3
-	stdec	r6
-
-	//../../Lib//spi.c, line 205
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l55
-	stdec	r6
-
-	//../../Lib//spi.c, line 205
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//../../Lib//spi.c, line 206
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 207
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 208
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 209
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-				// allocreg r2
-
-	//../../Lib//spi.c, line 210
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r2
-					// (objtotemp)  const
-				// constant: 40 in 2 chunks
-	li	IMW1(64)
-	li	IMW0(64)
-	and	r2
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 210
-// code 0x44
-					// (test)
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r2
-				// freereg r2
-
-	//../../Lib//spi.c, line 210
-	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l57)-1)
-	li	IMW0(PCREL(l57))
-		add	r7
-
-	//../../Lib//spi.c, line 213
-// code 0x5e
-					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	mr	r0
-
-	//../../Lib//spi.c, line 214
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l41)-1)
-	li	IMW0(PCREL(l41))
+			//pcreltotemp
+	.lipcrel	_wait_init
 	add	r7
-l57: # 
 
-	//../../Lib//spi.c, line 218
-// code 0x5e
+
+	//../../Lib//spi_c.c, line 186
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	mr	r0
 
-	//../../Lib//spi.c, line 219
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l41)-1)
-	li	IMW0(PCREL(l41))
+	//../../Lib//spi_c.c, line 187
+			//pcreltotemp
+	.lipcrel	l47
 	add	r7
 l53: # 
 
-	//../../Lib//spi.c, line 222
-// code 0x4e
+	//../../Lib//spi_c.c, line 189
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+					// (save temp) store
+	st	r4
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 196
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	49
+					// (save temp) isreg
+	mr	r5
+				//save_temp done
+l71: # 
+
+	//../../Lib//spi_c.c, line 198
+					//call
+			//pcreltotemp
+	.lipcrel	_wait_initV2
+	add	r7
+
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 198
+					// (test)
+					// (objtotemp) flags 4a 
+// reg r0 - don't bother matching
+	mt	r0
+	and	r0
+				// freereg r1
+
+	//../../Lib//spi_c.c, line 198
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l66
+		add	r7
+
+	//../../Lib//spi_c.c, line 200
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 200
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 1 
+// const
+	.liconst	16711802
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 200
+					//call
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
+	add	r6
+
+
+	//../../Lib//spi_c.c, line 200
+					// (getreturn)					// (save result) // isreg
+	mt	r0
+	mr	r3
+
+	//../../Lib//spi_c.c, line 200
+					// (test)
+					// (objtotemp) flags 42 
+// reg r3 - don't bother matching
+	mt	r3
+	and	r3
+
+	//../../Lib//spi_c.c, line 200
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l60
+		add	r7
+
+	//../../Lib//spi_c.c, line 202
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 42 
+// reg r3 - don't bother matching
 	mt	r3
 	stdec	r6
 
-	//../../Lib//spi.c, line 222
-// code 0x4e
+	//../../Lib//spi_c.c, line 202
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l60
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l61,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 222
-// code 0x2a
+	//../../Lib//spi_c.c, line 202
 					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	8
 	add	r6
 
-l59: # 
 
-	//../../Lib//spi.c, line 224
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-	mr	r1
-					// (objtotemp)  const
-				// constant: 2 in 1 chunks
-	li	IMW0(2)
-	sgn
-	cmp	r1
+	//../../Lib//spi_c.c, line 203
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+					// (save temp) store
+	st	r4
+				//save_temp done
 
-	//../../Lib//spi.c, line 224
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l62)-1)
-	li	IMW0(PCREL(l62))
-		add	r7
+	//../../Lib//spi_c.c, line 204
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
+					// (save temp) isreg
+	mr	r3
+				//save_temp done
 
-	//../../Lib//spi.c, line 226
-// code 0x4e
+	//../../Lib//spi_c.c, line 205
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l63
+					// (objtotemp) flags 42 
+// reg r3 - don't bother matching
+	mt	r3
 	stdec	r6
 
-	//../../Lib//spi.c, line 226
-// code 0x2a
+	//../../Lib//spi_c.c, line 205
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l62,0
+// static pe is varadr
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 205
 					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	8
 	add	r6
 
 
-	//../../Lib//spi.c, line 227
-// code 0x5e
-					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-	mr	r0
+	//../../Lib//spi_c.c, line 206
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+					// (save temp) store
+	st	r4
+				//save_temp done
 
-	//../../Lib//spi.c, line 228
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l41)-1)
-	li	IMW0(PCREL(l41))
-	add	r7
-l62: # 
+	//../../Lib//spi_c.c, line 207
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
 
-	//../../Lib//spi.c, line 196
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-	mr	r0
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	sub	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
+// required value found in tmp
+					// (save temp) store
+	st	r4
+				//save_temp done
 
-	//../../Lib//spi.c, line 196
-// code 0x44
+	//../../Lib//spi_c.c, line 208
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+
+// required value found in tmp
+					// (save temp) store
+	st	r4
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 209
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+
+// required value found in tmp
+					// (save temp) store
+	st	r4
+				//save_temp done
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 210
+					// (bitwise/arithmetic) 	//ops: 4, 0, 2
+					// (objtotemp) flags 42 
+// reg r3 - don't bother matching
+	mt	r3
+	mr	r1
+					// (objtotemp) flags 1 
+// const
+	.liconst	64
+	and	r1
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 210
 					// (test)
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	and	r1
+				// freereg r1
 
-	//../../Lib//spi.c, line 196
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l64)-1)
-	li	IMW0(PCREL(l64))
+	//../../Lib//spi_c.c, line 210
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l64
 		add	r7
 
-	//../../Lib//spi.c, line 230
-// code 0x5e
+	//../../Lib//spi_c.c, line 213
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	mr	r0
-l41: # 
+
+	//../../Lib//spi_c.c, line 214
+			//pcreltotemp
+	.lipcrel	l47
+	add	r7
+l64: # 
+
+	//../../Lib//spi_c.c, line 218
+					//setreturn
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
+	mr	r0
+
+	//../../Lib//spi_c.c, line 219
+			//pcreltotemp
+	.lipcrel	l47
+	add	r7
+l60: # 
+
+	//../../Lib//spi_c.c, line 222
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 42 
+// reg r3 - don't bother matching
+	mt	r3
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 222
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l67,0
+// static pe is varadr
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 222
+					//call
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	8
+	add	r6
+
+l66: # 
+
+	//../../Lib//spi_c.c, line 224
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	2
+	cmp	r5
+
+	//../../Lib//spi_c.c, line 224
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l69
+		add	r7
+
+	//../../Lib//spi_c.c, line 226
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l70,0
+// static pe is varadr
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 226
+					//call
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	4
+	add	r6
+
+
+	//../../Lib//spi_c.c, line 227
+					//setreturn
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
+	mr	r0
+
+	//../../Lib//spi_c.c, line 228
+			//pcreltotemp
+	.lipcrel	l47
+	add	r7
+l69: # 
+
+	//../../Lib//spi_c.c, line 196
+					// (bitwise/arithmetic) 	//ops: 6, 0, 6
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	sub	r5
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 196
+					// (test)
+					// (objtotemp) flags 42 
+// reg r5 - don't bother matching
+	mt	r5
+	and	r5
+
+	//../../Lib//spi_c.c, line 196
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l71
+		add	r7
+
+	//../../Lib//spi_c.c, line 230
+					//setreturn
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
+	mr	r0
+l47: # 
 				// freereg r3
 				// freereg r4
 				// freereg r5
-	ldinc	r6	// quickest way to add 4 to sp
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -2078,12 +1323,9 @@ l41: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
-l54:
+l61:
 	.byte	67
 	.byte	77
 	.byte	68
@@ -2096,7 +1338,7 @@ l54:
 	.byte	32
 	.byte	32
 	.byte	0
-l55:
+l62:
 	.byte	67
 	.byte	77
 	.byte	68
@@ -2111,7 +1353,7 @@ l55:
 	.byte	32
 	.byte	32
 	.byte	0
-l60:
+l67:
 	.byte	67
 	.byte	77
 	.byte	68
@@ -2124,7 +1366,7 @@ l60:
 	.byte	32
 	.byte	32
 	.byte	0
-l63:
+l70:
 	.byte	83
 	.byte	68
 	.byte	72
@@ -2153,7 +1395,7 @@ l63:
 	.byte	33
 	.byte	10
 	.byte	0
-l42:
+l49:
 	.byte	99
 	.byte	109
 	.byte	100
@@ -2178,9 +1420,8 @@ l42:
 	.byte	10
 	.byte	0
 	//registers used:
-		//r0: yes
 		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: yes
 		//r4: yes
 		//r5: yes
@@ -2192,650 +1433,571 @@ l42:
 _spi_init:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-	stdec	r6	// quickest way to decrement sp by 4
+	.liconst	-4
+	add	r6
 				// allocreg r5
 				// allocreg r4
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	-48
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
 				// allocreg r3
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 8000 in 3 chunks
-	li	IMW2(32768)
-	li	IMW1(32768)
-	li	IMW0(32768)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	32768
 					// (save temp) isreg
 	mr	r3
 				//save_temp done
 
-	//../../Lib//spi.c, line 238
-// code 0x2
+	//../../Lib//spi_c.c, line 238
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
-	ldinc	r7
-	.int	_sd_is_sdhc
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (prepobj r0)
+ // extern (offset 0)
+	.liabs	_sd_is_sdhc
+// extern pe not varadr
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 241
-// code 0x4e
+	//../../Lib//spi_c.c, line 241
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l67
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l75,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 241
-// code 0x2a
+	//../../Lib//spi_c.c, line 241
 					//call
-	ldinc	r7
-	.int	_puts
-	exg	r7
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+			//pcreltotemp
+	.lipcrel	_puts
+	add	r7
+	.liconst	4
 	add	r6
 
 
-	//../../Lib//spi.c, line 243
-// code 0x2
+	//../../Lib//spi_c.c, line 243
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 7 in 1 chunks
-	li	IMW0(7)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	7
 					// (save temp) isreg
 	mr	r5
 				//save_temp done
-l89: # 
+l97: # 
 
-	//../../Lib//spi.c, line 245
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
+	//../../Lib//spi_c.c, line 245
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
 	ld	r4
 	mr	r0
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
 	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 245
-// code 0x44
+	//../../Lib//spi_c.c, line 245
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 245
+	//../../Lib//spi_c.c, line 245
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l94)-1)
-	li	IMW0(PCREL(l94))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l102
 		add	r7
-l90: # 
+l98: # 
 
-	//../../Lib//spi.c, line 245
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
+	//../../Lib//spi_c.c, line 245
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
 	ld	r4
 	mr	r0
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
 	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 245
-// code 0x44
+	//../../Lib//spi_c.c, line 245
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 245
+	//../../Lib//spi_c.c, line 245
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l90)-1)
-	li	IMW0(PCREL(l90))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l98
 		add	r7
-l94: # 
+l102: # 
 
-	//../../Lib//spi.c, line 245
-// code 0x2
+	//../../Lib//spi_c.c, line 245
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 					// (save temp) store
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi.c, line 246
-// code 0x2a
+	//../../Lib//spi_c.c, line 246
 					//call
-	ldinc	r7
-	.int	_spi_spin
-	exg	r7
+			//pcreltotemp
+	.lipcrel	_spi_spin
+	add	r7
 
 
-	//../../Lib//spi.c, line 248
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
+	//../../Lib//spi_c.c, line 248
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
 	ld	r4
 	mr	r0
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
 	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 248
-// code 0x44
+	//../../Lib//spi_c.c, line 248
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 248
+	//../../Lib//spi_c.c, line 248
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l95)-1)
-	li	IMW0(PCREL(l95))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l103
 		add	r7
-l91: # 
+l99: # 
 
-	//../../Lib//spi.c, line 248
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
+	//../../Lib//spi_c.c, line 248
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
 	ld	r4
 	mr	r0
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
 	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 248
-// code 0x44
+	//../../Lib//spi_c.c, line 248
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 248
+	//../../Lib//spi_c.c, line 248
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l91)-1)
-	li	IMW0(PCREL(l91))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l99
 		add	r7
-l95: # 
+l103: # 
 
-	//../../Lib//spi.c, line 248
-// code 0x2
+	//../../Lib//spi_c.c, line 248
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 					// (save temp) store
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi.c, line 249
-// code 0x4e
+	//../../Lib//spi_c.c, line 249
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi.c, line 249
-// code 0x4e
+	//../../Lib//spi_c.c, line 249
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 950040 in 5 chunks
-	li	IMW4(9764928)
-	li	IMW3(9764928)
-	li	IMW2(9764928)
-	li	IMW1(9764928)
-	li	IMW0(9764928)
+					// (objtotemp) flags 1 
+// const
+	.liconst	9764928
 	stdec	r6
 
-	//../../Lib//spi.c, line 249
-// code 0x2a
+	//../../Lib//spi_c.c, line 249
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
 	add	r6
 
-				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 249
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
+	//../../Lib//spi_c.c, line 249
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	cmp	r0
+				// freereg r1
 
-	//../../Lib//spi.c, line 249
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	sgn
-	cmp	r2
-				// freereg r2
-
-	//../../Lib//spi.c, line 249
+	//../../Lib//spi_c.c, line 249
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l78)-1)
-	li	IMW0(PCREL(l78))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l86
 		add	r7
 
-	//../../Lib//spi.c, line 250
-// code 0x2
+	//../../Lib//spi_c.c, line 250
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 					// (save temp) isreg
 	mr	r5
 				//save_temp done
-l78: # 
+l86: # 
 
-	//../../Lib//spi.c, line 252
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 2 in 1 chunks
-	li	IMW0(2)
-	sgn
+	//../../Lib//spi_c.c, line 252
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	2
 	cmp	r5
 
-	//../../Lib//spi.c, line 252
+	//../../Lib//spi_c.c, line 252
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l80)-1)
-	li	IMW0(PCREL(l80))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l88
 		add	r7
 
-	//../../Lib//spi.c, line 254
-// code 0x4e
+	//../../Lib//spi_c.c, line 254
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l81
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l89,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 254
-// code 0x2a
+	//../../Lib//spi_c.c, line 254
 					//call
-	ldinc	r7
-	.int	_puts
-	exg	r7
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+			//pcreltotemp
+	.lipcrel	_puts
+	add	r7
+	.liconst	4
 	add	r6
 
 
-	//../../Lib//spi.c, line 256
-// code 0x5e
+	//../../Lib//spi_c.c, line 256
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	mr	r0
 
-	//../../Lib//spi.c, line 257
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l66)-1)
-	li	IMW0(PCREL(l66))
+	//../../Lib//spi_c.c, line 257
+			//pcreltotemp
+	.lipcrel	l73
 	add	r7
-l80: # 
+l88: # 
 
-	//../../Lib//spi.c, line 243
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+	//../../Lib//spi_c.c, line 243
+					// (bitwise/arithmetic) 	//ops: 6, 0, 6
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	sub	r5
-					// (save result) isreg
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 243
-// code 0x44
+	//../../Lib//spi_c.c, line 243
 					// (test)
-					// (objtotemp)  reg r5
+					// (objtotemp) flags 42 
+// reg r5 - don't bother matching
 	mt	r5
 	and	r5
 
-	//../../Lib//spi.c, line 243
+	//../../Lib//spi_c.c, line 243
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l89)-1)
-	li	IMW0(PCREL(l89))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l97
 		add	r7
 
-	//../../Lib//spi.c, line 260
-// code 0x2a
+	//../../Lib//spi_c.c, line 260
 					//call
-	ldinc	r7
-	.int	_is_sdhc
-	exg	r7
+			//pcreltotemp
+	.lipcrel	_is_sdhc
+	add	r7
 
 
-	//../../Lib//spi.c, line 260
-// code 0x5d
-					// (getreturn)					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) extern (offset 0)
-	ldinc	r7
-	.int	_sd_is_sdhc + 4
+	//../../Lib//spi_c.c, line 260
+					// (getreturn)					// (save result) // Store_reg to type 0x3
+					// (prepobj tmp)
+ // extern (offset 0)
+	.liabs	_sd_is_sdhc, 4
+// extern pe not varadr
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 261
-// code 0x44
+	//../../Lib//spi_c.c, line 261
 					// (test)
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sd_is_sdhc
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sd_is_sdhc
 		//sizemod based on type 0x3
+	//extern deref
 	ldt
 
-	//../../Lib//spi.c, line 261
+	//../../Lib//spi_c.c, line 261
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l84)-1)
-	li	IMW0(PCREL(l84))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l92
 		add	r7
 
-	//../../Lib//spi.c, line 266
-// code 0x4e
+	//../../Lib//spi_c.c, line 266
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	stdec	r6
 
-	//../../Lib//spi.c, line 266
-// code 0x4e
+	//../../Lib//spi_c.c, line 266
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: ff0050 in 5 chunks
-	li	IMW4(16711760)
-	li	IMW3(16711760)
-	li	IMW2(16711760)
-	li	IMW1(16711760)
-	li	IMW0(16711760)
+					// (objtotemp) flags 1 
+// const
+	.liconst	16711760
 	stdec	r6
 
-	//../../Lib//spi.c, line 266
-// code 0x2a
+	//../../Lib//spi_c.c, line 266
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
 	add	r6
 
-l84: # 
-
-	//../../Lib//spi.c, line 268
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
-					// (save temp) store
-	st	r1
-				//save_temp done
-
-	//../../Lib//spi.c, line 270
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_sd_get_size
-	exg	r7
-
-
-	//../../Lib//spi.c, line 270
-// code 0x5d
-					// (getreturn)					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) extern (offset 0)
-	ldinc	r7
-	.int	_sd_size + 4
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-
-	//../../Lib//spi.c, line 271
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sd_size
-		//sizemod based on type 0x3
-	ldt
-	stdec	r6
-
-	//../../Lib//spi.c, line 271
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l85
-	stdec	r6
-
-	//../../Lib//spi.c, line 271
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//../../Lib//spi.c, line 274
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r4
-	mr	r0
-					// (objtotemp)  reg r3
-	mt	r3
-	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-
-	//../../Lib//spi.c, line 274
-// code 0x44
-					// (test)
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x503
-	ld	r6
-
-	//../../Lib//spi.c, line 274
-	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l96)-1)
-	li	IMW0(PCREL(l96))
-		add	r7
 l92: # 
 
-	//../../Lib//spi.c, line 274
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
+	//../../Lib//spi_c.c, line 268
+					// (a/p assign)
+					// (prepobj r0)
+ // deref
+			// const
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+					// (save temp) store
+	st	r0
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 270
+					//call
+			//pcreltotemp
+	.lipcrel	_sd_get_size
+	add	r7
+
+
+	//../../Lib//spi_c.c, line 270
+					// (getreturn)					// (save result) // Store_reg to type 0x3
+					// (prepobj tmp)
+ // extern (offset 0)
+	.liabs	_sd_size, 4
+// extern pe not varadr
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+
+	//../../Lib//spi_c.c, line 271
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sd_size
+		//sizemod based on type 0x3
+	//extern deref
+	ldt
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 271
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l93,0
+// static pe is varadr
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 271
+					//call
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	8
+	add	r6
+
+
+	//../../Lib//spi_c.c, line 274
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
 	ld	r4
 	mr	r0
-					// (objtotemp)  reg r3
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
 	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 274
-// code 0x44
+	//../../Lib//spi_c.c, line 274
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 274
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l92)-1)
-	li	IMW0(PCREL(l92))
+	//../../Lib//spi_c.c, line 274
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l104
 		add	r7
-l96: # 
+l100: # 
 
-	//../../Lib//spi.c, line 274
-// code 0x2
+	//../../Lib//spi_c.c, line 274
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
+	mr	r0
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
+	mt	r3
+	and	r0
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
+	addt	r6
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+
+	//../../Lib//spi_c.c, line 274
+					// (test)
+					// (objtotemp) flags a 
+// var, auto|reg
+		//sizemod based on type 0x503
+	ld	r6
+
+	//../../Lib//spi_c.c, line 274
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l100
+		add	r7
+l104: # 
+
+	//../../Lib//spi_c.c, line 274
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 					// (save temp) store
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi.c, line 275
-// code 0x2
+	//../../Lib//spi_c.c, line 275
 					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)
+ // deref
 			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 278
-// code 0x5e
+	//../../Lib//spi_c.c, line 278
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	mr	r0
-l66: # 
+l73: # 
 				// freereg r3
 				// freereg r4
 				// freereg r5
-	ldinc	r6	// quickest way to add 4 to sp
+	.liconst	-4
+	sub	r6
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -2843,23 +2005,20 @@ l66: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
-l81:
+l89:
 	.byte	73
 	.byte	69
 	.byte	82
 	.byte	82
 	.byte	0
-l67:
+l75:
 	.byte	83
 	.byte	80
 	.byte	73
 	.byte	0
-l85:
+l93:
 	.byte	83
 	.byte	68
 	.byte	32
@@ -2881,7 +2040,6 @@ l85:
 	.byte	10
 	.byte	0
 	//registers used:
-		//r0: yes
 		//r1: yes
 		//r2: yes
 		//r3: yes
@@ -2895,749 +2053,643 @@ l85:
 _sd_write_sector:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-	stdec	r6	// quickest way to decrement sp by 4
+	.liconst	-4
+	add	r6
 				// allocreg r5
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	32768
 					// (save temp) isreg
 	mr	r5
 				//save_temp done
 				// allocreg r4
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
 				// allocreg r3
-
-	//../../Lib//spi.c, line 286
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 287
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const/deref
-					// (prepobj tmp) deref
-			// const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
-		//sizemod based on type 0x503
-	ldt
-	mr	r0
-					// (objtotemp)  const
-				// constant: 8000 in 3 chunks
-	li	IMW2(32768)
-	li	IMW1(32768)
-	li	IMW0(32768)
-	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-
-	//../../Lib//spi.c, line 287
-// code 0x44
-					// (test)
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x503
-	ld	r6
-
-	//../../Lib//spi.c, line 287
-	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l119)-1)
-	li	IMW0(PCREL(l119))
-		add	r7
-				// allocreg r2
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 8000 in 3 chunks
-	li	IMW2(32768)
-	li	IMW1(32768)
-	li	IMW0(32768)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	-44
 					// (save temp) isreg
-	mr	r2
+	mr	r3
 				//save_temp done
-l98: # 
+				// allocreg r1
 
-	//../../Lib//spi.c, line 287
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const/deref
-					// (prepobj tmp) deref
+	//../../Lib//spi_c.c, line 286
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
+					// (save temp) store
+	st	r3
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 287
+					// (bitwise/arithmetic) 	//ops: 0, 6, 1
+					// (objtotemp) flags 21 
+// const/deref
+					// (prepobj tmp)
+ // deref
 			// const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
+	.liconst	-48
 		//sizemod based on type 0x503
 	ldt
 	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
+	mt	r5
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 287
-// code 0x44
+	//../../Lib//spi_c.c, line 287
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 287
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l98)-1)
-	li	IMW0(PCREL(l98))
+	//../../Lib//spi_c.c, line 287
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l128
 		add	r7
-l119: # 
-				// freereg r2
+l124: # 
 
-	//../../Lib//spi.c, line 287
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
+	//../../Lib//spi_c.c, line 287
+					// (bitwise/arithmetic) 	//ops: 0, 6, 1
+					// (objtotemp) flags 21 
+// const/deref
+					// (prepobj tmp)
+ // deref
 			// const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 101 in 2 chunks
-	li	IMW1(257)
-	li	IMW0(257)
-					// (save temp) store
-	st	r1
-				//save_temp done
-
-	//../../Lib//spi.c, line 288
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
+	.liconst	-48
+		//sizemod based on type 0x503
+	ldt
+	mr	r0
+					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
 	mt	r5
+	and	r0
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
+	addt	r6
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+
+	//../../Lib//spi_c.c, line 287
+					// (test)
+					// (objtotemp) flags a 
+// var, auto|reg
+		//sizemod based on type 0x503
+	ld	r6
+
+	//../../Lib//spi_c.c, line 287
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l124
+		add	r7
+l128: # 
+				// freereg r1
+
+	//../../Lib//spi_c.c, line 287
+					// (a/p assign)
+					// (prepobj r0)
+ // deref
+			// const
+	.liconst	-48
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	257
 					// (save temp) store
-	st	r4
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 290
-// code 0x4e
+	//../../Lib//spi_c.c, line 288
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
+					// (save temp) store
+	st	r3
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 290
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 
+// var, auto|reg
 		//sizemod based on type 0x104
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
+	.liconst	20
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//spi.c, line 290
-// code 0x4e
+	//../../Lib//spi_c.c, line 290
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: ff0058 in 5 chunks
-	li	IMW4(16711768)
-	li	IMW3(16711768)
-	li	IMW2(16711768)
-	li	IMW1(16711768)
-	li	IMW0(16711768)
+					// (objtotemp) flags 1 
+// const
+	.liconst	16711768
 	stdec	r6
 
-	//../../Lib//spi.c, line 290
-// code 0x2a
+	//../../Lib//spi_c.c, line 290
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
 	add	r6
 
-				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 290
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
-
-	//../../Lib//spi.c, line 291
-// code 0x44
+	//../../Lib//spi_c.c, line 291
 					// (test)
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r2
-				// freereg r2
+					// (objtotemp) flags 4a 
+// reg r0 - don't bother matching
+	mt	r0
+	and	r0
+				// freereg r1
 
-	//../../Lib//spi.c, line 291
+	//../../Lib//spi_c.c, line 291
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l102)-1)
-	li	IMW0(PCREL(l102))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l111
 		add	r7
+				// allocreg r1
 
-	//../../Lib//spi.c, line 293
-// code 0x4e
+	//../../Lib//spi_c.c, line 293
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l103
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l112,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 293
-// code 0x2a
+	//../../Lib//spi_c.c, line 293
 					//call
-	ldinc	r7
-	.int	_puts
-	exg	r7
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+			//pcreltotemp
+	.lipcrel	_puts
+	add	r7
+	.liconst	4
 	add	r6
 
 
-	//../../Lib//spi.c, line 295
-// code 0x5e
+	//../../Lib//spi_c.c, line 295
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	mr	r0
 
-	//../../Lib//spi.c, line 296
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l97)-1)
-	li	IMW0(PCREL(l97))
+	//../../Lib//spi_c.c, line 296
+			//pcreltotemp
+	.lipcrel	l105
 	add	r7
-l102: # 
+l111: # 
 
-	//../../Lib//spi.c, line 298
-// code 0x2
+	//../../Lib//spi_c.c, line 298
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
 					// (save temp) store
-	st	r4
+	st	r3
 				//save_temp done
 
-	//../../Lib//spi.c, line 299
-// code 0x2
+	//../../Lib//spi_c.c, line 299
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: fe in 2 chunks
-	li	IMW1(254)
-	li	IMW0(254)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	254
 					// (save temp) store
-	st	r4
+	st	r3
 				//save_temp done
 
-	//../../Lib//spi.c, line 302
-// code 0x2
+	//../../Lib//spi_c.c, line 302
 					// (a/p assign)
-					// (prepobj r1) var, auto|reg
+					// (prepobj r0)
+ // var, auto|reg
 	mt	r6
-	mr	r1
+	mr	r0
 
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
-				// freereg r3
-l116: # 
+				// freereg r1
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 102 
+// var, auto|reg
+		//sizemod based on type 0xa
+	.liconst	24
+	ldidx	r6
+					// (save temp) isreg
+	mr	r5
+				//save_temp done
+l113: # 
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 304
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r1 - no need to prep
+					// (objtotemp) flags 62 
+// deref 
+	ldinc	r5
+					// (save temp) isreg
+	mr	r1
+				//save_temp done
 				// allocreg r2
 
-	//../../Lib//spi.c, line 304
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  deref 
-					// (prepobj tmp) deref
-				// var FIXME - deref? reg 
-				// constant: 1c in 1 chunks
-	li	IMW0(28)
-	ldidx	r6
-		//sizemod based on type 0x3
-	ldt
-//marker 2
-					// (save temp) isreg
+	//../../Lib//spi_c.c, line 305
+					// (bitwise/arithmetic) 	//ops: 2, 0, 3
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
 	mr	r2
-				//save_temp done
-				// allocreg r3
-
-	//../../Lib//spi.c, line 305
-// code 0x1a
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r3
-					// (objtotemp)  const
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
+					// (objtotemp) flags 1 
+// const
+	.liconst	24
 	sgn
-	shr	r3
-					// (save result) isreg
+	shr	r2
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 305
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r0
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-	mt	r0
-	st	r4
-				// freereg r3
-				// allocreg r3
-
-	//../../Lib//spi.c, line 306
-// code 0x1a
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
+	//../../Lib//spi_c.c, line 305
+					// (bitwise/arithmetic) 	//ops: 3, 5, 1
+					// (objtotemp) flags 4a 
+// reg r2 - don't bother matching
 	mt	r2
-	mr	r3
-					// (objtotemp)  const
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
+	mr	r0
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
+	and	r0
+					// (save result) // Store_reg to type 0x3
+	mt	r0
+	st	r3
+				// freereg r2
+				// allocreg r2
+
+	//../../Lib//spi_c.c, line 306
+					// (bitwise/arithmetic) 	//ops: 2, 0, 3
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	mr	r2
+					// (objtotemp) flags 1 
+// const
+	.liconst	16
 	sgn
-	shr	r3
-					// (save result) isreg
+	shr	r2
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 306
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r0
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-	mt	r0
-	st	r4
-				// freereg r3
-				// allocreg r3
-
-	//../../Lib//spi.c, line 307
-// code 0x1a
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
+	//../../Lib//spi_c.c, line 306
+					// (bitwise/arithmetic) 	//ops: 3, 5, 1
+					// (objtotemp) flags 4a 
+// reg r2 - don't bother matching
 	mt	r2
-	mr	r3
-					// (objtotemp)  const
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+	mr	r0
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
+	and	r0
+					// (save result) // Store_reg to type 0x3
+	mt	r0
+	st	r3
+				// freereg r2
+				// allocreg r2
+
+	//../../Lib//spi_c.c, line 307
+					// (bitwise/arithmetic) 	//ops: 2, 0, 3
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	mr	r2
+					// (objtotemp) flags 1 
+// const
+	.liconst	8
 	sgn
-	shr	r3
-					// (save result) isreg
+	shr	r2
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 307
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r0
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-	mt	r0
-	st	r4
-				// freereg r3
-
-	//../../Lib//spi.c, line 308
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
+	//../../Lib//spi_c.c, line 307
+					// (bitwise/arithmetic) 	//ops: 3, 5, 1
+					// (objtotemp) flags 4a 
+// reg r2 - don't bother matching
 	mt	r2
 	mr	r0
-					// (objtotemp)  reg r5
-	mt	r5
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x3
+					// (save result) // Store_reg to type 0x3
 	mt	r0
-	st	r4
+	st	r3
 				// freereg r2
 
-	//../../Lib//spi.c, line 309
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 1c in 1 chunks
-	li	IMW0(28)
-	ldidx	r6
+	//../../Lib//spi_c.c, line 308
+					// (bitwise/arithmetic) 	//ops: 2, 5, 1
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
 	mr	r0
-					// (objtotemp)  const
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
+	and	r0
+					// (save result) // Store_reg to type 0x3
+	mt	r0
+	st	r3
+				// freereg r1
+
+	//../../Lib//spi_c.c, line 303
+					// (bitwise/arithmetic) 	//ops: 0, 0, 1
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x3
+	ld	r6
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	add	r0
-					// (save result) store reg
-// Store_reg to type 0xa
-					// (prepobj tmp) var, auto|reg
-				// constant: 20 in 2 chunks
-	li	IMW1(32)
-	li	IMW0(32)
+					// (save result) // Store_reg to type 0x3
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 303
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  var, auto|reg
+	//../../Lib//spi_c.c, line 303
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 
+// var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 	mr	r0
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	add	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-
-	//../../Lib//spi.c, line 303
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-	mr	r1
-					// (objtotemp)  const
-				// constant: 80 in 2 chunks
-	li	IMW1(128)
-	li	IMW0(128)
+					// (objtotemp) flags 1 
+// const
+	.liconst	128
 	sgn
-	cmp	r1
+	cmp	r0
 
-	//../../Lib//spi.c, line 303
+	//../../Lib//spi_c.c, line 303
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l116)-1)
-	li	IMW0(PCREL(l116))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l113
 		add	r7
-				// allocreg r3
-
-	//../../Lib//spi.c, line 312
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 313
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 314
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 316
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 186a0 in 3 chunks
-	li	IMW2(100000)
-	li	IMW1(100000)
-	li	IMW0(100000)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	32768
 					// (save temp) isreg
-	mr	r3
+	mr	r5
 				//save_temp done
-l117: # 
+				// allocreg r1
 
-	//../../Lib//spi.c, line 319
-// code 0x2
+	//../../Lib//spi_c.c, line 312
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
 					// (save temp) store
-	st	r4
+	st	r3
 				//save_temp done
-				// allocreg r2
 
-	//../../Lib//spi.c, line 320
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r4
-	mr	r2
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r2
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 322
-// code 0x44
-					// (test)
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r2
-				// freereg r2
-
-	//../../Lib//spi.c, line 322
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l121)-1)
-	li	IMW0(PCREL(l121))
-		add	r7
-
-	//../../Lib//spi.c, line 322
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	sub	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 322
-// code 0x44
-					// (test)
-					// (objtotemp)  reg r3
-	mt	r3
-	and	r3
-
-	//../../Lib//spi.c, line 322
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l117)-1)
-	li	IMW0(PCREL(l117))
-		add	r7
-l121: # 
-
-	//../../Lib//spi.c, line 323
-// code 0x2
+	//../../Lib//spi_c.c, line 313
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
-	mt	r5
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
 					// (save temp) store
-	st	r4
+	st	r3
 				//save_temp done
 
-	//../../Lib//spi.c, line 324
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const/deref
-					// (prepobj tmp) deref
-			// const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
-		//sizemod based on type 0x503
-	ldt
-	mr	r0
-					// (objtotemp)  const
-				// constant: 8000 in 3 chunks
-	li	IMW2(32768)
-	li	IMW1(32768)
-	li	IMW0(32768)
-	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-
-	//../../Lib//spi.c, line 324
-// code 0x44
-					// (test)
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x503
-	ld	r6
-
-	//../../Lib//spi.c, line 324
-	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l122)-1)
-	li	IMW0(PCREL(l122))
-		add	r7
-				// allocreg r2
-// code 0x2
+	//../../Lib//spi_c.c, line 314
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 8000 in 3 chunks
-	li	IMW2(32768)
-	li	IMW1(32768)
-	li	IMW0(32768)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
+					// (save temp) store
+	st	r3
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 316
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r1 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	100000
 					// (save temp) isreg
-	mr	r2
-				//save_temp done
-l112: # 
-
-	//../../Lib//spi.c, line 324
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const/deref
-					// (prepobj tmp) deref
-			// const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
-		//sizemod based on type 0x503
-	ldt
-	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
-	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-
-	//../../Lib//spi.c, line 324
-// code 0x44
-					// (test)
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x503
-	ld	r6
-
-	//../../Lib//spi.c, line 324
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l112)-1)
-	li	IMW0(PCREL(l112))
-		add	r7
-l122: # 
-				// freereg r2
-
-	//../../Lib//spi.c, line 324
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-			// const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
 	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+				//save_temp done
+l126: # 
+
+	//../../Lib//spi_c.c, line 319
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
 					// (save temp) store
-	st	r1
+	st	r3
 				//save_temp done
 
-	//../../Lib//spi.c, line 325
-// code 0x5e
-					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+	//../../Lib//spi_c.c, line 322
+					// (test)
+					// (objtotemp) flags 260 
+// deref 
+	ld	r3
+
+	//../../Lib//spi_c.c, line 322
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l130
+		add	r7
+
+	//../../Lib//spi_c.c, line 322
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	sub	r1
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 322
+					// (test)
+					// (objtotemp) flags 42 
+// reg r1 - don't bother matching
+	mt	r1
+	and	r1
+
+	//../../Lib//spi_c.c, line 322
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l126
+		add	r7
+l130: # 
+
+	//../../Lib//spi_c.c, line 323
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 240 
+// reg r4 - don't bother matching
+	mt	r4
+					// (save temp) store
+	st	r3
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 324
+					// (bitwise/arithmetic) 	//ops: 0, 6, 1
+					// (objtotemp) flags 21 
+// const/deref
+					// (prepobj tmp)
+ // deref
+			// const
+	.liconst	-48
+		//sizemod based on type 0x503
+	ldt
 	mr	r0
-l97: # 
+					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
+	mt	r5
+	and	r0
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
+	addt	r6
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+
+	//../../Lib//spi_c.c, line 324
+					// (test)
+					// (objtotemp) flags a 
+// var, auto|reg
+		//sizemod based on type 0x503
+	ld	r6
+
+	//../../Lib//spi_c.c, line 324
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l131
+		add	r7
+l127: # 
+
+	//../../Lib//spi_c.c, line 324
+					// (bitwise/arithmetic) 	//ops: 0, 6, 1
+					// (objtotemp) flags 21 
+// const/deref
+					// (prepobj tmp)
+ // deref
+			// const
+	.liconst	-48
+		//sizemod based on type 0x503
+	ldt
+	mr	r0
+					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
+	mt	r5
+	and	r0
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
+	addt	r6
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+
+	//../../Lib//spi_c.c, line 324
+					// (test)
+					// (objtotemp) flags a 
+// var, auto|reg
+		//sizemod based on type 0x503
+	ld	r6
+
+	//../../Lib//spi_c.c, line 324
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l127
+		add	r7
+l131: # 
+
+	//../../Lib//spi_c.c, line 324
+					// (a/p assign)
+					// (prepobj r0)
+ // deref
+			// const
+	.liconst	-48
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
+					// (save temp) store
+	st	r0
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 325
+					//setreturn
+					// (objtotemp) flags 1 
+
+// required value found in tmp
+	mr	r0
+l105: # 
+				// freereg r1
 				// freereg r3
 				// freereg r4
 				// freereg r5
-	ldinc	r6	// quickest way to add 4 to sp
+	.liconst	-4
+	sub	r6
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -3645,12 +2697,9 @@ l97: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
-l103:
+l112:
 	.byte	87
 	.byte	114
 	.byte	105
@@ -3666,7 +2715,6 @@ l103:
 	.byte	10
 	.byte	0
 	//registers used:
-		//r0: yes
 		//r1: yes
 		//r2: yes
 		//r3: yes
@@ -3676,446 +2724,383 @@ l103:
 		//r7: yes
 		//tmp: yes
 	.section	.text.0
-l123:
+l132:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-	stdec	r6	// quickest way to decrement sp by 4
 				// allocreg r5
-				// allocreg r4
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0xa
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	-44
+					// (save temp) isreg
+	mr	r5
+				//save_temp done
+				// allocreg r4
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 102 
+// var, auto|reg
+		//sizemod based on type 0x3
+	.liconst	20
 	ldidx	r6
 					// (save temp) isreg
 	mr	r4
 				//save_temp done
 				// allocreg r3
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-				// constant: 1c in 1 chunks
-	li	IMW0(28)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 102 
+// var, auto|reg
+		//sizemod based on type 0xa
+	.liconst	16
 	ldidx	r6
 					// (save temp) isreg
 	mr	r3
 				//save_temp done
-
-	//../../Lib//spi.c, line 335
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) var, auto|reg
-	mt	r6
-	mr	r1
-
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-					// (save temp) store
-	st	r1
-				//save_temp done
-
-	//../../Lib//spi.c, line 337
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 16e35f in 4 chunks
-	li	IMW3(1499999)
-	li	IMW2(1499999)
-	li	IMW1(1499999)
-	li	IMW0(1499999)
-					// (save temp) isreg
-	mr	r5
-				//save_temp done
-l138: # 
-
-	//../../Lib//spi.c, line 340
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
-					// (save temp) store
-	st	r1
-				//save_temp done
 				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 342
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const/deref
-					// (prepobj tmp) deref
-			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-		//sizemod based on type 0x503
-	ldt
-	mr	r2
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
-	and	r2
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 343
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: fe in 2 chunks
-	li	IMW1(254)
-	li	IMW0(254)
-	sgn
-	cmp	r2
-				// freereg r2
-
-	//../../Lib//spi.c, line 343
-	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l129)-1)
-	li	IMW0(PCREL(l129))
-		add	r7
-
-	//../../Lib//spi.c, line 349
-// code 0x2
+	//../../Lib//spi_c.c, line 335
 					// (a/p assign)
-					// (prepobj r1) extern (offset 0)
-	ldinc	r7
-	.int	_spi_checksum
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-					// (save temp) store
-	st	r1
-				//save_temp done
-
-	//../../Lib//spi.c, line 351
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	sgn
-	cmp	r3
-
-	//../../Lib//spi.c, line 351
-	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l142)-1)
-	li	IMW0(PCREL(l142))
-		add	r7
-l139: # 
-
-	//../../Lib//spi.c, line 354
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_SPI_PUMP_LE
-	exg	r7
-
-				// allocreg r2
-
-	//../../Lib//spi.c, line 354
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r2
-
-	//../../Lib//spi.c, line 355
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r2
-	mt	r2
-					// (save temp) store
-	st	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 357
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	add	r4
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 358
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_spi_checksum
-		//sizemod based on type 0x3
-	ldt
-	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
-	add	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) extern (offset 0)
-	ldinc	r7
-	.int	_spi_checksum + 4
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-				// freereg r2
-
-	//../../Lib//spi.c, line 351
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	sub	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 351
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
-	sgn
-	cmp	r3
-
-	//../../Lib//spi.c, line 351
-	cond	GE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l139)-1)
-	li	IMW0(PCREL(l139))
-		add	r7
-l142: # 
-
-	//../../Lib//spi.c, line 361
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-	sgn
-	cmp	r3
-
-	//../../Lib//spi.c, line 361
-	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l143)-1)
-	li	IMW0(PCREL(l143))
-		add	r7
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
+					// (prepobj r0)
+ // reg r2 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 					// (save temp) isreg
-	mr	r5
+	mr	r2
 				//save_temp done
-l134: # 
 
-	//../../Lib//spi.c, line 364
-// code 0x2
+	//../../Lib//spi_c.c, line 337
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+					// (prepobj r0)
+ // reg r1 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	1499999
+					// (save temp) isreg
+	mr	r1
+				//save_temp done
+l148: # 
+
+	//../../Lib//spi_c.c, line 340
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
 	st	r5
 				//save_temp done
-				// allocreg r2
 
-	//../../Lib//spi.c, line 364
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  deref 
-	//(offset 0)
+	//../../Lib//spi_c.c, line 343
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 260 
+// deref 
 	ld	r5
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	254
+	cmp	r0
+
+	//../../Lib//spi_c.c, line 343
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l139
+		add	r7
+
+	//../../Lib//spi_c.c, line 349
+					// (a/p assign)
+					// (prepobj r0)
+ // extern (offset 0)
+	.liabs	_spi_checksum
+// extern pe not varadr
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
+					// (save temp) store
+	st	r0
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 351
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	4
+	sgn
+	cmp	r4
+
+	//../../Lib//spi_c.c, line 351
+	cond	SLT
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l152
+		add	r7
+				// freereg r1
+l149: # 
+
+	//../../Lib//spi_c.c, line 354
+					//call
+			//pcreltotemp
+	.lipcrel	_SPI_PUMP_LE
+	add	r7
+
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 354
+					// (getreturn)					// (save result) // isreg
+	mt	r0
+	mr	r1
+
+	//../../Lib//spi_c.c, line 355
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+					// (save temp) store
+	st	r3
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 357
+					// (bitwise/arithmetic) 	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	4
+	add	r3
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 358
+					// (bitwise/arithmetic) 	//ops: 0, 2, 1
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_spi_checksum
+		//sizemod based on type 0x3
+	//extern deref
+	ldt
+	mr	r0
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	add	r0
+					// (save result) // Store_reg to type 0x3
+					// (prepobj tmp)
+ // extern (offset 0)
+	.liabs	_spi_checksum, 4
+// extern pe not varadr
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+				// freereg r1
+
+	//../../Lib//spi_c.c, line 351
+					// (bitwise/arithmetic) 	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	4
+	sub	r4
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 351
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+
+// required value found in tmp
+	sgn
+	cmp	r4
+
+	//../../Lib//spi_c.c, line 351
+	cond	GE
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l149
+		add	r7
+l152: # 
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 361
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	0
+	sgn
+	cmp	r4
+
+	//../../Lib//spi_c.c, line 361
+	cond	LE
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l153
+		add	r7
+				// freereg r1
+l150: # 
+
+	//../../Lib//spi_c.c, line 364
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+					// (save temp) store
+	st	r5
+				//save_temp done
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 364
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r1 - no need to prep
+					// (objtotemp) flags 260 
+// deref 
+	ld	r5
+					// (save temp) isreg
+	mr	r1
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 365
+					//FIXME convert
+					// (convert - reducing type 3 to 101
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+					// (save temp) store
+	byt
+	st	r3
+				//save_temp done
+	.liconst	255
+	and	r0
+
+	//../../Lib//spi_c.c, line 365
+					// (bitwise/arithmetic) 	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	add	r3
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 367
+					// (bitwise/arithmetic) 	//ops: 0, 2, 1
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_spi_checksum
+		//sizemod based on type 0x3
+	//extern deref
+	ldt
+	mr	r0
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	add	r0
+					// (save result) // Store_reg to type 0x3
+					// (prepobj tmp)
+ // extern (offset 0)
+	.liabs	_spi_checksum, 4
+// extern pe not varadr
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+				// freereg r1
+
+	//../../Lib//spi_c.c, line 361
+					// (bitwise/arithmetic) 	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	sub	r4
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 361
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	0
+	sgn
+	cmp	r4
+
+	//../../Lib//spi_c.c, line 361
+	cond	SGT
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l150
+		add	r7
+l153: # 
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 370
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r1 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+					// (save temp) isreg
+	mr	r1
+				//save_temp done
+
+	//../../Lib//spi_c.c, line 371
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r2 - no need to prep
+					// (objtotemp) flags 1 
+
+// required value found in tmp
 					// (save temp) isreg
 	mr	r2
 				//save_temp done
+l139: # 
 
-	//../../Lib//spi.c, line 365
-// code 0x32
-					//FIXME convert
-					// (convert -> assign)
-					// (prepobj r1) deref
-				// reg r4 - no need to prep
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  reg r2
-	mt	r2
-					// (save temp) store
-	byt
-	st	r4
-				//save_temp done
+	//../../Lib//spi_c.c, line 337
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	sub	r1
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 365
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	add	r4
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 367
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_spi_checksum
-		//sizemod based on type 0x3
-	ldt
-	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
-	add	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) extern (offset 0)
-	ldinc	r7
-	.int	_spi_checksum + 4
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-				// freereg r2
-
-	//../../Lib//spi.c, line 361
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	sub	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 361
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-	sgn
-	cmp	r3
-
-	//../../Lib//spi.c, line 361
-	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l134)-1)
-	li	IMW0(PCREL(l134))
-		add	r7
-l143: # 
-
-	//../../Lib//spi.c, line 370
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-					// (save temp) isreg
-	mr	r5
-				//save_temp done
-
-	//../../Lib//spi.c, line 371
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) var, auto|reg
-	mt	r6
-	mr	r1
-
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-					// (save temp) store
-	st	r1
-				//save_temp done
-l129: # 
-
-	//../../Lib//spi.c, line 337
-// code 0x1c
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	sub	r5
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 337
-// code 0x44
+	//../../Lib//spi_c.c, line 337
 					// (test)
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r5
+					// (objtotemp) flags 42 
+// reg r1 - don't bother matching
+	mt	r1
+	and	r1
 
-	//../../Lib//spi.c, line 337
+	//../../Lib//spi_c.c, line 337
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l138)-1)
-	li	IMW0(PCREL(l138))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l148
 		add	r7
 
-	//../../Lib//spi.c, line 374
-// code 0x2
+	//../../Lib//spi_c.c, line 374
 					// (a/p assign)
-					// (prepobj r1) deref
-			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r5
 				//save_temp done
 
-	//../../Lib//spi.c, line 375
-// code 0x5e
+	//../../Lib//spi_c.c, line 375
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
+					// (objtotemp) flags 42 
+// reg r2 - don't bother matching
+	mt	r2
 	mr	r0
+				// freereg r1
+				// freereg r2
 				// freereg r3
 				// freereg r4
 				// freereg r5
-	ldinc	r6	// quickest way to add 4 to sp
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -4123,15 +3108,11 @@ l129: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
 		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: yes
 		//r4: yes
 		//r5: yes
@@ -4143,406 +3124,357 @@ l129: #
 _sd_read_sector:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-	stdec	r6	// quickest way to decrement sp by 4
+	.liconst	-4
+	add	r6
 				// allocreg r5
 				// allocreg r4
-				// allocreg r3
-// code 0x2
 					// (a/p assign)
-					// (prepobj r1) reg r3 - no need to prep
-					// (load_temp - type 10) not varadr
-					// (objtotemp)  const
-				// constant: ffffffd0 in 2 chunks
-	li	IMW1(-48)
-	li	IMW0(-48)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	-48
+					// (save temp) isreg
+	mr	r4
+				//save_temp done
+				// allocreg r3
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	32768
 					// (save temp) isreg
 	mr	r3
 				//save_temp done
-				// allocreg r2
-// code 0x2
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 380
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 8000 in 3 chunks
-	li	IMW2(32768)
-	li	IMW1(32768)
-	li	IMW0(32768)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 					// (save temp) isreg
-	mr	r2
+	mr	r5
 				//save_temp done
 
-	//../../Lib//spi.c, line 380
-// code 0x2
+	//../../Lib//spi_c.c, line 384
 					// (a/p assign)
-					// (prepobj r1) reg r4 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
-					// (save temp) isreg
-	mr	r4
-				//save_temp done
-
-	//../../Lib//spi.c, line 384
-// code 0x2
-					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)
+ // deref
 			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 385
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r3
+	//../../Lib//spi_c.c, line 385
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
 	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
+	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 385
-// code 0x44
+	//../../Lib//spi_c.c, line 385
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 385
+	//../../Lib//spi_c.c, line 385
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l156)-1)
-	li	IMW0(PCREL(l156))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l167
 		add	r7
-l154: # 
+l165: # 
 
-	//../../Lib//spi.c, line 385
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r3
+	//../../Lib//spi_c.c, line 385
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
 	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
+	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 385
-// code 0x44
+	//../../Lib//spi_c.c, line 385
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 385
+	//../../Lib//spi_c.c, line 385
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l154)-1)
-	li	IMW0(PCREL(l154))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l165
 		add	r7
-l156: # 
+l167: # 
 
-	//../../Lib//spi.c, line 385
-// code 0x2
+	//../../Lib//spi_c.c, line 385
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 101 in 2 chunks
-	li	IMW1(257)
-	li	IMW0(257)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	257
 					// (save temp) store
-	st	r3
+	st	r4
 				//save_temp done
 
-	//../../Lib//spi.c, line 386
-// code 0x2
+	//../../Lib//spi_c.c, line 386
 					// (a/p assign)
-					// (prepobj r1) deref
+					// (prepobj r0)
+ // deref
 			// const
-				// constant: ffffffd4 in 2 chunks
-	li	IMW1(-44)
-	li	IMW0(-44)
-	mr	r1
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: ff in 2 chunks
-	li	IMW1(255)
-	li	IMW0(255)
+	.liconst	-44
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
 					// (save temp) store
-	st	r1
+	st	r0
 				//save_temp done
 
-	//../../Lib//spi.c, line 388
-// code 0x4e
+	//../../Lib//spi_c.c, line 388
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 
+// var, auto|reg
 		//sizemod based on type 0x104
-				// constant: 18 in 1 chunks
-	li	IMW0(24)
+	.liconst	20
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//spi.c, line 388
-// code 0x4e
+	//../../Lib//spi_c.c, line 388
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: ff0051 in 5 chunks
-	li	IMW4(16711761)
-	li	IMW3(16711761)
-	li	IMW2(16711761)
-	li	IMW1(16711761)
-	li	IMW0(16711761)
+					// (objtotemp) flags 1 
+// const
+	.liconst	16711761
 	stdec	r6
 
-	//../../Lib//spi.c, line 388
-// code 0x2a
+	//../../Lib//spi_c.c, line 388
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_cmd_write
+	add	r7
+	.liconst	8
 	add	r6
 
 
-	//../../Lib//spi.c, line 388
-// code 0x5d
-					// (getreturn)					// (save result) isreg
+	//../../Lib//spi_c.c, line 388
+					// (getreturn)					// (save result) // isreg
+	mt	r0
+	mr	r1
+
+	//../../Lib//spi_c.c, line 389
+					// (test)
+					// (objtotemp) flags 42 
+// reg r1 - don't bother matching
+	mt	r1
+	and	r1
+
+	//../../Lib//spi_c.c, line 389
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l160
+		add	r7
+
+	//../../Lib//spi_c.c, line 391
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 42 
+// reg r1 - don't bother matching
+	mt	r1
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 391
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	24
+	ldidx	r6
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 391
+					// (a/p push)
+					// a: pushed 8, regnames[sp] r6
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l161,0
+// static pe is varadr
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 391
+					//call
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	12
+	add	r6
+
+
+	//../../Lib//spi_c.c, line 393
+			//pcreltotemp
+	.lipcrel	l154
+	add	r7
+l160: # 
+
+	//../../Lib//spi_c.c, line 394
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 1 
+// const
+	.liconst	512
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 394
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0xa
+	.liconst	28
+	ldidx	r6
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 394
+					//call
+			//pcreltotemp
+	.lipcrel	l132
+	add	r7
+	.liconst	8
+	add	r6
+
+
+	//../../Lib//spi_c.c, line 394
+					// (getreturn)					// (save result) // isreg
 	mt	r0
 	mr	r5
 
-	//../../Lib//spi.c, line 389
-// code 0x44
-					// (test)
-					// (objtotemp)  reg r5
-	mt	r5
-	and	r5
-
-	//../../Lib//spi.c, line 389
-	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l149)-1)
-	li	IMW0(PCREL(l149))
-		add	r7
-
-	//../../Lib//spi.c, line 391
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r5
-	mt	r5
-	stdec	r6
-
-	//../../Lib//spi.c, line 391
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0x104
-				// constant: 1c in 1 chunks
-	li	IMW0(28)
-	ldidx	r6
-	stdec	r6
-
-	//../../Lib//spi.c, line 391
-// code 0x4e
-					// (a/p push)
-					// a: pushed 8, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l150
-	stdec	r6
-
-	//../../Lib//spi.c, line 391
-// code 0x2a
-					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: c in 1 chunks
-	li	IMW0(12)
-	add	r6
-
-
-	//../../Lib//spi.c, line 393
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l144)-1)
-	li	IMW0(PCREL(l144))
-	add	r7
-l149: # 
-
-	//../../Lib//spi.c, line 394
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 200 in 2 chunks
-	li	IMW1(512)
-	li	IMW0(512)
-	stdec	r6
-
-	//../../Lib//spi.c, line 394
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
-		//sizemod based on type 0xa
-				// constant: 20 in 2 chunks
-	li	IMW1(32)
-	li	IMW0(32)
-	ldidx	r6
-	stdec	r6
-
-	//../../Lib//spi.c, line 394
-// code 0x2a
-					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l123)-1)
-	li	IMW0(PCREL(l123))
-	add	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//../../Lib//spi.c, line 394
-// code 0x5d
-					// (getreturn)					// (save result) isreg
-	mt	r0
-	mr	r4
-
-	//../../Lib//spi.c, line 396
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r3
+	//../../Lib//spi_c.c, line 396
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
 	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
+	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 396
-// code 0x44
+	//../../Lib//spi_c.c, line 396
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 396
+	//../../Lib//spi_c.c, line 396
 	cond	EQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l157)-1)
-	li	IMW0(PCREL(l157))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l168
 		add	r7
-l155: # 
+l166: # 
 
-	//../../Lib//spi.c, line 396
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  deref 
-	//(offset 0)
-	ld	r3
+	//../../Lib//spi_c.c, line 396
+					// (bitwise/arithmetic) 	//ops: 5, 4, 1
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
 	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 240 
+// reg r3 - don't bother matching
+	mt	r3
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x503
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x503
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi.c, line 396
-// code 0x44
+	//../../Lib//spi_c.c, line 396
 					// (test)
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags a 
+// var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi.c, line 396
+	//../../Lib//spi_c.c, line 396
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l155)-1)
-	li	IMW0(PCREL(l155))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l166
 		add	r7
-l157: # 
+l168: # 
 
-	//../../Lib//spi.c, line 396
-// code 0x2
+	//../../Lib//spi_c.c, line 396
 					// (a/p assign)
-					// (prepobj r1) deref
-				// reg r3 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 					// (save temp) store
-	st	r3
+	st	r4
 				//save_temp done
-l144: # 
+l154: # 
 
-	//../../Lib//spi.c, line 397
-// code 0x5e
+	//../../Lib//spi_c.c, line 397
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r4
-	mt	r4
+					// (objtotemp) flags 42 
+// reg r5 - don't bother matching
+	mt	r5
 	mr	r0
-				// freereg r2
+				// freereg r1
 				// freereg r3
 				// freereg r4
 				// freereg r5
-	ldinc	r6	// quickest way to add 4 to sp
+	.liconst	-4
+	sub	r6
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -4550,12 +3482,9 @@ l144: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
-l150:
+l161:
 	.byte	82
 	.byte	101
 	.byte	97
@@ -4589,7 +3518,6 @@ l150:
 	.byte	10
 	.byte	0
 	//registers used:
-		//r0: yes
 		//r1: yes
 		//r2: yes
 		//r3: yes
@@ -4603,787 +3531,753 @@ l150:
 _sd_get_size:
 	exg	r6
 	stmpdec	r6
-	stmpdec	r2
 	stmpdec	r3
 	stmpdec	r4
 	stmpdec	r5
 	exg	r6
-	stdec	r6	// quickest way to decrement sp by 4
+	.liconst	-4
+	add	r6
 				// allocreg r5
-				// allocreg r2
+				// allocreg r3
 
-	//../../Lib//spi.c, line 405
-// code 0x4e
+	//../../Lib//spi_c.c, line 405
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi.c, line 405
-// code 0x4e
+	//../../Lib//spi_c.c, line 405
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: ff0049 in 5 chunks
-	li	IMW4(16711753)
-	li	IMW3(16711753)
-	li	IMW2(16711753)
-	li	IMW1(16711753)
-	li	IMW0(16711753)
+					// (objtotemp) flags 1 
+// const
+	.liconst	16711753
 	stdec	r6
 
-	//../../Lib//spi.c, line 405
-// code 0x2a
+	//../../Lib//spi_c.c, line 405
 					//call
-	ldinc	r7
-	.int	_cmd_write
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	add	r6
-
-
-	//../../Lib//spi.c, line 407
-// code 0x4e
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  const
-				// constant: 12 in 1 chunks
-	li	IMW0(18)
-	stdec	r6
-
-	//../../Lib//spi.c, line 407
-// code 0x4e
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf
-		//sizemod based on type 0xa
-	stdec	r6
-
-	//../../Lib//spi.c, line 407
-// code 0x2a
-					//call
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l123)-1)
-	li	IMW0(PCREL(l123))
+			//pcreltotemp
+	.lipcrel	_cmd_write
 	add	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+	.liconst	8
 	add	r6
 
 
-	//../../Lib//spi.c, line 408
-// code 0x2
+	//../../Lib//spi_c.c, line 407
+					// (a/p push)
+					// a: pushed 0, regnames[sp] r6
+					// (objtotemp) flags 1 
+// const
+	.liconst	18
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 407
+					// (a/p push)
+					// a: pushed 4, regnames[sp] r6
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // extern (offset 0)
+	.liabs	_sizebuf
+// extern pe is varadr
+	stdec	r6
+
+	//../../Lib//spi_c.c, line 407
+					//call
+			//pcreltotemp
+	.lipcrel	l132
+	add	r7
+	.liconst	8
+	add	r6
+
+
+	//../../Lib//spi_c.c, line 408
 					// (a/p assign)
-					// (prepobj r1) reg r5 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  const
-				// constant: 0 in 1 chunks
-	li	IMW0(0)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
 					// (save temp) isreg
 	mr	r5
 				//save_temp done
-l173: # 
+l185: # 
 
-	//../../Lib//spi.c, line 409
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+	//../../Lib//spi_c.c, line 409
+					// (bitwise/arithmetic) 	//ops: 6, 0, 6
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	add	r5
-					// (save result) isreg
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 409
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 12 in 1 chunks
-	li	IMW0(18)
+	//../../Lib//spi_c.c, line 409
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	18
 	sgn
 	cmp	r5
 
-	//../../Lib//spi.c, line 409
+	//../../Lib//spi_c.c, line 409
 	cond	SLT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l173)-1)
-	li	IMW0(PCREL(l173))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l185
 		add	r7
-				// freereg r2
-				// allocreg r2
+				// allocreg r1
 
-	//../../Lib//spi.c, line 414
-// code 0x32
+	//../../Lib//spi_c.c, line 414
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf
-		//sizemod based on type 0x1
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf
+		//sizemod based on type 0x101
 	byt
+	//extern deref
 	ldt
-	mr	r2
-					// (save result) isreg
+	mr	r1
+	//But unsigned, so no need to extend
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 414
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: c0 in 2 chunks
-	li	IMW1(192)
-	li	IMW0(192)
-	and	r2
-					// (save result) isreg
+	//../../Lib//spi_c.c, line 414
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	192
+	and	r1
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 414
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 40 in 2 chunks
-	li	IMW1(64)
-	li	IMW0(64)
-	sgn
-	cmp	r2
-				// freereg r2
+	//../../Lib//spi_c.c, line 414
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	64
+	cmp	r1
+				// freereg r1
 
-	//../../Lib//spi.c, line 414
+	//../../Lib//spi_c.c, line 414
 	cond	NEQ
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l164)-1)
-	li	IMW0(PCREL(l164))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l176
 		add	r7
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 416
+					//FIXME convert
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 7
+		//sizemod based on type 0x101
+	byt
+	//extern deref
+	ldt
+	mr	r1
+	//But unsigned, so no need to extend
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 416
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	16
+	shl	r1
+					// (save result) // isreg
 				// allocreg r2
 
-	//../../Lib//spi.c, line 416
-// code 0x32
+	//../../Lib//spi_c.c, line 416
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 7
-		//sizemod based on type 0x1
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 8
+		//sizemod based on type 0x101
 	byt
+	//extern deref
 	ldt
 	mr	r2
-					// (save result) isreg
+	//But unsigned, so no need to extend
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 416
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
+	//../../Lib//spi_c.c, line 416
+					// (bitwise/arithmetic) 	//ops: 3, 0, 3
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	8
 	shl	r2
-					// (save result) isreg
-				// allocreg r3
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 416
-// code 0x32
+	//../../Lib//spi_c.c, line 416
+					// (bitwise/arithmetic) 	//ops: 3, 2, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 4a 
+// reg r2 - don't bother matching
+	mt	r2
+	or	r1
+					// (save result) // isreg
+				// freereg r2
+				// allocreg r2
+
+	//../../Lib//spi_c.c, line 416
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 8
-		//sizemod based on type 0x1
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 9
+		//sizemod based on type 0x101
 	byt
+	//extern deref
 	ldt
-	mr	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 416
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
-	shl	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 416
-// code 0x10
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
-	mt	r2
 	mr	r2
-					// (objtotemp)  reg r3
-	mt	r3
-	or	r2
-					// (save result) isreg
-				// freereg r3
-				// allocreg r3
+	//But unsigned, so no need to extend
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 416
-// code 0x32
-					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 9
-		//sizemod based on type 0x1
-	byt
-	ldt
-	mr	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 416
-// code 0x10
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
+	//../../Lib//spi_c.c, line 416
+					// (bitwise/arithmetic) 	//ops: 3, 2, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 4a 
+// reg r2 - don't bother matching
 	mt	r2
-	mr	r2
-					// (objtotemp)  reg r3
-	mt	r3
-	or	r2
-					// (save result) isreg
-				// freereg r3
-
-	//../../Lib//spi.c, line 416
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 3fffff in 4 chunks
-	li	IMW3(4194303)
-	li	IMW2(4194303)
-	li	IMW1(4194303)
-	li	IMW0(4194303)
-	and	r2
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 416
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r5
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	add	r5
-					// (save result) isreg
+	or	r1
+					// (save result) // isreg
 				// freereg r2
 
-	//../../Lib//spi.c, line 417
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: a in 1 chunks
-	li	IMW0(10)
+	//../../Lib//spi_c.c, line 416
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	4194303
+	and	r1
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 416
+					// (bitwise/arithmetic) 	//ops: 2, 0, 6
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	mr	r5
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	add	r5
+					// (save result) // isreg
+				// freereg r1
+
+	//../../Lib//spi_c.c, line 417
+					// (bitwise/arithmetic) 	//ops: 6, 0, 6
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	10
 	shl	r5
-					// (save result) isreg
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 420
-			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l165)-1)
-	li	IMW0(PCREL(l165))
+	//../../Lib//spi_c.c, line 420
+			//pcreltotemp
+	.lipcrel	l177
 	add	r7
-l164: # 
-				// allocreg r2
-
-	//../../Lib//spi.c, line 421
-// code 0x32
-					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 9
-		//sizemod based on type 0x1
-	byt
-	ldt
-	mr	r2
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 421
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	shl	r2
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 421
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 6 in 1 chunks
-	li	IMW0(6)
-	and	r2
-					// (save result) isreg
-				// allocreg r3
-
-	//../../Lib//spi.c, line 421
-// code 0x32
-					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 10
-		//sizemod based on type 0x1
-	byt
-	ldt
-	mr	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 421
-// code 0x1a
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 7 in 1 chunks
-	li	IMW0(7)
-	sgn
-	shr	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 421
-// code 0x10
-					// (bitwise) loadreg
-					// (objtotemp)  reg r2
-	mt	r2
-	mr	r2
-					// (objtotemp)  reg r3
-	mt	r3
-	or	r2
-					// (save result) isreg
 				// freereg r3
+l176: # 
 				// allocreg r3
 
-	//../../Lib//spi.c, line 422
-// code 0x32
+	//../../Lib//spi_c.c, line 421
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 5
-		//sizemod based on type 0x1
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 9
+		//sizemod based on type 0x101
 	byt
+	//extern deref
 	ldt
 	mr	r3
-					// (save result) isreg
+	//But unsigned, so no need to extend
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 422
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
+	//../../Lib//spi_c.c, line 421
+					// (bitwise/arithmetic) 	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	shl	r3
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 421
+					// (bitwise/arithmetic) 	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	6
+	and	r3
+					// (save result) // isreg
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 421
+					//FIXME convert
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 10
+		//sizemod based on type 0x101
+	byt
+	//extern deref
+	ldt
+	mr	r1
+	//But unsigned, so no need to extend
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 421
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	7
+	sgn
+	shr	r1
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 421
+					// (bitwise/arithmetic) 	//ops: 2, 4, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	or	r3
+					// (save result) // isreg
+				// freereg r1
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 422
+					//FIXME convert
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 5
+		//sizemod based on type 0x101
+	byt
+	//extern deref
+	ldt
+	mr	r1
+	//But unsigned, so no need to extend
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 422
+					// (bitwise/arithmetic) 	//ops: 2, 0, 1
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
 	mr	r0
-					// (objtotemp)  const
-				// constant: f in 1 chunks
-	li	IMW0(15)
+					// (objtotemp) flags 1 
+// const
+	.liconst	15
 	and	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x3
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
-				// freereg r3
-				// allocreg r3
-
-	//../../Lib//spi.c, line 423
-// code 0x32
-					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 6
-		//sizemod based on type 0x1
-	byt
-	ldt
-	mr	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 423
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 3 in 1 chunks
-	li	IMW0(3)
-	and	r3
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 423
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: a in 1 chunks
-	li	IMW0(10)
-	shl	r3
-					// (save result) isreg
+				// freereg r1
 				// allocreg r4
 
-	//../../Lib//spi.c, line 423
-// code 0x32
+	//../../Lib//spi_c.c, line 423
 					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 7
-		//sizemod based on type 0x1
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 6
+		//sizemod based on type 0x101
 	byt
+	//extern deref
 	ldt
 	mr	r4
-					// (save result) isreg
+	//But unsigned, so no need to extend
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 423
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 2 in 1 chunks
-	li	IMW0(2)
-	shl	r4
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 423
-// code 0x10
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r3
-					// (objtotemp)  reg r4
-	mt	r4
-	or	r3
-					// (save result) isreg
-				// freereg r4
-				// allocreg r4
-
-	//../../Lib//spi.c, line 423
-// code 0x32
-					//FIXME convert
-					// (load_temp - type 1) not varadr
-					// (objtotemp)  extern
-	ldinc	r7
-	.int	_sizebuf + 8
-		//sizemod based on type 0x1
-	byt
-	ldt
-	mr	r4
-					// (save result) isreg
-
-	//../../Lib//spi.c, line 423
-// code 0x12
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: c0 in 2 chunks
-	li	IMW1(192)
-	li	IMW0(192)
+	//../../Lib//spi_c.c, line 423
+					// (bitwise/arithmetic) 	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	3
 	and	r4
-					// (save result) isreg
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 423
-// code 0x1a
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 6 in 1 chunks
-	li	IMW0(6)
+	//../../Lib//spi_c.c, line 423
+					// (bitwise/arithmetic) 	//ops: 5, 0, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	10
+	shl	r4
+					// (save result) // isreg
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 423
+					//FIXME convert
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 7
+		//sizemod based on type 0x101
+	byt
+	//extern deref
+	ldt
+	mr	r1
+	//But unsigned, so no need to extend
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 423
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	2
+	shl	r1
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 423
+					// (bitwise/arithmetic) 	//ops: 2, 5, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	or	r4
+					// (save result) // isreg
+				// freereg r1
+				// allocreg r1
+
+	//../../Lib//spi_c.c, line 423
+					//FIXME convert
+	//Converting to wider type...
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sizebuf, 8
+		//sizemod based on type 0x101
+	byt
+	//extern deref
+	ldt
+	mr	r1
+	//But unsigned, so no need to extend
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 423
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	192
+	and	r1
+					// (save result) // isreg
+
+	//../../Lib//spi_c.c, line 423
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	6
 	sgn
-	shr	r4
-					// (save result) isreg
+	shr	r1
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 423
-// code 0x10
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
-	mr	r3
-					// (objtotemp)  reg r4
-	mt	r4
-	or	r3
-					// (save result) isreg
-				// freereg r4
+	//../../Lib//spi_c.c, line 423
+					// (bitwise/arithmetic) 	//ops: 2, 5, 5
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	or	r4
+					// (save result) // isreg
+				// freereg r1
 
-	//../../Lib//spi.c, line 424
-// code 0x4e
+	//../../Lib//spi_c.c, line 424
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r3
-	mt	r3
+					// (objtotemp) flags 4a 
+// reg r4 - don't bother matching
+	mt	r4
 	stdec	r6
 
-	//../../Lib//spi.c, line 424
-// code 0x4e
+	//../../Lib//spi_c.c, line 424
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 
+// var, auto|reg
 		//sizemod based on type 0x3
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+	.liconst	4
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//spi.c, line 424
-// code 0x4e
+	//../../Lib//spi_c.c, line 424
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a 
+// reg r3 - don't bother matching
+	mt	r3
 	stdec	r6
 
-	//../../Lib//spi.c, line 424
-// code 0x4e
+	//../../Lib//spi_c.c, line 424
 					// (a/p push)
 					// a: pushed 12, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l166
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l178,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 424
-// code 0x2a
+	//../../Lib//spi_c.c, line 424
 					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 10 in 1 chunks
-	li	IMW0(16)
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	16
 	add	r6
 
 
-	//../../Lib//spi.c, line 425
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 2 in 1 chunks
-	li	IMW0(2)
-	add	r2
-					// (save result) isreg
+	//../../Lib//spi_c.c, line 425
+					// (bitwise/arithmetic) 	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	2
+	add	r3
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 425
-// code 0x19
-					// (bitwise) loadreg
+	//../../Lib//spi_c.c, line 425
+					// (bitwise/arithmetic) 	//ops: 0, 4, 4
 		// WARNING - evading q2 and target collision - check code for correctness.
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	mr	r0
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a 
+// reg r3 - don't bother matching
+	mt	r3
 	shl	r0
-					// (save result) isreg
+					// (save result) // isreg
 	mt	r0
-	mr	r2
+	mr	r3
 
-	//../../Lib//spi.c, line 426
-// code 0x4e
+	//../../Lib//spi_c.c, line 426
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a 
+// reg r3 - don't bother matching
+	mt	r3
 	stdec	r6
 
-	//../../Lib//spi.c, line 426
-// code 0x4e
+	//../../Lib//spi_c.c, line 426
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l167
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l179,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 426
-// code 0x2a
+	//../../Lib//spi_c.c, line 426
 					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	8
 	add	r6
 
 
-	//../../Lib//spi.c, line 427
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+	//../../Lib//spi_c.c, line 427
+					// (bitwise/arithmetic) 	//ops: 0, 0, 1
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	mr	r0
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 
+// var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 	shl	r0
-					// (save result) store reg
-// Store_reg to type 0x3
-					// (prepobj tmp) var, auto|reg
-				// constant: 4 in 1 chunks
-	li	IMW0(4)
+					// (save result) // Store_reg to type 0x3
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	4
 	addt	r6
 	stmpdec	r0
  // WARNING - check that 4 has been added.
+				// allocreg r1
 
-	//../../Lib//spi.c, line 428
-// code 0x1b
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
-	add	r3
-					// (save result) isreg
+	//../../Lib//spi_c.c, line 428
+					// (bitwise/arithmetic) 	//ops: 5, 0, 2
+					// (objtotemp) flags 4a 
+// reg r4 - don't bother matching
+	mt	r4
+	mr	r1
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	add	r1
+					// (save result) // isreg
+				// freereg r4
 
-	//../../Lib//spi.c, line 428
-// code 0x1d
-					// (bitwise) loadreg
-					// (objtotemp)  reg r3
-	mt	r3
+	//../../Lib//spi_c.c, line 428
+					// (bitwise/arithmetic) 	//ops: 2, 4, 6
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
 	mr	r5
-					// (objtotemp)  reg r2
-	mt	r2
+					// (objtotemp) flags 4a 
+// reg r3 - don't bother matching
+	mt	r3
+	sgn
 	mul	r5
-					// (save result) isreg
+					// (save result) // isreg
+				// freereg r1
 				// freereg r3
-				// freereg r2
 
-	//../../Lib//spi.c, line 429
-// code 0x4e
+	//../../Lib//spi_c.c, line 429
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  var, auto|reg
+					// (objtotemp) flags 2 
+// var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 	stdec	r6
 
-	//../../Lib//spi.c, line 429
-// code 0x4e
+	//../../Lib//spi_c.c, line 429
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp)  reg r5
+					// (objtotemp) flags 42 
+// reg r5 - don't bother matching
 	mt	r5
 	stdec	r6
 
-	//../../Lib//spi.c, line 429
-// code 0x4e
+	//../../Lib//spi_c.c, line 429
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l168
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l180,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 429
-// code 0x2a
+	//../../Lib//spi_c.c, line 429
 					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: c in 1 chunks
-	li	IMW0(12)
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	12
 	add	r6
 
 
-	//../../Lib//spi.c, line 430
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  var, auto|reg
+	//../../Lib//spi_c.c, line 430
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 
+// var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
-	mr	r1
-					// (objtotemp)  const
-				// constant: 200 in 2 chunks
-	li	IMW1(512)
-	li	IMW0(512)
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	512
 	sgn
-	cmp	r1
+	cmp	r0
 
-	//../../Lib//spi.c, line 430
+	//../../Lib//spi_c.c, line 430
 	cond	LE
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l176)-1)
-	li	IMW0(PCREL(l176))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l188
 		add	r7
-				// allocreg r2
-// code 0x2
+				// allocreg r3
 					// (a/p assign)
-					// (prepobj r1) reg r2 - no need to prep
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  var, auto|reg
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 102 
+// var, auto|reg
 		//sizemod based on type 0x3
 	ld	r6
 					// (save temp) isreg
-	mr	r2
+	mr	r3
 				//save_temp done
-l169: # 
+l181: # 
 
-	//../../Lib//spi.c, line 432
-// code 0x19
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+	//../../Lib//spi_c.c, line 432
+					// (bitwise/arithmetic) 	//ops: 6, 0, 6
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
 	shl	r5
-					// (save result) isreg
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 433
-// code 0x1a
-					// (bitwise) loadreg
-					// (objtotemp)  const
-				// constant: 1 in 1 chunks
-	li	IMW0(1)
+	//../../Lib//spi_c.c, line 433
+					// (bitwise/arithmetic) 	//ops: 4, 0, 4
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+
+// required value found in tmp
 	sgn
-	shr	r2
-					// (save result) isreg
+	shr	r3
+					// (save result) // isreg
 
-	//../../Lib//spi.c, line 430
-// code 0x4d
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp)  const
-				// constant: 200 in 2 chunks
-	li	IMW1(512)
-	li	IMW0(512)
+	//../../Lib//spi_c.c, line 430
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	512
 	sgn
-	cmp	r2
+	cmp	r3
 
-	//../../Lib//spi.c, line 430
+	//../../Lib//spi_c.c, line 430
 	cond	SGT
-					//conditional branch 			//pcreltotemp - FIXME - might need more bits; we currently only support 12-bit signed offset.
-	li	IMW1(PCREL(l169)-1)
-	li	IMW0(PCREL(l169))
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l181
 		add	r7
-l176: # 
+l188: # 
 
-	//../../Lib//spi.c, line 435
-// code 0x4e
+	//../../Lib//spi_c.c, line 435
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
-					// (objtotemp)  reg r5
+					// (objtotemp) flags 42 
+// reg r5 - don't bother matching
 	mt	r5
 	stdec	r6
 
-	//../../Lib//spi.c, line 435
-// code 0x4e
+	//../../Lib//spi_c.c, line 435
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) //static
-				//statictotemp
-	ldinc	r7
-	.int	l172
+					// (objtotemp) flags 82 
+					// (prepobj tmp)
+ // static
+	.liabs	l184,0
+// static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi.c, line 435
-// code 0x2a
+	//../../Lib//spi_c.c, line 435
 					//call
-	ldinc	r7
-	.int	_printf
-	exg	r7
-				// constant: 8 in 1 chunks
-	li	IMW0(8)
+			//pcreltotemp
+	.lipcrel	_printf
+	add	r7
+	.liconst	8
 	add	r6
 
-l165: # 
+l177: # 
 
-	//../../Lib//spi.c, line 437
-// code 0x5e
+	//../../Lib//spi_c.c, line 437
 					//setreturn
-					// (load_temp - type 3) not varadr
-					// (objtotemp)  reg r5
+					// (objtotemp) flags 42 
+// reg r5 - don't bother matching
 	mt	r5
 	mr	r0
-				// freereg r2
+				// freereg r3
 				// freereg r5
-	ldinc	r6	// quickest way to add 4 to sp
+	.liconst	-4
+	sub	r6
 	ldinc	r6
 	mr	r5
 	ldinc	r6
@@ -5391,12 +4285,9 @@ l165: #
 	ldinc	r6
 	mr	r3
 	ldinc	r6
-	mr	r2
-	ldinc	r6
 	mr	r7
 
-// stacksize=0+??
-l166:
+l178:
 	.byte	99
 	.byte	95
 	.byte	115
@@ -5442,7 +4333,7 @@ l166:
 	.byte	100
 	.byte	10
 	.byte	0
-l167:
+l179:
 	.byte	77
 	.byte	117
 	.byte	108
@@ -5452,7 +4343,7 @@ l167:
 	.byte	100
 	.byte	10
 	.byte	0
-l168:
+l180:
 	.byte	37
 	.byte	100
 	.byte	32
@@ -5475,7 +4366,7 @@ l168:
 	.byte	100
 	.byte	10
 	.byte	0
-l172:
+l184:
 	.byte	37
 	.byte	100
 	.byte	32
@@ -5500,18 +4391,14 @@ l172:
 	.byte	115
 	.byte	10
 	.byte	0
-	.globl	_spi_checksum
 	.section	.bss
 	.global	_spi_checksum
-	.lcomm	_spi_checksum,4
-	.globl	_sd_size
+	.comm	_spi_checksum,4
+	.global	_sd_is_sdhc
+	.comm	_sd_is_sdhc,4
 	.global	_sd_size
-	.lcomm	_sd_size,4
-	.globl	_printf
-	.globl	_SPI_R1
+	.comm	_sd_size,4
 	.global	_SPI_R1
-	.lcomm	_SPI_R1,6
-	.globl	_puts
-	.globl	_sizebuf
+	.comm	_SPI_R1,6
 	.global	_sizebuf
-	.lcomm	_sizebuf,18
+	.comm	_sizebuf,18

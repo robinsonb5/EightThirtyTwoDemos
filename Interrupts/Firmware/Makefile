@@ -1,6 +1,8 @@
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
 COMMONDIR = ../../EightThirtyTwo/Assembler
+AS=../../EightThirtyTwo/832a/832a
+LD=../../EightThirtyTwo/832a/832l
 
 all: Interrupts_ROM.vhd
 
@@ -9,17 +11,11 @@ clean :
 	rm *.o
 	rm *.bin
 
-%.bin : %.o Makefile
-	objcopy -Obinary $*.o $@
+Interrupts.bin : Interrupts.o
+	$(LD) -o $@ $+
 
-%.o : %.s Makefile
-	gcc -c $*.s
-
-%.o : %.S Makefile $(COMMONDIR)/assembler.pp
-	gcc -I $(COMMONDIR)/ -c $*.S
-
-%.s : %.832 Makefile
-	cpp -P $< > $*.s
+%.o : %.S Makefile
+	$(AS) -o $*.o $*.S
 
 %_ROM.vhd: %.bin $(ROMGEN)
 	sed 's/dualportram/$*_ROM/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd

@@ -16,6 +16,7 @@ clean :
 	- rm *.vhd
 	- rm *.o
 	- rm *.S
+	- rm *.asm
 
 %.srec : %.bin Makefile
 	objcopy -Ibinary $*.bin --adjust-vma 0x10000000 -O srec $@
@@ -26,23 +27,23 @@ clean :
 Dhrystone.bin : start.o uart.o small_printf.o division.o string.o dhry_1.o dhry_2.o
 	$(LD) -b 0x10000000 -o $@ $+
 
-%.o : %.S Makefile ldscript.ld $(832DIR)/start.S
+%.o : %.S Makefile $(832DIR)/start.S
 	$(AS) -o $*.o $*.S
 
-%.o : %.c Makefile ldscript.ld $(832DIR)/start.S
+%.o : %.c Makefile $(832DIR)/start.S
 	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
 	$(AS) -o $*.o $*.asm
 
-%.o : $(832DIR)/%.S Makefile ldscript.ld $(832DIR)/assembler.pp $(832DIR)/start.S
+%.o : $(832DIR)/%.S Makefile $(832DIR)/assembler.pp $(832DIR)/start.S
 	$(AS) -o $*.o $(832DIR)/$*.S
 
-%.o : $(LIBDIR)/%.S Makefile ldscript.ld
+%.o : $(LIBDIR)/%.S Makefile 
 	$(AS) -o $*.o $(LIBDIR)/$*.S
 
-%.o : $(LIBDIR)/%.asm Makefile ldscript.ld
+%.o : $(LIBDIR)/%.asm Makefile
 	$(AS) -o $*.o $(LIBDIR)/$*.asm
 
-%.o : $(832DIR)/%.asm Makefile ldscript.ld
+%.o : $(832DIR)/%.asm Makefile
 	$(AS) -o $*.o $(832DIR)/$*.asm
 
 %.o : %.asm Makefile

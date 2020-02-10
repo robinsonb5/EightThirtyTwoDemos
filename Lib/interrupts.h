@@ -18,7 +18,7 @@ extern "C" {
 void SetIntHandler(void(*handler)());
 void EnableInterrupts();
 void DisableInterrupts();
-int GetInterrupts();
+volatile int GetInterrupts();
 
 #ifdef __cplusplus
 }

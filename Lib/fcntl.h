@@ -1,6 +1,7 @@
 #ifndef FCNTL_H
 #define FCNTL_H
 
+#include <stdio.h>
 #include <sys/stat.h>
 #include <stddef.h>
 
@@ -19,7 +20,7 @@ off_t lseek(int fd,  off_t offset, int whence);
 int fstat(int fd, struct stat *buf);
 int stat(const char *path, struct stat *buf);
 int isatty(int fd);
-void setbuf(FILE *f,char *buf);
-int fprintf(FILE *f,const char *fmt, ...);
+//void setbuf(FILE *f,char *buf);
+//int fprintf(FILE *f,const char *fmt, ...);
 #endif
 

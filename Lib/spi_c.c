@@ -1,5 +1,5 @@
+#include <stdio.h>
 #include "spi.h"
-#include "small_printf.h"
 
 int sd_is_sdhc;
 int sd_size;

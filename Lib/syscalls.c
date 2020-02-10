@@ -19,7 +19,7 @@
 
 #define MAX_FILES 8
 static RAFile *Files[MAX_FILES];
-#define File(x) Files[(x)-2]
+#define FILEHANDLE(x) Files[(x)-2]
 
 
 int __errno;
@@ -83,7 +83,7 @@ __weak ssize_t write(int fd, const void *buf, size_t nbytes)
 	}
 	else
 	{
-		if(File(fd-3))
+		if(FILEHANDLE(fd-3))
 		{
 			// We have a file - but we don't yet support writing.
 			__errno=EACCES;
@@ -118,9 +118,9 @@ __weak ssize_t read(int fd, void *buf, size_t nbytes)
 	{
 #ifndef DISABLE_FILESYSTEM
 		// Handle reading from SD card
-		if(File(fd))
+		if(FILEHANDLE(fd))
 		{
-			if(RARead(File(fd),b,nbytes))
+			if(RARead(FILEHANDLE(fd),b,nbytes))
 				return(nbytes);
 			else
 			{
@@ -162,20 +162,20 @@ __weak int open(const char *buf,int flags, ...)
 		int fd=3;
 		while((fd-3)<MAX_FILES)
 		{
-			if(!File(fd))
+			if(!FILEHANDLE(fd))
 			{
 				printf("Found spare fd: %d\n",fd);
-				File(fd)=malloc(sizeof(RAFile));
-				if(File(fd))
+				FILEHANDLE(fd)=malloc(sizeof(RAFile));
+				if(FILEHANDLE(fd))
 				{
 					printf("Opening rafile...\n");
-					if(RAOpen(File(fd),buf))
+					if(RAOpen(FILEHANDLE(fd),buf))
 					{
 						printf("Success - returning\n");
 						return(fd);
 					}
 					else
-						free(File(fd));
+						free(FILEHANDLE(fd));
 					__errno = ENOENT;
 					printf("Open failed - returning -1\n");
 					return(-1);
@@ -200,8 +200,8 @@ __weak int open(const char *buf,int flags, ...)
  */
 __weak int close(int fd)  
 {
-	if(fd>2 && File(fd))
-		free(File(fd));
+	if(fd>2 && FILEHANDLE(fd))
+		free(FILEHANDLE(fd));
 	return (0);
 }
 
@@ -232,16 +232,16 @@ __weak off_t lseek(int fd,  off_t offset, int whence)
 		__errno = ESPIPE;
 		return ((off_t)-1);
 	}
-	else if(File(fd))
+	else if(FILEHANDLE(fd))
 	{
 		switch(whence)
 		{
 			case SEEK_SET:
 			case SEEK_CUR:
 #ifndef DISABLE_FILESYSTEM
-				RASeek(File(fd),offset,whence);
+				RASeek(FILEHANDLE(fd),offset,whence);
 #endif
-				return((off_t)File(fd)->ptr);
+				return((off_t)FILEHANDLE(fd)->ptr);
 				break;
 			case SEEK_END:
 				__errno = EINVAL;
@@ -296,11 +296,11 @@ __weak int fstat(int fd, struct stat *buf)
 		buf->st_mode = S_IFCHR;	/* Always pretend to be a tty */
 		buf->st_blksize = 0;
 	}
-	else if(File(fd))
+	else if(FILEHANDLE(fd))
 	{
 		printf("Setting mode to TTY\n",buf);
-		buf->st_size = File(fd)->size;
-		printf("Setting st_size (%d) to %d (Sizeof st_size: %d)\n",((char *)&buf->st_size)-((char *)buf),File(fd)->size, sizeof(buf->st_size));
+		buf->st_size = FILEHANDLE(fd)->size;
+		printf("Setting st_size (%d) to %d (Sizeof st_size: %d)\n",((char *)&buf->st_size)-((char *)buf),FILEHANDLE(fd)->size, sizeof(buf->st_size));
 	}
 	return (0);
 }
@@ -341,7 +341,7 @@ int fprintf(FILE *f,const char *fmt, ...)
 		va_end(ap);
 		return (ret);
 //	}
-//	else if(File(fd))
+//	else if(FILEHANDLE(fd))
 //	{
 		// We have a file - but we don't yet support writing.
 //		__errno=EACCES;

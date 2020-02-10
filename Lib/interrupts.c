@@ -1,9 +1,6 @@
 #include "uart.h"
 #include "interrupts.h"
 
-void enable_irq(int irq);
-void disable_irq(int irq);
-
 static void dummy_handler()
 {
 	GetInterrupts();
@@ -21,11 +18,10 @@ __constructor(100) void intconstructor()
 {
 	puts("In interrupt constructor\n");
 	SetIntHandler(dummy_handler);
-//	enable_irq(2);
 }
 
 
-int GetInterrupts()
+volatile int GetInterrupts()
 {
 	return(HW_INTERRUPT(REG_INTERRUPT_CTRL));
 }
@@ -34,13 +30,11 @@ int GetInterrupts()
 void EnableInterrupts()
 {
 	HW_INTERRUPT(REG_INTERRUPT_CTRL)=1;
-//	enable_irq(2);
 }
 
 
 void DisableInterrupts()
 {
-//	disable_irq(2);
 	HW_INTERRUPT(REG_INTERRUPT_CTRL)=0;
 }
 

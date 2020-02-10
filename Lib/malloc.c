@@ -291,6 +291,12 @@ __constructor(100) void _initMem()
 	int a1,a2;
 	int aliases=0;
 	unsigned int size=64;
+
+	base+=(int)&STACKSIZE;
+
+	printf("__bss_end__ is %x\n",(int)&_bss_end__);
+	printf("STACKSIZE is %x\n",(int)&STACKSIZE);
+
 	// Seed the RAM;
 	a1=19;
 	*base=ADDRCHECKWORD;

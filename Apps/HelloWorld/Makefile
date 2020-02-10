@@ -1,58 +1,62 @@
 832DIR=../../EightThirtyTwo/Lib/
 INCDIR=../../EightThirtyTwo/include/
 LIBDIR=../../Lib/
-ROMGENDIR = ../../EightThirtyTwo/romgen
-ROMGEN = $(ROMGENDIR)/romgen
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
-CFLAGS = -+ -speed
+AS=../../EightThirtyTwo/832a/832a
+LD=../../EightThirtyTwo/832a/832l
+
+CFLAGS = -+
 COPT = -O=1311
-
-LIB_OBJ=start.o uart.o small_printf.o division.o string.o
-
-PRJ_OBJ=helloworld.o
-
-PRJ=HelloWorld
-
-all: $(PRJ).bin $(PRJ).srec
-
-$(PRJ).elf : $(LIB_OBJ) $(PRJ_OBJ) ldscript.ld
-	gcc -Wl,--build-id=none -Wl,--gc-sections -nostartfiles -nostdlib -Tldscript.ld -o $@ $(LIB_OBJ) $(PRJ_OBJ)
+all: HelloWorld.bin HelloWorld.srec
 
 clean :
-	- rm *.o
 	- rm *.srec
 	- rm *.bin
 	- rm *.elf
+	- rm *.vhd
+	- rm *.o
+	- rm *.S
+	- rm *.asm
 
-%.srec: %.elf
-	objcopy -O srec $< $@
-
-%.bin : %.elf Makefile 
-	objcopy -Obinary $< $@
+%.srec : %.bin Makefile
+	objcopy -Ibinary $*.bin --adjust-vma 0x10000000 -O srec $@
 
 %.o : %.s Makefile
 	gcc -c $*.s
 
+HelloWorld.bin : start.o uart.o small_printf.o division.o helloworld.o
+	$(LD) -b 0x10000000 -o $@ $+
+
 %.o : %.S Makefile $(832DIR)/start.S
-	gcc -I. -I$(832DIR) -c $*.S -o $*.o
+	$(AS) -o $*.o $*.S
 
 %.o : %.c Makefile $(832DIR)/start.S
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
-	mv $*.asm $*.S
-	gcc -I. -I$(832DIR) -c $*.S -o $*.o
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
+	$(AS) -o $*.o $*.asm
 
 %.o : $(832DIR)/%.S Makefile $(832DIR)/assembler.pp $(832DIR)/start.S
-	gcc -c $(832DIR)/$*.S -I$(832DIR) -o $*.o
+	$(AS) -o $*.o $(832DIR)/$*.S
 
-%.o : $(LIBDIR)/%.S Makefile ldscript.ld
-	gcc -c $(LIBDIR)/$*.S -I$(832DIR) -I$(LIBDIR) -o $*.o
+%.o : $(LIBDIR)/%.S Makefile 
+	$(AS) -o $*.o $(LIBDIR)/$*.S
 
-%.S : %.c Makefile
-	../../EightThirtyTwo/vbcc/bin/vbcc832 $(COPT) $(CFLAGS) -I$(LIBDIR) $*.c
-	mv $*.asm $*.S
+%.o : $(LIBDIR)/%.asm Makefile
+	$(AS) -o $*.o $(LIBDIR)/$*.asm
 
-$(ROMGEN): $(ROMGENDIR)/romgen.c
-	gcc -o $(ROMGENDIR)/romgen $(ROMGENDIR)/romgen.c
+%.o : $(832DIR)/%.asm Makefile
+	$(AS) -o $*.o $(832DIR)/$*.asm
+
+%.o : %.asm Makefile
+	$(AS) -o $*.o $*.asm
+
+%.asm : %.c Makefile
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
+
+%.asm : $(832DIR)/%.c Makefile
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $(832DIR)/$*.c
+
+%.asm : $(LIBDIR)/%.c Makefile
+	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $(832DIR)/$*.c
 
 force:
 
