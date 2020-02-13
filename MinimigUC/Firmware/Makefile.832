@@ -2,7 +2,8 @@ BASE	=
 CC      = ../../EightThirtyTwo/vbcc/bin/vbcc832
 GCC		= gcc
 LD      = gcc
-AS      = as
+AS=../../EightThirtyTwo/832a/832a
+LD=../../EightThirtyTwo/832a/832l
 CP      = objcopy
 DUMP    = objdump
 
@@ -28,7 +29,7 @@ COMMON_SRC = $(COMMON_DIR)/tiny_printf.c $(COMMON_DIR)/swap.c
 COMMON_OBJ = $(patsubst $(COMMON_DIR)/%.c,$(BUILD_DIR)/%.o,$(COMMON_SRC))
 
 MAIN_PRJ = OSDBoot_832
-MAIN_SRC = boot.c minfat.c fpga.c fpga.h spi.c uart.c checksum.c
+MAIN_SRC = boot.c minfat.c fpga.c spi.c uart.c checksum.c
 MAIN_OBJ = $(COMMON_OBJ) $(patsubst %.c,$(BUILD_DIR)/%.o,$(MAIN_SRC))
 
 LINKMAP  = linkscript_832.ld
@@ -36,24 +37,19 @@ LINKMAP  = linkscript_832.ld
 
 # Commandline options for each tool.
 
-ZPUOPTS= -mno-poppcrel -mno-pushspadd -mno-callpcrel -mno-byteop -mno-shortop -mno-neg -mno-div -mno-mod # No-neg requires bugfixed toolchain
 CFLAGS  = -+ -O=1311 -DNULL=0 -DOSDNAME=\"OSD83201SYS\" -I. -I$(COMMON_DIR)/ -I$(STARTUP_DIR) -I../OSD/ -DDISABLE_UART_RX -DPRINTF_HEX_ONLY
 
-LFLAGS  = -Wl,--gc-sections -nostartfiles -nostdlib -Wl,--relax -Os
+LFLAGS  = -s _prg_start=0x10000000
 
 
 # Our target.
-all: $(BUILD_DIR) $(MAIN_PRJ).bin $(MAIN_PRJ)_ROM.vhd $(MAIN_PRJ).rpt mkchecksum
+all: $(BUILD_DIR) $(MAIN_PRJ).bin $(MAIN_PRJ)_ROM.vhd mkchecksum
 
 clean:
 	rm -f $(BUILD_DIR)/*.o *.hex *.elf *.map *.lst *.srec $(MAIN_PRJ).rom *~ */*.o *.bin
 
 %.S: %.c Makefile.832
 	$(CC) $(CFLAGS) -o=$@ $<
-
-# Convert ELF binary to bin file.
-%.bin: %.elf
-	$(CP) -O binary $< $@
 
 %.rpt: %.elf
 	echo >$@ -n "End of code:\t"
@@ -77,18 +73,18 @@ mkchecksum: mkchecksum.c checksum.c
 
 # Link - this produces an ELF binary.
 
-$(MAIN_PRJ).elf: $(MINSTARTUP_OBJ) $(MAIN_OBJ)
-	$(LD) $(LFLAGS) -T $(LINKMAP) -o $@ $+ $(LIBS)
+$(MAIN_PRJ).bin: $(MINSTARTUP_OBJ) $(MAIN_OBJ)
+	$(LD) $(LFLAGS) -o $@ $+
 
 ./%.S: ../EightThirtyTwo/Lib/%.c Makefile.832
 	$(CC) $(CFLAGS) -o=$@ $<
 
 
 $(BUILD_DIR)/%.o: %.S
-	$(GCC) -c -I$(COMMON_DIR) -I$(STARTUP_DIR) -o $@ $<
+	$(AS) -o $@ $<
 
 $(BUILD_DIR)/%.o: $(STARTUP_DIR)/%.S
-	$(GCC) -c -I$(COMMON_DIR) -I$(STARTUP_DIR) -o $@ $<
+	$(AS) -o $@ $<
 
 $(BUILD_DIR):
 	mkdir $(BUILD_DIR)
