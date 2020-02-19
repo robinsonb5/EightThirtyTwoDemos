@@ -1,5 +1,5 @@
-PROJECTS=HelloWorld Interrupts LZ4 VGA SoC Dhrystone
-BOARDS_ALTERA = "de1 de2 c3board mist"
+PROJECTS=HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread
+BOARDS_ALTERA = "de1 de2 c3board mist chameleon64 chameleon64v2"
 BOARDS_XILINX = "minimig"
 
 all:

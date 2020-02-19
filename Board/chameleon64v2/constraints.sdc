@@ -1,4 +1,3 @@
-## Generated SDC file "hello_led.out.sdc"
 
 ## Copyright (C) 1991-2011 Altera Corporation
 ## Your use of Altera Corporation's design tools, logic functions 
@@ -38,7 +37,7 @@ set_time_format -unit ns -decimal_places 3
 # Create Clock
 #**************************************************************
 
-create_clock -name {clk_27} -period 37.037 -waveform { 0.000 0.500 } [get_ports {CLOCK_27[0]}]
+create_clock -name {clk_50} -period 20 -waveform { 0.000 0.500 } [get_ports {clk50m}]
 
 
 #**************************************************************
@@ -46,8 +45,8 @@ create_clock -name {clk_27} -period 37.037 -waveform { 0.000 0.500 } [get_ports 
 #**************************************************************
 
 derive_pll_clocks 
-create_generated_clock -name sd1clk_pin -source [get_pins {mypll|altpll_component|auto_generated|pll1|clk[0]}] [get_ports {SDRAM_CLK}]
-create_generated_clock -name sysclk -source [get_pins {mypll|altpll_component|auto_generated|pll1|clk[1]}]
+create_generated_clock -name sd1clk_pin -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[2]}] [get_ports {ram_clk}]
+create_generated_clock -name sysclk -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[1]}]
 
 #**************************************************************
 # Set Clock Latency
@@ -64,23 +63,23 @@ derive_clock_uncertainty;
 # Set Input Delay
 #**************************************************************
 
-set_input_delay -clock sd1clk_pin -max 5.8 [get_ports SDRAM_DQ*]
-set_input_delay -clock sd1clk_pin -min 3.2 [get_ports SDRAM_DQ*]
+set_input_delay -clock sd1clk_pin -max 5.8 [get_ports ram_d*]
+set_input_delay -clock sd1clk_pin -min 3.2 [get_ports ram_d*]
 
 # Delays for async signals - not necessary, but might as well avoid
 # having unconstrained ports in the design
-set_input_delay -clock sysclk -min 0.0 [get_ports {UART_RX}]
-set_input_delay -clock sysclk -max 0.0 [get_ports {UART_RX}]
+#set_input_delay -clock sysclk -min 0.0 [get_ports {UART_RX}]
+#set_input_delay -clock sysclk -max 0.0 [get_ports {UART_RX}]
 
 
 #**************************************************************
 # Set Output Delay
 #**************************************************************
 
-set_output_delay -clock sd1clk_pin -max 1.5 [get_ports SDRAM_*]
-set_output_delay -clock sd1clk_pin -min -0.8 [get_ports SDRAM_*]
-set_output_delay -clock sd1clk_pin -max 0.5 [get_ports SDRAM_CLK]
-set_output_delay -clock sd1clk_pin -min 0.5 [get_ports SDRAM_CLK]
+set_output_delay -clock sd1clk_pin -max 1.5 [get_ports ram_*]
+set_output_delay -clock sd1clk_pin -min -0.8 [get_ports ram_*]
+set_output_delay -clock sd1clk_pin -max 0.5 [get_ports ram_clk]
+set_output_delay -clock sd1clk_pin -min 0.5 [get_ports ram_clk]
 
 # Delays for async signals - not necessary, but might as well avoid
 # having unconstrained ports in the design
@@ -98,17 +97,13 @@ set_output_delay -clock sd1clk_pin -min 0.5 [get_ports SDRAM_CLK]
 #**************************************************************
 
 # Asynchronous signal, so not important timing-wise
-set_false_path -from {*uart|txd} -to {UART_TX}
+#set_false_path -from {*uart|txd} -to {UART_TX}
 
 #**************************************************************
 # Set Multicycle Path
 #**************************************************************
 
-#set_multicycle_path -from [get_clocks {mypll|altpll_component|auto_generated|pll1|clk[0]}] -to [get_clocks {sd2clk_pin}] -setup -end 2
-#set_multicycle_path -from [get_clocks {mypll2|altpll_component|auto_generated|pll1|clk[0]}] -to [get_clocks {sd2clk_pin}] -setup -end 2
-
-set_multicycle_path -from [get_clocks {sd1clk_pin}] -to [get_clocks {mypll|altpll_component|auto_generated|pll1|clk[1]}] -setup -end 2
-
+set_multicycle_path -from [get_clocks {sd1clk_pin}] -to [get_clocks {U00|altpll_component|auto_generated|pll1|clk[1]}] -setup -end 2
 
 #**************************************************************
 # Set Maximum Delay
