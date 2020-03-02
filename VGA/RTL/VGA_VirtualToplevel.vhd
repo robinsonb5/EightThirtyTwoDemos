@@ -581,7 +581,8 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 	(
 		littleendian => true,
 		dualthread => true,
-		prefetch => true
+		prefetch => true,
+		forwarding => false
 	)
 	port map
 	(
