@@ -19,16 +19,16 @@ entity jtag_uart is
 		txgo : in std_logic;			-- trigger transmission
 		txready : out std_logic;	-- ready to transmit
 		rxdata : out std_logic_vector(7 downto 0);
-
+		rxready : in std_logic :='1' ; -- SoC is ready to receive...
 		rxint : out std_logic;	-- Interrupt, momentary pulse when character received
 		txint : out std_logic;	-- Interrupt, momentary pulse when data has finished sending
 
-		clock_divisor : unsigned(15 downto 0) := X"0A2C";
+		clock_divisor : unsigned(15 downto 0) := X"0A2C"; -- Unused, included for source-compatiblity with simple_uart.vhd
 
 		-- physical ports
 
-		rxd : in std_logic;
-		txd : out std_logic
+		rxd : in std_logic; -- unused, included for compatiblity with 
+		txd : out std_logic -- simple_uart.vhd
 	);
 end jtag_uart;
 
@@ -48,7 +48,7 @@ architecture rtl of jtag_uart is
 			rst_n : in std_logic;
 			r_dat : in std_logic_vector(7 downto 0); -- data from FPGA
 			r_val : in std_logic; -- data valid
-			r_ena : out std_logic; -- can write (next) cycle, or FIFO not full?
+			r_ena : out std_logic; -- can accept data
 			t_dat : out std_logic_vector(7 downto 0); -- data to FPGA
 			t_dav : in std_logic; -- ready to receive more data
 			t_ena : out std_logic; -- tx data valid
@@ -94,7 +94,7 @@ begin
 
 			txint<='0';
 			rxint<='0';
-			t_dav<='1';
+			t_dav<=rxready;
 			r_val<='0';
 			txready<=not tx_pending;
 			

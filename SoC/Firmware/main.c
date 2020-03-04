@@ -12,7 +12,9 @@
 #include "cachecontrol.h"
 #include "printf.h"
 
-#define Breadcrumb(x) HW_UART(REG_UART)=x;
+// #define Breadcrumb(x) HW_UART(REG_UART)=x;
+
+#define Breadcrumb(x) 
 
 #define BOOT_ADDR 0x10000000
 

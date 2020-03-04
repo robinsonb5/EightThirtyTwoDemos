@@ -95,6 +95,7 @@ signal spi_active : std_logic;
 
 signal ser_txdata : std_logic_vector(7 downto 0);
 signal ser_txready : std_logic;
+signal ser_rxready : std_logic;
 signal ser_rxdata : std_logic_vector(7 downto 0);
 signal ser_rxrecv : std_logic;
 signal ser_txgo : std_logic;
@@ -259,7 +260,8 @@ end process;
 
 -- UART
 
-myuart : entity work.simple_uart
+--myuart : entity work.simple_uart
+myuart : entity work.jtag_uart
 	generic map(
 		enable_tx=>true,
 		enable_rx=>true
@@ -271,6 +273,7 @@ myuart : entity work.simple_uart
 		txready => ser_txready,
 		txgo => ser_txgo,
 		rxdata => ser_rxdata,
+		rxready => ser_rxready,
 		rxint => ser_rxint,
 		txint => open,
 		clock_divisor => to_unsigned(uart_divisor,16),
@@ -631,6 +634,8 @@ begin
 		kbdrecvreg <='0';
 		mouserecvreg <='0';
 		sdram_state<=idle;
+		ser_rxready<='1';
+		ser_rxrecv<='0';
 	elsif rising_edge(clk) then
 		mem_busy<='1';
 		ser_txgo<='0';
@@ -737,6 +742,7 @@ begin
 							from_mem<=(others=>'X');
 							from_mem(9 downto 0)<=ser_rxrecv&ser_txready&ser_rxdata;
 							ser_rxrecv<='0';	-- Clear rx flag.
+							ser_rxready<='1';
 							mem_busy<='0';
 							
 						when X"C8" => -- Millisecond counter
@@ -815,6 +821,7 @@ begin
 		-- Set this after the read operation has potentially cleared it.
 		if ser_rxint='1' then
 			ser_rxrecv<='1';
+			ser_rxready<='0';
 			if ser_rxdata=X"04" then
 				soft_reset_n<='0';
 				ser_rxrecv<='0';

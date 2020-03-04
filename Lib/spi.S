@@ -1,4 +1,18 @@
 
+
+	.equ cmd_reset,0x950040 // Use SPI mode
+	.equ cmd_init,0xff0041
+	.equ cmd_read,0xff0051
+	.equ cmd_CMD8,0x870048
+	.equ lba_CMD8,0x1AA
+	.equ cmd_CMD9,0xff0049
+	.equ cmd_CMD16,0xFF0050
+	.equ cmd_CMD41,0x870069
+	.equ lba_CMD41,0x40000000
+	.equ cmd_CMD55,0xff0077
+	.equ cmd_CMD58,0xff007A
+
+
 	//registers used:
 		//r0: yes
 		//r1: yes
@@ -9,11 +23,161 @@
 		//r6: yes
 		//r7: yes
 		//tmp: yes
+
+
+/////////////////// sd_get_size
+
+
+	.global _sd_get_size
+_sd_get_size:
+	exg	r6	// Save regs r3 to r5.  (r0-r2 are scratch)
+	stmpdec	r6
+	stmpdec	r3
+	stmpdec	r4
+	stmpdec	r5
+	exg	r6
+
+	.liconst	18
+	sub	r6	// Reserve space for sizebuf
+	mt	r6
+	mr	r5
+				//	r=cmd_CMD9();
+	li	0
+	stdec	r6
+	.liconst	cmd_CMD9
+	stdec	r6
+	.lipcrel	_cmd_write
+	add	r7
+
+				//	sd_read(sizebuf,18);
+	.liconst	18
+	stdec	r6
+	mt	r5
+	stdec	r6
+	.lipcrel	_sd_read
+	add	r7
+
+	li	16
+	add	r6	// Restore stack
+
+	//	if((sizebuf[0]&0xc0)==0x40)	// V2 CSD?
+	.liconst	0xc0
+	mr	r0
+	byt
+	ld	r5
+	and	r0
+	.liconst	0x40
+	cmp	r0
+
+	cond EQ	// Have a V2 CSD	// 32 bytes so far
+						// r=1+(((sizebuf[7]<<16)|(sizebuf[8]<<8)|sizebuf[9])&0x3fffff);
+						// r<<=10;	// Scale to the number of 512-byte blocks
+		li 7
+		addt	r5
+		mr	r2
+		ldbinc	r2
+		mr	r0
+		li	8
+		shl	r0
+		ldbinc	r2
+		or	r0
+		li	8
+		shl	r0
+		ldbinc	r2
+		or	r0
+		li	1
+		add	r0
+		li	10
+		shl	r0
+		.lipcrel	.done
+		add	r7		// 43 bytes
+
+	// V1 CSD - oh deep joy.  Whatever were they smoking when they designed the V1 CSD?
+
+	li 9
+	addt	r5
+	mr	r2
+	ldbinc	r2
+	mr	r0
+	li	3
+	and	r0
+	li	8
+	shl	r0
+	ldbinc	r2
+	or	r0
+	li	7
+	shr	r0		// int c_size_mult=((sizebuf[9]<<1)&6)|(sizebuf[10]>>7);
+		
+	li	2
+	add	r0		
+	li	1
+	exg	r0
+	shl	r0		// c_size_mult=1<<(2+c_size_mult);
+
+	li	5
+	byt
+	ldidx	r5
+	mr	r3
+	li	15
+	and	r3		// int read_bl_len=sizebuf[5]&15;  // 67 bytes
+
+//	li	1
+//	exg	r3
+//	shl	r3		//  read_bl_len=1<<(read_bl_len);
+
+	li	6
+	addt	r5
+	mr	r2
+	ldbinc	r2
+	mr	r1
+	li	3
+	and	r1
+	li	8
+	shl	r1
+
+	ldbinc	r2
+	or	r1
+	li	8
+	shl	r1
+
+	ldbinc	r2
+	or	r1
+	li	6
+	shr	r1  // int csize=((sizebuf[6]&3)<<10) | sizebuf[7]<<2 | ((sizebuf[8]&0xc0)>>6);
+
+	li	1
+	addt	r1
+	mul	r0	// r=(csize+1)*c_size_mult;
+
+	mr	r0
+
+	li	10
+	sub	r3	// read_bl_len>512?
+	cond	SGT
+		mt	r3
+		shl	r0	//  r<<=1; read_bl_len>>=1;
+		cond EX		// 94 bytes
+
+.done:
+	.liconst	18
+	add	r6	// Deallocate sizebuf
+
+	ldinc	r6	// Restore regs
+	mr	r5
+	ldinc	r6
+	mr	r4
+	ldinc	r6
+	mr	r3
+	ldinc	r6
+	mr	r7	// Return  // 104 bytes
+
+
+
+////////////////// SPI_PUMP_LE
+
+
 	.section	.text.0
 	.global	_SPI_PUMP_LE
-
-_sd_is_sdhc:
-	.int 0
 
 _SPI_PUMP_LE:
 	stdec	r6
@@ -76,6 +240,9 @@ _SPI_PUMP_LE:
 		//tmp: yes
 
 
+////////////////// SPI_PUMP_LE
+
+
 	.section	.text.0
 	.global	_SPI_PUMP
 _SPI_PUMP:
@@ -121,13 +288,11 @@ _SPI_PUMP:
 	ldinc	r6
 	mr	r5
 	ldinc	r6
-	mr	r7	// 34 bytes  -  reduced from 94 bytes  (70 bytes removing unneccesary and from C code)
+	mr	r7	// 34 bytes  -  reduced from 94 bytes  (70 bytes removing unneccesary boilerplate from C code)
 
 
 
-// stacksize=0+??
 	//registers used:
-		//r0: yes
 		//r1: yes
 		//r2: yes
 		//r3: yes
@@ -138,93 +303,331 @@ _SPI_PUMP:
 		//tmp: yes
 	.section	.text.0
 	.global	_cmd_write
-
 _cmd_write:
-	stdec	r6
-	mt	r5
-	stdec	r6
-
-	.liconst	0xffffffd4
-	mr	r5
-
-	li	12
-	ldidx	r6
-	mr	r1
-
-	li	8	// 10
-	ldidx	r6
-	mr	r0
-
-	st	r5	// SPI(cmd&255); // Assume only low 8 bits are active.
-
-	// FIXME - better to do this only for read / write commands
-	.lipcrel	_sd_is_sdhc
-	ldidx r7
-
-	cond	EQ
-		li	9
-		shl	r1	// Multiply LBA by 512 if we have a standard SD card.
-		cond	EX	// 21 bytes
-	
-
-	li	24
-	ror	r1	// Rotate left 8 bits -  BBCCDDAA
-	exg	r1
-	st	r5	// LBA high bits
-
-	exg	r1
-	ror	r1	// CCDDAABB
-	exg	r1
-	st	r5	// LBA 23 - 16
-
-	exg	r1
-	ror	r1	// DDAABBCC
-	exg	r1
-	st	r5	// LBA 15-8
-
-	exg	r1
-	ror	r1	// AABBCCDD
-	exg	r1	
-	st	r5	// LBA low byte
-
-	li	16
-	ror	r0
-	mt	r0
-	st	r5	// CRC byte, if necessary.	//  40 bytes
-	.liconst	40000
-	mr	r1
+	exg	r6
+	stmpdec	r6
+	stmpdec	r3
+	stmpdec	r4
+	stmpdec	r5
+	exg	r6
+				// allocreg r5
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r5 - no need to prep
+					// (objtotemp) flags 1 
+// const
 	.liconst	255
+					// (save temp) isreg
+	mr	r5
+				//save_temp done
+				// allocreg r4
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	-44
+					// (save temp) isreg
+	mr	r4
+				//save_temp done
+				// allocreg r3
+				// allocreg r2
+
+	//../../Lib/spi_c.c, line 74
+					// (bitwise/arithmetic) 	//ops: 0, 0, 1
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	16
+	ldidx	r6
 	mr	r0
-.loop:
-	ld	r5
-	exg	r0
-	cmp	r0
-	cond	NEQ
-		.lipcrel	IMW0.done
-		add	r7	// 54 bytes
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+	and	r0
+					// (save result) // Store_reg to type 0x104
+	mt	r0
+	st	r4
 
-	exg	r0
-	st	r5
+	//../../Lib/spi_c.c, line 76
+					// (test)
+					// (objtotemp) flags 2 
+// extern
+	.liabs	_sd_is_sdhc
+		//sizemod based on type 0x3
+	//extern deref
+	ldt
 
-	li	1
-	sub	r1
+	//../../Lib/spi_c.c, line 76
 	cond	NEQ
-		.lipcrel	IMW0.loop
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l8
 		add	r7
 
-.done:
+	//../../Lib/spi_c.c, line 77
+					// (bitwise/arithmetic) 	//ops: 0, 0, 1
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	20
+	ldidx	r6
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	9
+	shl	r0
+					// (save result) // Store_reg to type 0x104
+					// (prepobj tmp)
+ // var, auto|reg
+	.liconst	24
+	addt	r6
+	stmpdec	r0
+ // WARNING - check that 4 has been added.
+l8: # 
+				// allocreg r1
+
+	//../../Lib/spi_c.c, line 81
+					// (bitwise/arithmetic) 	//ops: 0, 0, 2
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	20
+	ldidx	r6
+	mr	r1
+					// (objtotemp) flags 1 
+// const
+	.liconst	24
+	shr	r1
+					// (save result) // isreg
+
+	//../../Lib/spi_c.c, line 81
+					// (bitwise/arithmetic) 	//ops: 2, 0, 1
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+	and	r0
+					// (save result) // Store_reg to type 0x104
+	mt	r0
+	st	r4
+				// freereg r1
+				// allocreg r1
+
+	//../../Lib/spi_c.c, line 82
+					// (bitwise/arithmetic) 	//ops: 0, 0, 2
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	20
+	ldidx	r6
+	mr	r1
+					// (objtotemp) flags 1 
+// const
+	.liconst	16
+	shr	r1
+					// (save result) // isreg
+
+	//../../Lib/spi_c.c, line 82
+					// (bitwise/arithmetic) 	//ops: 2, 0, 1
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+	and	r0
+					// (save result) // Store_reg to type 0x104
+	mt	r0
+	st	r4
+				// freereg r1
+				// allocreg r1
+
+	//../../Lib/spi_c.c, line 83
+					// (bitwise/arithmetic) 	//ops: 0, 0, 2
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	20
+	ldidx	r6
+	mr	r1
+					// (objtotemp) flags 1 
+// const
+	.liconst	8
+	shr	r1
+					// (save result) // isreg
+
+	//../../Lib/spi_c.c, line 83
+					// (bitwise/arithmetic) 	//ops: 2, 0, 1
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+	and	r0
+					// (save result) // Store_reg to type 0x104
+	mt	r0
+	st	r4
+				// freereg r1
+
+	//../../Lib/spi_c.c, line 84
+					// (bitwise/arithmetic) 	//ops: 0, 0, 1
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	20
+	ldidx	r6
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+	and	r0
+					// (save result) // Store_reg to type 0x104
+	mt	r0
+	st	r4
+				// allocreg r1
+
+	//../../Lib/spi_c.c, line 88
+					// (bitwise/arithmetic) 	//ops: 0, 0, 2
+					// (objtotemp) flags 2 
+// var, auto|reg
+		//sizemod based on type 0x104
+	.liconst	16
+	ldidx	r6
+	mr	r1
+					// (objtotemp) flags 1 
+// const
+	.liconst	16
+	shr	r1
+					// (save result) // isreg
+
+	//../../Lib/spi_c.c, line 88
+					// (bitwise/arithmetic) 	//ops: 2, 0, 1
+					// (objtotemp) flags 4a 
+// reg r1 - don't bother matching
+	mt	r1
+	mr	r0
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+	and	r0
+					// (save result) // Store_reg to type 0x104
+	mt	r0
+	st	r4
+				// freereg r1
+
+	//../../Lib/spi_c.c, line 92
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
+					// (save temp) isreg
+	mr	r3
+				//save_temp done
+
+	//../../Lib/spi_c.c, line 93
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r2 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	39999
+					// (save temp) isreg
+	mr	r2
+				//save_temp done
+
+	//../../Lib/spi_c.c, line 93
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
+	mt	r5
+	cmp	r3
+
+	//../../Lib/spi_c.c, line 93
+	cond	NEQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l15
+		add	r7
+l14: # 
+
+	//../../Lib/spi_c.c, line 95
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r4 - no need to prep
+					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
+	mt	r5
+					// (save temp) store
+	st	r4
+				//save_temp done
+
+	//../../Lib/spi_c.c, line 96
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r3 - no need to prep
+					// (objtotemp) flags 260 
+// deref 
+	ld	r4
+					// (save temp) isreg
+	mr	r3
+				//save_temp done
+
+	//../../Lib/spi_c.c, line 93
+					// (bitwise/arithmetic) 	//ops: 3, 0, 3
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	sub	r2
+					// (save result) // isreg
+
+	//../../Lib/spi_c.c, line 93
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l15
+		add	r7
+
+	//../../Lib/spi_c.c, line 93
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 240 
+// reg r5 - don't bother matching
+	mt	r5
+	cmp	r3
+
+	//../../Lib/spi_c.c, line 93
+	cond	EQ
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l14
+		add	r7
+l15: # 
+
+	//../../Lib/spi_c.c, line 100
+					//setreturn
+					// (objtotemp) flags 42 
+// reg r3 - don't bother matching
+	mt	r3
+	mr	r0
+				// freereg r2
+				// freereg r3
+				// freereg r4
+				// freereg r5
 	ldinc	r6
 	mr	r5
 	ldinc	r6
-	mr	r7	// 64 bytes  -  GCC compiled ZPU equivalent 128 bytes
+	mr	r4
+	ldinc	r6
+	mr	r3
+	ldinc	r6
+	mr	r7
 
-
-
-// stacksize=0+??
 	//registers used:
-		//r0: yes
 		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: no
 		//r4: no
 		//r5: no
@@ -233,31 +636,64 @@ _cmd_write:
 		//tmp: yes
 	.section	.text.0
 	.global	_spi_spin
-
-
-_spi_spin:	// vbcc compiled equivalent, 25 bytes
+_spi_spin:
 	stdec	r6
-	.liconst	0xffffffd4
+				// allocreg r1
+
+	//../../Lib/spi_c.c, line 108
+					// (a/p assign)
+					// (prepobj r0)
+ // reg r1 - no need to prep
+					// (objtotemp) flags 1 
+// const
+	.liconst	0
+					// (save temp) isreg
 	mr	r1
-	.liconst	200
+				//save_temp done
+l22: # 
+
+	//../../Lib/spi_c.c, line 109
+					// (a/p assign)
+					// (prepobj r0)
+ // deref
+			// const
+	.liconst	-44
 	mr	r0
-.spinloop:
-	li	-1
-	st	r1
-	add	r0
-	cond	NEQ
-		.lipcrel	IMW0.spinloop
+					// (objtotemp) flags 1 
+// const
+	.liconst	255
+					// (save temp) store
+	st	r0
+				//save_temp done
+
+	//../../Lib/spi_c.c, line 109
+					// (bitwise/arithmetic) 	//ops: 2, 0, 2
+		// WARNING - q1 and target collision - check code for correctness.
+					// (objtotemp) flags 1 
+// const
+	.liconst	1
+	add	r1
+					// (save result) // isreg
+
+	//../../Lib/spi_c.c, line 109
+					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
+// const
+	.liconst	200
+	sgn
+	cmp	r1
+
+	//../../Lib/spi_c.c, line 109
+	cond	SLT
+					//conditional branch regular			//pcreltotemp
+	.lipcrel	l22
 		add	r7
-
+				// freereg r1
 	ldinc	r6
-	mr	r7	// 15 bytes
+	mr	r7
 
-
-// stacksize=0+??
 	//registers used:
-		//r0: yes
 		//r1: yes
-		//r2: yes
+		//r2: no
 		//r3: yes
 		//r4: yes
 		//r5: yes
@@ -266,96 +702,6 @@ _spi_spin:	// vbcc compiled equivalent, 25 bytes
 		//tmp: yes
 	.section	.text.0
 	.global	_wait_initV2
-#if 0
-
-		// GCC ZPU equivalent: 120 bytes
-_wait_initV2:	// r0 is 1 on success, 0 on failure.
-	stdec	r6
-	mt	r5
-	stdec	r6
-	mt	r2
-	stdec	r6
-
-	.liconst	0xffffffd4
-	mr	r1
-
-	.lipcrel	IMW0_spi_spin
-	add	r7
-
-	.liconst	20000
-	mr	r2	// 11
-.initv2loop:
-	li	1
-	sub	r2
-	cond	EQ
-	  li	0
-	  mr	r0
-	  .lipcrel	.initv2done
-	  mr	r7	// Escape loop
-
-	li	0
-	stdec	r6
-	li	IMW2(cmd_CMD55)
-	.liconst	(cmd_CMD55)
-	li	IMW0(cmd_CMD55)
-	stdec	r6
-	.lipcrel	_spi_writecmd
-	add	r7
-	li	8
-	add	r6
-	li	1
-	cmp	r0
-	cond	NEQ	// If we didn't get a 1, loop
-	  .lipcrel	.initv2loop
-	  mr	r7	// 20  ->  31
-
-	// CMD55 succeeded - try CMD41
-
-	li	-1
-	st	r5
-
-	.liabs	cmd_CMD41
-	mr	r0
-
-	li	IMW0(lba_CMD41>>28)
-	mr	r1
-	li	28
-	shl	r1
-
-	.liconst	SPI_Send-1
-	li	IMW0SPI_Send
-	add	r7
-
-	li	0
-	cmp	r0
-	li	-1
-	cond	EQ	// 17 -> 48
-
-	  st	r5
-	  sub	r0
-	  li	IMW0.initv2done
-	  mr	r7	// 52
-
-	.liconst	SPI_Spin-1
-	li	IMW0SPI_Spin
-	add	r7
-
-	li	IMW0.initv2loop
-	mr	r7	// 57 bytes
-
-
-.initv2done:
-	ldinc	r6
-	mr	r2
-	ldinc	r6
-	mr	r5
-	ldinc	r6
-	mr	r7	// 63 bytes
-
-#endif
-
-#if 1
-
 _wait_initV2:
 	exg	r6
 	stmpdec	r6
@@ -385,14 +731,14 @@ _wait_initV2:
 	mr	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 118
+	//../../Lib/spi_c.c, line 118
 					//call
 			//pcreltotemp
 	.lipcrel	_spi_spin
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 119
+	//../../Lib/spi_c.c, line 119
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -404,7 +750,7 @@ _wait_initV2:
 				//save_temp done
 l34: # 
 
-	//../../Lib//spi_c.c, line 121
+	//../../Lib/spi_c.c, line 121
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -412,7 +758,7 @@ l34: #
 	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 121
+	//../../Lib/spi_c.c, line 121
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 240 
@@ -420,7 +766,7 @@ l34: #
 	mt	r5
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 121
+	//../../Lib/spi_c.c, line 121
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -430,20 +776,20 @@ l34: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 121
+	//../../Lib/spi_c.c, line 121
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	1
 	cmp	r0
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 121
+	//../../Lib/spi_c.c, line 121
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l30
 		add	r7
 
-	//../../Lib//spi_c.c, line 123
+	//../../Lib/spi_c.c, line 123
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -457,7 +803,7 @@ l34: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 124
+	//../../Lib/spi_c.c, line 124
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 240 
@@ -465,7 +811,7 @@ l34: #
 	mt	r3
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 124
+	//../../Lib/spi_c.c, line 124
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -473,7 +819,7 @@ l34: #
 	.liconst	8847465
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 124
+	//../../Lib/spi_c.c, line 124
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -483,7 +829,7 @@ l34: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 124
+	//../../Lib/spi_c.c, line 124
 					// (test)
 					// (objtotemp) flags 4a 
 // reg r0 - don't bother matching
@@ -491,13 +837,13 @@ l34: #
 	and	r0
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 124
+	//../../Lib/spi_c.c, line 124
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l32
 		add	r7
 
-	//../../Lib//spi_c.c, line 126
+	//../../Lib/spi_c.c, line 126
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -511,20 +857,20 @@ l34: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 127
+	//../../Lib/spi_c.c, line 127
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	1
 	mr	r0
 
-	//../../Lib//spi_c.c, line 128
+	//../../Lib/spi_c.c, line 128
 			//pcreltotemp
 	.lipcrel	l24
 	add	r7
 l32: # 
 
-	//../../Lib//spi_c.c, line 129
+	//../../Lib/spi_c.c, line 129
 					//call
 			//pcreltotemp
 	.lipcrel	_spi_spin
@@ -532,7 +878,7 @@ l32: #
 
 l30: # 
 
-	//../../Lib//spi_c.c, line 119
+	//../../Lib/spi_c.c, line 119
 					// (bitwise/arithmetic) 	//ops: 5, 0, 5
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -541,20 +887,13 @@ l30: #
 	sub	r4
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 119
-					// (test)
-					// (objtotemp) flags 42 
-// reg r4 - don't bother matching
-	mt	r4
-	and	r4
-
-	//../../Lib//spi_c.c, line 119
+	//../../Lib/spi_c.c, line 119
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l34
 		add	r7
 
-	//../../Lib//spi_c.c, line 136
+	//../../Lib/spi_c.c, line 136
 					//setreturn
 					// (objtotemp) flags 1 
 // const
@@ -572,8 +911,6 @@ l24: #
 	mr	r3
 	ldinc	r6
 	mr	r7
-
-#endif
 
 	//registers used:
 		//r1: yes
@@ -604,7 +941,7 @@ _wait_init:
 				//save_temp done
 				// allocreg r3
 
-	//../../Lib//spi_c.c, line 144
+	//../../Lib/spi_c.c, line 144
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -618,7 +955,7 @@ _wait_init:
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 145
+	//../../Lib/spi_c.c, line 145
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -628,7 +965,7 @@ _wait_init:
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 145
+	//../../Lib/spi_c.c, line 145
 					//call
 			//pcreltotemp
 	.lipcrel	_puts
@@ -637,7 +974,7 @@ _wait_init:
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 146
+	//../../Lib/spi_c.c, line 146
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -649,7 +986,7 @@ _wait_init:
 				//save_temp done
 l45: # 
 
-	//../../Lib//spi_c.c, line 148
+	//../../Lib/spi_c.c, line 148
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -657,7 +994,7 @@ l45: #
 	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 148
+	//../../Lib/spi_c.c, line 148
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 240 
@@ -665,7 +1002,7 @@ l45: #
 	mt	r4
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 148
+	//../../Lib/spi_c.c, line 148
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -675,7 +1012,7 @@ l45: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 148
+	//../../Lib/spi_c.c, line 148
 					// (test)
 					// (objtotemp) flags 4a 
 // reg r0 - don't bother matching
@@ -683,13 +1020,13 @@ l45: #
 	and	r0
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 148
+	//../../Lib/spi_c.c, line 148
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l43
 		add	r7
 
-	//../../Lib//spi_c.c, line 151
+	//../../Lib/spi_c.c, line 151
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -703,27 +1040,27 @@ l45: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 152
+	//../../Lib/spi_c.c, line 152
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	1
 	mr	r0
 
-	//../../Lib//spi_c.c, line 153
+	//../../Lib/spi_c.c, line 153
 			//pcreltotemp
 	.lipcrel	l36
 	add	r7
 l43: # 
 
-	//../../Lib//spi_c.c, line 158
+	//../../Lib/spi_c.c, line 158
 					//call
 			//pcreltotemp
 	.lipcrel	_spi_spin
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 146
+	//../../Lib/spi_c.c, line 146
 					// (bitwise/arithmetic) 	//ops: 4, 0, 4
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -732,20 +1069,13 @@ l43: #
 	sub	r3
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 146
-					// (test)
-					// (objtotemp) flags 42 
-// reg r3 - don't bother matching
-	mt	r3
-	and	r3
-
-	//../../Lib//spi_c.c, line 146
+	//../../Lib/spi_c.c, line 146
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l45
 		add	r7
 
-	//../../Lib//spi_c.c, line 160
+	//../../Lib/spi_c.c, line 160
 					//setreturn
 					// (objtotemp) flags 1 
 // const
@@ -797,14 +1127,14 @@ _is_sdhc:
 	mr	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 168
+	//../../Lib/spi_c.c, line 168
 					//call
 			//pcreltotemp
 	.lipcrel	_spi_spin
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 170
+	//../../Lib/spi_c.c, line 170
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -812,7 +1142,7 @@ _is_sdhc:
 	.liconst	426
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 170
+	//../../Lib/spi_c.c, line 170
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -820,7 +1150,7 @@ _is_sdhc:
 	.liconst	8847432
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 170
+	//../../Lib/spi_c.c, line 170
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -830,12 +1160,12 @@ _is_sdhc:
 
 				// allocreg r3
 
-	//../../Lib//spi_c.c, line 170
+	//../../Lib/spi_c.c, line 170
 					// (getreturn)					// (save result) // isreg
 	mt	r0
 	mr	r3
 
-	//../../Lib//spi_c.c, line 171
+	//../../Lib/spi_c.c, line 171
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 4a 
@@ -843,7 +1173,7 @@ _is_sdhc:
 	mt	r3
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 171
+	//../../Lib/spi_c.c, line 171
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -853,7 +1183,7 @@ _is_sdhc:
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 171
+	//../../Lib/spi_c.c, line 171
 					//call
 			//pcreltotemp
 	.lipcrel	_printf
@@ -862,41 +1192,41 @@ _is_sdhc:
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 172
+	//../../Lib/spi_c.c, line 172
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	1
 	cmp	r3
 				// freereg r3
 
-	//../../Lib//spi_c.c, line 172
+	//../../Lib/spi_c.c, line 172
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l51
 		add	r7
 				// allocreg r3
 
-	//../../Lib//spi_c.c, line 175
+	//../../Lib/spi_c.c, line 175
 					//call
 			//pcreltotemp
 	.lipcrel	_wait_init
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 177
+	//../../Lib/spi_c.c, line 177
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	0
 	mr	r0
 
-	//../../Lib//spi_c.c, line 178
+	//../../Lib/spi_c.c, line 178
 			//pcreltotemp
 	.lipcrel	l47
 	add	r7
 l51: # 
 
-	//../../Lib//spi_c.c, line 180
+	//../../Lib/spi_c.c, line 180
 					//call
 			//pcreltotemp
 	.lipcrel	_SPI_PUMP
@@ -904,12 +1234,12 @@ l51: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 180
+	//../../Lib/spi_c.c, line 180
 					// (getreturn)					// (save result) // isreg
 	mt	r0
 	mr	r1
 
-	//../../Lib//spi_c.c, line 181
+	//../../Lib/spi_c.c, line 181
 					// (bitwise/arithmetic) 	//ops: 2, 0, 2
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -918,40 +1248,40 @@ l51: #
 	and	r1
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 181
+	//../../Lib/spi_c.c, line 181
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	426
 	cmp	r1
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 181
+	//../../Lib/spi_c.c, line 181
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l53
 		add	r7
 
-	//../../Lib//spi_c.c, line 184
+	//../../Lib/spi_c.c, line 184
 					//call
 			//pcreltotemp
 	.lipcrel	_wait_init
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 186
+	//../../Lib/spi_c.c, line 186
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	0
 	mr	r0
 
-	//../../Lib//spi_c.c, line 187
+	//../../Lib/spi_c.c, line 187
 			//pcreltotemp
 	.lipcrel	l47
 	add	r7
 l53: # 
 
-	//../../Lib//spi_c.c, line 189
+	//../../Lib/spi_c.c, line 189
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -962,7 +1292,7 @@ l53: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 196
+	//../../Lib/spi_c.c, line 196
 					// (a/p assign)
 					// (prepobj r0)
  // reg r5 - no need to prep
@@ -974,7 +1304,7 @@ l53: #
 				//save_temp done
 l71: # 
 
-	//../../Lib//spi_c.c, line 198
+	//../../Lib/spi_c.c, line 198
 					//call
 			//pcreltotemp
 	.lipcrel	_wait_initV2
@@ -982,7 +1312,7 @@ l71: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 198
+	//../../Lib/spi_c.c, line 198
 					// (test)
 					// (objtotemp) flags 4a 
 // reg r0 - don't bother matching
@@ -990,13 +1320,13 @@ l71: #
 	and	r0
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 198
+	//../../Lib/spi_c.c, line 198
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l66
 		add	r7
 
-	//../../Lib//spi_c.c, line 200
+	//../../Lib/spi_c.c, line 200
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -1004,7 +1334,7 @@ l71: #
 	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 200
+	//../../Lib/spi_c.c, line 200
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -1012,7 +1342,7 @@ l71: #
 	.liconst	16711802
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 200
+	//../../Lib/spi_c.c, line 200
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -1021,25 +1351,25 @@ l71: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 200
+	//../../Lib/spi_c.c, line 200
 					// (getreturn)					// (save result) // isreg
 	mt	r0
 	mr	r3
 
-	//../../Lib//spi_c.c, line 200
+	//../../Lib/spi_c.c, line 200
 					// (test)
 					// (objtotemp) flags 42 
 // reg r3 - don't bother matching
 	mt	r3
 	and	r3
 
-	//../../Lib//spi_c.c, line 200
+	//../../Lib/spi_c.c, line 200
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l60
 		add	r7
 
-	//../../Lib//spi_c.c, line 202
+	//../../Lib/spi_c.c, line 202
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 42 
@@ -1047,7 +1377,7 @@ l71: #
 	mt	r3
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 202
+	//../../Lib/spi_c.c, line 202
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -1057,7 +1387,7 @@ l71: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 202
+	//../../Lib/spi_c.c, line 202
 					//call
 			//pcreltotemp
 	.lipcrel	_printf
@@ -1066,7 +1396,7 @@ l71: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 203
+	//../../Lib/spi_c.c, line 203
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1077,7 +1407,7 @@ l71: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 204
+	//../../Lib/spi_c.c, line 204
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -1088,7 +1418,7 @@ l71: #
 	mr	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 205
+	//../../Lib/spi_c.c, line 205
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 42 
@@ -1096,7 +1426,7 @@ l71: #
 	mt	r3
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 205
+	//../../Lib/spi_c.c, line 205
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -1106,7 +1436,7 @@ l71: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 205
+	//../../Lib/spi_c.c, line 205
 					//call
 			//pcreltotemp
 	.lipcrel	_printf
@@ -1115,7 +1445,7 @@ l71: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 206
+	//../../Lib/spi_c.c, line 206
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1126,7 +1456,7 @@ l71: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 207
+	//../../Lib/spi_c.c, line 207
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1137,7 +1467,7 @@ l71: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 208
+	//../../Lib/spi_c.c, line 208
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1148,7 +1478,7 @@ l71: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 209
+	//../../Lib/spi_c.c, line 209
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1160,7 +1490,7 @@ l71: #
 				//save_temp done
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 210
+	//../../Lib/spi_c.c, line 210
 					// (bitwise/arithmetic) 	//ops: 4, 0, 2
 					// (objtotemp) flags 42 
 // reg r3 - don't bother matching
@@ -1171,48 +1501,41 @@ l71: #
 	.liconst	64
 	and	r1
 					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 210
-					// (test)
-					// (objtotemp) flags 4a 
-// reg r1 - don't bother matching
-	mt	r1
-	and	r1
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 210
+	//../../Lib/spi_c.c, line 210
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l64
 		add	r7
 
-	//../../Lib//spi_c.c, line 213
+	//../../Lib/spi_c.c, line 213
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	1
 	mr	r0
 
-	//../../Lib//spi_c.c, line 214
+	//../../Lib/spi_c.c, line 214
 			//pcreltotemp
 	.lipcrel	l47
 	add	r7
 l64: # 
 
-	//../../Lib//spi_c.c, line 218
+	//../../Lib/spi_c.c, line 218
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	0
 	mr	r0
 
-	//../../Lib//spi_c.c, line 219
+	//../../Lib/spi_c.c, line 219
 			//pcreltotemp
 	.lipcrel	l47
 	add	r7
 l60: # 
 
-	//../../Lib//spi_c.c, line 222
+	//../../Lib/spi_c.c, line 222
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 42 
@@ -1220,7 +1543,7 @@ l60: #
 	mt	r3
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 222
+	//../../Lib/spi_c.c, line 222
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -1230,7 +1553,7 @@ l60: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 222
+	//../../Lib/spi_c.c, line 222
 					//call
 			//pcreltotemp
 	.lipcrel	_printf
@@ -1240,19 +1563,19 @@ l60: #
 
 l66: # 
 
-	//../../Lib//spi_c.c, line 224
+	//../../Lib/spi_c.c, line 224
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	2
 	cmp	r5
 
-	//../../Lib//spi_c.c, line 224
+	//../../Lib/spi_c.c, line 224
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l69
 		add	r7
 
-	//../../Lib//spi_c.c, line 226
+	//../../Lib/spi_c.c, line 226
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -1262,7 +1585,7 @@ l66: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 226
+	//../../Lib/spi_c.c, line 226
 					//call
 			//pcreltotemp
 	.lipcrel	_printf
@@ -1271,20 +1594,20 @@ l66: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 227
+	//../../Lib/spi_c.c, line 227
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	0
 	mr	r0
 
-	//../../Lib//spi_c.c, line 228
+	//../../Lib/spi_c.c, line 228
 			//pcreltotemp
 	.lipcrel	l47
 	add	r7
 l69: # 
 
-	//../../Lib//spi_c.c, line 196
+	//../../Lib/spi_c.c, line 196
 					// (bitwise/arithmetic) 	//ops: 6, 0, 6
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -1293,20 +1616,13 @@ l69: #
 	sub	r5
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 196
-					// (test)
-					// (objtotemp) flags 42 
-// reg r5 - don't bother matching
-	mt	r5
-	and	r5
-
-	//../../Lib//spi_c.c, line 196
+	//../../Lib/spi_c.c, line 196
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l71
 		add	r7
 
-	//../../Lib//spi_c.c, line 230
+	//../../Lib/spi_c.c, line 230
 					//setreturn
 					// (objtotemp) flags 1 
 // const
@@ -1461,7 +1777,7 @@ _spi_init:
 	mr	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 238
+	//../../Lib/spi_c.c, line 238
 					// (a/p assign)
 					// (prepobj r0)
  // extern (offset 0)
@@ -1475,7 +1791,7 @@ _spi_init:
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 241
+	//../../Lib/spi_c.c, line 241
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -1485,7 +1801,7 @@ _spi_init:
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 241
+	//../../Lib/spi_c.c, line 241
 					//call
 			//pcreltotemp
 	.lipcrel	_puts
@@ -1494,7 +1810,7 @@ _spi_init:
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 243
+	//../../Lib/spi_c.c, line 243
 					// (a/p assign)
 					// (prepobj r0)
  // reg r5 - no need to prep
@@ -1506,7 +1822,7 @@ _spi_init:
 				//save_temp done
 l97: # 
 
-	//../../Lib//spi_c.c, line 245
+	//../../Lib/spi_c.c, line 245
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -1524,21 +1840,21 @@ l97: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 245
+	//../../Lib/spi_c.c, line 245
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 245
+	//../../Lib/spi_c.c, line 245
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l102
 		add	r7
 l98: # 
 
-	//../../Lib//spi_c.c, line 245
+	//../../Lib/spi_c.c, line 245
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -1556,21 +1872,21 @@ l98: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 245
+	//../../Lib/spi_c.c, line 245
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 245
+	//../../Lib/spi_c.c, line 245
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l98
 		add	r7
 l102: # 
 
-	//../../Lib//spi_c.c, line 245
+	//../../Lib/spi_c.c, line 245
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1581,14 +1897,14 @@ l102: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 246
+	//../../Lib/spi_c.c, line 246
 					//call
 			//pcreltotemp
 	.lipcrel	_spi_spin
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 248
+	//../../Lib/spi_c.c, line 248
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -1606,21 +1922,21 @@ l102: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 248
+	//../../Lib/spi_c.c, line 248
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 248
+	//../../Lib/spi_c.c, line 248
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l103
 		add	r7
 l99: # 
 
-	//../../Lib//spi_c.c, line 248
+	//../../Lib/spi_c.c, line 248
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -1638,21 +1954,21 @@ l99: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 248
+	//../../Lib/spi_c.c, line 248
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 248
+	//../../Lib/spi_c.c, line 248
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l99
 		add	r7
 l103: # 
 
-	//../../Lib//spi_c.c, line 248
+	//../../Lib/spi_c.c, line 248
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1663,7 +1979,7 @@ l103: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 249
+	//../../Lib/spi_c.c, line 249
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -1671,7 +1987,7 @@ l103: #
 	.liconst	0
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 249
+	//../../Lib/spi_c.c, line 249
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -1679,7 +1995,7 @@ l103: #
 	.liconst	9764928
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 249
+	//../../Lib/spi_c.c, line 249
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -1689,20 +2005,20 @@ l103: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 249
+	//../../Lib/spi_c.c, line 249
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	1
 	cmp	r0
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 249
+	//../../Lib/spi_c.c, line 249
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l86
 		add	r7
 
-	//../../Lib//spi_c.c, line 250
+	//../../Lib/spi_c.c, line 250
 					// (a/p assign)
 					// (prepobj r0)
  // reg r5 - no need to prep
@@ -1714,19 +2030,19 @@ l103: #
 				//save_temp done
 l86: # 
 
-	//../../Lib//spi_c.c, line 252
+	//../../Lib/spi_c.c, line 252
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	2
 	cmp	r5
 
-	//../../Lib//spi_c.c, line 252
+	//../../Lib/spi_c.c, line 252
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l88
 		add	r7
 
-	//../../Lib//spi_c.c, line 254
+	//../../Lib/spi_c.c, line 254
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -1736,7 +2052,7 @@ l86: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 254
+	//../../Lib/spi_c.c, line 254
 					//call
 			//pcreltotemp
 	.lipcrel	_puts
@@ -1745,20 +2061,20 @@ l86: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 256
+	//../../Lib/spi_c.c, line 256
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	0
 	mr	r0
 
-	//../../Lib//spi_c.c, line 257
+	//../../Lib/spi_c.c, line 257
 			//pcreltotemp
 	.lipcrel	l73
 	add	r7
 l88: # 
 
-	//../../Lib//spi_c.c, line 243
+	//../../Lib/spi_c.c, line 243
 					// (bitwise/arithmetic) 	//ops: 6, 0, 6
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -1767,27 +2083,20 @@ l88: #
 	sub	r5
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 243
-					// (test)
-					// (objtotemp) flags 42 
-// reg r5 - don't bother matching
-	mt	r5
-	and	r5
-
-	//../../Lib//spi_c.c, line 243
+	//../../Lib/spi_c.c, line 243
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l97
 		add	r7
 
-	//../../Lib//spi_c.c, line 260
+	//../../Lib/spi_c.c, line 260
 					//call
 			//pcreltotemp
 	.lipcrel	_is_sdhc
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 260
+	//../../Lib/spi_c.c, line 260
 					// (getreturn)					// (save result) // Store_reg to type 0x3
 					// (prepobj tmp)
  // extern (offset 0)
@@ -1796,7 +2105,7 @@ l88: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 261
+	//../../Lib/spi_c.c, line 261
 					// (test)
 					// (objtotemp) flags 2 
 // extern
@@ -1805,13 +2114,13 @@ l88: #
 	//extern deref
 	ldt
 
-	//../../Lib//spi_c.c, line 261
+	//../../Lib/spi_c.c, line 261
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l92
 		add	r7
 
-	//../../Lib//spi_c.c, line 266
+	//../../Lib/spi_c.c, line 266
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -1819,7 +2128,7 @@ l88: #
 	.liconst	1
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 266
+	//../../Lib/spi_c.c, line 266
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -1827,7 +2136,7 @@ l88: #
 	.liconst	16711760
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 266
+	//../../Lib/spi_c.c, line 266
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -1837,7 +2146,7 @@ l88: #
 
 l92: # 
 
-	//../../Lib//spi_c.c, line 268
+	//../../Lib/spi_c.c, line 268
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -1851,14 +2160,14 @@ l92: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 270
+	//../../Lib/spi_c.c, line 270
 					//call
 			//pcreltotemp
 	.lipcrel	_sd_get_size
 	add	r7
 
 
-	//../../Lib//spi_c.c, line 270
+	//../../Lib/spi_c.c, line 270
 					// (getreturn)					// (save result) // Store_reg to type 0x3
 					// (prepobj tmp)
  // extern (offset 0)
@@ -1867,7 +2176,7 @@ l92: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 271
+	//../../Lib/spi_c.c, line 271
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 2 
@@ -1878,7 +2187,7 @@ l92: #
 	ldt
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 271
+	//../../Lib/spi_c.c, line 271
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -1888,7 +2197,7 @@ l92: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 271
+	//../../Lib/spi_c.c, line 271
 					//call
 			//pcreltotemp
 	.lipcrel	_printf
@@ -1897,7 +2206,7 @@ l92: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 274
+	//../../Lib/spi_c.c, line 274
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -1915,21 +2224,21 @@ l92: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 274
+	//../../Lib/spi_c.c, line 274
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 274
+	//../../Lib/spi_c.c, line 274
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l104
 		add	r7
 l100: # 
 
-	//../../Lib//spi_c.c, line 274
+	//../../Lib/spi_c.c, line 274
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -1947,21 +2256,21 @@ l100: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 274
+	//../../Lib/spi_c.c, line 274
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 274
+	//../../Lib/spi_c.c, line 274
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l100
 		add	r7
 l104: # 
 
-	//../../Lib//spi_c.c, line 274
+	//../../Lib/spi_c.c, line 274
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -1972,7 +2281,7 @@ l104: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 275
+	//../../Lib/spi_c.c, line 275
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -1986,7 +2295,7 @@ l104: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 278
+	//../../Lib/spi_c.c, line 278
 					//setreturn
 					// (objtotemp) flags 1 
 // const
@@ -2091,7 +2400,7 @@ _sd_write_sector:
 				//save_temp done
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 286
+	//../../Lib/spi_c.c, line 286
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2102,7 +2411,7 @@ _sd_write_sector:
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 287
+	//../../Lib/spi_c.c, line 287
 					// (bitwise/arithmetic) 	//ops: 0, 6, 1
 					// (objtotemp) flags 21 
 // const/deref
@@ -2125,21 +2434,21 @@ _sd_write_sector:
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 287
+	//../../Lib/spi_c.c, line 287
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 287
+	//../../Lib/spi_c.c, line 287
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l128
 		add	r7
 l124: # 
 
-	//../../Lib//spi_c.c, line 287
+	//../../Lib/spi_c.c, line 287
 					// (bitwise/arithmetic) 	//ops: 0, 6, 1
 					// (objtotemp) flags 21 
 // const/deref
@@ -2162,14 +2471,14 @@ l124: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 287
+	//../../Lib/spi_c.c, line 287
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 287
+	//../../Lib/spi_c.c, line 287
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l124
@@ -2177,7 +2486,7 @@ l124: #
 l128: # 
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 287
+	//../../Lib/spi_c.c, line 287
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -2191,7 +2500,7 @@ l128: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 288
+	//../../Lib/spi_c.c, line 288
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2202,7 +2511,7 @@ l128: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 290
+	//../../Lib/spi_c.c, line 290
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 2 
@@ -2212,7 +2521,7 @@ l128: #
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 290
+	//../../Lib/spi_c.c, line 290
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -2220,7 +2529,7 @@ l128: #
 	.liconst	16711768
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 290
+	//../../Lib/spi_c.c, line 290
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -2230,7 +2539,7 @@ l128: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 291
+	//../../Lib/spi_c.c, line 291
 					// (test)
 					// (objtotemp) flags 4a 
 // reg r0 - don't bother matching
@@ -2238,14 +2547,14 @@ l128: #
 	and	r0
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 291
+	//../../Lib/spi_c.c, line 291
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l111
 		add	r7
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 293
+	//../../Lib/spi_c.c, line 293
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -2255,7 +2564,7 @@ l128: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 293
+	//../../Lib/spi_c.c, line 293
 					//call
 			//pcreltotemp
 	.lipcrel	_puts
@@ -2264,20 +2573,20 @@ l128: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 295
+	//../../Lib/spi_c.c, line 295
 					//setreturn
 					// (objtotemp) flags 1 
 // const
 	.liconst	1
 	mr	r0
 
-	//../../Lib//spi_c.c, line 296
+	//../../Lib/spi_c.c, line 296
 			//pcreltotemp
 	.lipcrel	l105
 	add	r7
 l111: # 
 
-	//../../Lib//spi_c.c, line 298
+	//../../Lib/spi_c.c, line 298
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2288,7 +2597,7 @@ l111: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 299
+	//../../Lib/spi_c.c, line 299
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2299,7 +2608,7 @@ l111: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 302
+	//../../Lib/spi_c.c, line 302
 					// (a/p assign)
 					// (prepobj r0)
  // var, auto|reg
@@ -2327,7 +2636,7 @@ l111: #
 l113: # 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 304
+	//../../Lib/spi_c.c, line 304
 					// (a/p assign)
 					// (prepobj r0)
  // reg r1 - no need to prep
@@ -2339,7 +2648,7 @@ l113: #
 				//save_temp done
 				// allocreg r2
 
-	//../../Lib//spi_c.c, line 305
+	//../../Lib/spi_c.c, line 305
 					// (bitwise/arithmetic) 	//ops: 2, 0, 3
 					// (objtotemp) flags 4a 
 // reg r1 - don't bother matching
@@ -2352,7 +2661,7 @@ l113: #
 	shr	r2
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 305
+	//../../Lib/spi_c.c, line 305
 					// (bitwise/arithmetic) 	//ops: 3, 5, 1
 					// (objtotemp) flags 4a 
 // reg r2 - don't bother matching
@@ -2368,7 +2677,7 @@ l113: #
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//spi_c.c, line 306
+	//../../Lib/spi_c.c, line 306
 					// (bitwise/arithmetic) 	//ops: 2, 0, 3
 					// (objtotemp) flags 4a 
 // reg r1 - don't bother matching
@@ -2381,7 +2690,7 @@ l113: #
 	shr	r2
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 306
+	//../../Lib/spi_c.c, line 306
 					// (bitwise/arithmetic) 	//ops: 3, 5, 1
 					// (objtotemp) flags 4a 
 // reg r2 - don't bother matching
@@ -2397,7 +2706,7 @@ l113: #
 				// freereg r2
 				// allocreg r2
 
-	//../../Lib//spi_c.c, line 307
+	//../../Lib/spi_c.c, line 307
 					// (bitwise/arithmetic) 	//ops: 2, 0, 3
 					// (objtotemp) flags 4a 
 // reg r1 - don't bother matching
@@ -2410,7 +2719,7 @@ l113: #
 	shr	r2
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 307
+	//../../Lib/spi_c.c, line 307
 					// (bitwise/arithmetic) 	//ops: 3, 5, 1
 					// (objtotemp) flags 4a 
 // reg r2 - don't bother matching
@@ -2425,7 +2734,7 @@ l113: #
 	st	r3
 				// freereg r2
 
-	//../../Lib//spi_c.c, line 308
+	//../../Lib/spi_c.c, line 308
 					// (bitwise/arithmetic) 	//ops: 2, 5, 1
 					// (objtotemp) flags 4a 
 // reg r1 - don't bother matching
@@ -2440,7 +2749,7 @@ l113: #
 	st	r3
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 303
+	//../../Lib/spi_c.c, line 303
 					// (bitwise/arithmetic) 	//ops: 0, 0, 1
 					// (objtotemp) flags 2 
 // var, auto|reg
@@ -2459,7 +2768,7 @@ l113: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 303
+	//../../Lib/spi_c.c, line 303
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 
 // var, auto|reg
 		//sizemod based on type 0x3
@@ -2471,7 +2780,7 @@ l113: #
 	sgn
 	cmp	r0
 
-	//../../Lib//spi_c.c, line 303
+	//../../Lib/spi_c.c, line 303
 	cond	SLT
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l113
@@ -2487,7 +2796,7 @@ l113: #
 				//save_temp done
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 312
+	//../../Lib/spi_c.c, line 312
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2498,7 +2807,7 @@ l113: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 313
+	//../../Lib/spi_c.c, line 313
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2509,7 +2818,7 @@ l113: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 314
+	//../../Lib/spi_c.c, line 314
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2520,7 +2829,7 @@ l113: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 316
+	//../../Lib/spi_c.c, line 316
 					// (a/p assign)
 					// (prepobj r0)
  // reg r1 - no need to prep
@@ -2532,7 +2841,7 @@ l113: #
 				//save_temp done
 l126: # 
 
-	//../../Lib//spi_c.c, line 319
+	//../../Lib/spi_c.c, line 319
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2543,19 +2852,19 @@ l126: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 322
+	//../../Lib/spi_c.c, line 322
 					// (test)
 					// (objtotemp) flags 260 
 // deref 
 	ld	r3
 
-	//../../Lib//spi_c.c, line 322
+	//../../Lib/spi_c.c, line 322
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l130
 		add	r7
 
-	//../../Lib//spi_c.c, line 322
+	//../../Lib/spi_c.c, line 322
 					// (bitwise/arithmetic) 	//ops: 2, 0, 2
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -2564,21 +2873,14 @@ l126: #
 	sub	r1
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 322
-					// (test)
-					// (objtotemp) flags 42 
-// reg r1 - don't bother matching
-	mt	r1
-	and	r1
-
-	//../../Lib//spi_c.c, line 322
+	//../../Lib/spi_c.c, line 322
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l126
 		add	r7
 l130: # 
 
-	//../../Lib//spi_c.c, line 323
+	//../../Lib/spi_c.c, line 323
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2589,7 +2891,7 @@ l130: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 324
+	//../../Lib/spi_c.c, line 324
 					// (bitwise/arithmetic) 	//ops: 0, 6, 1
 					// (objtotemp) flags 21 
 // const/deref
@@ -2612,21 +2914,21 @@ l130: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 324
+	//../../Lib/spi_c.c, line 324
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 324
+	//../../Lib/spi_c.c, line 324
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l131
 		add	r7
 l127: # 
 
-	//../../Lib//spi_c.c, line 324
+	//../../Lib/spi_c.c, line 324
 					// (bitwise/arithmetic) 	//ops: 0, 6, 1
 					// (objtotemp) flags 21 
 // const/deref
@@ -2649,21 +2951,21 @@ l127: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 324
+	//../../Lib/spi_c.c, line 324
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 324
+	//../../Lib/spi_c.c, line 324
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l127
 		add	r7
 l131: # 
 
-	//../../Lib//spi_c.c, line 324
+	//../../Lib/spi_c.c, line 324
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -2677,7 +2979,7 @@ l131: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 325
+	//../../Lib/spi_c.c, line 325
 					//setreturn
 					// (objtotemp) flags 1 
 
@@ -2724,7 +3026,7 @@ l112:
 		//r7: yes
 		//tmp: yes
 	.section	.text.0
-l132:
+_sd_read:
 	exg	r6
 	stmpdec	r6
 	stmpdec	r3
@@ -2768,7 +3070,7 @@ l132:
 				// allocreg r2
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 335
+	//../../Lib/spi_c.c, line 335
 					// (a/p assign)
 					// (prepobj r0)
  // reg r2 - no need to prep
@@ -2779,7 +3081,7 @@ l132:
 	mr	r2
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 337
+	//../../Lib/spi_c.c, line 337
 					// (a/p assign)
 					// (prepobj r0)
  // reg r1 - no need to prep
@@ -2791,7 +3093,7 @@ l132:
 				//save_temp done
 l148: # 
 
-	//../../Lib//spi_c.c, line 340
+	//../../Lib/spi_c.c, line 340
 					// (a/p assign)
 					// (prepobj r0)
  // reg r5 - no need to prep
@@ -2802,7 +3104,7 @@ l148: #
 	st	r5
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 343
+	//../../Lib/spi_c.c, line 343
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 260 
 // deref 
 	ld	r5
@@ -2812,13 +3114,13 @@ l148: #
 	.liconst	254
 	cmp	r0
 
-	//../../Lib//spi_c.c, line 343
+	//../../Lib/spi_c.c, line 343
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l139
 		add	r7
 
-	//../../Lib//spi_c.c, line 349
+	//../../Lib/spi_c.c, line 349
 					// (a/p assign)
 					// (prepobj r0)
  // extern (offset 0)
@@ -2832,14 +3134,14 @@ l148: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 351
+	//../../Lib/spi_c.c, line 351
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	4
 	sgn
 	cmp	r4
 
-	//../../Lib//spi_c.c, line 351
+	//../../Lib/spi_c.c, line 351
 	cond	SLT
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l152
@@ -2847,7 +3149,7 @@ l148: #
 				// freereg r1
 l149: # 
 
-	//../../Lib//spi_c.c, line 354
+	//../../Lib/spi_c.c, line 354
 					//call
 			//pcreltotemp
 	.lipcrel	_SPI_PUMP_LE
@@ -2855,12 +3157,12 @@ l149: #
 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 354
+	//../../Lib/spi_c.c, line 354
 					// (getreturn)					// (save result) // isreg
 	mt	r0
 	mr	r1
 
-	//../../Lib//spi_c.c, line 355
+	//../../Lib/spi_c.c, line 355
 					// (a/p assign)
 					// (prepobj r0)
  // reg r3 - no need to prep
@@ -2871,7 +3173,7 @@ l149: #
 	st	r3
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 357
+	//../../Lib/spi_c.c, line 357
 					// (bitwise/arithmetic) 	//ops: 4, 0, 4
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -2880,7 +3182,7 @@ l149: #
 	add	r3
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 358
+	//../../Lib/spi_c.c, line 358
 					// (bitwise/arithmetic) 	//ops: 0, 2, 1
 					// (objtotemp) flags 2 
 // extern
@@ -2902,7 +3204,7 @@ l149: #
  // WARNING - check that 4 has been added.
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 351
+	//../../Lib/spi_c.c, line 351
 					// (bitwise/arithmetic) 	//ops: 5, 0, 5
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -2911,14 +3213,14 @@ l149: #
 	sub	r4
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 351
+	//../../Lib/spi_c.c, line 351
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 
 // required value found in tmp
 	sgn
 	cmp	r4
 
-	//../../Lib//spi_c.c, line 351
+	//../../Lib/spi_c.c, line 351
 	cond	GE
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l149
@@ -2926,14 +3228,14 @@ l149: #
 l152: # 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 361
+	//../../Lib/spi_c.c, line 361
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	0
 	sgn
 	cmp	r4
 
-	//../../Lib//spi_c.c, line 361
+	//../../Lib/spi_c.c, line 361
 	cond	LE
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l153
@@ -2941,7 +3243,7 @@ l152: #
 				// freereg r1
 l150: # 
 
-	//../../Lib//spi_c.c, line 364
+	//../../Lib/spi_c.c, line 364
 					// (a/p assign)
 					// (prepobj r0)
  // reg r5 - no need to prep
@@ -2953,7 +3255,7 @@ l150: #
 				//save_temp done
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 364
+	//../../Lib/spi_c.c, line 364
 					// (a/p assign)
 					// (prepobj r0)
  // reg r1 - no need to prep
@@ -2964,7 +3266,7 @@ l150: #
 	mr	r1
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 365
+	//../../Lib/spi_c.c, line 365
 					//FIXME convert
 					// (convert - reducing type 3 to 101
 					// (prepobj r0)
@@ -2979,7 +3281,7 @@ l150: #
 	.liconst	255
 	and	r0
 
-	//../../Lib//spi_c.c, line 365
+	//../../Lib/spi_c.c, line 365
 					// (bitwise/arithmetic) 	//ops: 4, 0, 4
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -2988,7 +3290,7 @@ l150: #
 	add	r3
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 367
+	//../../Lib/spi_c.c, line 367
 					// (bitwise/arithmetic) 	//ops: 0, 2, 1
 					// (objtotemp) flags 2 
 // extern
@@ -3010,7 +3312,7 @@ l150: #
  // WARNING - check that 4 has been added.
 				// freereg r1
 
-	//../../Lib//spi_c.c, line 361
+	//../../Lib/spi_c.c, line 361
 					// (bitwise/arithmetic) 	//ops: 5, 0, 5
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -3019,14 +3321,14 @@ l150: #
 	sub	r4
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 361
+	//../../Lib/spi_c.c, line 361
 					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
 // const
 	.liconst	0
 	sgn
 	cmp	r4
 
-	//../../Lib//spi_c.c, line 361
+	//../../Lib/spi_c.c, line 361
 	cond	SGT
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l150
@@ -3034,7 +3336,7 @@ l150: #
 l153: # 
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 370
+	//../../Lib/spi_c.c, line 370
 					// (a/p assign)
 					// (prepobj r0)
  // reg r1 - no need to prep
@@ -3045,7 +3347,7 @@ l153: #
 	mr	r1
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 371
+	//../../Lib/spi_c.c, line 371
 					// (a/p assign)
 					// (prepobj r0)
  // reg r2 - no need to prep
@@ -3057,7 +3359,7 @@ l153: #
 				//save_temp done
 l139: # 
 
-	//../../Lib//spi_c.c, line 337
+	//../../Lib/spi_c.c, line 337
 					// (bitwise/arithmetic) 	//ops: 2, 0, 2
 		// WARNING - q1 and target collision - check code for correctness.
 					// (objtotemp) flags 1 
@@ -3066,20 +3368,13 @@ l139: #
 	sub	r1
 					// (save result) // isreg
 
-	//../../Lib//spi_c.c, line 337
-					// (test)
-					// (objtotemp) flags 42 
-// reg r1 - don't bother matching
-	mt	r1
-	and	r1
-
-	//../../Lib//spi_c.c, line 337
+	//../../Lib/spi_c.c, line 337
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l148
 		add	r7
 
-	//../../Lib//spi_c.c, line 374
+	//../../Lib/spi_c.c, line 374
 					// (a/p assign)
 					// (prepobj r0)
  // reg r5 - no need to prep
@@ -3090,7 +3385,7 @@ l139: #
 	st	r5
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 375
+	//../../Lib/spi_c.c, line 375
 					//setreturn
 					// (objtotemp) flags 42 
 // reg r2 - don't bother matching
@@ -3153,7 +3448,7 @@ _sd_read_sector:
 				//save_temp done
 				// allocreg r1
 
-	//../../Lib//spi_c.c, line 380
+	//../../Lib/spi_c.c, line 380
 					// (a/p assign)
 					// (prepobj r0)
  // reg r5 - no need to prep
@@ -3164,7 +3459,7 @@ _sd_read_sector:
 	mr	r5
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 384
+	//../../Lib/spi_c.c, line 384
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -3178,7 +3473,7 @@ _sd_read_sector:
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 385
+	//../../Lib/spi_c.c, line 385
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -3196,21 +3491,21 @@ _sd_read_sector:
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 385
+	//../../Lib/spi_c.c, line 385
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 385
+	//../../Lib/spi_c.c, line 385
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l167
 		add	r7
 l165: # 
 
-	//../../Lib//spi_c.c, line 385
+	//../../Lib/spi_c.c, line 385
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -3228,21 +3523,21 @@ l165: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 385
+	//../../Lib/spi_c.c, line 385
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 385
+	//../../Lib/spi_c.c, line 385
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l165
 		add	r7
 l167: # 
 
-	//../../Lib//spi_c.c, line 385
+	//../../Lib/spi_c.c, line 385
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -3253,7 +3548,7 @@ l167: #
 	st	r4
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 386
+	//../../Lib/spi_c.c, line 386
 					// (a/p assign)
 					// (prepobj r0)
  // deref
@@ -3267,7 +3562,7 @@ l167: #
 	st	r0
 				//save_temp done
 
-	//../../Lib//spi_c.c, line 388
+	//../../Lib/spi_c.c, line 388
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 2 
@@ -3277,7 +3572,7 @@ l167: #
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 388
+	//../../Lib/spi_c.c, line 388
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -3285,7 +3580,7 @@ l167: #
 	.liconst	16711761
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 388
+	//../../Lib/spi_c.c, line 388
 					//call
 			//pcreltotemp
 	.lipcrel	_cmd_write
@@ -3294,25 +3589,25 @@ l167: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 388
+	//../../Lib/spi_c.c, line 388
 					// (getreturn)					// (save result) // isreg
 	mt	r0
 	mr	r1
 
-	//../../Lib//spi_c.c, line 389
+	//../../Lib/spi_c.c, line 389
 					// (test)
 					// (objtotemp) flags 42 
 // reg r1 - don't bother matching
 	mt	r1
 	and	r1
 
-	//../../Lib//spi_c.c, line 389
+	//../../Lib/spi_c.c, line 389
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l160
 		add	r7
 
-	//../../Lib//spi_c.c, line 391
+	//../../Lib/spi_c.c, line 391
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 42 
@@ -3320,7 +3615,7 @@ l167: #
 	mt	r1
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 391
+	//../../Lib/spi_c.c, line 391
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 2 
@@ -3330,7 +3625,7 @@ l167: #
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 391
+	//../../Lib/spi_c.c, line 391
 					// (a/p push)
 					// a: pushed 8, regnames[sp] r6
 					// (objtotemp) flags 82 
@@ -3340,7 +3635,7 @@ l167: #
 // static pe is varadr
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 391
+	//../../Lib/spi_c.c, line 391
 					//call
 			//pcreltotemp
 	.lipcrel	_printf
@@ -3349,13 +3644,13 @@ l167: #
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 393
+	//../../Lib/spi_c.c, line 393
 			//pcreltotemp
 	.lipcrel	l154
 	add	r7
 l160: # 
 
-	//../../Lib//spi_c.c, line 394
+	//../../Lib/spi_c.c, line 394
 					// (a/p push)
 					// a: pushed 0, regnames[sp] r6
 					// (objtotemp) flags 1 
@@ -3363,7 +3658,7 @@ l160: #
 	.liconst	512
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 394
+	//../../Lib/spi_c.c, line 394
 					// (a/p push)
 					// a: pushed 4, regnames[sp] r6
 					// (objtotemp) flags 2 
@@ -3373,21 +3668,21 @@ l160: #
 	ldidx	r6
 	stdec	r6
 
-	//../../Lib//spi_c.c, line 394
+	//../../Lib/spi_c.c, line 394
 					//call
 			//pcreltotemp
-	.lipcrel	l132
+	.lipcrel	_sd_read
 	add	r7
 	.liconst	8
 	add	r6
 
 
-	//../../Lib//spi_c.c, line 394
+	//../../Lib/spi_c.c, line 394
 					// (getreturn)					// (save result) // isreg
 	mt	r0
 	mr	r5
 
-	//../../Lib//spi_c.c, line 396
+	//../../Lib/spi_c.c, line 396
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -3405,21 +3700,21 @@ l160: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 396
+	//../../Lib/spi_c.c, line 396
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 396
+	//../../Lib/spi_c.c, line 396
 	cond	EQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l168
 		add	r7
 l166: # 
 
-	//../../Lib//spi_c.c, line 396
+	//../../Lib/spi_c.c, line 396
 					// (bitwise/arithmetic) 	//ops: 5, 4, 1
 					// (objtotemp) flags 260 
 // deref 
@@ -3437,21 +3732,21 @@ l166: #
 	stmpdec	r0
  // WARNING - check that 4 has been added.
 
-	//../../Lib//spi_c.c, line 396
+	//../../Lib/spi_c.c, line 396
 					// (test)
 					// (objtotemp) flags a 
 // var, auto|reg
 		//sizemod based on type 0x503
 	ld	r6
 
-	//../../Lib//spi_c.c, line 396
+	//../../Lib/spi_c.c, line 396
 	cond	NEQ
 					//conditional branch regular			//pcreltotemp
 	.lipcrel	l166
 		add	r7
 l168: # 
 
-	//../../Lib//spi_c.c, line 396
+	//../../Lib/spi_c.c, line 396
 					// (a/p assign)
 					// (prepobj r0)
  // reg r4 - no need to prep
@@ -3463,7 +3758,7 @@ l168: #
 				//save_temp done
 l154: # 
 
-	//../../Lib//spi_c.c, line 397
+	//../../Lib/spi_c.c, line 397
 					//setreturn
 					// (objtotemp) flags 42 
 // reg r5 - don't bother matching
@@ -3517,775 +3812,7 @@ l161:
 	.byte	41
 	.byte	10
 	.byte	0
-	//registers used:
-		//r1: yes
-		//r2: yes
-		//r3: yes
-		//r4: yes
-		//r5: yes
-		//r6: yes
-		//r7: yes
-		//tmp: yes
-	.section	.text.0
-	.global	_sd_get_size
-_sd_get_size:
-	exg	r6
-	stmpdec	r6
-	stmpdec	r3
-	stmpdec	r4
-	stmpdec	r5
-	exg	r6
-	.liconst	-4
-	add	r6
-				// allocreg r5
-				// allocreg r3
 
-	//../../Lib//spi_c.c, line 405
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) flags 1 
-// const
-	.liconst	0
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 405
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) flags 1 
-// const
-	.liconst	16711753
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 405
-					//call
-			//pcreltotemp
-	.lipcrel	_cmd_write
-	add	r7
-	.liconst	8
-	add	r6
-
-
-	//../../Lib//spi_c.c, line 407
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) flags 1 
-// const
-	.liconst	18
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 407
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) flags 82 
-					// (prepobj tmp)
- // extern (offset 0)
-	.liabs	_sizebuf
-// extern pe is varadr
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 407
-					//call
-			//pcreltotemp
-	.lipcrel	l132
-	add	r7
-	.liconst	8
-	add	r6
-
-
-	//../../Lib//spi_c.c, line 408
-					// (a/p assign)
-					// (prepobj r0)
- // reg r5 - no need to prep
-					// (objtotemp) flags 1 
-// const
-	.liconst	0
-					// (save temp) isreg
-	mr	r5
-				//save_temp done
-l185: # 
-
-	//../../Lib//spi_c.c, line 409
-					// (bitwise/arithmetic) 	//ops: 6, 0, 6
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	1
-	add	r5
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 409
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
-// const
-	.liconst	18
-	sgn
-	cmp	r5
-
-	//../../Lib//spi_c.c, line 409
-	cond	SLT
-					//conditional branch regular			//pcreltotemp
-	.lipcrel	l185
-		add	r7
-				// allocreg r1
-
-	//../../Lib//spi_c.c, line 414
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r1
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 414
-					// (bitwise/arithmetic) 	//ops: 2, 0, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	192
-	and	r1
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 414
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
-// const
-	.liconst	64
-	cmp	r1
-				// freereg r1
-
-	//../../Lib//spi_c.c, line 414
-	cond	NEQ
-					//conditional branch regular			//pcreltotemp
-	.lipcrel	l176
-		add	r7
-				// allocreg r1
-
-	//../../Lib//spi_c.c, line 416
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 7
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r1
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 416
-					// (bitwise/arithmetic) 	//ops: 2, 0, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	16
-	shl	r1
-					// (save result) // isreg
-				// allocreg r2
-
-	//../../Lib//spi_c.c, line 416
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 8
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r2
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 416
-					// (bitwise/arithmetic) 	//ops: 3, 0, 3
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	8
-	shl	r2
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 416
-					// (bitwise/arithmetic) 	//ops: 3, 2, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 4a 
-// reg r2 - don't bother matching
-	mt	r2
-	or	r1
-					// (save result) // isreg
-				// freereg r2
-				// allocreg r2
-
-	//../../Lib//spi_c.c, line 416
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 9
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r2
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 416
-					// (bitwise/arithmetic) 	//ops: 3, 2, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 4a 
-// reg r2 - don't bother matching
-	mt	r2
-	or	r1
-					// (save result) // isreg
-				// freereg r2
-
-	//../../Lib//spi_c.c, line 416
-					// (bitwise/arithmetic) 	//ops: 2, 0, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	4194303
-	and	r1
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 416
-					// (bitwise/arithmetic) 	//ops: 2, 0, 6
-					// (objtotemp) flags 4a 
-// reg r1 - don't bother matching
-	mt	r1
-	mr	r5
-					// (objtotemp) flags 1 
-// const
-	.liconst	1
-	add	r5
-					// (save result) // isreg
-				// freereg r1
-
-	//../../Lib//spi_c.c, line 417
-					// (bitwise/arithmetic) 	//ops: 6, 0, 6
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	10
-	shl	r5
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 420
-			//pcreltotemp
-	.lipcrel	l177
-	add	r7
-				// freereg r3
-l176: # 
-				// allocreg r3
-
-	//../../Lib//spi_c.c, line 421
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 9
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r3
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 421
-					// (bitwise/arithmetic) 	//ops: 4, 0, 4
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	1
-	shl	r3
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 421
-					// (bitwise/arithmetic) 	//ops: 4, 0, 4
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	6
-	and	r3
-					// (save result) // isreg
-				// allocreg r1
-
-	//../../Lib//spi_c.c, line 421
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 10
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r1
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 421
-					// (bitwise/arithmetic) 	//ops: 2, 0, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	7
-	sgn
-	shr	r1
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 421
-					// (bitwise/arithmetic) 	//ops: 2, 4, 4
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 4a 
-// reg r1 - don't bother matching
-	mt	r1
-	or	r3
-					// (save result) // isreg
-				// freereg r1
-				// allocreg r1
-
-	//../../Lib//spi_c.c, line 422
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 5
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r1
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 422
-					// (bitwise/arithmetic) 	//ops: 2, 0, 1
-					// (objtotemp) flags 4a 
-// reg r1 - don't bother matching
-	mt	r1
-	mr	r0
-					// (objtotemp) flags 1 
-// const
-	.liconst	15
-	and	r0
-					// (save result) // Store_reg to type 0x3
-					// (prepobj tmp)
- // var, auto|reg
-	.liconst	4
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-				// freereg r1
-				// allocreg r4
-
-	//../../Lib//spi_c.c, line 423
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 6
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r4
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 423
-					// (bitwise/arithmetic) 	//ops: 5, 0, 5
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	3
-	and	r4
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 423
-					// (bitwise/arithmetic) 	//ops: 5, 0, 5
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	10
-	shl	r4
-					// (save result) // isreg
-				// allocreg r1
-
-	//../../Lib//spi_c.c, line 423
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 7
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r1
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 423
-					// (bitwise/arithmetic) 	//ops: 2, 0, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	2
-	shl	r1
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 423
-					// (bitwise/arithmetic) 	//ops: 2, 5, 5
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 4a 
-// reg r1 - don't bother matching
-	mt	r1
-	or	r4
-					// (save result) // isreg
-				// freereg r1
-				// allocreg r1
-
-	//../../Lib//spi_c.c, line 423
-					//FIXME convert
-	//Converting to wider type...
-					// (objtotemp) flags 2 
-// extern
-	.liabs	_sizebuf, 8
-		//sizemod based on type 0x101
-	byt
-	//extern deref
-	ldt
-	mr	r1
-	//But unsigned, so no need to extend
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 423
-					// (bitwise/arithmetic) 	//ops: 2, 0, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	192
-	and	r1
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 423
-					// (bitwise/arithmetic) 	//ops: 2, 0, 2
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	6
-	sgn
-	shr	r1
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 423
-					// (bitwise/arithmetic) 	//ops: 2, 5, 5
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 4a 
-// reg r1 - don't bother matching
-	mt	r1
-	or	r4
-					// (save result) // isreg
-				// freereg r1
-
-	//../../Lib//spi_c.c, line 424
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) flags 4a 
-// reg r4 - don't bother matching
-	mt	r4
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 424
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) flags 2 
-// var, auto|reg
-		//sizemod based on type 0x3
-	.liconst	4
-	ldidx	r6
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 424
-					// (a/p push)
-					// a: pushed 8, regnames[sp] r6
-					// (objtotemp) flags 4a 
-// reg r3 - don't bother matching
-	mt	r3
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 424
-					// (a/p push)
-					// a: pushed 12, regnames[sp] r6
-					// (objtotemp) flags 82 
-					// (prepobj tmp)
- // static
-	.liabs	l178,0
-// static pe is varadr
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 424
-					//call
-			//pcreltotemp
-	.lipcrel	_printf
-	add	r7
-	.liconst	16
-	add	r6
-
-
-	//../../Lib//spi_c.c, line 425
-					// (bitwise/arithmetic) 	//ops: 4, 0, 4
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	2
-	add	r3
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 425
-					// (bitwise/arithmetic) 	//ops: 0, 4, 4
-		// WARNING - evading q2 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	1
-	mr	r0
-					// (objtotemp) flags 4a 
-// reg r3 - don't bother matching
-	mt	r3
-	shl	r0
-					// (save result) // isreg
-	mt	r0
-	mr	r3
-
-	//../../Lib//spi_c.c, line 426
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) flags 4a 
-// reg r3 - don't bother matching
-	mt	r3
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 426
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) flags 82 
-					// (prepobj tmp)
- // static
-	.liabs	l179,0
-// static pe is varadr
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 426
-					//call
-			//pcreltotemp
-	.lipcrel	_printf
-	add	r7
-	.liconst	8
-	add	r6
-
-
-	//../../Lib//spi_c.c, line 427
-					// (bitwise/arithmetic) 	//ops: 0, 0, 1
-					// (objtotemp) flags 1 
-// const
-	.liconst	1
-	mr	r0
-					// (objtotemp) flags 2 
-// var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-	shl	r0
-					// (save result) // Store_reg to type 0x3
-					// (prepobj tmp)
- // var, auto|reg
-	.liconst	4
-	addt	r6
-	stmpdec	r0
- // WARNING - check that 4 has been added.
-				// allocreg r1
-
-	//../../Lib//spi_c.c, line 428
-					// (bitwise/arithmetic) 	//ops: 5, 0, 2
-					// (objtotemp) flags 4a 
-// reg r4 - don't bother matching
-	mt	r4
-	mr	r1
-					// (objtotemp) flags 1 
-// const
-	.liconst	1
-	add	r1
-					// (save result) // isreg
-				// freereg r4
-
-	//../../Lib//spi_c.c, line 428
-					// (bitwise/arithmetic) 	//ops: 2, 4, 6
-					// (objtotemp) flags 4a 
-// reg r1 - don't bother matching
-	mt	r1
-	mr	r5
-					// (objtotemp) flags 4a 
-// reg r3 - don't bother matching
-	mt	r3
-	sgn
-	mul	r5
-					// (save result) // isreg
-				// freereg r1
-				// freereg r3
-
-	//../../Lib//spi_c.c, line 429
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) flags 2 
-// var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 429
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) flags 42 
-// reg r5 - don't bother matching
-	mt	r5
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 429
-					// (a/p push)
-					// a: pushed 8, regnames[sp] r6
-					// (objtotemp) flags 82 
-					// (prepobj tmp)
- // static
-	.liabs	l180,0
-// static pe is varadr
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 429
-					//call
-			//pcreltotemp
-	.lipcrel	_printf
-	add	r7
-	.liconst	12
-	add	r6
-
-
-	//../../Lib//spi_c.c, line 430
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 2 
-// var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-	mr	r0
-					// (objtotemp) flags 1 
-// const
-	.liconst	512
-	sgn
-	cmp	r0
-
-	//../../Lib//spi_c.c, line 430
-	cond	LE
-					//conditional branch regular			//pcreltotemp
-	.lipcrel	l188
-		add	r7
-				// allocreg r3
-					// (a/p assign)
-					// (prepobj r0)
- // reg r3 - no need to prep
-					// (objtotemp) flags 102 
-// var, auto|reg
-		//sizemod based on type 0x3
-	ld	r6
-					// (save temp) isreg
-	mr	r3
-				//save_temp done
-l181: # 
-
-	//../../Lib//spi_c.c, line 432
-					// (bitwise/arithmetic) 	//ops: 6, 0, 6
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-// const
-	.liconst	1
-	shl	r5
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 433
-					// (bitwise/arithmetic) 	//ops: 4, 0, 4
-		// WARNING - q1 and target collision - check code for correctness.
-					// (objtotemp) flags 1 
-
-// required value found in tmp
-	sgn
-	shr	r3
-					// (save result) // isreg
-
-	//../../Lib//spi_c.c, line 430
-					// (compare) (q1 signed) (q2 signed)					// (objtotemp) flags 1 
-// const
-	.liconst	512
-	sgn
-	cmp	r3
-
-	//../../Lib//spi_c.c, line 430
-	cond	SGT
-					//conditional branch regular			//pcreltotemp
-	.lipcrel	l181
-		add	r7
-l188: # 
-
-	//../../Lib//spi_c.c, line 435
-					// (a/p push)
-					// a: pushed 0, regnames[sp] r6
-					// (objtotemp) flags 42 
-// reg r5 - don't bother matching
-	mt	r5
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 435
-					// (a/p push)
-					// a: pushed 4, regnames[sp] r6
-					// (objtotemp) flags 82 
-					// (prepobj tmp)
- // static
-	.liabs	l184,0
-// static pe is varadr
-	stdec	r6
-
-	//../../Lib//spi_c.c, line 435
-					//call
-			//pcreltotemp
-	.lipcrel	_printf
-	add	r7
-	.liconst	8
-	add	r6
-
-l177: # 
-
-	//../../Lib//spi_c.c, line 437
-					//setreturn
-					// (objtotemp) flags 42 
-// reg r5 - don't bother matching
-	mt	r5
-	mr	r0
-				// freereg r3
-				// freereg r5
-	.liconst	-4
-	sub	r6
-	ldinc	r6
-	mr	r5
-	ldinc	r6
-	mr	r4
-	ldinc	r6
-	mr	r3
-	ldinc	r6
-	mr	r7
 
 l178:
 	.byte	99
@@ -4392,10 +3919,13 @@ l184:
 	.byte	10
 	.byte	0
 	.section	.bss
+	.align	4
 	.global	_spi_checksum
 	.comm	_spi_checksum,4
+	.align	4
 	.global	_sd_is_sdhc
 	.comm	_sd_is_sdhc,4
+	.align	4
 	.global	_sd_size
 	.comm	_sd_size,4
 	.global	_SPI_R1
