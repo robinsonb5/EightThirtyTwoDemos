@@ -24,8 +24,8 @@ clean :
 %.o : %.s Makefile
 	gcc -c $*.s
 
-Filesystem.bin : start.o premain.o uart.o small_printf.o division.o string.o fat.o spi.o syscalls.o malloc.o rafile.o main.o
-	$(LD) -b 0x10000000 -o $@ $+
+Filesystem.bin : start.o premain.o uart.o small_printf.o division.o string.o fat.o spi_c.o syscalls.o malloc.o rafile.o main.o
+	$(LD) -m $@.map -b 0x10000000 -o $@ $+
 
 %.o : %.S Makefile $(832DIR)/start.S
 	$(AS) -o $*.o $*.S

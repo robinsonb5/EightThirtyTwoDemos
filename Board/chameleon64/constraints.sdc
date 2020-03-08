@@ -73,6 +73,12 @@ set_multicycle_path -from [get_clocks {sdram_clk_pin}] -to [get_clocks {mypll|al
 #set_multicycle_path -from {sd_data[*]} -to {TG68Test:mytg68test|sdram:mysdram|vga_data[*]} -setup -end 2
 #set_multicycle_path -from {sd_data[*]} -to {TG68Test:mytg68test|sdram:mysdram|sdata_reg[*]} -setup -end 2
 
+set_multicycle_path -from {*alu_d1[*]*} -to {*eightthirtytwo_alu:alu|mulresult[*]} -setup -end 2
+set_multicycle_path -from {*alu_d2[*]*} -to {*eightthirtytwo_alu:alu|mulresult[*]} -setup -end 2
+set_multicycle_path -from {*alu_d1[*]*} -to {*eightthirtytwo_alu:alu|mulresult[*]} -hold -end 2
+set_multicycle_path -from {*alu_d2[*]*} -to {*eightthirtytwo_alu:alu|mulresult[*]} -hold -end 2
+set_multicycle_path -from {*flag_sgn*} -to {*eightthirtytwo_alu:alu|mulresult[*]} -setup -end 2
+set_multicycle_path -from {*flag_sgn*} -to {*eightthirtytwo_alu:alu|mulresult[*]} -hold -end 2
 
 #**************************************************************
 # Set False Path

@@ -52,7 +52,7 @@ entity VirtualToplevel is
 		ps2m_dat_out : out std_logic;
 
 		-- UART
-		rxd	: in std_logic;
+		rxd	: in std_logic :='1';
 		txd	: out std_logic;
 		
 		-- Audio
