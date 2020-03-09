@@ -130,6 +130,15 @@ architecture RTL of DE10Lite_Toplevel is
 
 begin
 
+-- SPI
+
+ARDUINO_IO(10)<=spi_cs;
+ARDUINO_IO(11)<=spi_mosi;
+ARDUINO_IO(12)<='Z';
+spi_miso<=ARDUINO_IO(12);
+ARDUINO_IO(13)<=spi_clk;
+
+
 U00 : entity work.pll
 	port map(
 		inclk0 => MAX10_CLK1_50,       -- 50 MHz external
