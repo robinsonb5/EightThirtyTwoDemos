@@ -18,6 +18,7 @@ entity simple_uart is
 		txgo : in std_logic;			-- trigger transmission
 		txready : out std_logic;	-- ready to transmit
 		rxdata : out std_logic_vector(7 downto 0);
+		rxready : in std_logic :='1';	-- ready to receive
 
 		rxint : out std_logic;	-- Interrupt, momentary pulse when character received
 		txint : out std_logic;	-- Interrupt, momentary pulse when data has finished sending

@@ -68,12 +68,18 @@ architecture RTL of DE10Lite_Toplevel is
 	signal n_reset : std_logic;
 
 -- PS/2 Keyboard socket - used for second mouse
+	alias ps2_keyboard_clk : std_logic is GPIO(10);
+	alias ps2_keyboard_dat : std_logic is GPIO(12);
+
 	signal ps2_keyboard_clk_in : std_logic;
 	signal ps2_keyboard_dat_in : std_logic;
 	signal ps2_keyboard_clk_out : std_logic;
 	signal ps2_keyboard_dat_out : std_logic;
 
 -- PS/2 Mouse
+	alias ps2_mouse_clk : std_logic is GPIO(14);
+	alias ps2_mouse_dat : std_logic is GPIO(16);
+
 	signal ps2_mouse_clk_in: std_logic;
 	signal ps2_mouse_dat_in: std_logic;
 	signal ps2_mouse_clk_out: std_logic;
@@ -97,6 +103,10 @@ architecture RTL of DE10Lite_Toplevel is
 	signal audio_l : std_logic_vector(15 downto 0);
 	signal audio_r : std_logic_vector(15 downto 0);
 
+	alias sigma_l : std_logic is GPIO(18);
+	alias sigma_r : std_logic is GPIO(20);
+
+	
 -- IO
 
 
@@ -151,6 +161,20 @@ U00 : entity work.pll
 vga_window<='1';
 
 n_reset<=KEY(0);
+
+
+-- External devices tied to GPIOs
+
+ps2_mouse_dat_in<=ps2_mouse_dat;
+ps2_mouse_dat <= '0' when ps2_mouse_dat_out='0' else 'Z';
+ps2_mouse_clk_in<=ps2_mouse_clk;
+ps2_mouse_clk <= '0' when ps2_mouse_clk_out='0' else 'Z';
+
+ps2_keyboard_dat_in<=ps2_keyboard_dat;
+ps2_keyboard_dat <= '0' when ps2_keyboard_dat_out='0' else 'Z';
+ps2_keyboard_clk_in<=ps2_keyboard_clk;
+ps2_keyboard_clk <= '0' when ps2_keyboard_clk_out='0' else 'Z';
+
 
 
 virtualtoplevel : entity work.VirtualToplevel
@@ -232,25 +256,25 @@ virtualtoplevel : entity work.VirtualToplevel
 			oBlue => VGA_B
 		);
 	
---leftsd: component hybrid_pwm_sd
---	port map
---	(
---		clk => fastclk,
---		n_reset => n_reset,
---		din(15) => not audio_l(15),
---		din(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
---		dout => sigma_l
---	);
---	
---rightsd: component hybrid_pwm_sd
---	port map
---	(
---		clk => fastclk,
---		n_reset => n_reset,
---		din(15) => not audio_r(15),
---		din(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
---		dout => sigma_r
---	);
+leftsd: component hybrid_pwm_sd
+	port map
+	(
+		clk => fastclk,
+		n_reset => n_reset,
+		din(15) => not audio_l(15),
+		din(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
+		dout => sigma_l
+	);
+	
+rightsd: component hybrid_pwm_sd
+	port map
+	(
+		clk => fastclk,
+		n_reset => n_reset,
+		din(15) => not audio_r(15),
+		din(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
+		dout => sigma_r
+	);
 
 GPIO(0)<=rs232_txd;
 rs232_rxd<=GPIO(1);
