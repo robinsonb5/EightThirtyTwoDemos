@@ -332,4 +332,18 @@ __constructor(100) void _initMem()
 	malloc_add(base,ramtop-base);	// Add the entire RAM to the free memory pool
 }
 
+void *calloc(int nmemb,size_t size)
+{
+	char *result=(char *)malloc(nmemb*size);
+	if(result)
+	{
+		char *ptr=0;
+		size*=nmemb;
+		while(size--)
+		{
+			*ptr++=0;
+		}
+	}
+	return(result);
+}
 

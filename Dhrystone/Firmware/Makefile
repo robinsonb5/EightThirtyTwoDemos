@@ -7,7 +7,7 @@ CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
 DUMP=objdump
-CFLAGS = -+ -speed
+CFLAGS = -+ -speed -unsigned-char
 COPT = -O=32767
 all: Dhrystone_ROM.vhd Dhrystone.bin
 

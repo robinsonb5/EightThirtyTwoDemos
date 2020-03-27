@@ -260,8 +260,8 @@ end process;
 
 -- UART
 
---myuart : entity work.simple_uart
-myuart : entity work.jtag_uart
+myuart : entity work.simple_uart
+--myuart : entity work.jtag_uart
 	generic map(
 		enable_tx=>true,
 		enable_rx=>true

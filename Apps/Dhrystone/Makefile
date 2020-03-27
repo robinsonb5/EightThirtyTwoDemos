@@ -5,7 +5,7 @@ CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
 
-CFLAGS = -+
+CFLAGS = -+ -unsigned-char
 COPT = -O=32767 -speed
 all: Dhrystone.bin Dhrystone.srec
 

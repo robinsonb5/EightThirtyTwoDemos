@@ -55,6 +55,7 @@ struct free_arena_header {
 void malloc_add(void *p,size_t size);
 
 void *malloc(size_t);
+void *calloc(int nmemb,size_t size);
 void free(void *m);
 int availmem();
 
