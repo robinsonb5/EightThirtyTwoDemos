@@ -1,14 +1,17 @@
-832DIR=../../EightThirtyTwo/Lib/
-INCDIR=../../EightThirtyTwo/include/
-LIBDIR=../../Lib/
+832DIR=../../EightThirtyTwo
+INCDIR=$(832DIR)/include/
+LIBDIR=$(832DIR)/lib832
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
 DUMP=objdump
-CFLAGS = -+ -speed -unsigned-char
+CFLAGS = -+ -speed -unsigned-char -I../../Lib/
 COPT = -O=32767
+
+LDFLAGS=-s_STACKSIZE=512
+
 all: Dhrystone_ROM.vhd Dhrystone.bin
 
 clean :
@@ -32,20 +35,17 @@ clean :
 	@echo -n "End of BSS:\t"
 	@$(DUMP) -x $< | grep __bss_end__
 
-Dhrystone.bin : start.o uart.o small_printf.o division.o string.o dhry_1.o dhry_2.o
-	$(LD) -o $@ $+
+Dhrystone.bin : $(LIBDIR)/crt0.a $(LIBDIR)/lib832.a dhry_1.o dhry_2.o
+	$(LD) $(LDFLAGS) -m $@.map -o $@ $+
 
-%.o : %.S Makefile $(832DIR)/start.S
-	$(AS) -o $*.o $*.S
-
-%.o : %.c Makefile ldscript.ld $(832DIR)/start.S
+%.o : %.c Makefile ldscript.ld
 	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
 	$(AS) -o $*.o $*.asm
 
-%.o : $(832DIR)/%.S Makefile $(832DIR)/assembler.pp $(832DIR)/start.S
+%.o : $(832DIR)/%.S Makefile
 	$(AS) -o $*.o $(832DIR)/$*.S
 
-%.o : $(832DIR)/%.asm Makefile $(832DIR)/assembler.pp $(832DIR)/start.S
+%.o : $(832DIR)/%.asm Makefile
 	$(AS) -o $*.o $(832DIR)/$*.asm
 
 %.o : $(LIBDIR)/%.S Makefile 

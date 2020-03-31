@@ -181,8 +181,8 @@ end process;
 
 -- UART
 
--- myuart : entity work.simple_uart
-myuart : entity work.jtag_uart
+myuart : entity work.simple_uart
+---myuart : entity work.jtag_uart
 	generic map(
 		enable_tx=>true,
 		enable_rx=>true
@@ -242,7 +242,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 
 	rom : entity work.Dhrystone_rom
 	generic map(
-		maxAddrBitBRAM => 14
+		maxAddrBitBRAM => 13
 	)
 	port map(
 		clk => clk,

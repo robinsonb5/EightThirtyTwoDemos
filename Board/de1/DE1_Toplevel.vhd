@@ -79,6 +79,7 @@ architecture rtl of DE1_Toplevel is
 
 signal reset : std_logic;
 signal sysclk : std_logic;
+signal slowclk : std_logic;
 signal pll_locked : std_logic;
 
 signal audio_l : signed(15 downto 0);
@@ -165,6 +166,7 @@ port map
 	inclk0 => CLOCK_50,
 	c0 => DRAM_CLK,
 	c1 => sysclk,
+--	c2 => slowclk,
 	locked => pll_locked
 );
 
@@ -176,11 +178,12 @@ generic map
 (
 	sdram_rows => 12,
 	sdram_cols => 8,
-	sysclk_frequency => 1000
+	sysclk_frequency => 1333
 )
 port map
 (	
 	clk => sysclk,
+	slowclk => slowclk,
 	reset_in => reset,
 
 	-- video
