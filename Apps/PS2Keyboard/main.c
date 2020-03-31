@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "uart.h"
-#include "interrupts.h"
-#include "ps2.h"
-#include "keyboard.h"
+
+#include <hw/interrupts.h>
+#include <hw/ps2.h>
+#include <hw/keyboard.h>
 
 int MouseX=0,MouseY=0,MouseZ=0,MouseButtons=0;
 int mouseactive=0;

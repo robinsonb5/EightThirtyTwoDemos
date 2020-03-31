@@ -1,8 +1,4 @@
-#include "uart.h"
-#include "fat.h"
-#include "vga.h"
 
-#define NULL 0
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +6,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include <fat.h>
+#include <hw/vga.h>
 
 fileTYPE *file;
 

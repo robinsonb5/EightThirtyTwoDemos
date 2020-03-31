@@ -1,13 +1,24 @@
-832DIR=../../EightThirtyTwo/Lib/
-INCDIR=../../EightThirtyTwo/include/
-LIBDIR=../../Lib/
+SOCDIR=../../
+832DIR=../../EightThirtyTwo/
+
+LIBDIR=$(832DIR)/lib832
+
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
 
-CFLAGS = -+ -c99 -DNULL=0
-COPT = -O=1311
-all: Modplayer.srec
+
+INCLUDE= -I$(SOCDIR)/include -I$(832DIR)/include
+COPT = -O=1311 -size
+CFLAGS = -+ -c99 $(COPT) $(INCLUDE)
+
+PRJ=Modplayer
+PRJ_OBJ = main.o replay.o
+
+START = $(LIBDIR)/crt0.a
+LIBS = $(LIBDIR)/lib832.a $(SOCDIR)/lib832soc/lib832soc.a
+
+all: $(PRJ).bin $(PRJ).srec
 
 clean :
 	- rm *.srec
@@ -16,14 +27,7 @@ clean :
 	- rm *.vhd
 	- rm *.o
 	- rm *.S
-
-%_ROM.vhd: %.bin $(ROMGEN)
-	sed 's/dualportram/$*_rom/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
-	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
-	cat >>$*_ROM.vhd $(ROMGENDIR)/rom_epilogue.vhd
-
-%.bin : %.elf Makefile
-	objcopy -Obinary $< $@
+	- rm *.asm
 
 %.srec : %.bin Makefile
 	objcopy -Ibinary $*.bin --adjust-vma 0x10000000 -O srec $@
@@ -31,39 +35,18 @@ clean :
 %.o : %.s Makefile
 	gcc -c $*.s
 
-Modplayer.bin : start.o premain.o uart.o small_printf.o division.o malloc.o hexdump.o swap.o spi_c.o\
-	syscalls.o fat.o rafile.o string.o replay.o interrupts.o main.o
-	$(LD) -s STACKSIZE=8192 -b 0x10000000 -o $@ $+
+$(PRJ).bin : $(START) $(PRJ_OBJ) $(LIBS)
+	$(LD) -m $@.map -b 0x10000000 -o $@ $+
 
-%.o : %.S Makefile $(832DIR)/start.S
-	$(AS) -o $*.o $*.S
-
-%.o : %.c Makefile $(832DIR)/start.S
-	$(CC) $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
+%.o : %.c Makefile
+	$(CC) $(CFLAGS) $*.c
 	$(AS) -o $*.o $*.asm
-
-%.o : $(832DIR)/%.S Makefile $(832DIR)/start.S
-	$(AS) -o $*.o $(832DIR)/$*.S
-
-%.o : $(LIBDIR)/%.S Makefile
-	$(AS) -o $*.o $(LIBDIR)/$*.S
-
-%.o : $(LIBDIR)/%.asm Makefile
-	$(AS) -o $*.o $(LIBDIR)/$*.asm
-
-%.o : $(832DIR)/%.asm Makefile
-	$(AS) -o $*.o $(832DIR)/$*.asm
 
 %.o : %.asm Makefile
 	$(AS) -o $*.o $*.asm
 
-%.asm : $(832DIR)/%.c Makefile
-	$(CC) $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $(832DIR)/$*.c
-
-%.asm : $(LIBDIR)/%.c Makefile
-	$(CC) $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $(LIBDIR)/$*.c
-
 %.asm : %.c Makefile
-	$(CC) $(COPT) $(CFLAGS) -I$(LIBDIR) -I$(INCDIR) $*.c
+	$(CC) $(CFLAGS) $*.c
 
+force:
 

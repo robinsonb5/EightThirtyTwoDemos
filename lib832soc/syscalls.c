@@ -38,7 +38,7 @@ extern void _init(void);
 static int sdcard_present;
 static int filesystem_present;
 
-__constructor(105) void _initIO(void)
+__constructor(105.syscalls) void _initIO(void)
 {
 	int t;
 	filesystem_present=0;

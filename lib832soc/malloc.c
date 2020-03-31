@@ -283,7 +283,7 @@ extern char STACKSIZE
 #define ADDRCHECKWORD 0x55aa44bb
 #define ADDRCHECKWORD2 0xf0e1d2c3
 
-__constructor(100) void _initMem()
+__constructor(100.malloc) void _initMem()
 {
 	int ss=(int)&STACKSIZE;
 	volatile int *base=(int*)&_bss_end__;

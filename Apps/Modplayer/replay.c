@@ -21,10 +21,10 @@
 
 // SOC-specific hardware registers
 
-#include "soundhw.h"
-#include "interrupts.h"
-#include "timer.h"
-#include "uart.h"
+#include <hw/soundhw.h>
+#include <hw/interrupts.h>
+#include <hw/timer.h>
+#include <hw/uart.h>
 
 
 // Structs

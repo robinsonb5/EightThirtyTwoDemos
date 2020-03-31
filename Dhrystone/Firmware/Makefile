@@ -1,13 +1,16 @@
 832DIR=../../EightThirtyTwo
 INCDIR=$(832DIR)/include/
 LIBDIR=$(832DIR)/lib832
+
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
+
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
+
 DUMP=objdump
-CFLAGS = -+ -speed -unsigned-char -I../../Lib/
+CFLAGS = -+ -speed -unsigned-char -I../../include -I$(832DIR)/include
 COPT = -O=32767
 
 LDFLAGS=-s_STACKSIZE=512

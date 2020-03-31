@@ -1,5 +1,3 @@
-#include "uart.h"
-#include "soundhw.h"
 
 #include <stdio.h>
 
@@ -10,6 +8,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+
+#include <hw/soundhw.h>
 
 #include "replay.h"
 

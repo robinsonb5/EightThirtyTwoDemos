@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #ifndef __GNUC__
-#include "timer.h"
+#include <hw/timer.h>
 #endif
 
 /* Global Variables: */

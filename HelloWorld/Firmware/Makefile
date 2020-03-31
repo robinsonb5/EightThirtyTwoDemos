@@ -1,8 +1,15 @@
-ROMGENDIR = ../../EightThirtyTwo/romgen
+832DIR = ../../EightThirtyTwo
+ROMGENDIR = $(832DIR)/romgen
 ROMGEN = $(ROMGENDIR)/romgen
-COMMONDIR = ../../EightThirtyTwo/Assembler
+
 AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
+
+LIBDIR = $(832DIR)/lib832/
+LIBSOCDIR = ../../lib832soc/
+
+INCLUDES = $(832DIR)/include ../../include
+
 
 all: HelloWorld_ROM.vhd
 

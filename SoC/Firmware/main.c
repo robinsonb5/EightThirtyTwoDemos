@@ -3,14 +3,11 @@
 	SPI and FAT code borrowed from the Minimig project.
 */
 
-
-#include "stdarg.h"
-
-#include "uart.h"
-#include "spi.h"
-#include "minfat.h"
-#include "cachecontrol.h"
-#include "printf.h"
+#include <printf.h>
+#include <hw/uart.h>
+#include <hw/spi.h>
+#include <minfat.h>
+#include <hw/cachecontrol.h>
 
 // #define Breadcrumb(x) HW_UART(REG_UART)=x;
 

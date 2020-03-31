@@ -14,7 +14,7 @@ void SetIntHandler(void(*handler)())
 	puts("Set handler\n");
 }
 
-__constructor(100) void intconstructor()
+__constructor(100.interrupts) void intconstructor()
 {
 	puts("In interrupt constructor\n");
 	SetIntHandler(dummy_handler);
