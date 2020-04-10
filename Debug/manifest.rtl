@@ -1,0 +1,7 @@
+../RTL/Peripherals/simple_uart.vhd
+Firmware/HelloWorld_ROM.vhd
+RTL/Debug_VirtualToplevel.vhd
+RTL/Toplevel_Config.vhd
+../EightThirtyTwo/RTL/eightthirtytwo.qip
+../EightThirtyTwo/romgen/rom_pkg.vhd
+

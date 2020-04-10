@@ -98,6 +98,13 @@ signal mem_wr : std_logic;
 signal to_rom : ToROM;
 signal from_rom : FromROM;
 
+-- CPU Debug signals
+signal debug_req : std_logic;
+signal debug_ack : std_logic;
+signal debug_fromcpu : std_logic_vector(31 downto 0);
+signal debug_tocpu : std_logic_vector(31 downto 0);
+signal debug_wr : std_logic;
+
 begin
 
 ps2k_dat_out<='1';
@@ -126,7 +133,7 @@ spi_cs<='1';
 
 -- Reset counter.
 
-process(clk)
+process(reset_in,clk)
 begin
 	if reset_in='0' then
 		reset_counter<=X"FFFF";
@@ -215,7 +222,8 @@ myuart : entity work.simple_uart
 	generic map
 	(
 		littleendian => true,
-		dualthread => false
+		dualthread => false,
+		debug => true
 	)
 	port map
 	(
@@ -230,9 +238,26 @@ myuart : entity work.simple_uart
 		bytesel => cpu_bytesel,
 		wr => cpu_wr,
 		req => cpu_req,
-		ack => cpu_ack
+		ack => cpu_ack,
+		-- Debug signals
+		debug_d=>debug_tocpu,
+		debug_q=>debug_fromcpu,
+		debug_req=>debug_req,
+		debug_wr=>debug_wr,
+		debug_ack=>debug_ack		
 	);
 
+	debugbridge : entity work.debug_bridge_testbench
+	port map
+	(
+		clk => slowclk,
+		reset_n => reset_n,
+		d => debug_fromcpu,
+		q => debug_tocpu,
+		req => debug_req,
+		ack => debug_ack,
+		wr => debug_wr
+	);
 
 
 process(slowclk)
