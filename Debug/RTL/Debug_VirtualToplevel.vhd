@@ -247,7 +247,7 @@ myuart : entity work.simple_uart
 		debug_ack=>debug_ack		
 	);
 
-	debugbridge : entity work.debug_bridge_testbench
+	debugbridge : entity work.debug_bridge_jtag
 	port map
 	(
 		clk => slowclk,
