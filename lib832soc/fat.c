@@ -100,7 +100,6 @@ unsigned char t_sort_table[MAXDIRENTRIES];
 
 // external functions
 extern unsigned long GetTimer(unsigned long);
-#define ErrorMessage(x,y) puts(x)
 
 #if 0
 
@@ -126,7 +125,6 @@ void SwapPartitionBytes(int i)
 	partitions[i].sectors=ConvBBBB_LE(partitions[i].sectors);
 }
 
-#define BootPrint(x) puts(x);
 #define bprintfl printf
 #if 0
 void bprintfl(const char *fmt,unsigned long l)
@@ -148,12 +146,10 @@ unsigned int FindDrive(void)
 	iSelectedEntry = 0;
 	iCurrentDirectory = 0;
 	iPreviousDirectory = 0;
-	BootPrint("Find drive...\n");
 
     if (!sd_read_sector(0, sector_buffer)) // read MBR
         return(0);
 
-	BootPrint("Read sector succeeded\n");
 	printf("MBR checksum %x\n",spi_checksum);
 	boot_sector=0;
 	partitioncount=1;
@@ -176,7 +172,6 @@ unsigned int FindDrive(void)
 		switch(mbr->Signature)
 		{
 			case 0x55aa:	// Little-endian MBR on a big-endian system
-				BootPrint("Swapping byte order of partition entries\n");
 				SwapPartitionBytes(0);
 				SwapPartitionBytes(1);
 				SwapPartitionBytes(2);
@@ -185,7 +180,7 @@ unsigned int FindDrive(void)
 			case 0xaa55:
 				// get start of first partition
 				boot_sector = partitions[0].startlba;
-				bprintfl("Start: %d\n",partitions[0].startlba);
+				bprintfl("Start: %ld\n",partitions[0].startlba);
 				for(partitioncount=4;(partitions[partitioncount-1].sectors==0) && (partitioncount>1); --partitioncount)
 					;
 				bprintfl("PartitionCount: %d\n",partitioncount);
@@ -193,16 +188,14 @@ unsigned int FindDrive(void)
 				for(i=0;i<partitioncount;++i)
 				{
 					bprintfl("Partition: %d",i);
-					bprintfl("  Start: %d",partitions[i].startlba);
+					bprintfl("  Start: %ld",partitions[i].startlba);
 					bprintfl("  Size: %d\n",partitions[i].sectors);
 				}
 				if (!sd_read_sector(boot_sector, sector_buffer)) // read discriptor
 				    return(0);
 				printf("Boot sector %d: %x\n",boot_sector,spi_checksum);
-				BootPrint("Read boot sector from first partition\n");
 				break;
 			default:
-				BootPrint("No partition signature found\n");
 				break;
 		}
 	}
@@ -327,6 +320,191 @@ unsigned int FindDrive(void)
 
     return(1);
 }
+
+// Find a directory by Cluster rather than name (used for validating)
+int FindDirectoryByCluster(unsigned long parent, unsigned long lba)
+{
+    DIRENTRY      *pEntry = NULL;        // pointer to current entry in sector buffer
+    unsigned long  iDirectorySector;     // current sector of directory entries table
+    unsigned long  iDirectoryCluster;    // start cluster of subdirectory or FAT32 root directory
+    unsigned long  iEntry;               // entry index in directory cluster or FAT16 root directory
+    unsigned long  nEntries;             // number of entries per cluster or FAT16 root directory size
+
+	printf("Hunting for %ld in %ld\n",lba,parent);
+
+    if (parent) // subdirectory
+    {
+        iDirectoryCluster = parent;
+        iDirectorySector = data_start + cluster_size * (iDirectoryCluster - 2);
+        nEntries = cluster_size << 4; // 16 entries per sector
+    }
+    else // root directory
+    {
+        iDirectoryCluster = root_directory_cluster;
+        iDirectorySector = root_directory_start;
+        nEntries = fat32 ?  cluster_size << 4 : root_directory_size << 4; // 16 entries per sector
+    }
+
+    while (1)
+    {
+        for (iEntry = 0; iEntry < nEntries; iEntry++)
+        {
+            if ((iEntry & 0x0F) == 0) // first entry in sector, load the sector
+            {
+                if(!sd_read_sector(iDirectorySector++, sector_buffer)) // root directory is linear
+					return(0);
+                pEntry = (DIRENTRY*)sector_buffer;
+            }
+            else
+                pEntry++;
+
+
+            if (pEntry->Name[0] != SLOT_EMPTY && pEntry->Name[0] != SLOT_DELETED) // valid entry??
+            {
+                if (pEntry->Attributes & ATTR_DIRECTORY) // is this a directory
+                {
+					unsigned long dircluster=ConvBB_LE(pEntry->StartCluster) + (fat32 ? (ConvBB_LE(pEntry->HighCluster) & 0x0FFF) << 16 : 0);
+					if(dircluster==lba)
+                    {
+                        printf("Found directory at %ld \r",dircluster);
+                        return(1);
+                    }
+                }
+            }
+        }
+
+        if (parent || fat32) // subdirectory is a linked cluster chain
+        {
+            iDirectoryCluster = GetFATLink(iDirectoryCluster); // get next cluster in chain
+
+            if (fat32 ? (iDirectoryCluster & 0x0FFFFFF8) == 0x0FFFFFF8 : (iDirectoryCluster & 0xFFF8) == 0xFFF8) // check if end of cluster chain
+                break; // no more clusters in chain
+
+            iDirectorySector = data_start + cluster_size * (iDirectoryCluster - 2); // calculate first sector address of the new cluster
+        }
+        else
+            break;
+    }
+
+    printf("Directory %ld not found\r", lba);
+    return(0);
+}
+
+
+// Find a directory by name
+unsigned long FindDirectory(unsigned long parent, const char *name)
+{
+    DIRENTRY      *pEntry = NULL;        // pointer to current entry in sector buffer
+    unsigned long  iDirectorySector;     // current sector of directory entries table
+    unsigned long  iDirectoryCluster;    // start cluster of subdirectory or FAT32 root directory
+    unsigned long  iEntry;               // entry index in directory cluster or FAT16 root directory
+    unsigned long  nEntries;             // number of entries per cluster or FAT16 root directory size
+
+    if (parent) // subdirectory
+    {
+        iDirectoryCluster = parent;
+        iDirectorySector = data_start + cluster_size * (iDirectoryCluster - 2);
+        nEntries = cluster_size << 4; // 16 entries per sector
+    }
+    else // root directory
+    {
+        iDirectoryCluster = root_directory_cluster;
+        iDirectorySector = root_directory_start;
+        nEntries = fat32 ?  cluster_size << 4 : root_directory_size << 4; // 16 entries per sector
+    }
+
+    while (1)
+    {
+        for (iEntry = 0; iEntry < nEntries; iEntry++)
+        {
+            if ((iEntry & 0x0F) == 0) // first entry in sector, load the sector
+            {
+                if(!sd_read_sector(iDirectorySector++, sector_buffer)) // root directory is linear
+					return(0);
+                pEntry = (DIRENTRY*)sector_buffer;
+            }
+            else
+                pEntry++;
+
+
+            if (pEntry->Name[0] != SLOT_EMPTY && pEntry->Name[0] != SLOT_DELETED) // valid entry??
+            {
+                if (pEntry->Attributes & ATTR_DIRECTORY) // is this a directory
+                {
+                    if (strncmp((const char*)pEntry->Name, name, sizeof(pEntry->Name)) == 0)
+                    {
+						unsigned long dircluster=ConvBB_LE(pEntry->StartCluster) + (fat32 ? (ConvBB_LE(pEntry->HighCluster) & 0x0FFF) << 16 : 0);
+						hexdump(sector_buffer,512);
+                        printf("Found directory \"%s\" at %ld \r",name,dircluster);
+
+                        return(dircluster);
+                    }
+                }
+            }
+        }
+
+        if (parent || fat32) // subdirectory is a linked cluster chain
+        {
+            iDirectoryCluster = GetFATLink(iDirectoryCluster); // get next cluster in chain
+
+            if (fat32 ? (iDirectoryCluster & 0x0FFFFFF8) == 0x0FFFFFF8 : (iDirectoryCluster & 0xFFF8) == 0xFFF8) // check if end of cluster chain
+                break; // no more clusters in chain
+
+            iDirectorySector = data_start + cluster_size * (iDirectoryCluster - 2); // calculate first sector address of the new cluster
+        }
+        else
+            break;
+    }
+
+    printf("Directory \"%s\" not found\r", name);
+    return(0);
+}
+
+
+// Verify that a directory cluster is valid by recursively tracing ".." entries back up to the root,
+// then checking each directory in turn for presence in the parent directory.
+// Returns 0 on failure.
+int ValidateDirectory(unsigned long directory)
+{
+    DIRENTRY      *pEntry = NULL;        // pointer to current entry in sector buffer
+    unsigned long  iDirectorySector;     // current sector of directory entries table
+    unsigned long  iDirectoryCluster;    // start cluster of subdirectory or FAT32 root directory
+    unsigned long  iEntry;               // entry index in directory cluster or FAT16 root directory
+    unsigned long  nEntries;             // number of entries per cluster or FAT16 root directory size
+
+	if(!directory || (directory==root_directory_cluster))
+	{
+		return(1);
+	}
+    else // subdirectory
+    {
+        iDirectoryCluster = directory;
+        iDirectorySector = data_start + cluster_size * (iDirectoryCluster - 2);
+        nEntries = cluster_size << 4; // 16 entries per sector
+    }
+
+    if(!sd_read_sector(iDirectorySector++, sector_buffer)) // root directory is linear
+		return(0);
+    pEntry = (DIRENTRY*)sector_buffer;
+    for (iEntry = 0; iEntry < nEntries; iEntry++)
+    {
+        if (pEntry->Name[0] != SLOT_EMPTY && pEntry->Name[0] != SLOT_DELETED) // valid entry??
+        {
+            if (pEntry->Attributes & ATTR_DIRECTORY) // is this a directory
+            {
+                if (strncmp((const char*)pEntry->Name, "..         ", sizeof(pEntry->Name)) == 0)
+                {
+					unsigned long parent=ConvBB_LE(pEntry->StartCluster) + (fat32 ? (ConvBB_LE(pEntry->HighCluster) & 0x0FFF) << 16 : 0);
+                    printf("Parent directory is %ld \r",parent);
+                    return(ValidateDirectory(parent) && FindDirectoryByCluster(parent,directory));
+                }
+            }
+        }
+        pEntry++;
+    }
+	return(0);
+}
+
 
 static struct FileFind_Result filefind_result;
 
@@ -1401,8 +1579,6 @@ unsigned int FileCreate(unsigned long iDirectory, fileTYPE *file)
         else
             break;
     }
-
-    ErrorMessage("   Can\'t create config file!", 0);
     return(0);
 }
 
@@ -1508,6 +1684,23 @@ DIRENTRY *NextDirEntry(int init)
 	}
 	}
 	return((DIRENTRY *)0);
+}
+
+
+void SetDirectory(unsigned long lba)
+{
+	current_directory_cluster = lba;
+	if(current_directory_cluster)
+	{	
+	    current_directory_start = data_start + cluster_size * (current_directory_cluster - 2);
+		dir_entries = cluster_size << 4;
+	}
+	else
+	{
+		current_directory_cluster = root_directory_cluster;
+		current_directory_start = root_directory_start;
+		dir_entries = fat32 ?  cluster_size << 4 : root_directory_size << 4; // 16 entries per sector
+	}
 }
 
 

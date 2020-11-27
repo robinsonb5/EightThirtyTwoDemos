@@ -42,6 +42,7 @@ int main(int argc, char **argv)
 {
 	char *ptr;
 	int size;
+	int cluster;
 	DIRENTRY *dir=0;
 
 	printf("Scanning directory\n");
@@ -59,6 +60,42 @@ int main(int argc, char **argv)
 	}
 	else
 		printf("Loading failed\n");
+
+	cluster=FindDirectory(0,"PARENT     ");
+//	cluster=FindDirectory(0,"ADFS       ");
+	if(cluster)
+	{
+		printf("Found parent at %ld\n",cluster);
+		SetDirectory(cluster);
+
+		printf("Scanning directory\n");
+		dir=0;
+		while((dir=NextDirEntry(dir==0)))
+		{
+			if (dir->Name[0] != SLOT_EMPTY && dir->Name[0] != SLOT_DELETED) // valid entry??
+			{
+				printf("%s (%s)\n",dir->Name,longfilename);
+			}
+		}
+
+		cluster=FindDirectory(cluster,"SUBDIR     ");
+		if(cluster)
+		{
+			printf("Found subdir at %ld\n",cluster);
+			if(ValidateDirectory(cluster))
+				printf("cluster valid\n");
+			else
+				printf("cluster not valid\n");
+		}
+	}
+
+	for(cluster=0;cluster<0x7ffff;cluster+=0x1137)
+	{
+		if(ValidateDirectory(cluster))
+			printf("cluster %ld valid\n",cluster);
+		else
+			printf("cluster %ld not valid\n",cluster);
+	}
 
 	return(0);
 }

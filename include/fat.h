@@ -136,6 +136,7 @@ unsigned int UpdateEntry(fileTYPE *file);
 
 int ScanDirectory(unsigned long mode, char *extension, unsigned char options);
 void ChangeDirectory(DIRENTRY *p);
+int ValidateDirectory(unsigned long directory);
 
 DIRENTRY *NextDirEntry(int prev); // Must be called in ascending sequence, starting with 0
 struct FileFind_Result *FileFind(const char *name);
