@@ -1,5 +1,5 @@
-PROJECTS=HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread
-BOARDS_ALTERA = "de1 de2 c3board mist chameleon64 chameleon64v2"
+PROJECTS=HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread Debug
+BOARDS_ALTERA = "de1 de2 c3board mist chameleon64 chameleon64v2 qmtech_cycloneiv55"
 BOARDS_XILINX = "minimig"
 
 all: lib832soc/lib832soc.a projects

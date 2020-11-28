@@ -1,0 +1,312 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2015 Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera MegaCore Function License Agreement, or other 
+# applicable license agreement, including, without limitation, 
+# that your use is for the sole purpose of programming logic 
+# devices manufactured by Altera and sold by Altera or its 
+# authorized distributors.  Please refer to the applicable 
+# agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 15.1.0 Build 185 10/21/2015 SJ Standard Edition
+# Date created = 13:29:22  December 31, 2018
+#
+# -------------------------------------------------------------------------- #
+
+#============================================================
+# Build by Terasic V1.0.0
+#============================================================
+
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE55F23C8
+set_global_assignment -name TOP_LEVEL_ENTITY toplevel
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.1.0
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:29:22  DECEMBER 31, 2018"
+
+#============================================================
+# CLOCK2
+#============================================================
+
+#============================================================
+# CLOCK3
+#============================================================
+
+#============================================================
+# CLOCK4
+#============================================================
+
+#============================================================
+# CLOCK
+#============================================================
+
+#============================================================
+# DRAM
+#============================================================
+
+#============================================================
+# GPIO
+#============================================================
+
+#============================================================
+# HEX0
+#============================================================
+
+#============================================================
+# HEX1
+#============================================================
+
+#============================================================
+# HEX2
+#============================================================
+
+#============================================================
+# HEX3
+#============================================================
+
+#============================================================
+# HEX4
+#============================================================
+
+#============================================================
+# HEX5
+#============================================================
+
+#============================================================
+# KEY
+#============================================================
+
+#============================================================
+# LEDR
+#============================================================
+
+#============================================================
+# PS2
+#============================================================
+
+#============================================================
+# RESET
+#============================================================
+
+#============================================================
+# SD
+#============================================================
+
+#============================================================
+# SW
+#============================================================
+
+#============================================================
+# VGA
+#============================================================
+
+#============================================================
+# End of pin assignments by Terasic System Builder
+#============================================================
+
+
+
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+
+#============================================================
+
+
+
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name SEARCH_PATH "e:\\altera\\software\\de0_cv_sdram_rtl_test\\cv_altclkctrl\\synthesis"
+set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
+set_location_assignment PIN_W13 -to RESET_N
+set_location_assignment PIN_Y13 -to KEY
+set_location_assignment PIN_E4 -to LEDR
+set_location_assignment PIN_AB4 -to DRAM_WE_N
+set_location_assignment PIN_W7 -to DRAM_UDQM
+set_location_assignment PIN_AB3 -to DRAM_RAS_N
+set_location_assignment PIN_AA5 -to DRAM_LDQM
+set_location_assignment PIN_AA10 -to DRAM_DQ[0]
+set_location_assignment PIN_AB9 -to DRAM_DQ[1]
+set_location_assignment PIN_AA9 -to DRAM_DQ[2]
+set_location_assignment PIN_AB8 -to DRAM_DQ[3]
+set_location_assignment PIN_AA8 -to DRAM_DQ[4]
+set_location_assignment PIN_AB7 -to DRAM_DQ[5]
+set_location_assignment PIN_AA7 -to DRAM_DQ[6]
+set_location_assignment PIN_AB5 -to DRAM_DQ[7]
+set_location_assignment PIN_Y7 -to DRAM_DQ[8]
+set_location_assignment PIN_W8 -to DRAM_DQ[9]
+set_location_assignment PIN_Y8 -to DRAM_DQ[10]
+set_location_assignment PIN_V9 -to DRAM_DQ[11]
+set_location_assignment PIN_V10 -to DRAM_DQ[12]
+set_location_assignment PIN_Y10 -to DRAM_DQ[13]
+set_location_assignment PIN_W10 -to DRAM_DQ[14]
+set_location_assignment PIN_V11 -to DRAM_DQ[15]
+set_location_assignment PIN_AA3 -to DRAM_CS_N
+set_location_assignment PIN_T2 -to CLOCK_50
+set_location_assignment PIN_Y6 -to DRAM_CLK
+set_location_assignment PIN_W6 -to DRAM_CKE
+set_location_assignment PIN_AA4 -to DRAM_CAS_N
+set_location_assignment PIN_Y1 -to DRAM_BA[0]
+set_location_assignment PIN_W2 -to DRAM_BA[1]
+set_location_assignment PIN_V2 -to DRAM_ADDR[0]
+set_location_assignment PIN_V1 -to DRAM_ADDR[1]
+set_location_assignment PIN_U2 -to DRAM_ADDR[2]
+set_location_assignment PIN_U1 -to DRAM_ADDR[3]
+set_location_assignment PIN_V3 -to DRAM_ADDR[4]
+set_location_assignment PIN_V4 -to DRAM_ADDR[5]
+set_location_assignment PIN_Y2 -to DRAM_ADDR[6]
+set_location_assignment PIN_AA1 -to DRAM_ADDR[7]
+set_location_assignment PIN_Y3 -to DRAM_ADDR[8]
+set_location_assignment PIN_V5 -to DRAM_ADDR[9]
+set_location_assignment PIN_W1 -to DRAM_ADDR[10]
+set_location_assignment PIN_Y4 -to DRAM_ADDR[11]
+set_location_assignment PIN_V6 -to DRAM_ADDR[12]
+set_location_assignment PIN_J2 -to UART_RX
+set_location_assignment PIN_J1 -to UART_TX
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 484
+
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to CLOCK_50
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_BA[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_BA[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CAS_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CKE
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CS_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to RESET_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LEDR
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_WE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_UDQM
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_RAS_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_LDQM
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to UART_RX
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to UART_TX
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[12]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[11]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[10]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[9]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[8]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[7]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[6]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[5]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[4]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[3]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[2]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_ADDR[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_CKE
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_WE_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_CS_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_RAS_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_CAS_N
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_UDQM
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_LDQM
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_BA[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_BA[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[15]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[14]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[13]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[12]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[11]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[10]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[9]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[8]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[7]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[6]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[5]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[4]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[3]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[2]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to DRAM_DQ[0]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[15]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[14]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[13]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[12]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[11]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[10]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[9]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[8]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[7]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[6]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[5]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[4]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[3]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[2]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[1]
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to DRAM_DQ[0]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[15]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[14]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[13]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[12]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[11]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[10]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[9]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[8]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[7]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[6]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[5]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[4]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[3]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[2]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[1]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to DRAM_DQ[0]
+set_global_assignment -name SMART_RECOMPILE ON
+
+set_global_assignment -name VERILOG_FILE ../../../Board/qmtech_cycloneiv55/toplevel.v
+set_global_assignment -name QIP_FILE ../../../Board/qmtech_cycloneiv55/PLL01.qip
+set_global_assignment -name SDC_FILE ../../../Board/qmtech_cycloneiv55/constraints.sdc
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+

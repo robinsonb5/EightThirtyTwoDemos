@@ -1,4 +1,4 @@
-832DIR=../../EightThirtyTwo/Lib/
+832DIR=../../EightThirtyTwo/lib832/
 INCDIR=../../EightThirtyTwo/include/
 LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
@@ -8,6 +8,7 @@ AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
 DUMP=objdump
 CFLAGS = -+ -speed
+LIBS = $(832DIR)/dualcrt0.a $(832DIR)/lib832.a
 COPT = -O=32767
 all: Dhrystone_ROM.vhd Dhrystone.bin
 
@@ -32,8 +33,8 @@ clean :
 	@echo -n "End of BSS:\t"
 	@$(DUMP) -x $< | grep __bss_end__
 
-Dhrystone.bin : start.o premain_dualthread.o uart.o small_printf.o division.o string.o dhry_1.o dhry_2.o dhry_3.o dhry_4.o
-	$(LD) -o $@ $+
+Dhrystone.bin : dhry_1.o dhry_2.o dhry_3.o dhry_4.o
+	$(LD) $(LIBS) -o $@ $+
 
 %.o : %.S Makefile $(832DIR)/start.S
 	$(AS) -o $*.o $*.S
