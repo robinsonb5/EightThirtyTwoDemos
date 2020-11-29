@@ -189,7 +189,6 @@ signal vblank_int : std_logic;
 
 signal sdr_ready : std_logic;
 signal sdram_write : std_logic_vector(31 downto 0); -- 32-bit width for ZPU
-signal sdram_addr : std_logic_vector(31 downto 0);
 signal sdram_req : std_logic;
 signal sdram_wr : std_logic;
 signal sdram_read : std_logic_vector(31 downto 0);
@@ -718,7 +717,6 @@ begin
 							null;
 					end case;
 				when others =>
-					sdram_addr<=cpu_addr;
 					sdram_bytesel<=cpu_bytesel;
 					sdram_wr<='0';
 					sdram_req<='1';
@@ -781,8 +779,6 @@ begin
 					end case;
 
 				when others =>
-					sdram_addr<=cpu_addr;
-					sdram_addr(1 downto 0)<="00";
 					sdram_wr<='1';
 					sdram_req<='1';
 					sdram_state<=read1;
