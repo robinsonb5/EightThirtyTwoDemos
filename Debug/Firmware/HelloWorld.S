@@ -1,5 +1,3 @@
-#include	"assembler.pp"
-
 start:
 	.liabs message
 	mr	r1

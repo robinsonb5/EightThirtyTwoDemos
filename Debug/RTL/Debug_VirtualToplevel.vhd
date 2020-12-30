@@ -173,7 +173,7 @@ myuart : entity work.simple_uart
 
 	rom : entity work.HelloWorld_rom
 	generic map(
-		maxAddrBitBRAM => 6
+		maxAddrBitBRAM => 14
 	)
 	port map(
 		clk => slowclk,
