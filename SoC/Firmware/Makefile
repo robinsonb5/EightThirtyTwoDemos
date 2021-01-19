@@ -29,14 +29,14 @@ clean :
 	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
 	cat >>$*_ROM.vhd $(ROMGENDIR)/rom_epilogue.vhd
 
-%.o : %.s Makefile
-	gcc -c $*.s
-
-SoC.bin : $(LIBDIR)/crt0.a $(LIBDIR)/lib832.a  main.o minfat.o ../../lib832soc/lib832soc.a
+SoC.bin : $(LIBDIR)/dualcrt0.a $(LIBDIR)/lib832.a thread2boot.o main.o minfat.o ../../lib832soc/lib832soc.a
 	$(LD) -m $@.map -o $@ $+
 
 %.o : %.c Makefile
 	$(CC) $(CFLAGS) $*.c
+	$(AS) -o $*.o $*.asm
+
+%.o : %.asm Makefile
 	$(AS) -o $*.o $*.asm
 
 %.o : $(832DIR)/%.asm Makefile

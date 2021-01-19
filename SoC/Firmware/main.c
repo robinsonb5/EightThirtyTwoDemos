@@ -8,6 +8,7 @@
 #include <hw/spi.h>
 #include <minfat.h>
 #include <hw/cachecontrol.h>
+#include "dualthread.h"
 
 // #define Breadcrumb(x) HW_UART(REG_UART)=x;
 
@@ -30,6 +31,7 @@ void _boot()
 {
 	void (*f)();
 	f=(void(*f)())BOOT_ADDR;
+	thread_wake();
 	f();
 	while(1)
 		;
@@ -173,6 +175,16 @@ int main(int argc,char **argv)
 		}
 	}
 
+	return(0);
+}
+
+void thread2boot(int addr);
+
+int thread2main(int argc,char **argv)
+{
+	thread_sleep();
+	putchar('2');
+	thread2boot(BOOT_ADDR);
 	return(0);
 }
 

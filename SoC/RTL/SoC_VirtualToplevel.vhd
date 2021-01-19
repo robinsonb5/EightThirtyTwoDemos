@@ -601,7 +601,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, others => '0');
 	generic map
 	(
 		littleendian => true,
-		dualthread => false,
+		dualthread => true,
 		prefetch => true,
 		interrupts => true
 	)
