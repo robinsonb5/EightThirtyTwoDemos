@@ -12,9 +12,6 @@ int main(int argc, char **argv)
 	int key=0x2a;
 	int a;
 
-	puts("Initialising PS/2 interface...\n");
-
-	PS2Init();
 	puts("Enabling interrupts...\n");
 	EnableInterrupts();
 

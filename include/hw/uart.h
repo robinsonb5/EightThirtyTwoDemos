@@ -11,6 +11,7 @@ extern "C" {
 #define HW_UART(x) *(volatile unsigned int *)(UARTBASE+x)
 
 #define REG_UART 0x0
+#define REG_UART2 0x4
 #define REG_UART_RXINT 9
 #define REG_UART_TXREADY 8
 

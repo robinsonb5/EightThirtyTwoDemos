@@ -15,9 +15,17 @@
 extern "C" {
 #endif
 
-void SetIntHandler(void(*handler)());
+struct InterruptHandler
+{
+	struct InterruptHandler *next;
+	void (*handler)();
+	void *userdata;
+};
+
+void AddInterruptHandler(struct InterruptHandler *handler);
+void RemoveInterruptHandler(struct InterruptHandler *handler);
 void EnableInterrupts();
-void DisableInterrupts();
+int DisableInterrupts();
 volatile int GetInterrupts();
 
 #ifdef __cplusplus

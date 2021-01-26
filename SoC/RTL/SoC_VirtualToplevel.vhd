@@ -53,9 +53,11 @@ entity VirtualToplevel is
 		ps2m_clk_out : out std_logic;
 		ps2m_dat_out : out std_logic;
 
-		-- UART
+		-- UARTs
 		rxd	: in std_logic;
 		txd	: out std_logic;
+		rxd2	: in std_logic := '1';
+		txd2	: out std_logic;
 		
 		-- Audio
 		audio_l : out signed(15 downto 0);
@@ -67,6 +69,7 @@ architecture rtl of VirtualToplevel is
 
 constant sysclk_hz : integer := sysclk_frequency*1000;
 constant uart_divisor : integer := sysclk_hz/1152;
+constant uart2_divisor : integer := sysclk_hz/576;
 constant maxAddrBit : integer := 31;
 
 signal reset_n : std_logic := '0';
@@ -102,9 +105,20 @@ signal ser_txgo : std_logic;
 signal ser_rxint : std_logic;
 
 
+-- Second UART signals
+
+signal ser2_txdata : std_logic_vector(7 downto 0);
+signal ser2_txready : std_logic;
+signal ser2_rxready : std_logic;
+signal ser2_rxdata : std_logic_vector(7 downto 0);
+signal ser2_rxrecv : std_logic;
+signal ser2_txgo : std_logic;
+signal ser2_rxint : std_logic;
+
+
 -- Interrupt signals
 
-constant int_max : integer := 2;
+constant int_max : integer := 3;
 signal int_triggers : std_logic_vector(int_max downto 0);
 signal int_status : std_logic_vector(int_max downto 0);
 signal int_ack : std_logic;
@@ -256,11 +270,9 @@ begin
 end process;
 
 
+-- UARTs
 
--- UART
-
-myuart : entity work.simple_uart
---myuart : entity work.jtag_uart
+uart1 : entity work.simple_uart
 	generic map(
 		enable_tx=>true,
 		enable_rx=>true
@@ -279,6 +291,28 @@ myuart : entity work.simple_uart
 		rxd => rxd,
 		txd => txd
 	);
+
+
+uart2 : entity work.simple_uart
+	generic map(
+		enable_tx=>true,
+		enable_rx=>true
+	)
+	port map(
+		clk => clk,
+		reset => reset_n, -- active low
+		txdata => ser2_txdata,
+		txready => ser2_txready,
+		txgo => ser2_txgo,
+		rxdata => ser2_rxdata,
+		rxready => ser2_rxready,
+		rxint => ser2_rxint,
+		txint => open,
+		clock_divisor => to_unsigned(uart2_divisor,16),
+		rxd => rxd2,
+		txd => txd2
+	);
+
 
 -- PS2 devices
 
@@ -545,7 +579,7 @@ port map (
 	status => int_status
 );
 
-int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, others => '0');
+int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others => '0');
 
 
 -- ROM
@@ -635,9 +669,12 @@ begin
 		sdram_state<=idle;
 		ser_rxready<='1';
 		ser_rxrecv<='0';
+		ser2_rxready<='1';
+		ser2_rxrecv<='0';
 	elsif rising_edge(clk) then
 		mem_busy<='1';
 		ser_txgo<='0';
+		ser2_txgo<='0';
 		int_ack<='0';
 		timer_reg_req<='0';
 		vga_reg_req<='0';
@@ -682,6 +719,11 @@ begin
 						when X"C0" => -- UART
 							ser_txdata<=from_cpu(7 downto 0);
 							ser_txgo<='1';
+							mem_busy<='0';
+
+						when X"C4" => -- UART2
+							ser2_txdata<=from_cpu(7 downto 0);
+							ser2_txgo<='1';
 							mem_busy<='0';
 
 						when X"D0" => -- SPI CS
@@ -741,6 +783,13 @@ begin
 							from_mem(9 downto 0)<=ser_rxrecv&ser_txready&ser_rxdata;
 							ser_rxrecv<='0';	-- Clear rx flag.
 							ser_rxready<='1';
+							mem_busy<='0';
+
+						when X"C4" => -- UART2
+							from_mem<=(others=>'X');
+							from_mem(9 downto 0)<=ser2_rxrecv&ser2_txready&ser2_rxdata;
+							ser2_rxrecv<='0';	-- Clear rx flag.
+							ser2_rxready<='1';
 							mem_busy<='0';
 							
 						when X"C8" => -- Millisecond counter
@@ -818,11 +867,17 @@ begin
 		if ser_rxint='1' then
 			ser_rxrecv<='1';
 			ser_rxready<='0';
-			if ser_rxdata=X"04" then
+			if ser_rxdata=X"04" then -- Allow soft-reset on Ctrl-D over serial
 				soft_reset_n<='0';
 				ser_rxrecv<='0';
 				int_enabled<='0';
 			end if;
+		end if;
+
+		-- Set this after the read operation has potentially cleared it.
+		if ser2_rxint='1' then
+			ser2_rxrecv<='1';
+			ser2_rxready<='0';
 		end if;
 
 		-- PS2 interrupt

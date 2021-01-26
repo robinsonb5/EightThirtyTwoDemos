@@ -30,7 +30,7 @@ clean :
 	gcc -c $*.s
 
 HelloWorld.bin : $(LIBDIR)/crt0.a $(LIBDIR)/lib832.a helloworld.o
-	$(LD) -b 0x10000000 -o $@ $+
+	$(LD) -b 0x10000000 -m HelloWorld.map -o $@ $+
 
 %.o : %.c Makefile
 	$(CC) $(CFLAGS) $*.c

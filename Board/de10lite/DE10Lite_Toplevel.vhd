@@ -99,6 +99,10 @@ architecture RTL of DE10Lite_Toplevel is
 	signal rs232_rxd : std_logic;
 	signal rs232_txd : std_logic;
 
+-- ESP8266 serial
+	signal esp_rxd : std_logic;
+	signal esp_txd : std_logic;
+
 -- Sound
 	signal audio_l : std_logic_vector(15 downto 0);
 	signal audio_r : std_logic_vector(15 downto 0);
@@ -230,7 +234,9 @@ virtualtoplevel : entity work.VirtualToplevel
 	signed(audio_r) => audio_r,
 	 
 	rxd => rs232_rxd,
-	txd => rs232_txd
+	txd => rs232_txd,
+	rxd2 => esp_rxd,
+	txd2 => esp_txd
 );
 
 	
@@ -276,7 +282,12 @@ rightsd: component hybrid_pwm_sd
 		dout => sigma_r
 	);
 
+
 GPIO(0)<=rs232_txd;
+GPIO(1) <= 'Z';
 rs232_rxd<=GPIO(1);
+ARDUINO_IO(1) <= esp_txd;
+ARDUINO_IO(0) <= 'Z';
+esp_rxd <= ARDUINO_IO(0);
 
 end architecture;

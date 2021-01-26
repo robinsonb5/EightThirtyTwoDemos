@@ -1,102 +1,70 @@
-#include "printf.h"
+#include <stdio.h>
 
+#include <hw/uart.h>
 #include <hw/ps2.h>
 #include <hw/timer.h>
 #include <hw/interrupts.h>
 #include <hw/keyboard.h>
 
-void ps2_ringbuffer_init(struct ps2_ringbuffer *r)
-{
-	r->in_hw=0;
-	r->in_cpu=0;
-	r->out_hw=0;
-	r->out_cpu=0;
-}
 
-void ps2_ringbuffer_write(struct ps2_ringbuffer *r,int in)
-{
-	while(r->out_hw==((r->out_cpu+1)&(PS2_RINGBUFFER_SIZE-1)))
-		;
-	printf("w: %d, %d\n, %d\n",r->out_hw,r->out_cpu,in);
-	DisableInterrupts();
-	r->outbuf[r->out_cpu]=in;
-	r->out_cpu=(r->out_cpu+1) & (PS2_RINGBUFFER_SIZE-1);
-	PS2Handler();
-	EnableInterrupts();
-}
+struct hw_ringbuffer kbbuffer;
+struct hw_ringbuffer mousebuffer;
 
 
-int ps2_ringbuffer_read(struct ps2_ringbuffer *r)
-{
-	unsigned char result;
-//	printf("%d,%d\n",r->in_hw,r->in_cpu);
-	if(r->in_hw==r->in_cpu)
-		return(-1);	// No characters ready
-	DisableInterrupts();
-	result=r->inbuf[r->in_cpu];
-	r->in_cpu=(r->in_cpu+1) & (PS2_RINGBUFFER_SIZE-1);
-	EnableInterrupts();
-	return(result);
-}
-
-int ps2_ringbuffer_count(struct ps2_ringbuffer *r)
-{
-	if(r->in_hw>=r->in_cpu)
-		return(r->in_hw-r->in_cpu);
-	return(r->in_hw+PS2_RINGBUFFER_SIZE-r->in_cpu);
-}
-
-struct ps2_ringbuffer kbbuffer;
-struct ps2_ringbuffer mousebuffer;
-
-
-void PS2Handler()
+void PS2Handler(void *userdata)
 {
 	int kbd;
 	int mouse;
-
-	DisableInterrupts();
 	
 	kbd=HW_PS2(REG_PS2_KEYBOARD);
 	mouse=HW_PS2(REG_PS2_MOUSE);
 
 	if(kbd & (1<<BIT_PS2_RECV))
-	{
-//		printf("%x\n",kbd&0xff);
-		kbbuffer.inbuf[kbbuffer.in_hw]=kbd&0xff;
-		kbbuffer.in_hw=(kbbuffer.in_hw+1) & (PS2_RINGBUFFER_SIZE-1);
-	}
+		hw_ringbuffer_fill(&kbbuffer,kbd&0xff);
+
 	if(kbd & (1<<BIT_PS2_CTS))
 	{
 		if(kbbuffer.out_hw!=kbbuffer.out_cpu)
 		{
 			HW_PS2(REG_PS2_KEYBOARD)=kbbuffer.outbuf[kbbuffer.out_hw];
-			kbbuffer.out_hw=(kbbuffer.out_hw+1) & (PS2_RINGBUFFER_SIZE-1);
+			kbbuffer.out_hw=(kbbuffer.out_hw+1) & (HW_RINGBUFFER_SIZE-1);
 		}
 	}
+
 	if(mouse & (1<<BIT_PS2_RECV))
-	{
-		mousebuffer.inbuf[mousebuffer.in_hw]=mouse&0xff;
-		mousebuffer.in_hw=(mousebuffer.in_hw+1) & (PS2_RINGBUFFER_SIZE-1);
-	}
+		hw_ringbuffer_fill(&mousebuffer,mouse&0xff);
+
 	if(mouse & (1<<BIT_PS2_CTS))
 	{
 		if(mousebuffer.out_hw!=mousebuffer.out_cpu)
 		{
 			HW_PS2(REG_PS2_MOUSE)=mousebuffer.outbuf[mousebuffer.out_hw];
-			mousebuffer.out_hw=(mousebuffer.out_hw+1) & (PS2_RINGBUFFER_SIZE-1);
+			mousebuffer.out_hw=(mousebuffer.out_hw+1) & (HW_RINGBUFFER_SIZE-1);
 		}
 	}
-
-	GetInterrupts();	// Clear interrupt bit
-	EnableInterrupts();
 }
 
-void PS2Init()
+
+static struct InterruptHandler ps2_inthandler=
 {
-	ps2_ringbuffer_init(&kbbuffer);
-	ps2_ringbuffer_init(&mousebuffer);
-	SetIntHandler(&PS2Handler);
+	0,
+	PS2Handler,
+	0
+};
+
+__constructor(101.ps2) void PS2Init()
+{
+	puts("In PS2 constructor\n");
+	kbbuffer.action=PS2Handler;
+	hw_ringbuffer_init(&kbbuffer);
+	mousebuffer.action=PS2Handler;
+	hw_ringbuffer_init(&mousebuffer);
+	AddInterruptHandler(&ps2_inthandler);
 	ClearKeyboard();
+}
+
+__destructor(101.ps2) void PS2End()
+{
+	RemoveInterruptHandler(&ps2_inthandler);
 }
 
