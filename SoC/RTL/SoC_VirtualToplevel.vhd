@@ -237,6 +237,13 @@ signal flushcaches : std_logic;
 signal to_rom : ToROM;
 signal from_rom : FromROM;
 
+-- CPU Debug signals
+signal debug_req : std_logic;
+signal debug_ack : std_logic;
+signal debug_fromcpu : std_logic_vector(31 downto 0);
+signal debug_tocpu : std_logic_vector(31 downto 0);
+signal debug_wr : std_logic;
+
 begin
 
 sdr_cke <='1';
@@ -637,7 +644,8 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 		littleendian => true,
 		dualthread => true,
 		prefetch => true,
-		interrupts => true
+		interrupts => true,
+		debug => true
 	)
 	port map
 	(
@@ -653,9 +661,26 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 		bytesel => cpu_bytesel,
 		wr => cpu_wr,
 		req => cpu_req,
-		ack => cpu_ack
+		ack => cpu_ack,
+		-- Debug signals
+		debug_d=>debug_tocpu,
+		debug_q=>debug_fromcpu,
+		debug_req=>debug_req,
+		debug_wr=>debug_wr,
+		debug_ack=>debug_ack		
 	);
 
+	debugbridge : entity work.debug_bridge_jtag
+	port map
+	(
+		clk => slowclk,
+		reset_n => reset_n,
+		d => debug_fromcpu,
+		q => debug_tocpu,
+		req => debug_req,
+		ack => debug_ack,
+		wr => debug_wr
+	);
 
 
 process(clk)

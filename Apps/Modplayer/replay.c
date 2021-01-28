@@ -1113,6 +1113,13 @@ static void timer_interrupt()
 	EnableInterrupts();
 }
 
+static struct InterruptHandler handler =
+{
+	0,
+	timer_interrupt,
+	0
+};
+
 
 int ptBuddyPlay(unsigned char *modData, char timerType)
 {
@@ -1130,7 +1137,7 @@ int ptBuddyPlay(unsigned char *modData, char timerType)
 	puts("Setting tempo...\n");
 	SetTempo(125);	// Default tempo
 	puts("Setting interrupt handler...\n");
-	SetIntHandler(timer_interrupt);
+	AddInterruptHandler(&handler);
 //	HW_TIMER(REG_TIMER_CONTROL)=1<<BIT_TIMER_EN1; // Enable timer 1
 	puts("Enabling timer...\n");
     mt_Enable = 1;
