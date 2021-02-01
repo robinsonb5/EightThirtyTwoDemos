@@ -129,7 +129,7 @@ wire ramclk;
 wire sysclk;
 wire slowclk;
 
-MAX10_50_100 pll
+pll sysclks
 (
 	.inclk0(MAX10_CLK1_50),
 	.c0(ramclk),
@@ -138,7 +138,7 @@ MAX10_50_100 pll
 	.locked(pll_locked)
 );
 
-VirtualToplevel #(.sysclk_frequency(1000),.jtag_uart("true")) mytl
+VirtualToplevel #(.sysclk_frequency(1000),.jtag_uart("true")) virtualtoplevel
 (
 	.clk(sysclk),
 	.slowclk(slowclk),

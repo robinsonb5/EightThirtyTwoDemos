@@ -3,13 +3,15 @@ PROJECT=none
 QUARTUS=none
 
 TARGETDIR=$(PROJECT)/fpga/$(BOARD)
-QSF=$(PROJECT)_$(BOARD).qsf
+SOF=$(PROJECT)_$(BOARD).sof
 
-all: $(TARGETDIR) $(TARGETDIR)/$(QSF)
+all: $(TARGETDIR) $(TARGETDIR)/$(SOF)
 
-$(TARGETDIR)/$(QSF):
+$(TARGETDIR)/$(SOF): force
 	make -C $(TARGETDIR) -f ../../../quartus.mk BOARD=$(BOARD) PROJECT=$(PROJECT) QUARTUS=$(QUARTUS)
 
 $(TARGETDIR):
-	mkdir $(TARGETDIR)
+	mkdir -p $(TARGETDIR)
+
+force:
 

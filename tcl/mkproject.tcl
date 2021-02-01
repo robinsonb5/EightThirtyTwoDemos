@@ -19,13 +19,19 @@ if {$frequency==0} {return -code error "Must specify a frequency"}
 
 set corename "${project}_${board}"
 
-project_new $corename -revision $corename -overwrite
-set_global_assignment -name TOP_LEVEL_ENTITY ${board}_top
-
 source ../../project_defs.tcl
-source ../../../Board/${board}/${board}_opts.tcl
-source ../../../Board/${board}/${board}_pins.tcl
-source ../../../Board/${board}/${board}_support.tcl
-source ../../project_files.tcl
+source ../../../Board/${board}/${board}_defs.tcl
 
+if { ${requires_sdram}==0 || ${have_sdram}==1 } {
+	project_new $corename -revision $corename -overwrite
+	set_global_assignment -name TOP_LEVEL_ENTITY ${board}_top
+
+	source ../../../Board/${board}/${board}_opts.tcl
+	source ../../../Board/${board}/${board}_pins.tcl
+	source ../../../Board/${board}/${board}_support.tcl
+	source ../../project_files.tcl
+	set_global_assignment -name QIP_FILE ../../../PLL/${fpga}_${base_clock}_${target_frequency}/pll.qip
+} else {
+	puts "Board ${board} has no SDRAM, not building ${project}"
+}
 

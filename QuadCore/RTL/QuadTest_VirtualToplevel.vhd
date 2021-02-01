@@ -9,7 +9,7 @@ entity VirtualToplevel is
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
 		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10 MHz
-		jtag_uart : boolean := true
+		jtag_uart : boolean := false
 	);
 	port (
 		clk 			: in std_logic;
@@ -55,6 +55,8 @@ entity VirtualToplevel is
 		-- UART
 		rxd	: in std_logic;
 		txd	: out std_logic;
+		rxd2	: in std_logic :='1';
+		txd2	: out std_logic;
 		
 		-- Audio
 		audio_l : out signed(15 downto 0);
@@ -70,7 +72,6 @@ constant maxAddrBit : integer := 31;
 
 signal reset_n : std_logic := '0';
 signal reset_counter : unsigned(15 downto 0) := X"FFFF";
-
 
 -- Millisecond counter
 signal millisecond_counter : unsigned(31 downto 0) := X"00000000";
@@ -103,6 +104,11 @@ signal int_trigger : std_logic;
 signal timer_reg_req : std_logic;
 signal timer_tick : std_logic;
 
+-- Mutex signals
+
+signal mutex_trigger : std_logic;
+signal mutex : std_logic;
+
 
 -- CPU signals
 
@@ -117,13 +123,33 @@ signal cpu_req : std_logic;
 signal cpu_ack : std_logic; 
 signal cpu_wr : std_logic; 
 signal cpu_bytesel : std_logic_vector(3 downto 0);
-signal mem_rd : std_logic; 
-signal mem_wr : std_logic; 
-signal mem_rd_d : std_logic; 
-signal mem_wr_d : std_logic; 
 
 signal to_rom : ToROM;
 signal from_rom : FromROM;
+
+-- 2nd CPU signals
+
+signal mem_rom2 : std_logic;
+signal rom_ack2 : std_logic;
+signal cpu_addr2 : std_logic_vector(31 downto 0);
+signal to_cpu2 : std_logic_vector(31 downto 0);
+signal from_cpu2 : std_logic_vector(31 downto 0);
+signal cpu_req2 : std_logic; 
+signal cpu_ack2 : std_logic; 
+signal cpu_wr2 : std_logic; 
+signal cpu_bytesel2 : std_logic_vector(3 downto 0);
+
+signal mem_addr : std_logic_vector(31 downto 0);
+signal mem_data : std_logic_vector(31 downto 0);
+signal mem_req_cpu1 : std_logic;
+signal mem_req_cpu2 : std_logic;
+signal mem_req : std_logic;
+signal mem_req_d : std_logic;
+signal mem_wr : std_logic;
+signal mem_cpu : std_logic;
+
+signal to_rom2 : ToROM;
+signal from_rom2 : FromROM;
 
 begin
 
@@ -259,35 +285,54 @@ port map (
 	status => int_status
 );
 
-int_triggers<=(0=>timer_tick, others => '0');
+int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 
 
 -- ROM
 
-	rom : entity work.Dhrystone_rom
+	rom : entity work.QuadTest_rom
 	generic map(
 		maxAddrBitBRAM => 15
 	)
 	port map(
 		clk => clk,
 		from_soc => to_rom,
-		to_soc => from_rom
+		to_soc => from_rom,
+		from_soc2 => to_rom2,
+		to_soc2 => from_rom2
 	);
 
 	
 -- Main CPU
 
 	mem_rom <='1' when cpu_addr(31 downto 28)=X"0" else '0';
-	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
-	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
+	mem_req_cpu1 <='1' when cpu_req='1' and mem_rom='0' else '0';
+--	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
+--	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 
 	to_rom.MemAAddr<=cpu_addr(15 downto 2);
 	to_rom.MemAWrite<=from_cpu;
 	to_rom.MemAByteSel<=cpu_bytesel;
-		
+
+-- cpu2
+
+	mem_rom2 <='1' when cpu_addr2(31 downto 28)=X"0" else '0';
+	mem_req_cpu2 <='1' when cpu_req2='1' and mem_rom2='0' else '0';
+--	mem_rd2<='1' when cpu_req2='1' and cpu_wr2='0' and mem_rom2='0' else '0';
+--	mem_wr2<='1' when cpu_req2='1' and cpu_wr2='1' and mem_rom2='0' else '0';
+
+	to_rom2.MemAAddr<=cpu_addr2(15 downto 2);
+	to_rom2.MemAWrite<=from_cpu2;
+	to_rom2.MemAByteSel<=cpu_bytesel2;
+	
 	process(clk)
 	begin
-		if rising_edge(clk) then
+		if reset_n='0' then
+			mem_req<='0';
+		elsif rising_edge(clk) then
+
+			-- cpu 1
+
 			rom_ack<=cpu_req and mem_rom;
 
 			if cpu_addr(31)='0' then
@@ -296,7 +341,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 				to_cpu<=from_mem;
 			end if;
 
-			if (mem_busy='0' or rom_ack='1') and cpu_ack='0' then
+			if ((mem_busy='0' and mem_cpu='0') or rom_ack='1') and cpu_ack='0' then
 				cpu_ack<='1';
 			else
 				cpu_ack<='0';
@@ -307,7 +352,50 @@ int_triggers<=(0=>timer_tick, others => '0');
 			else
 				to_rom.MemAWriteEnable<='0';
 			end if;
-	
+
+			-- cpu 2
+
+			rom_ack2<=cpu_req2 and mem_rom2;
+
+			if cpu_addr2(31)='0' then
+				to_cpu2<=from_rom2.MemARead;
+			else
+				to_cpu2<=from_mem;
+			end if;
+
+			if ((mem_busy='0' and mem_cpu='1') or rom_ack2='1') and cpu_ack2='0' then
+				cpu_ack2<='1';
+			else
+				cpu_ack2<='0';
+			end if;
+
+			if cpu_addr2(31)='0' then
+				to_rom2.MemAWriteEnable<=(cpu_wr2 and cpu_req2);
+			else
+				to_rom2.MemAWriteEnable<='0';
+			end if;
+			
+			-- Launch a memory cycle if required.
+			
+			if mem_req='0' then
+				if mem_req_cpu1='1' then
+					mem_cpu<='0';	-- 1st cpu
+					mem_req<='1';
+					mem_addr<=cpu_addr;
+					mem_data<=from_cpu;
+					mem_wr<=cpu_wr;
+				elsif mem_req_cpu2='1' then
+					mem_cpu<='1';	-- 2nd cpu
+					mem_req<='1';
+					mem_addr<=cpu_addr2;
+					mem_data<=from_cpu2;
+					mem_wr<=cpu_wr2;
+				end if;
+			elsif mem_req='1' and ((mem_cpu='0' and cpu_ack='1') or (mem_cpu='1' and cpu_ack2='1')) then
+				mem_req<='0';
+				mem_wr<='0';
+			end if;
+			
 		end if;	
 	end process;
 	
@@ -337,36 +425,70 @@ int_triggers<=(0=>timer_tick, others => '0');
 	);
 
 
+	cpu2 : entity work.eightthirtytwo_cpu
+	generic map
+	(
+		littleendian => true,
+		interrupts => false,
+		dualthread => true,
+		forwarding => true
+	)
+	port map
+	(
+		clk => clk,
+		reset_n => reset_n,
+		interrupt => '0', -- int_req,
+
+		-- cpu fetch interface
+
+		addr => cpu_addr2(31 downto 2),
+		d => to_cpu2,
+		q => from_cpu2,
+		bytesel => cpu_bytesel2,
+		wr => cpu_wr2,
+		req => cpu_req2,
+		ack => cpu_ack2
+	);
+
+
 
 process(clk)
 begin
-	if rising_edge(clk) then
+	if reset_n='0' then
+		mutex<='0';
+	elsif rising_edge(clk) then
 		mem_busy<='1';
 		ser_txgo<='0';
 		int_ack<='0';
 		timer_reg_req<='0';
+		mutex_trigger<='0';
 
-		mem_rd_d<=mem_rd;
-		mem_wr_d<=mem_wr;
+		mem_req_d<=mem_req;
 
 		-- Write from CPU?
-		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
-			case cpu_addr(31)&cpu_addr(10 downto 8) is
+		if mem_wr='1' and mem_req='1' and mem_req_d='0' and mem_busy='1' then
+			case mem_addr(31)&mem_addr(10 downto 8) is
 				when X"C" =>	-- Timer controller at 0xFFFFFC00
 					timer_reg_req<='1';
-					mem_busy<='0';	-- Audio controller never blocks the CPU
+					mem_busy<='0';	-- Timer controller never blocks the CPU
+
 				when X"F" =>	-- Peripherals
-					case cpu_addr(7 downto 0) is
+					case mem_addr(7 downto 0) is
 
 						when X"B0" => -- Interrupts
-							int_enabled<=from_cpu(0);
+							int_enabled<=mem_data(0);
 							mem_busy<='0';
 
 						when X"C0" => -- UART
-							ser_txdata<=from_cpu(7 downto 0);
+							ser_txdata<=mem_data(7 downto 0);
 							ser_txgo<='1';
 							mem_busy<='0';
 							
+						when X"F0" => -- MUTEX
+							mutex<='0';
+							mutex_trigger<='1';
+							mem_busy<='0';
+
 						when others =>
 							mem_busy<='0';
 							null;
@@ -376,11 +498,11 @@ begin
 					null;
 			end case;
 
-		elsif mem_rd='1' and mem_rd_d='0' and mem_busy='1' then -- Read from CPU?
-			case cpu_addr(31 downto 28) is
+		elsif mem_req='1' and mem_req_d='0' and mem_busy='1' then -- Read from CPU?
+			case mem_addr(31 downto 28) is
 
 				when X"F" =>	-- Peripherals
-					case cpu_addr(7 downto 0) is
+					case mem_addr(7 downto 0) is
 
 						when X"B0" => -- Interrupt
 							from_mem<=(others=>'X');
@@ -396,6 +518,17 @@ begin
 
 						when X"C8" => -- Millisecond counter
 							from_mem<=std_logic_vector(millisecond_counter);
+							mem_busy<='0';
+							
+						when X"F0" => -- MUTEX
+							from_mem<=(others=>'0');
+							from_mem(0)<=mutex;
+							mutex<='1';
+							mem_busy<='0';
+							
+						when X"F4" => -- CPU ID
+							from_mem<=(others=>'0');
+							from_mem(0)<=mem_cpu;
 							mem_busy<='0';
 
 						when others =>

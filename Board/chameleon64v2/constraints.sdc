@@ -45,7 +45,7 @@ create_clock -name {clk_50} -period 20 -waveform { 0.000 0.500 } [get_ports {clk
 #**************************************************************
 
 derive_pll_clocks 
-create_generated_clock -name sd1clk_pin -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[2]}] [get_ports {ram_clk}]
+create_generated_clock -name sd1clk_pin -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[0]}] [get_ports {ram_clk}]
 create_generated_clock -name sysclk -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[1]}]
 
 #**************************************************************
