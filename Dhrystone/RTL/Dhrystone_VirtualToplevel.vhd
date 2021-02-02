@@ -55,6 +55,8 @@ entity VirtualToplevel is
 		-- UART
 		rxd	: in std_logic :='1';
 		txd	: out std_logic;
+		rxd2	: in std_logic :='1';
+		txd2	: out std_logic;
 		
 		-- Audio
 		audio_l : out signed(15 downto 0);

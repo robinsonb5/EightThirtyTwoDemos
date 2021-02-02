@@ -8,7 +8,8 @@ entity VirtualToplevel is
 	generic (
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
-		sysclk_frequency : integer := 1000 -- Sysclk frequency * 10
+		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10
+		jtag_uart : boolean := false
 	);
 	port (
 		clk 			: in std_logic;
@@ -52,7 +53,9 @@ entity VirtualToplevel is
 		ps2m_dat_out : out std_logic;
 
 		-- UART
-		rxd	: in std_logic;
+		rxd	: in std_logic :='1';
+		txd	: out std_logic;
+		rxd	: in std_logic :='1';
 		txd	: out std_logic;
 		
 		-- Audio
@@ -142,6 +145,8 @@ end process;
 
 -- UART
 
+normaluart:
+if jtag_uart=false generate
 myuart : entity work.simple_uart
 	generic map(
 		enable_tx=>true,
@@ -160,7 +165,29 @@ myuart : entity work.simple_uart
 		rxd => rxd,
 		txd => txd
 	);
+end generate;
 
+jtaguart:
+if jtag_uart=true generate
+myuart : entity work.jtag_uart
+	generic map(
+		enable_tx=>true,
+		enable_rx=>true
+	)
+	port map(
+		clk => slowclk,
+		reset => reset_n, -- active low
+		txdata => ser_txdata,
+		txready => ser_txready,
+		txgo => ser_txgo,
+		rxdata => ser_rxdata,
+		rxint => ser_rxint,
+		txint => open,
+		clock_divisor => to_unsigned(uart_divisor,16),
+		rxd => rxd,
+		txd => txd
+	);
+end generate;
 
 -- Hello World ROM
 

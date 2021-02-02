@@ -8,7 +8,8 @@ entity VirtualToplevel is
 	generic (
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
-		sysclk_frequency : integer := 1000 -- Sysclk frequency * 10
+		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10
+		jtag_uart : boolean := false
 	);
 	port (
 		clk 			: in std_logic;
@@ -52,8 +53,10 @@ entity VirtualToplevel is
 		ps2m_dat_out : out std_logic;
 
 		-- UART
-		rxd	: in std_logic;
+		rxd	: in std_logic := '1';
 		txd	: out std_logic;
+		rxd2	: in std_logic := '1';
+		txd2	: out std_logic;
 		
 		-- Audio
 		audio_l : out signed(15 downto 0);
