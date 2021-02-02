@@ -13,7 +13,7 @@
 --applicable agreement for further details.
 
 
-component hostpll
+component pll
 	PORT
 	(
 		areset		: IN STD_LOGIC  := '0';

@@ -5,3 +5,6 @@
 [submodule "Board/chameleon-modules"]
 	path = Board/chameleon-modules
 	url = https://github.com/robinsonb5/chameleon-modules.git
+[submodule "Board/mist-modules"]
+	path = Board/mist-modules
+	url = https://github.com/robinsonb5/mist-modules.git

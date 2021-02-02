@@ -5,11 +5,11 @@ use IEEE.numeric_std.ALL;
 library work;
 use work.Toplevel_Config.ALL;
 
-entity MIST_Toplevel is
+entity mist_top is
 	port
 	(
-		CLOCK_27		:	 in std_logic_vector(1 downto 0);
-		
+		CLOCK_27		:	in std_logic;
+
 		LED			: 	out std_logic;
 
 		UART_TX		:	 out STD_LOGIC;
@@ -46,7 +46,7 @@ entity MIST_Toplevel is
 	);
 END entity;
 
-architecture rtl of MIST_Toplevel is
+architecture rtl of mist_top is
 
 signal reset : std_logic;
 signal sysclk : std_logic;
@@ -224,10 +224,10 @@ component sd_card
 
 begin
 
-mypll : entity work.PLL
+mypll : entity work.pll
 port map
 (
-	inclk0 => CLOCK_27(0),
+	inclk0 => CLOCK_27,
 	c0 => SDRAM_CLK,
 	c1 => sysclk,
 	c2 => slowclk,
