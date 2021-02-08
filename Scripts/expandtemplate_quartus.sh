@@ -2,6 +2,9 @@
 
 cat $1 | while read a; do
 	b=${a,,}
+	if [ "${b: -4}" = ".rom" ]; then
+		echo set_global_assignment -name VHDL_FILE ../../${a%.rom}_byte.vhd
+	fi
 	if [ "${b: -4}" = ".vhd" ]; then
 		echo set_global_assignment -name VHDL_FILE ../../${a}
 	fi

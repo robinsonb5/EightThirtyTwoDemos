@@ -10,7 +10,7 @@ DUMP=objdump
 CFLAGS = -+ -speed
 LIBS = $(832DIR)/dualcrt0.a $(832DIR)/lib832.a
 COPT = -O=32767
-all: Dhrystone_ROM.vhd Dhrystone.bin
+all: Dhrystone_ROM_byte.vhd Dhrystone_ROM_word.vhd
 
 clean :
 	-rm *.S
@@ -18,42 +18,26 @@ clean :
 	-rm *.o
 	-rm *.vhd
 	-rm *.bin
-	-rm *.elf
 
-%_ROM.vhd: %.bin $(ROMGEN)
-	sed 's/dualportram/$*_rom/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
-	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
-	cat >>$*_ROM.vhd $(ROMGENDIR)/rom_epilogue.vhd
+%_ROM_byte.vhd: %.bin $(ROMGEN)
+	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_byte.vhd <$(ROMGENDIR)/rom_prologue_byte.vhd
+	$(ROMGEN) -b $*.bin >>$*_ROM_byte.vhd
+	cat >>$*_ROM_byte.vhd $(ROMGENDIR)/rom_epilogue_byte.vhd
 
-%.rpt: %.elf
-	@echo -n "End of code:\t"
-	@$(DUMP) -x $< | grep _romend
-	@echo -n "Start of BSS:\t"
-	@$(DUMP) -x $< | grep __bss_start__
-	@echo -n "End of BSS:\t"
-	@$(DUMP) -x $< | grep __bss_end__
+%_ROM_word.vhd: %.bin $(ROMGEN)
+	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_word.vhd <$(ROMGENDIR)/rom_prologue_word.vhd
+	$(ROMGEN) -b -w $*.bin >>$*_ROM_word.vhd
+	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_word.vhd
 
 Dhrystone.bin : dhry_1.o dhry_2.o dhry_3.o dhry_4.o
 	$(LD) $(LIBS) -o $@ $+
-
-%.o : %.S Makefile $(832DIR)/start.S
-	$(AS) -o $*.o $*.S
 
 %.o : %.c Makefile $(832DIR)/start.S
 	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
 	$(AS) -o $*.o $*.asm
 
-%.o : $(832DIR)/%.S Makefile $(832DIR)/assembler.pp $(832DIR)/start.S
-	$(AS) -o $*.o $(832DIR)/$*.S
-
-%.o : $(832DIR)/%.asm Makefile $(832DIR)/assembler.pp $(832DIR)/start.S
-	$(AS) -o $*.o $(832DIR)/$*.asm
-
-%.o : $(LIBDIR)/%.S Makefile 
-	$(AS) -o $*.o $(LIBDIR)/$*.S
-
-%.o : $(LIBDIR)/%.asm Makefile 
-	$(AS) -o $*.o $(LIBDIR)/$*.asm
+%.o : %.asm Makefile $(832DIR)/start.S
+	$(AS) -o $*.o $*.S
 
 %.asm : %.c Makefile
 	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c

@@ -20,11 +20,10 @@
 ../RTL/Util/risingedge_divider.vhd
 
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
-../EightThirtyTwo/romgen/rom_pkg.vhd
 
 RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
 
 RTL/VGA_VirtualToplevel.vhd
-Firmware/VGA_ROM.vhd
+Firmware/VGA_ROM.rom
 

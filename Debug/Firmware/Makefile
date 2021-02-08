@@ -11,7 +11,7 @@ LIBSOCDIR = ../../lib832soc/
 INCLUDES = $(832DIR)/include ../../include
 
 
-all: HelloWorld_ROM.vhd
+all: HelloWorld_ROM_byte.vhd HelloWorld_ROM_word.vhd
 
 
 clean :
@@ -24,10 +24,15 @@ HelloWorld.bin : HelloWorld.o
 %.o : %.S Makefile
 	$(AS) -o $*.o $*.S
 
-%_ROM.vhd: %.bin $(ROMGEN)
-	sed 's/dualportram/$*_ROM/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
-	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
-	cat >>$*_ROM.vhd $(ROMGENDIR)/rom_epilogue.vhd
+%_ROM_byte.vhd: %.bin $(ROMGEN)
+	sed 's/eightthirtytwo_rom/$*_ROM/' >$*_ROM_byte.vhd <$(ROMGENDIR)/rom_prologue_byte.vhd
+	$(ROMGEN) -b $*.bin >>$*_ROM_byte.vhd
+	cat >>$*_ROM_byte.vhd $(ROMGENDIR)/rom_epilogue_byte.vhd
+
+%_ROM_word.vhd: %.bin $(ROMGEN)
+	sed 's/eightthirtytwo_rom/$*_ROM/' >$*_ROM_word.vhd <$(ROMGENDIR)/rom_prologue_word.vhd
+	$(ROMGEN) -b $*.bin >>$*_ROM_word.vhd
+	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_word.vhd
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c
 	gcc -o $(ROMGENDIR)/romgen $(ROMGENDIR)/romgen.c

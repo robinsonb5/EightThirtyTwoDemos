@@ -1,45 +1,43 @@
-832DIR=../../EightThirtyTwo
-INCDIR=$(832DIR)/include/
-LIBDIR=$(832DIR)/lib832
-
+832DIR=../../EightThirtyTwo/lib832/
+INCDIR=../../EightThirtyTwo/include/
+LIBDIR=../../Lib/
 ROMGENDIR = ../../EightThirtyTwo/romgen
 ROMGEN = $(ROMGENDIR)/romgen
-
 CC=../../EightThirtyTwo/vbcc/bin/vbcc832
 AS=../../EightThirtyTwo/832a/832a
 LD=../../EightThirtyTwo/832a/832l
-
-CFLAGS = -+ -speed -unsigned-char -I../../include -I$(832DIR)/include
+DUMP=objdump
+CFLAGS = -+ -speed
+LIBS = $(832DIR)/dualcrt0.a $(832DIR)/lib832.a
 COPT = -O=32767
-
-LDFLAGS=-s_STACKSIZE=512
-
-all: LZ4_ROM_byte.vhd LZ4_ROM_word.vhd LZ4.bin
+all: QuadTest_ROM_byte.vhd QuadTest_ROM_word.vhd QuadTest.bin
 
 clean :
+	-rm *.S
+	-rm *.asm
 	-rm *.o
 	-rm *.vhd
 	-rm *.bin
 	-rm *.elf
 
 %_ROM_byte.vhd: %.bin $(ROMGEN)
-	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_byte.vhd <$(ROMGENDIR)/rom_prologue_byte.vhd
+	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_byte.vhd <$(ROMGENDIR)/rom_prologue_dualport_byte.vhd
 	$(ROMGEN) -b $*.bin >>$*_ROM_byte.vhd
-	cat >>$*_ROM_byte.vhd $(ROMGENDIR)/rom_epilogue_byte.vhd
+	cat >>$*_ROM_byte.vhd $(ROMGENDIR)/rom_epilogue_dualport_byte.vhd
 
 %_ROM_word.vhd: %.bin $(ROMGEN)
-	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_word.vhd <$(ROMGENDIR)/rom_prologue_word.vhd
+	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_word.vhd <$(ROMGENDIR)/rom_prologue_dualport_word.vhd
 	$(ROMGEN) -b -w $*.bin >>$*_ROM_word.vhd
-	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_word.vhd
+	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_dualport_word.vhd
 
-LZ4.bin : lz4.o
-	$(LD) $(LDFLAGS) -m $@.map -o $@ $+
+QuadTest.bin : QuadTest.o
+	$(LD) $(LIBS) -m QuadTest.map -o $@ $+
 
 %.o : %.c Makefile
 	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
 	$(AS) -o $*.o $*.asm
 
-%.o : %.asm Makefile
+%.o : %.asm Makefile 
 	$(AS) -o $*.o $*.asm
 
 %.asm : %.c Makefile

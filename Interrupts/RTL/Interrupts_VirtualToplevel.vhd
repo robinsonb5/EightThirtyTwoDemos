@@ -1,14 +1,14 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
-use work.rom_pkg.ALL;
 
 
 entity VirtualToplevel is
 	generic (
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
-		sysclk_frequency : integer := 1000 -- Sysclk frequency * 10
+		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10
+		jtag_uart : boolean := false
 	);
 	port (
 		clk 			: in std_logic;
@@ -54,6 +54,8 @@ entity VirtualToplevel is
 		-- UART
 		rxd	: in std_logic;
 		txd	: out std_logic;
+		rxd2	: in std_logic :='1';
+		txd2	: out std_logic;
 		
 		-- Audio
 		audio_l : out signed(15 downto 0);
@@ -104,6 +106,7 @@ signal mem_busy : std_logic;
 signal mem_rom : std_logic;
 signal rom_ack : std_logic;
 signal from_mem : std_logic_vector(31 downto 0);
+signal from_rom : std_logic_vector(31 downto 0);
 signal cpu_addr : std_logic_vector(31 downto 0);
 signal to_cpu : std_logic_vector(31 downto 0);
 signal from_cpu : std_logic_vector(31 downto 0);
@@ -113,9 +116,7 @@ signal cpu_wr : std_logic;
 signal cpu_bytesel : std_logic_vector(3 downto 0);
 signal mem_rd : std_logic; 
 signal mem_wr : std_logic; 
-
-signal to_rom : ToROM;
-signal from_rom : FromROM;
+signal rom_wr : std_logic;
 
 begin
 
@@ -161,13 +162,15 @@ end process;
 
 -- UART
 
+normaluart:
+if jtag_uart=false generate
 myuart : entity work.simple_uart
 	generic map(
 		enable_tx=>true,
 		enable_rx=>true
 	)
 	port map(
-		clk => clk,
+		clk => slowclk,
 		reset => reset_n, -- active low
 		txdata => ser_txdata,
 		txready => ser_txready,
@@ -179,6 +182,29 @@ myuart : entity work.simple_uart
 		rxd => rxd,
 		txd => txd
 	);
+end generate;
+
+jtaguart:
+if jtag_uart=true generate
+myuart : entity work.jtag_uart
+	generic map(
+		enable_tx=>true,
+		enable_rx=>true
+	)
+	port map(
+		clk => slowclk,
+		reset => reset_n, -- active low
+		txdata => ser_txdata,
+		txready => ser_txready,
+		txgo => ser_txgo,
+		rxdata => ser_rxdata,
+		rxint => ser_rxint,
+		txint => open,
+		clock_divisor => to_unsigned(uart_divisor,16),
+		rxd => rxd,
+		txd => txd
+	);
+end generate;
 
 	
 mytimer : entity work.timer_controller
@@ -221,12 +247,15 @@ int_triggers<=(0=>timer_tick, others => '0');
 
 	rom : entity work.Interrupts_rom
 	generic map(
-		maxAddrBitBRAM => 11
+		ADDR_WIDTH => 11
 	)
 	port map(
 		clk => clk,
-		from_soc => to_rom,
-		to_soc => from_rom
+		addr => cpu_addr(12 downto 2),
+		d => from_cpu,
+		q => from_rom,
+		we => rom_wr,
+		bytesel => cpu_bytesel
 	);
 
 	
@@ -235,10 +264,6 @@ int_triggers<=(0=>timer_tick, others => '0');
 	mem_rom <='1' when cpu_addr(31 downto 28)=X"0" else '0';
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
-
-	to_rom.MemAAddr<=cpu_addr(15 downto 2);
-	to_rom.MemAWrite<=from_cpu;
-	to_rom.MemAByteSel<=cpu_bytesel;
 		
 	process(clk)
 	begin
@@ -246,7 +271,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 			rom_ack<=cpu_req and mem_rom;
 
 			if cpu_addr(31)='0' then
-				to_cpu<=from_rom.MemARead;
+				to_cpu<=from_rom;
 			else
 				to_cpu<=from_mem;
 			end if;
@@ -258,9 +283,9 @@ int_triggers<=(0=>timer_tick, others => '0');
 			end if;
 
 			if cpu_addr(31)='0' then
-				to_rom.MemAWriteEnable<=(cpu_wr and cpu_req);
+				rom_wr<=cpu_wr and cpu_req;
 			else
-				to_rom.MemAWriteEnable<='0';
+				rom_wr<='0';
 			end if;
 	
 		end if;	

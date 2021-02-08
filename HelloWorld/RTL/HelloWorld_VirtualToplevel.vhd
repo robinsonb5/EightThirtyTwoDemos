@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
-use work.rom_pkg.ALL;
 
 
 entity VirtualToplevel is
@@ -88,6 +87,7 @@ signal mem_busy : std_logic;
 signal mem_rom : std_logic;
 signal rom_ack : std_logic;
 signal from_mem : std_logic_vector(31 downto 0);
+signal from_rom : std_logic_vector(31 downto 0);
 signal cpu_addr : std_logic_vector(31 downto 0);
 signal to_cpu : std_logic_vector(31 downto 0);
 signal from_cpu : std_logic_vector(31 downto 0);
@@ -97,9 +97,7 @@ signal cpu_wr : std_logic;
 signal cpu_bytesel : std_logic_vector(3 downto 0);
 signal mem_rd : std_logic; 
 signal mem_wr : std_logic; 
-
-signal to_rom : ToROM;
-signal from_rom : FromROM;
+signal rom_wr : std_logic;
 
 begin
 
@@ -191,13 +189,16 @@ end generate;
 -- Hello World ROM
 
 	rom : entity work.HelloWorld_rom
-	generic map(
-		maxAddrBitBRAM => 6
+	generic map (
+		ADDR_WIDTH => 5
 	)
-	port map(
+	port map (
 		clk => slowclk,
-		from_soc => to_rom,
-		to_soc => from_rom
+		addr => cpu_addr(6 downto 2),
+		d => from_cpu,
+		q => from_rom,
+		we => rom_wr,
+		bytesel => cpu_bytesel
 	);
 
 	
@@ -206,10 +207,6 @@ end generate;
 	mem_rom <='1' when cpu_addr(31 downto 28)=X"0" else '0';
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
-
-	to_rom.MemAAddr<=cpu_addr(15 downto 2);
-	to_rom.MemAWrite<=from_cpu;
-	to_rom.MemAByteSel<=cpu_bytesel;
 		
 	process(slowclk)
 	begin
@@ -217,7 +214,7 @@ end generate;
 			rom_ack<=cpu_req and mem_rom;
 
 			if cpu_addr(31)='0' then
-				to_cpu<=from_rom.MemARead;
+				to_cpu<=from_rom;
 			else
 				to_cpu<=from_mem;
 			end if;
@@ -229,9 +226,9 @@ end generate;
 			end if;
 
 			if cpu_addr(31)='0' then
-				to_rom.MemAWriteEnable<=(cpu_wr and cpu_req);
+				rom_wr<=(cpu_wr and cpu_req);
 			else
-				to_rom.MemAWriteEnable<='0';
+				rom_wr<='0';
 			end if;
 	
 		end if;	

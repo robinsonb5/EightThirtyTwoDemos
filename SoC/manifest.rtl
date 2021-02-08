@@ -21,11 +21,10 @@
 ../RTL/Util/risingedge_divider.vhd
 
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
-../EightThirtyTwo/romgen/rom_pkg.vhd
 
 RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
 
 RTL/SoC_VirtualToplevel.vhd
-Firmware/SoC_ROM.vhd
+Firmware/SoC_ROM.rom
 

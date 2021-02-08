@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
-use work.rom_pkg.ALL;
 use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
 
@@ -10,7 +9,9 @@ entity VirtualToplevel is
 	generic (
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
-		sysclk_frequency : integer := 1000 -- Sysclk frequency * 10
+		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10
+		jtag_uart : boolean := false;
+		debug : boolean := false
 	);
 	port (
 		clk 			: in std_logic;
@@ -60,8 +61,8 @@ entity VirtualToplevel is
 		txd2	: out std_logic;
 		
 		-- Audio
-		audio_l : out signed(15 downto 0);
-		audio_r : out signed(15 downto 0)
+		AUDIO_L : out signed(15 downto 0);
+		AUDIO_R : out signed(15 downto 0)
 );
 end entity;
 
@@ -220,6 +221,7 @@ signal mem_busy : std_logic;
 signal mem_rom : std_logic;
 signal rom_ack : std_logic;
 signal from_mem : std_logic_vector(31 downto 0);
+signal from_rom : std_logic_vector(31 downto 0);
 signal cpu_addr : std_logic_vector(31 downto 0);
 signal to_cpu : std_logic_vector(31 downto 0);
 signal from_cpu : std_logic_vector(31 downto 0);
@@ -229,13 +231,11 @@ signal cpu_wr : std_logic;
 signal cpu_bytesel : std_logic_vector(3 downto 0);
 signal mem_rd : std_logic; 
 signal mem_wr : std_logic; 
+signal rom_wr : std_logic;
 signal mem_rd_d : std_logic; 
 signal mem_wr_d : std_logic; 
 signal cache_valid : std_logic;
 signal flushcaches : std_logic;
-
-signal to_rom : ToROM;
-signal from_rom : FromROM;
 
 -- CPU Debug signals
 signal debug_req : std_logic;
@@ -243,6 +243,18 @@ signal debug_ack : std_logic;
 signal debug_fromcpu : std_logic_vector(31 downto 0);
 signal debug_tocpu : std_logic_vector(31 downto 0);
 signal debug_wr : std_logic;
+
+component debug_bridge_jtag is
+port (
+	clk : in std_logic;
+	reset_n : in std_logic;
+	d : in std_logic_vector(31 downto 0);
+	q : out std_logic_vector(31 downto 0);
+	req : in std_logic;
+	wr : in std_logic;
+	ack : buffer std_logic
+);
+end component;
 
 begin
 
@@ -593,12 +605,15 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 
 	rom : entity work.SoC_rom
 	generic map(
-		maxAddrBitBRAM => 13
+		ADDR_WIDTH => 13
 	)
 	port map(
-		clk => clk,
-		from_soc => to_rom,
-		to_soc => from_rom
+		clk => clk,		
+		addr => cpu_addr(14 downto 2),
+		d => from_cpu,
+		q => from_rom,
+		we => rom_wr,
+		bytesel => cpu_bytesel
 	);
 
 
@@ -607,10 +622,6 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 	mem_rom <='1' when cpu_addr(31 downto 26)=X"0"&"00" else '0';
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
-
-	to_rom.MemAAddr<=cpu_addr(15 downto 2);
-	to_rom.MemAWrite<=from_cpu;
-	to_rom.MemAByteSel<=cpu_bytesel;
 		
 	process(clk)
 	begin
@@ -618,7 +629,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 			rom_ack<=cpu_req and mem_rom;
 
 			if mem_rom='1' then
-				to_cpu<=from_rom.MemARead;
+				to_cpu<=from_rom;
 			else
 				to_cpu<=from_mem;
 			end if;
@@ -630,9 +641,9 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 			end if;
 
 			if mem_rom='1' then
-				to_rom.MemAWriteEnable<=(cpu_wr and cpu_req);
+				rom_wr<=(cpu_wr and cpu_req);
 			else
-				to_rom.MemAWriteEnable<='0';
+				rom_wr<='0';
 			end if;
 	
 		end if;	
@@ -645,7 +656,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 		dualthread => true,
 		prefetch => true,
 		interrupts => true,
-		debug => true
+		debug => debug
 	)
 	port map
 	(
@@ -669,8 +680,10 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 		debug_wr=>debug_wr,
 		debug_ack=>debug_ack		
 	);
-
-	debugbridge : entity work.debug_bridge_jtag
+	
+gendebug:
+if debug = true generate
+	debugbridge : component debug_bridge_jtag
 	port map
 	(
 		clk => slowclk,
@@ -681,7 +694,12 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 		ack => debug_ack,
 		wr => debug_wr
 	);
+end generate;
 
+gennodebug:
+if debug = false generate
+	debug_ack <= '0';
+end generate;
 
 process(clk)
 begin

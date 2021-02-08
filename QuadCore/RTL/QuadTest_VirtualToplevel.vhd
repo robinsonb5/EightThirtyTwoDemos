@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
-use work.rom_pkg.ALL;
 
 
 entity VirtualToplevel is
@@ -116,6 +115,7 @@ signal mem_busy : std_logic;
 signal mem_rom : std_logic;
 signal rom_ack : std_logic;
 signal from_mem : std_logic_vector(31 downto 0);
+signal from_rom : std_logic_vector(31 downto 0);
 signal cpu_addr : std_logic_vector(31 downto 0);
 signal to_cpu : std_logic_vector(31 downto 0);
 signal from_cpu : std_logic_vector(31 downto 0);
@@ -123,9 +123,7 @@ signal cpu_req : std_logic;
 signal cpu_ack : std_logic; 
 signal cpu_wr : std_logic; 
 signal cpu_bytesel : std_logic_vector(3 downto 0);
-
-signal to_rom : ToROM;
-signal from_rom : FromROM;
+signal rom_wr : std_logic;
 
 -- 2nd CPU signals
 
@@ -134,10 +132,12 @@ signal rom_ack2 : std_logic;
 signal cpu_addr2 : std_logic_vector(31 downto 0);
 signal to_cpu2 : std_logic_vector(31 downto 0);
 signal from_cpu2 : std_logic_vector(31 downto 0);
+signal from_rom2 : std_logic_vector(31 downto 0);
 signal cpu_req2 : std_logic; 
 signal cpu_ack2 : std_logic; 
 signal cpu_wr2 : std_logic; 
 signal cpu_bytesel2 : std_logic_vector(3 downto 0);
+signal rom_wr2 : std_logic;
 
 signal mem_addr : std_logic_vector(31 downto 0);
 signal mem_data : std_logic_vector(31 downto 0);
@@ -147,9 +147,6 @@ signal mem_req : std_logic;
 signal mem_req_d : std_logic;
 signal mem_wr : std_logic;
 signal mem_cpu : std_logic;
-
-signal to_rom2 : ToROM;
-signal from_rom2 : FromROM;
 
 begin
 
@@ -292,14 +289,20 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 
 	rom : entity work.QuadTest_rom
 	generic map(
-		maxAddrBitBRAM => 15
+		ADDR_WIDTH => 15
 	)
 	port map(
 		clk => clk,
-		from_soc => to_rom,
-		to_soc => from_rom,
-		from_soc2 => to_rom2,
-		to_soc2 => from_rom2
+		addr => cpu_addr(16 downto 2),
+		d => from_cpu,
+		q => from_rom,
+		we => rom_wr,
+		bytesel => cpu_bytesel,
+		addr2 => cpu_addr2(16 downto 2),
+		d2 => from_cpu2,
+		q2 => from_rom2,
+		we2 => rom_wr2,
+		bytesel2 => cpu_bytesel2
 	);
 
 	
@@ -310,10 +313,6 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 --	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';
 --	mem_wr<='1' when cpu_req='1' and cpu_wr='1' and mem_rom='0' else '0';
 
-	to_rom.MemAAddr<=cpu_addr(15 downto 2);
-	to_rom.MemAWrite<=from_cpu;
-	to_rom.MemAByteSel<=cpu_bytesel;
-
 -- cpu2
 
 	mem_rom2 <='1' when cpu_addr2(31 downto 28)=X"0" else '0';
@@ -321,9 +320,6 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 --	mem_rd2<='1' when cpu_req2='1' and cpu_wr2='0' and mem_rom2='0' else '0';
 --	mem_wr2<='1' when cpu_req2='1' and cpu_wr2='1' and mem_rom2='0' else '0';
 
-	to_rom2.MemAAddr<=cpu_addr2(15 downto 2);
-	to_rom2.MemAWrite<=from_cpu2;
-	to_rom2.MemAByteSel<=cpu_bytesel2;
 	
 	process(clk)
 	begin
@@ -336,7 +332,7 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 			rom_ack<=cpu_req and mem_rom;
 
 			if cpu_addr(31)='0' then
-				to_cpu<=from_rom.MemARead;
+				to_cpu<=from_rom;
 			else
 				to_cpu<=from_mem;
 			end if;
@@ -348,9 +344,9 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 			end if;
 
 			if cpu_addr(31)='0' then
-				to_rom.MemAWriteEnable<=(cpu_wr and cpu_req);
+				rom_wr<=(cpu_wr and cpu_req);
 			else
-				to_rom.MemAWriteEnable<='0';
+				rom_wr<='0';
 			end if;
 
 			-- cpu 2
@@ -358,7 +354,7 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 			rom_ack2<=cpu_req2 and mem_rom2;
 
 			if cpu_addr2(31)='0' then
-				to_cpu2<=from_rom2.MemARead;
+				to_cpu2<=from_rom2;
 			else
 				to_cpu2<=from_mem;
 			end if;
@@ -370,9 +366,9 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 			end if;
 
 			if cpu_addr2(31)='0' then
-				to_rom2.MemAWriteEnable<=(cpu_wr2 and cpu_req2);
+				rom_wr2<=(cpu_wr2 and cpu_req2);
 			else
-				to_rom2.MemAWriteEnable<='0';
+				rom_wr2<='0';
 			end if;
 			
 			-- Launch a memory cycle if required.

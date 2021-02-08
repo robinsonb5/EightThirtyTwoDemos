@@ -2,6 +2,9 @@
 
 cat $1 | while read a; do
 	b=${a,,}
+	if [ "${b: -4}" = ".rom" ]; then
+		echo "xfile add \"../../${a%.rom}_word.vhd\""
+	fi
 	if [ "${b: -4}" = ".vhd" ]; then
 		echo "xfile add \"../../${a}\""
 	fi

@@ -1,7 +1,7 @@
 ../RTL/Peripherals/simple_uart.vhd
-Firmware/LZ4_ROM.vhd
+../RTL/Peripherals/jtag_uart.vhd
+Firmware/LZ4_ROM.rom
 RTL/LZ4_VirtualToplevel.vhd
 RTL/Toplevel_Config.vhd
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
-../EightThirtyTwo/romgen/rom_pkg.vhd
 

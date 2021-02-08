@@ -54,6 +54,7 @@ begin
 
 			if prevhsync='0' and hsync='1' then
 				row<=not row;
+				ctr<=(others =>'0');
 			end if;
 			prevhsync<=hsync;
 

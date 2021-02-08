@@ -1,30 +1,28 @@
-#include "assembler.pp"
+	.equ TIMERBASE 0xFFFFFC00
+	.equ REG_TIMER_ENABLE 0
+	.equ REG_TIMER_INDEX 4
+	.equ REG_TIMER_COUNTER 8
 
-#define TIMERBASE 0xFFFFFC00
-#define REG_TIMER_ENABLE 0
-#define REG_TIMER_INDEX 4
-#define REG_TIMER_COUNTER 8
+	.equ INTERRUPTBASE 0xffffffb0
 
-#define INTERRUPTBASE 0xffffffb0
+	.equ VGABASE 0xFFFFFE00
+	.equ REG_VGA_FRAMEBUFFER 0
+	.equ REG_VGA_SP0PTR 0x10
+	.equ REG_VGA_SP0XPOS 0x14
+	.equ REG_VGA_SP0YPOS 0x18
 
-#define VGABASE 0xFFFFFE00
-#define REG_VGA_FRAMEBUFFER 0
-#define REG_VGA_SP0PTR 0x10
-#define REG_VGA_SP0XPOS 0x14
-#define REG_VGA_SP0YPOS 0x18
+	.section .text.main
 
-
+	.global vector
 vector: // Entry point and interrupt vector.  On interrupt zero flag will be set.
 	cond SGT	// Carry clear, zero clear - thread 1
-		li IMW1(PCREL(entry-1))
-		li IMW0(PCREL(entry))
+		.lipcrel entry
 		add	r7
 	cond SLT	// Carry set, zero clear - thread 2
-		li	IMW1(PCREL(thread2_entry-1))
-		li	IMW0(PCREL(thread2_entry))
+		.lipcrel thread2_entry
 		add	r7
 
-
+	.global interrupt
 interrupt:	// We fall through to here if we're servicing an interrupt.
 	exg	r6	// Swap the stack pointer and return address.
 	stmpdec	r0	// Save one register's contents to the stack (with the stack pointer in tmp)
@@ -33,8 +31,7 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 	stmpdec	r2
 	exg	r6	// Return address is before r0's old contents since we have to decrement the return address
 
-	li	IMW1(INTERRUPTBASE)
-	li	IMW0(INTERRUPTBASE)
+	.liconst INTERRUPTBASE
 	mr	r0
 
 	li	0
@@ -48,12 +45,10 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 	cond	SLT	// Timer interrupt
 		li	1	// tick = tick ^ 1;
 		mr	r1
-		li	IMW1(PCREL(tick+4)-1)
-		li	IMW0(PCREL(tick+4))
+		.lipcrel tick,4
 		ldidx	r7
 		xor	r1
-		li	IMW1(PCREL(tick+8)-1)
-		li	IMW0(PCREL(tick+8))
+		.lipcrel tick,8
 		addt	r7
 		stmpdec	r1
 
@@ -67,8 +62,7 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 	cond	SLT // VBlank interrupt
 		li	4
 		mr	r1
-		li	IMW1(PCREL(fbptr)-1)
-		li	IMW0(PCREL(fbptr))
+		.lipcrel	fbptr
 		addt	r7
 		mr	r2
 		ld	r2
@@ -76,8 +70,7 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 		mt	r1
 		st	r2
 		
-		li	IMW1(VGABASE+REG_VGA_FRAMEBUFFER+4)
-		li	IMW0(VGABASE+REG_VGA_FRAMEBUFFER+4)
+		.liconst VGABASE+REG_VGA_FRAMEBUFFER+4
 		stmpdec	r1
 	cond	EX
 
@@ -91,31 +84,26 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 
 	ldinc r6	// Return address
 	mr	r0
-	li	IMW0(-1)
+	li	-1
 	add	r0		// Decrement return address
 	ldinc r6
 	exg	r0		// Restore r0
 	mr	r7		// Jump to return address - 1.
 
+	.global tick
 tick:
 	.int	0
 	.int	0
+	.global fbptr
 fbptr:
 	.int	0
 
-
+	.global thread2_entry
 thread2_entry:
-	li	IMW2(0x400)
-	li	IMW1(0x400)
-	li	IMW0(0x400)
+	.liconst 0x400
 	mr	r6
 
-	li	IMW5(0x20000000)
-	li	IMW4(0x20000000)
-	li	IMW3(0x20000000)
-	li	IMW2(0x20000000)
-	li	IMW1(0x20000000)
-	li	IMW0(0x20000000)
+	.liconst 0x20000000
 	mr	r4
 	li	0
 	mr	r3
@@ -126,39 +114,33 @@ thread2_entry:
 	add	r3
 	li	4
 	add	r4	// Just write an ever-increasing value to an ever-increasing address.
-	//  FIXME - Will eventually hit peripheral space and crash.
-	li	IMW0(PCREL(.thread2mainloop))
+	li	1
+	shl r4	// Get rid of MSB to avoid hitting peripheral space
+	shr	r4
+	.lipcrel .thread2mainloop
 	add	r7
 
-
+	.global entry
 entry:
 	// Setup the stack
-	li	IMW2(0x800)
-	li	IMW1(0x800)
-	li	IMW0(0x800)
+	.liconst 0x800
 	mr	r6
 
-	li	IMW1(TIMERBASE+REG_TIMER_INDEX)	// Setup the timer
-	li	IMW0(TIMERBASE+REG_TIMER_INDEX)
+	.liconst TIMERBASE+REG_TIMER_INDEX	// Setup the timer
 	mr	r0
 	li	0
 	st	r0
-	li	IMW1(TIMERBASE+REG_TIMER_COUNTER)
-	li	IMW0(TIMERBASE+REG_TIMER_COUNTER)
+	.liconst TIMERBASE+REG_TIMER_COUNTER
 	mr	r0
-	li	IMW2(100000)
-	li	IMW1(100000)
-	li	IMW0(100000)
+	.liconst 100000
 	st	r0
 
-	li	IMW1(TIMERBASE+REG_TIMER_ENABLE)
-	li	IMW0(TIMERBASE+REG_TIMER_ENABLE)
+	.liconst TIMERBASE+REG_TIMER_ENABLE
 	mr	r0
 	li	1
 	st	r0
 
-	li	IMW1(INTERRUPTBASE)	// Enable interrupts
-	li	IMW0(INTERRUPTBASE)
+	.liconst INTERRUPTBASE	// Enable interrupts
 	mr	r0
 	li	1
 	st	r0
@@ -167,12 +149,10 @@ entry:
 
 	li	0
 	mr	r1
-	li	IMW1(VGABASE+REG_VGA_FRAMEBUFFER)
-	li	IMW0(VGABASE+REG_VGA_FRAMEBUFFER)
+	.liconst VGABASE+REG_VGA_FRAMEBUFFER
 	mr	r2
 
-	li	IMW1(PCREL(tick+4)-1)
-	li	IMW0(PCREL(tick+4))
+	.lipcrel tick,4
 	addt	r7
 	mr	r5
 
@@ -181,13 +161,12 @@ entry:
 	mt r0		// This instruction will be lost.
 	mt r0		// This one gives the interrupt an opportunity to fire
 
-	li	IMW0(-4)
+	li	-4
 	addt	r5
 	mr	r0
 	ld	r0
 	cond EQ
-		li	IMW1(PCREL(.loop)-1)
-		li	IMW0(PCREL(.loop))
+		.lipcrel .loop
 		add	r7	// Branch to .loop
 
 	li	0
@@ -195,29 +174,24 @@ entry:
 
 	ld	r5
 	cond EQ	// If/else control flow using just predication - no branching required.
-		li	IMW1((.ticktext-.tickpoint))
-		li	IMW0((.ticktext-.tickpoint))
+		.liabs .ticktext
 	cond NEQ
-		li	IMW1((.tocktext-.tickpoint))
-		li	IMW0((.tocktext-.tickpoint))
+		.liabs .tocktext
 	cond EX
-	addt	r7
-.tickpoint:	// The PC relative calculation is done here, so the offsets must be relative to this address.
 
-	mr	r0
-	li	IMW1(PCREL(Puts)-1)
-	li	IMW0(PCREL(Puts))
+	mr	r1
+	.lipcrel _puts
 	add	r7	// Call the Puts subroutine
 
-	li	IMW1(PCREL(.loop)-1)
-	li	IMW0(PCREL(.loop))
+	.lipcrel .loop
 	add	r7	// Branch to .loop
 
 .ticktext:
-	.ascii "Tick\n\0"
+	.ascii "Tick"
+	.byte 10
+	.byte 0
 .tocktext:
-	.ascii "Tock\n\0"
-
-
-#include "puts.S"
+	.ascii "Tock"
+	.byte 10
+	.byte 0
 

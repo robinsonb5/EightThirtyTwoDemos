@@ -14,7 +14,7 @@ INCLUDE= -I$(SOCDIR)/include -I$(832DIR)/include
 COPT = -O=1311 -size
 CFLAGS = -+ $(COPT) $(INCLUDE)
 
-all: SoC_ROM.vhd
+all: SoC_ROM_byte.vhd SoC_ROM_word.vhd
 
 clean :
 	-rm *.asm
@@ -24,10 +24,15 @@ clean :
 	-rm *.bin
 	-rm *.elf
 
-%_ROM.vhd: %.bin $(ROMGEN)
-	sed 's/dualportram/$*_rom/' >$*_ROM.vhd <$(ROMGENDIR)/rom_prologue.vhd
-	$(ROMGEN) -b $*.bin >>$*_ROM.vhd
-	cat >>$*_ROM.vhd $(ROMGENDIR)/rom_epilogue.vhd
+%_ROM_byte.vhd: %.bin $(ROMGEN)
+	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_byte.vhd <$(ROMGENDIR)/rom_prologue_byte.vhd
+	$(ROMGEN) -b $*.bin >>$*_ROM_byte.vhd
+	cat >>$*_ROM_byte.vhd $(ROMGENDIR)/rom_epilogue_byte.vhd
+
+%_ROM_word.vhd: %.bin $(ROMGEN)
+	sed 's/eightthirtytwo_rom/$*_rom/' >$*_ROM_word.vhd <$(ROMGENDIR)/rom_prologue_word.vhd
+	$(ROMGEN) -b -w $*.bin >>$*_ROM_word.vhd
+	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_word.vhd
 
 SoC.bin : $(LIBDIR)/dualcrt0.a $(LIBDIR)/lib832.a thread2boot.o main.o minfat.o ../../lib832soc/lib832soc.a
 	$(LD) -m $@.map -o $@ $+
@@ -38,9 +43,6 @@ SoC.bin : $(LIBDIR)/dualcrt0.a $(LIBDIR)/lib832.a thread2boot.o main.o minfat.o 
 
 %.o : %.asm Makefile
 	$(AS) -o $*.o $*.asm
-
-%.o : $(832DIR)/%.asm Makefile
-	$(AS) -o $*.o $(832DIR)/$*.asm
 
 %.asm : %.c Makefile
 	$(CC) $(CFLAGS) $*.c

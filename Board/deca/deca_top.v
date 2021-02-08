@@ -180,7 +180,7 @@ VirtualToplevel #(.sysclk_frequency(1000),.jtag_uart("true")) virtualtoplevel
 //	ps2m_dat_out : out std_logic;
 
 //	-- UART
-	.rxd(1'b1),
+	.rxd(1'b1)
 //	txd	: out std_logic;
 	
 //	-- Audio
