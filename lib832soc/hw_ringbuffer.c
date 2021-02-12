@@ -8,14 +8,16 @@ void hw_ringbuffer_init(struct hw_ringbuffer *r)
 	r->out_hw=0;
 	r->out_cpu=0;
 	r->action=0;
+	r->overruns=0;
 }
 
 void hw_ringbuffer_fill(struct hw_ringbuffer *r,int in)
 {
-	if(r->out_hw==((r->out_cpu+1)&(HW_RINGBUFFER_SIZE-1)))
+	int newptr=(r->in_hw+1) & (HW_RINGBUFFER_SIZE-1);
+	if(r->in_cpu==newptr)
 		++r->overruns;
 	r->inbuf[r->in_hw]=in;
-	r->in_hw=(r->in_hw+1) & (HW_RINGBUFFER_SIZE-1);
+	r->in_hw=newptr;
 }
 
 

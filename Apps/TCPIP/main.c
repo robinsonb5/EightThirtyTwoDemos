@@ -6,8 +6,6 @@
 
 #include "uip.h"
 #include "uip_arp.h"
-//#include "network-device.h"
-//#include "httpd.h"
 #include "timer.h"
 
 #include "slipdev.h"
@@ -20,69 +18,71 @@
 int
 main(void)
 {
-  int i;
-  uip_ipaddr_t ipaddr;
-  struct timer periodic_timer;
+	int i;
+	uip_ipaddr_t ipaddr;
+	struct timer periodic_timer;
 
-  EnableInterrupts();
+	EnableInterrupts();
 
-  puts("Starting\n");
-  
-  timer_set(&periodic_timer, CLOCK_SECOND / 2);
-  
-  puts("Network device init\n");
+	puts("Starting\n");
 
-  network_device_init();
-  puts("UIP Init\n");
-  uip_init();
+	timer_set(&periodic_timer, CLOCK_SECOND / 2);
 
-  puts("Set host addr\n");
-  uip_ipaddr(ipaddr, 192,168,240,2);
-  uip_sethostaddr(ipaddr);
+	puts("Network device init\n");
 
-  puts("Hello World init\n");
-  hello_world_init();
-  
-  while(1) {
-    uip_len = network_device_read();
-    if(uip_len > 0) {
-		HW_UART(REG_UART)='.';
-      uip_input();
-      /* If the above function invocation resulted in data that
-	 should be sent out on the network, the global variable
-	 uip_len is set to a value > 0. */
-      if(uip_len > 0) {
-	network_device_send();
-      }
-    } else if(timer_expired(&periodic_timer)) {
-      timer_reset(&periodic_timer);
-      for(i = 0; i < UIP_CONNS; i++) {
-	uip_periodic(i);
-	/* If the above function invocation resulted in data that
-	   should be sent out on the network, the global variable
-	   uip_len is set to a value > 0. */
-	if(uip_len > 0) {
-//		uip_split_output();
-		HW_UART(REG_UART)='+';
-	  network_device_send();
+	network_device_init();
+	puts("UIP Init\n");
+	uip_init();
+
+	puts("Set host addr\n");
+	uip_ipaddr(ipaddr, 192,168,240,2);
+	uip_sethostaddr(ipaddr);
+
+	puts("Hello World init\n");
+	hello_world_init();
+
+	while(1) {
+		if(hw_ringbuffer_overruns(&uartbuffer))
+		HW_UART(REG_UART)='O';
+
+		uip_len = network_device_read();
+		if(uip_len > 0) {
+			uip_input();
+			/* If the above function invocation resulted in data that
+			should be sent out on the network, the global variable
+			uip_len is set to a value > 0. */
+			if(uip_len > 0) {
+				network_device_send();
+			}
+		} else if(timer_expired(&periodic_timer)) {
+			timer_reset(&periodic_timer);
+			for(i = 0; i < UIP_CONNS; i++) {
+				uip_periodic(i);
+				/* If the above function invocation resulted in data that
+				should be sent out on the network, the global variable
+				uip_len is set to a value > 0. */
+				if(uip_len > 0) {
+					//		uip_split_output();
+					HW_UART(REG_UART)='+';
+					network_device_send();
+				}
+			}
+
+			#if UIP_UDP
+			for(i = 0; i < UIP_UDP_CONNS; i++) {
+				uip_udp_periodic(i);
+				/* If the above function invocation resulted in data that
+				should be sent out on the network, the global variable
+				uip_len is set to a value > 0. */
+				if(uip_len > 0) {
+					network_device_send();
+				}
+			}
+			#endif /* UIP_UDP */
+
+		}
 	}
-      }
-
-#if UIP_UDP
-      for(i = 0; i < UIP_UDP_CONNS; i++) {
-	uip_udp_periodic(i);
-	/* If the above function invocation resulted in data that
-	   should be sent out on the network, the global variable
-	   uip_len is set to a value > 0. */
-	if(uip_len > 0) {
-	  network_device_send();
-	}
-      }
-#endif /* UIP_UDP */
-
-    }
-  }
-  return 0;
+	return 0;
 }
 
 void uip_log(char *c)

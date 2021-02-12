@@ -114,9 +114,12 @@ thread2_entry:
 	add	r3
 	li	4
 	add	r4	// Just write an ever-increasing value to an ever-increasing address.
-	li	1
+	li	8
 	shl r4	// Get rid of MSB to avoid hitting peripheral space
-	shr	r4
+	li	0x02
+	or	r4
+	li	8
+	ror	r4
 	.lipcrel .thread2mainloop
 	add	r7
 
