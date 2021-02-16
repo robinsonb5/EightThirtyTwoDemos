@@ -104,15 +104,16 @@ signal sd_sdi:	std_logic;
 signal sd_sdo:	std_logic;
 
 -- Sigma Delta audio
-COMPONENT hybrid_pwm_sd
+	COMPONENT hybrid_pwm_sd
 	PORT
 	(
-		clk		:	 IN STD_LOGIC;
-		n_reset		:	 IN STD_LOGIC;
-		din		:	 IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		dout		:	 OUT STD_LOGIC
+		clk	:	IN STD_LOGIC;
+		d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		q_l	:	OUT STD_LOGIC;
+		d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		q_r	:	OUT STD_LOGIC
 	);
-END COMPONENT;
+	END COMPONENT;
 
 COMPONENT video_vga_dither
 	GENERIC ( outbits : INTEGER := 4 );
@@ -444,22 +445,16 @@ osd_inst : component osd
 
 -- Do we have audio?  If so, instantiate a two DAC channels.
 audio2: if Toplevel_UseAudio = true generate
-leftsd: component hybrid_pwm_sd
+audiosd: component hybrid_pwm_sd
 	port map
 	(
-		clk => sysclk,
-		n_reset => reset,
-		din => std_logic_vector(not audiol(15) & audiol(14 downto 0)),
-		dout => AUDIO_L
-	);
-	
-rightsd: component hybrid_pwm_sd
-	port map
-	(
-		clk => sysclk,
-		n_reset => reset,
-		din => std_logic_vector(not audior(15) & audior(14 downto 0)),
-		dout => AUDIO_R
+		clk => fastclk,
+		d_l(15) => not audiol(15),
+		d_l(14 downto 0) => std_logic_vector(audiol(14 downto 0)),
+		q_l => AUDIO_L,
+		d_r(15) => not audior(15),
+		d_r(14 downto 0) => std_logic_vector(audior(14 downto 0)),
+		q_r => AUDIO_R
 	);
 end generate;
 

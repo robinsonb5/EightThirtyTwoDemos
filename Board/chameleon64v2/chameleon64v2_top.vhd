@@ -200,9 +200,10 @@ architecture rtl of chameleon64v2_top is
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
-		n_reset	:	IN STD_LOGIC;
-		din	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		dout	:	OUT STD_LOGIC
+		d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		q_l	:	OUT STD_LOGIC;
+		d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		q_r	:	OUT STD_LOGIC
 	);
 	END COMPONENT;
 
@@ -482,26 +483,17 @@ virtualtoplevel : entity work.VirtualToplevel
 			oBlue => blu
 		);
 	
-leftsd: component hybrid_pwm_sd
+audiosd: component hybrid_pwm_sd
 	port map
 	(
 		clk => fastclk,
-		n_reset => n_reset,
-		din(15) => not audio_l(15),
-		din(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
-		dout => sigma_l
+		d_l(15) => not audio_l(15),
+		d_l(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
+		q_l => sigma_l,
+		d_r(15) => not audio_r(15),
+		d_r(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
+		q_r => sigma_r
 	);
-	
-rightsd: component hybrid_pwm_sd
-	port map
-	(
-		clk => fastclk,
-		n_reset => n_reset,
-		din(15) => not audio_r(15),
-		din(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
-		dout => sigma_r
-	);
-
 
 end architecture;
 

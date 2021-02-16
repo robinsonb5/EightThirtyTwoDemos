@@ -16,10 +16,11 @@ clean:
 $(TARGET).xise: $(PROJECTDIR) $(MANIFEST) $(BOARDDIR)/template.xise
 	cp $(BOARDDIR)/template.xise $(TARGET).xise
 	echo >${TARGET}_addfiles.tcl project open ${PROJECT}.xise
-	bash $(SCRIPTSDIR)/expandtemplate_ise.sh $(MANIFEST) >>$(TARGET)_addfiles.tcl
+	bash $(SCRIPTSDIR)/expandtemplate_ise.sh $(MANIFEST) ".." >>$(TARGET)_addfiles.tcl
 	@echo >>${TARGET}_addfiles.tcl project save
 	@echo >>${TARGET}_addfiles.tcl project close
-	@cd ${PROJECTDIR}; command -v xtclsh && xtclsh ${PROJECT}_addfiles.tcl || echo "xtclsh not found - skipping Xilinx project generation."
+	echo $(ISE)
+	cd ${PROJECTDIR}; command -v $(ISE)/xtclsh && $(ISE)/xtclsh ${PROJECT}_addfiles.tcl || echo "xtclsh not found - skipping Xilinx project generation."
 
 $(PROJECTDIR):
 	mkdir $(PROJECTDIR)
