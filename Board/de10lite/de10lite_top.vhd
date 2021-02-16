@@ -119,6 +119,7 @@ architecture RTL of de10lite_top is
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
+		terminate : in std_logic;
 		d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 		q_l	:	OUT STD_LOGIC;
 		d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -267,6 +268,7 @@ audio_sd: component hybrid_pwm_sd
 	port map
 	(
 		clk => fastclk,
+		terminate => '1',
 		d_l(15) => not audio_l(15),
 		d_l(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
 		q_l => sigma_l,
