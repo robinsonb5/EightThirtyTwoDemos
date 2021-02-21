@@ -483,7 +483,13 @@ int ValidateDirectory(unsigned long directory)
         nEntries = cluster_size << 4; // 16 entries per sector
     }
 
-    if(!sd_read_sector(iDirectorySector++, sector_buffer)) // root directory is linear
+	if(iDirectorySector>sd_size)
+	{
+		printf("Sector %lu is beyond the device's end\n",iDirectorySector);
+		return(0);
+	}
+
+    if(!sd_read_sector(iDirectorySector++, sector_buffer))
 		return(0);
     pEntry = (DIRENTRY*)sector_buffer;
     for (iEntry = 0; iEntry < nEntries; iEntry++)
@@ -536,6 +542,7 @@ struct FileFind_Result *FileFind(const char *name)
         {
             if ((iEntry & 0x0F) == 0) // first entry in sector, load the sector
             {
+				printf("Reading sector %d\n",iDirectorySector);
                 sd_read_sector(iDirectorySector++, sector_buffer); // root directory is linear
                 pEntry = (DIRENTRY*)sector_buffer;
             }
@@ -547,10 +554,10 @@ struct FileFind_Result *FileFind(const char *name)
             {
                 if (!(pEntry->Attributes & (ATTR_VOLUME | ATTR_DIRECTORY))) // not a volume nor directory
                 {
-					printf("Comparing %s with %s\n",pEntry->Name,name);
+//					printf("Comparing %s with %s\n",pEntry->Name,name);
                     if (strncmp((const char*)pEntry->Name, name, 11) == 0)
                     {
-					printf("Found\n");
+//					printf("Found\n");
 			filefind_result.et.sector = iDirectorySector - 1;
 			filefind_result.et.index = iEntry & 0x0F;
 			filefind_result.de=pEntry;
@@ -1622,6 +1629,89 @@ unsigned int UpdateEntry(fileTYPE *file)
 
 DIRENTRY *NextDirEntry(int init)
 {
+	static DIRENTRY      *pEntry = NULL;        // pointer to current entry in sector buffer
+	static unsigned long  iDirectorySector;     // current sector of directory entries table
+	static unsigned long  iDirectoryCluster;    // start cluster of subdirectory or FAT32 root directory
+	static unsigned long  iEntry;        // entry index in directory cluster or FAT16 root directory
+	static int prevlfn=0;
+
+	if(init)
+	{
+		iEntry=0;
+		iDirectorySector=current_directory_start;
+		iDirectoryCluster=current_directory_cluster;
+	}
+
+	while(1)
+	{
+		while (iEntry<dir_entries)
+		{
+			if ((iEntry & 0x0F) == 0) // first entry in sector, load the sector
+			{
+//				printf("Reading sector %d\n",iDirectorySector);
+				sd_read_sector(iDirectorySector++, sector_buffer); // root directory is linear
+				pEntry = (DIRENTRY*)sector_buffer;
+			}
+			else
+				pEntry++;
+			++iEntry;
+
+			if (!(pEntry->Attributes & ATTR_VOLUME)) // not a volume
+			{
+				if(!prevlfn)
+					longfilename[0]=0;
+				prevlfn=0;
+				// FIXME - should check the lfn checksum here.
+				return(pEntry);
+			}
+			#ifndef DISABLE_LONG_FILENAMES
+			else if (pEntry->Attributes == ATTR_LFN)	// Do we have a long filename entry?
+			{
+				unsigned char *p=&pEntry->Name[0];
+				int seq=p[0];
+				int offset=((seq&0x1f)-1)*13;
+				char *o=&longfilename[offset];
+				*o++=p[1];
+				*o++=p[3];
+				*o++=p[5];
+				*o++=p[7];
+				*o++=p[9];
+
+				*o++=p[0xe];
+				*o++=p[0x10];
+				*o++=p[0x12];
+				*o++=p[0x14];
+				*o++=p[0x16];
+				*o++=p[0x18];
+
+				*o++=p[0x1c];
+				*o++=p[0x1e];
+				prevlfn=1;
+			}
+			#endif
+		}
+//		printf("iEntry %d is >= dir_entries %d\n",iEntry,dir_entries);
+
+		if (current_directory_start || fat32) // subdirectory is a linked cluster chain
+		{
+			iDirectoryCluster = GetFATLink(iDirectoryCluster); // get next cluster in chain
+//			printf("idc %x\n",iDirectoryCluster);
+			 // check if end of cluster chain
+			if (fat32 ? (iDirectoryCluster & 0x0FFFFFF8) == 0x0FFFFFF8 : (iDirectoryCluster & 0xFFF8) == 0xFFF8)
+				break; // no more clusters in chain
+
+			iDirectorySector = data_start + cluster_size * (iDirectoryCluster - 2); // calculate first sector address of the new cluster
+			iEntry=0;
+		}
+		else
+			break;
+	}
+    return(0);
+}
+
+#if 0
+DIRENTRY *NextDirEntry(int init)
+{
     unsigned long  iDirectory = 0;       // only root directory is supported
     DIRENTRY      *pEntry = NULL;        // pointer to current entry in sector buffer
     unsigned long  iDirectorySector;     // current sector of directory entries table
@@ -1636,60 +1726,59 @@ DIRENTRY *NextDirEntry(int init)
 
 	while(prev<dir_entries)
 	{
+		iDirectorySector = current_directory_start+(prev>>4);
 
-    iDirectorySector = current_directory_start+(prev>>4);
-
-	if ((prev & 0x0F) == 0) // first entry in sector, load the sector
-	{
-		sd_read_sector(iDirectorySector, sector_buffer); // root directory is linear
-	}
-	pEntry = (DIRENTRY*)sector_buffer;
-	pEntry+=(prev&0xf);
-	++prev;
-	if (pEntry->Name[0] != SLOT_EMPTY && pEntry->Name[0] != SLOT_DELETED) // valid entry??
-	{
-		if (!(pEntry->Attributes & ATTR_VOLUME)) // not a volume
+		if ((prev & 0x0F) == 0) // first entry in sector, load the sector
 		{
-			if(!prevlfn)
-				longfilename[0]=0;
-			prevlfn=0;
-			// FIXME - should check the lfn checksum here.
-			return(pEntry);
+			sd_read_sector(iDirectorySector, sector_buffer); // root directory is linear
 		}
-#ifndef DISABLE_LONG_FILENAMES
-		else if (pEntry->Attributes == ATTR_LFN)	// Do we have a long filename entry?
+		pEntry = (DIRENTRY*)sector_buffer;
+		pEntry+=(prev&0xf);
+		++prev;
+		if (pEntry->Name[0] != SLOT_EMPTY && pEntry->Name[0] != SLOT_DELETED) // valid entry??
 		{
-			unsigned char *p=&pEntry->Name[0];
-			int seq=p[0];
-			int offset=((seq&0x1f)-1)*13;
-			char *o=&longfilename[offset];
-			*o++=p[1];
-			*o++=p[3];
-			*o++=p[5];
-			*o++=p[7];
-			*o++=p[9];
+			if (!(pEntry->Attributes & ATTR_VOLUME)) // not a volume
+			{
+				if(!prevlfn)
+					longfilename[0]=0;
+				prevlfn=0;
+				// FIXME - should check the lfn checksum here.
+				return(pEntry);
+			}
+			#ifndef DISABLE_LONG_FILENAMES
+			else if (pEntry->Attributes == ATTR_LFN)	// Do we have a long filename entry?
+			{
+				unsigned char *p=&pEntry->Name[0];
+				int seq=p[0];
+				int offset=((seq&0x1f)-1)*13;
+				char *o=&longfilename[offset];
+				*o++=p[1];
+				*o++=p[3];
+				*o++=p[5];
+				*o++=p[7];
+				*o++=p[9];
 
-			*o++=p[0xe];
-			*o++=p[0x10];
-			*o++=p[0x12];
-			*o++=p[0x14];
-			*o++=p[0x16];
-			*o++=p[0x18];
+				*o++=p[0xe];
+				*o++=p[0x10];
+				*o++=p[0x12];
+				*o++=p[0x14];
+				*o++=p[0x16];
+				*o++=p[0x18];
 
-			*o++=p[0x1c];
-			*o++=p[0x1e];
-			prevlfn=1;
+				*o++=p[0x1c];
+				*o++=p[0x1e];
+				prevlfn=1;
+			}
+			#endif
 		}
-#endif
-	}
 	}
 	return((DIRENTRY *)0);
 }
+#endif
 
-
-void SetDirectory(unsigned long lba)
+void SetDirectory(unsigned long cluster)
 {
-	current_directory_cluster = lba;
+	current_directory_cluster = cluster;
 	if(current_directory_cluster)
 	{	
 	    current_directory_start = data_start + cluster_size * (current_directory_cluster - 2);
@@ -1701,6 +1790,7 @@ void SetDirectory(unsigned long lba)
 		current_directory_start = root_directory_start;
 		dir_entries = fat32 ?  cluster_size << 4 : root_directory_size << 4; // 16 entries per sector
 	}
+	printf("Dir_entries is %d, fat32 %d, cluster_size %d, rds %d\n",dir_entries,fat32,cluster_size,root_directory_size);
 }
 
 

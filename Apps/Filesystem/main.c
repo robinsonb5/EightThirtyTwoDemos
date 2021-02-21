@@ -43,19 +43,12 @@ int main(int argc, char **argv)
 	char *ptr;
 	int size;
 	int cluster;
+	int count=0;
 	DIRENTRY *dir=0;
 
-	printf("Scanning directory\n");
-	while((dir=NextDirEntry(dir==0)))
-	{
-		if (dir->Name[0] != SLOT_EMPTY && dir->Name[0] != SLOT_DELETED) // valid entry??
-		{
-			printf("%s (%s)\n",dir->Name,longfilename);
-		}
-	}
 	if((ptr=LoadFile("PIC1    RAW")))
 	{
-		printf("File successfully loaded to %d\n",ptr);
+		printf("File successfully loaded to %d\n",(int)ptr);
 		HW_VGA(FRAMEBUFFERPTR)=(int)ptr;
 	}
 	else
@@ -65,7 +58,7 @@ int main(int argc, char **argv)
 //	cluster=FindDirectory(0,"ADFS       ");
 	if(cluster)
 	{
-		printf("Found parent at %ld\n",cluster);
+		printf("Found parent at %d\n",cluster);
 		SetDirectory(cluster);
 
 		printf("Scanning directory\n");
@@ -81,7 +74,7 @@ int main(int argc, char **argv)
 		cluster=FindDirectory(cluster,"SUBDIR     ");
 		if(cluster)
 		{
-			printf("Found subdir at %ld\n",cluster);
+			printf("Found subdir at %d\n",cluster);
 			if(ValidateDirectory(cluster))
 				printf("cluster valid\n");
 			else
@@ -89,13 +82,30 @@ int main(int argc, char **argv)
 		}
 	}
 
+#if 0
+	printf("Checking selected clusters for validity as directories...\n");
+	printf("(Only the first is likely to be valid.)\n");
+
 	for(cluster=0;cluster<0x7ffff;cluster+=0x1137)
 	{
 		if(ValidateDirectory(cluster))
-			printf("cluster %ld valid\n",cluster);
+			printf("cluster %d valid\n",cluster);
 		else
-			printf("cluster %ld not valid\n",cluster);
+			printf("cluster %d not valid\n",cluster);
 	}
+#endif
+	printf("Scanning directory\n");
+	dir=0;
+	ChangeDirectory(0);
+	while((dir=NextDirEntry(dir==0)))
+	{
+		if (dir->Name[0] != SLOT_EMPTY && dir->Name[0] != SLOT_DELETED) // valid entry??
+		{
+			printf("%s (%s)\n",dir->Name,longfilename);
+			++count;
+		}
+	}
+	printf("Scanned %d directory entries in total\n",count);
 
 	return(0);
 }

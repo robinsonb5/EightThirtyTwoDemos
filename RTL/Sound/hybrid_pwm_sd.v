@@ -31,17 +31,33 @@ module hybrid_pwm_sd
 );
 
 
-// PWM counter - a free-running 5-bit counter.
+// PWM portion of the DAC - a free-running 5-bit counter.
+// Output goes high when counter is 0
+// and goes low again when the threshold value is reached.
 
-reg [4:0] pwmcounter;
+reg [4:0] pwmcounter=5'b11111;
+reg [4:0] pwmthreshold_l = 5'd30;
+reg [4:0] pwmthreshold_r = 5'd30;
 
-always @(posedge clk)
-begin
+always @(posedge clk) begin
 	pwmcounter<=pwmcounter+5'b1;
+	
+	if(pwmcounter==pwmthreshold_l)
+		q_l<=1'b0;
+
+	if(pwmcounter==pwmthreshold_r)
+		q_r<=1'b0;
+
+	if(pwmcounter==5'b11111)
+	begin
+		q_l<=1'b1;
+		q_r<=1'b1;
+	end
+
 end
 
 
-// Anti-pop - at power-on ramp smoothly from max to midpoint,
+// Anti-pop - at power-on ramp smoothly from near-maximum to midpoint,
 // then cut over to the core's audio output.
 
 // After initialisation, the terminate input going high
@@ -51,12 +67,11 @@ end
 reg term_ena=1'b0;
 wire terminated = terminate & term_ena;
 
-reg [13:0] initctr = 14'h3fff;
+reg [13:0] initctr = 14'h3e00;
 wire init = initctr[13];
-reg [13:0] initctr_l = 14'h3fff;
+reg [13:0] initctr_l = 14'h3e00;
 
-always @(posedge clk)
-begin
+always @(posedge clk) begin
 	if(init && dump) begin
 		initctr_l<=initctr; // Lags one step behind to avoid wrapping from max -> 0 on terminate
 		if(terminate && term_ena)
@@ -75,10 +90,9 @@ end
 reg [7:0] dumpcounter;
 reg dump;
 
-always @(posedge clk)
-begin
+always @(posedge clk) begin
 	dump <=1'b0;
-	if(pwmcounter==5'b00000)
+	if(pwmcounter==5'b11111)
 	begin
 		dumpcounter<=dumpcounter+1;
 		dump<=dumpcounter==0 ? 1'b1 : 1'b0;
@@ -86,30 +100,23 @@ begin
 end
 
 
-// The hybrid PWM / Sigma Delta dac
+// The Sigma Delta portion of the DAC
 
-reg [4:0] pwmthreshold_l = 5'd31;
-reg [4:0] pwmthreshold_r = 5'd31;
-reg [33:0] scaledin;
-reg [15:0] sigma_l;
-reg [15:0] sigma_r;
+// The most expensive part, the multiply-and-add (which Quartus implements
+// as shift-and-add due to the fixed factor) is multiplexed between the left
+// and right channels, switching between the two every time the counters are reloaded.
 
-// Multiplex the input signals to avoid duplicating the multiply-and-add logic.
+reg [33:0] scaledin = 33'hF0000000;
+reg [15:0] sigma_l = 16'hf000;
+reg [15:0] sigma_r = 16'hf000;
+
 reg muxtoggle;
 wire [15:0] mux_in;
 assign mux_in = (init | terminated) ? {initctr_l[13:0],2'b00} : ( muxtoggle ? d_r : d_l );
 
-always @(posedge clk)
-begin
-	if(pwmcounter==pwmthreshold_l)
-		q_l<=1'b0;
-
-	if(pwmcounter==pwmthreshold_r)
-		q_r<=1'b0;
-
-	if(pwmcounter==5'b00000) // Update thresholds when pwmcounter reaches zero
-	begin
-	
+always @(posedge clk) begin
+	if(pwmcounter==5'b11111) // Update thresholds as PWM cycle ends
+	begin	
 		scaledin<=33'h8000000 // (1<<(16-5))<<16     offset to keep centre aligned.
 			+({1'b0,mux_in}*16'hf000); // + d_l * 30<<(16-5);
 
@@ -123,17 +130,13 @@ begin
 		end
 
 		muxtoggle<=!muxtoggle;
-
-		q_l<=1'b1;
-		q_r<=1'b1;
 	end
 
 	if(dump)	// dump the accumulator
 	begin
-		sigma_l[10:0]<=11'b100_00000000;
+		sigma_l[10:0]<=11'h100_00000000;
 		sigma_r[10:0]<=11'b100_00000000;
 	end
-
 end
 
 endmodule
