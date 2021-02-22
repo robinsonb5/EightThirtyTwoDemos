@@ -1,13 +1,11 @@
-PROJECTS=HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread Debug QuadCore
+PROJECTS="HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread Debug QuadCore"
 
-all: site.mk EightThirtyTwo/vbcc/bin/vbcc832 projects
+include site.mk
 
-EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd:
-	git submodule init
-	git submodule update
+all: site.mk firmware projects cores
 
-EightThirtyTwo/vbcc/bin/vbcc832: EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd
-	make -C EightThirtyTwo
+firmware:
+	make -f firmware.mk PROJECTS=$(PROJECTS)
 
 site.mk:
 	$(info Copy the example site.template file to site.mk)
@@ -16,19 +14,29 @@ site.mk:
 	$(error site.mk not found.)
 
 projects: EightThirtyTwo/vbcc/bin/vbcc832
-	for PROJECT in ${PROJECTS}; do \
-		make -f project.mk PROJECT=$$PROJECT; \
+ifdef BOARD
+	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=init
+else
+	for BOARD in ${BOARDS}; do \
+		make -f project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=init; \
 	done
+endif
+
+cores: EightThirtyTwo/vbcc/bin/vbcc832
+ifdef BOARD
+	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=compile
+else
+	for BOARD in ${BOARDS}; do \
+		make -f project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=compile; \
+	done
+endif
 
 clean:
-	for PROJECT in ${PROJECTS}; do \
-		make -f project.mk PROJECT=$$PROJECT clean; \
+ifdef BOARD
+	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=clean
+else
+	for BOARD in ${BOARDS}; do \
+		make -f project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=clean; \
 	done
-
-EightThirtyTwo/vbcc/bin/vbcc832: EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd
-	make -C EightThirtyTwo
-
-EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd:
-	git submodule init
-	git submodule update
+endif
 
