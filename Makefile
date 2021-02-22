@@ -2,7 +2,7 @@ PROJECTS="HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread Debug
 
 include site.mk
 
-all: site.mk firmware projects cores
+all: site.mk firmware init compile
 
 firmware:
 	make -f firmware.mk PROJECTS=$(PROJECTS)
@@ -13,7 +13,7 @@ site.mk:
 	$(info you have installed.)
 	$(error site.mk not found.)
 
-projects: EightThirtyTwo/vbcc/bin/vbcc832
+init:
 ifdef BOARD
 	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=init
 else
@@ -22,7 +22,7 @@ else
 	done
 endif
 
-cores: EightThirtyTwo/vbcc/bin/vbcc832
+compile:
 ifdef BOARD
 	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=compile
 else

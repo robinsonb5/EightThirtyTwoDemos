@@ -69,7 +69,7 @@ constant sysclk_hz : integer := sysclk_frequency*500;
 constant uart_divisor : integer := sysclk_hz/1152;
 constant maxAddrBit : integer := 31;
 
-signal reset_n : std_logic := '0';
+signal reset_n : std_logic := '1';
 signal reset_counter : unsigned(15 downto 0) := X"FFFF";
 
 -- UART signals
@@ -127,7 +127,7 @@ spi_cs<='1';
 
 -- Reset counter.
 
-process(clk)
+process(clk, reset_in)
 begin
 	if reset_in='0' then
 		reset_counter<=X"FFFF";

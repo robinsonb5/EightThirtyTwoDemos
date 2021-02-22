@@ -1,8 +1,14 @@
+# Copy this file to site.mk and edit the paths accordingly.
+
+# Build cores for the following boards.
+# If you just want to build for a single board then supply BOARD=boardname
+# as part of the make command.
+
+BOARDS=de10lite chameleon64 chameleon64v2 mist deca de1 de2 ems11_bb37
+
 # If you're building for multiple boards you might need to have multiple versions
 # of Quartus installed.  Since you can't have more than one version in your
 # search path, we have to locate them using absolute paths.
-# Copy this file to site.mk and edit the paths accordingly.
-
 
 # Q13 for older devices.  13.0sp1 supports Cyclone II
 # while 13.1 is the last version to support Cyclone III
@@ -14,7 +20,6 @@ Q13 = $(HOME)/altera/13.0sp1/quartus/bin/
 # will support the boards of interest.
 
 Q18 = $(HOME)/intelFPGA_lite/18.1/quartus/bin/
-
 
 
 # ISE for older Xilinx devices
@@ -32,17 +37,5 @@ QUARTUS_CYCLONE10LP = $(Q18)
 QUARTUS_MAX10 = $(Q18)
 
 ISE_SPARTAN6 = $(ISE14)
-
-# Supported boards, categorised by device class.
-# Edit or comment out lines to prevent cores being built
-# for specific devices
-
-BOARDS_CYCLONEII = de1 de2
-BOARDS_CYCLONEIII = chameleon64 mist
-BOARDS_CYCLONE10LP = chameleon64v2
-BOARDS_CYCLONEIV = 
-BOARDS_CYCLONEV = 
-BOARDS_MAX10 = de10lite deca
-
-BOARDS_SPARTAN6 = ems11_bb37
+ISE_SPARTAN3 = $(ISE14)
 
