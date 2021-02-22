@@ -23,7 +23,7 @@
 module hybrid_pwm_sd
 (
 	input clk,
-	input terminate = 1'b0,
+	input terminate,
 	input [15:0] d_l,
 	input [15:0] d_r,
 	output reg q_l,
