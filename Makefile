@@ -15,27 +15,27 @@ site.mk:
 
 init:
 ifdef BOARD
-	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=init
+	@make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=init
 else
-	for BOARD in ${BOARDS}; do \
+	@for BOARD in ${BOARDS}; do \
 		make -f project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=init; \
 	done
 endif
 
 compile:
 ifdef BOARD
-	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=compile
+	@make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=compile
 else
-	for BOARD in ${BOARDS}; do \
-		make -f project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=compile; \
+	@for BOARD in ${BOARDS}; do \
+		make --quiet -f project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=compile; \
 	done
 endif
 
 clean:
 ifdef BOARD
-	make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=clean
+	@make -f project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=clean
 else
-	for BOARD in ${BOARDS}; do \
+	@for BOARD in ${BOARDS}; do \
 		make -f project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=clean; \
 	done
 endif

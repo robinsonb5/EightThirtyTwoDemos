@@ -23,12 +23,14 @@
 module hybrid_pwm_sd
 (
 	input clk,
-	input terminate,
+	input terminate,	// Avoid pop at core change by ramping from quiescent to maximum.
 	input [15:0] d_l,
 	input [15:0] d_r,
 	output reg q_l,
 	output reg q_r
 );
+
+parameter depop = 0;	// Avoid pop at poweron by ramping from maximum to quiescent
 
 
 // PWM portion of the DAC - a free-running 5-bit counter.
@@ -57,35 +59,7 @@ always @(posedge clk) begin
 end
 
 
-// Anti-pop - at power-on ramp smoothly from near-maximum to midpoint,
-// then cut over to the core's audio output.
-
-// After initialisation, the terminate input going high
-// will prompt a ramp back up to maximum to avoid a pop
-// on core-change.
-
-reg term_ena=1'b0;
-wire terminated = terminate & term_ena;
-
-reg [13:0] initctr = 14'h3e00;
-wire init = initctr[13];
-reg [13:0] initctr_l = 14'h3e00;
-
-always @(posedge clk) begin
-	if(init && dump) begin
-		initctr_l<=initctr; // Lags one step behind to avoid wrapping from max -> 0 on terminate
-		if(terminate && term_ena)
-			initctr <= initctr+1;	// Increase the counter on termination	
-		else
-			initctr <= initctr-1;	// Decresae the counter on power-on
-	end
-	if(!init && terminate)
-		term_ena<=1'b1;	// Termination can't start until init is complete.
-	if(!init && terminate && !term_ena)
-		initctr <= initctr+1;	// Kick-start the termination, setting initctr[13]
-end
-
-// Periodic dumping of the accumulator to kill standing tones.
+// Periodic dumping of the SD accumulator to kill standing tones.
 // Yes, I know, yuck.  In practice it works better than would be expected.
 reg [7:0] dumpcounter;
 reg dump;
@@ -97,6 +71,35 @@ always @(posedge clk) begin
 		dumpcounter<=dumpcounter+1;
 		dump<=dumpcounter==0 ? 1'b1 : 1'b0;
 	end
+end
+
+
+// Anti-pop - at power-on ramp smoothly from near-maximum to midpoint,
+// then cut over to the core's audio output.
+
+// After initialisation, the terminate input going high
+// will prompt a ramp back up to maximum to avoid a pop
+// on core-change.
+
+reg term_ena=1'b0;
+wire terminated = terminate & term_ena;
+
+reg [13:0] initctr = 14'h3e00;
+wire init = depop ? initctr[13] : 1'b0;
+reg [13:0] initctr_l = 14'h3e00;
+
+always @(posedge clk) begin
+	if(init && dump) begin
+		initctr_l<=initctr; // Lags one step behind to avoid wrapping from max -> 0 on terminate
+		if(terminate && term_ena)
+			initctr <= initctr+1;	// Increase the counter on termination	
+		else
+			initctr <= initctr-1;	// Decresae the counter on power-on
+	end
+	if(!init && terminate)
+		term_ena<=depop;	// Termination can't start until init is complete.
+	if(!init && terminate && !term_ena)
+		initctr <= initctr+1;	// Kick-start the termination, setting initctr[13]
 end
 
 

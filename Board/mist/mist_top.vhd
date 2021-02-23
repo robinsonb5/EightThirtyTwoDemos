@@ -105,11 +105,11 @@ signal sd_sdo:	std_logic;
 
 -- Sigma Delta audio
 	COMPONENT hybrid_pwm_sd
+	generic ( depop : integer = '1');
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
-		reset_n : in std_logic;
-		terminate : in std_logic;
+		terminate : in std_logic := '0';
 		d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 		q_l	:	OUT STD_LOGIC;
 		d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -451,7 +451,6 @@ audiosd: component hybrid_pwm_sd
 	port map
 	(
 		clk => sysclk,
-		reset_n => '1',
 		terminate => '0',
 		d_l(15) => not audiol(15),
 		d_l(14 downto 0) => std_logic_vector(audiol(14 downto 0)),

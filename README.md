@@ -3,8 +3,6 @@ Demo projects for the EightThirtyTwo CPU
 
 Copyright 2020, 2021 by Alastair M. Robinson
 
-
-
 This repository contains a number of example projects using the EightThirtyTwo CPU
 in various configurations, demonstrating usage both as a standalone CPU running
 from ROM, and a more complete System-on-Chip with support for SDRAM and VGA video,
@@ -12,6 +10,26 @@ bootstrapping a larger application from both RS232 and SDRAM.
 
 A number of boards are supported, mostly Altera/Intel based, but with preliminary
 support for a Xilinx Spartan 6 board, too.
+
+## License
+
+    EightThirtyTwoDemos is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+	The startup code and minimal C library, lib832, is licensed under the
+	terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+	EightThirtyTwoDemos distributed in the hope that they will
+	be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with EightThirtyTwoDemos.  If not, see <https://www.gnu.org/licenses/>.
 
 ## Building:
 Because the toolchains from each vendor only tend to support a subset of devices
@@ -22,10 +40,20 @@ To do this, simply copy the site.template file to site.mk, then edit and adjust
 the paths accordingly.
 If there are any boards for which you don't want to build the cores (perhaps because
 you don't have them, or don't have the toolchain for them), simply remove them from
-the BOARDS_<DEVICE> defines at the end of the file, or comment out those lines.
+the BOARDS defines at the top of the file.
 
 Having done this, the makefile will attempt to build the projects for any boards
 which are still enabled in site.mk.
+
+You can build a specific subset of projects if you wish, simply by defining the
+PROJECTS variable when invoking make, like so:
+
+&gt; make PROJECTS=HelloWorld
+
+You can also make just the project files with
+&gt; make init
+and compile with
+&gt; make compile
 
 ## Projects:
 
@@ -101,3 +129,4 @@ A program to play an Amiga ProTracker module.  The actual replay code is ported 
 
 ### TCPIP
 An attempt to port UIP to 832, communicating via SLIP with an ESP8322 module.
+

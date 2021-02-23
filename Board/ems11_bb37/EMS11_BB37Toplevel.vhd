@@ -129,6 +129,7 @@ signal sl15_inv : std_logic;
 signal sr15_inv : std_logic;
 
 	COMPONENT hybrid_pwm_sd
+	generic ( depop : integer := 1 );
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
@@ -252,7 +253,6 @@ M1_VGA_PSAVE_N<=vga_psave;
 M1_VGA_HSYNC<=vga_hsync;
 M1_VGA_VSYNC<=vga_vsync;
 
-
 M1_VGA_BLANK_N<=vga_blank;
 M1_VGA_SYNC_N<=vga_sync;
 
@@ -271,7 +271,7 @@ project: entity work.VirtualToplevel
 	generic map (
 		sdram_rows => 13,
 		sdram_cols => 10,
-		sysclk_frequency => 1330 -- Sysclk frequency * 10
+		sysclk_frequency => 1000 -- Sysclk frequency * 10
 	)
 	port map (
 		clk => sysclk,
@@ -330,6 +330,10 @@ sl15_inv <= not sound_l(15);
 sr15_inv <= not sound_r(15);
 
 audiosd: component hybrid_pwm_sd
+	generic map
+	(
+		depop => 0
+	)
 	port map
 	(
 		clk => sysclk,

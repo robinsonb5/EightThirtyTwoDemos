@@ -63,12 +63,15 @@ signal ts_irq : std_logic;
 
 -- Sigma Delta audio
 COMPONENT hybrid_pwm_sd
+	generic ( depop : integer = 1 );
 	PORT
 	(
 		clk		:	 IN STD_LOGIC;
-		n_reset		:	 IN STD_LOGIC;
-		din		:	 IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		dout		:	 OUT STD_LOGIC
+		terminate : in std_logic :='0'; 
+		d_l		:	 IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		q_l		:	 OUT STD_LOGIC;
+		d_r		:	 IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		q_r		:	 OUT STD_LOGIC
 	);
 END COMPONENT;
 
@@ -172,22 +175,14 @@ myproject : entity work.VirtualToplevel
 
 -- Do we have audio?  If so, instantiate a two DAC channels.
 audio2: if Toplevel_UseAudio = true generate
-leftsd: component hybrid_pwm_sd
+sd: component hybrid_pwm_sd
 	port map
 	(
 		clk => sysclk,
-		n_reset => reset,
-		din => std_logic_vector(audio_l),
-		dout => sd_left
-	);
-	
-rightsd: component hybrid_pwm_sd
-	port map
-	(
-		clk => sysclk,
-		n_reset => reset,
-		din => std_logic_vector(audio_r),
-		dout => sd_right
+		d_l => std_logic_vector(audio_l),
+		q_l => sd_left,
+		d_r => std_logic_vector(audio_l),
+		q_r => sd_left
 	);
 end generate;
 
