@@ -1,7 +1,10 @@
 // Stereo Hybrid PWM / Sigma Delta converter
 //
-// Uses 5-bit PWM, wrapped within a 10-bit Sigma Delta, with the intention of
+// Uses a 5-bit PWM, wrapped within an 11-bit Sigma Delta, with the intention of
 // increasing the pulse width, since narrower pulses seem to equate to more noise
+//
+// Also includes experimental (and optional) countermeasures against the power-on
+// pop that happens when the FPGA leaves configuration mode.
 //
 // Copyright 2012,2020,2021 by Alastair M. Robinson
 //
@@ -34,7 +37,7 @@ parameter depop = 0;	// Avoid pop at poweron by ramping from maximum to quiescen
 
 
 // PWM portion of the DAC - a free-running 5-bit counter.
-// Output goes high when counter is 0
+// Output goes high as the counter rolls over to 0
 // and goes low again when the threshold value is reached.
 
 reg [4:0] pwmcounter=5'b11111;

@@ -1,9 +1,9 @@
 BOARD=none
 PROJECT=none
+PROJECTDIR=../../
 BOARDDIR=../../../Board/$(BOARD)
 MANIFEST=../../manifest.rtl
 SCRIPTSDIR=../../../Scripts
-TCLDIR=../../../tcl/
 
 TARGET=$(PROJECT)_$(BOARD)
 
@@ -24,7 +24,7 @@ $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
 $(TARGET).xise: $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/template.xise
 	mkdir -p Working
 	cp $(BOARDDIR)/template.xise $(TARGET).xise
-	command -v $(TOOLPATH)/xtclsh && $(TOOLPATH)/xtclsh $(TCLDIR)/mkproject_ise.tcl -project $(PROJECT) -board $(BOARD) || echo "xtclsh not found - skipping Xilinx project generation."
+	@command -v $(TOOLPATH)/xtclsh && $(TOOLPATH)/xtclsh $(SCRIPTSDIR)/mkproject_ise.tcl -project $(PROJECT) -board $(BOARD) || echo "xtclsh not found - skipping Xilinx project generation."
 
 Working/$(TARGET).bit: $(TARGET).xise
 

@@ -1,7 +1,5 @@
-load_package flow
-
 package require cmdline
-variable ::argv0 $::quartus(args)
+variable ::argv0
 set options {
    { "project.arg" "" "Project name" }
    { "board.arg" "" "Target board" }
@@ -17,17 +15,20 @@ if {[string length $project]==0} {return -code error "Must specify a project"}
 set corename "${project}_${board}"
 
 source ../../project_defs.tcl
-source ../../../Board/${board}/${board}_defs.tcl
+source ${boardpath}/${board}/${board}_defs.tcl
 
 if { ${requires_sdram}==0 || ${have_sdram}==1 } {
-	project_new $corename -revision $corename -overwrite
-	set_global_assignment -name TOP_LEVEL_ENTITY ${board}_top
-
-	source ../../../Board/${board}/${board}_opts.tcl
-	source ../../../Board/${board}/${board}_pins.tcl
-	source ../../../Board/${board}/${board}_support.tcl
+	project open ${corename}.xise
+	source ${boardpath}/${board}/${board}_support.tcl
 	source ${corename}_files.tcl
-	set_global_assignment -name QIP_FILE ../../../PLL/${fpga}_${base_clock}_${target_frequency}/pll.qip
+	xfile add ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency}/pll.${pll_extension}
+	if ${requires_sdram}==1 {
+		xfile add ${boardpath}/${board}/sdram_iobs.ucf
+	} else {
+		puts "Project doesn't require SDRAM, omitting sdram_iobs.ucf"
+	}
+	project save
+	project close
 } else {
 	puts "Board ${board} has no SDRAM, not building ${project}"
 }

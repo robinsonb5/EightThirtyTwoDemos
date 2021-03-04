@@ -116,7 +116,7 @@ architecture RTL of de10lite_top is
 
 -- Sigma Delta audio
 	COMPONENT hybrid_pwm_sd
-	generic ( depop : integer = 1 );
+	generic ( depop : integer := 1 );
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
