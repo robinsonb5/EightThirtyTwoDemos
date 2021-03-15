@@ -267,11 +267,11 @@ int_triggers<=(0=>timer_tick, others => '0');
 
 	rom : entity work.Dhrystone_rom
 	generic map(
-		ADDR_WIDTH => 14
+		ADDR_WIDTH => 12
 	)
 	port map(
 		clk => clk,
-		addr => cpu_addr(15 downto 2),
+		addr => cpu_addr(13 downto 2),
 		d => from_cpu,
 		q => from_rom,
 		we => rom_wr,

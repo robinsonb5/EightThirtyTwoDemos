@@ -6,7 +6,7 @@ static char string[18];
 void hexdump(unsigned char *p,unsigned int l)
 {
 	int i=0;
-	unsigned char *p2=(unsigned int *)p;
+	unsigned char *p2=p;
 	char *sp;
 	string[16]=0;
 	sp=string;

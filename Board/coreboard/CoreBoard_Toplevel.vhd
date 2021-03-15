@@ -63,7 +63,7 @@ signal ts_irq : std_logic;
 
 -- Sigma Delta audio
 COMPONENT hybrid_pwm_sd
-	generic ( depop : integer = 1 );
+	generic ( depop : integer := 1 );
 	PORT
 	(
 		clk		:	 IN STD_LOGIC;
@@ -126,7 +126,7 @@ end process;
 
 -- PLL
 
-MyPLL : entity work.PLL
+MyPLL : entity work.pll
 port map(
 	inclk0 => CLK50M,
 	c0 => SDRAM_CLK,

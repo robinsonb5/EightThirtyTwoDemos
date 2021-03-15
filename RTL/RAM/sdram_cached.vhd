@@ -466,10 +466,10 @@ end generate;
 		END IF;
 
 		--   sample SDRAM data
-		if rising_edge(sysclk) then
+		if falling_edge(sysclk) then
 			sdata_reg <= sdata;
 			vga_data <= sdata;
-		END IF;	
+		END IF;
 		
 		if reset = '0' then
 			initstate <= (others => '0');
@@ -485,25 +485,25 @@ end generate;
 
 			case sdram_state is	--LATENCY=3
 				when ph0 =>	sdram_state <= ph1;
-				when ph1 =>	sdram_state <= ph2;
 					slot1_fill<='0';
 					slot2_fill<='1';
-				when ph2 => sdram_state <= ph3;
+				when ph1 =>	sdram_state <= ph2;
 					slot2_ack<='1';
-				when ph3 =>	sdram_state <= ph4;
+				when ph2 => sdram_state <= ph3;
 					slot2_ack<='0';
+				when ph3 =>	sdram_state <= ph4;
 				when ph4 =>	sdram_state <= ph5;
 				when ph5 => sdram_state <= ph6;
 				when ph6 =>	sdram_state <= ph7;
 				when ph7 =>	sdram_state <= ph8;
 				when ph8 =>	sdram_state <= ph9;
-				when ph9 =>	sdram_state <= ph10;
 					slot2_fill<='0';
 					slot1_fill<='1';
-				when ph10 => sdram_state <= ph11;
+				when ph9 =>	sdram_state <= ph10;
 					slot1_ack<='1';
-				when ph11 => sdram_state <= ph12;
+				when ph10 => sdram_state <= ph11;
 					slot1_ack<='0';
+				when ph11 => sdram_state <= ph12;
 				when ph12 => sdram_state <= ph13;
 				when ph13 => sdram_state <= ph14;
 				when ph14 =>

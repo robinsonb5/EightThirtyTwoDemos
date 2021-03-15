@@ -31,17 +31,17 @@ wire sysclk;
 wire slowclk;
 wire pll_locked;
 
-PLL01 U00
+pll U00
 (
 	.inclk0(CLOCK_50),
-	.c0(sysclk),
-	.c1(DRAM_CLK),
+	.c0(DRAM_CLK),
+	.c1(sysclk),
 	.c2(slowclk),
 	.locked(pll_locked)
 );
 
-wire [15:0] audio_l;
-wire [15:0] audio_r;
+wire [15:0] audio_l /* synthesis keep */;
+wire [15:0] audio_r /* synthesis keep */;
 
 VirtualToplevel #(.sdram_rows(13), .sdram_cols(9), .sysclk_frequency(1000)) virtualtoplevel
 (

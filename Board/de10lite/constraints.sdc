@@ -13,7 +13,7 @@ set_input_delay -clock { sdram_clock } -max 6.5 [get_ports *DRAM_DQ*]
 set_output_delay -clock { sdram_clock } -min -0.5 [get_ports DRAM_*]
 set_output_delay -clock { sdram_clock } -max -1.5 [get_ports DRAM_*]
 
-set_multicycle_path -from [get_clocks {sdram_clock}] -to [get_clocks {U00|altpll_component|auto_generated|pll1|clk[1]}] -setup -end 2
+# set_multicycle_path -from [get_clocks {sdram_clock}] -to [get_clocks {U00|altpll_component|auto_generated|pll1|clk[1]}] -setup -end 2
 
 
 # I/O delays for non-critical ports

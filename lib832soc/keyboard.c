@@ -1,5 +1,6 @@
 #include <hw/keyboard.h>
 #include <hw/ps2.h>
+#include <hw/interrupts.h>
 
 #include "printf.h"
 

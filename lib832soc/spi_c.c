@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <hw/uart.h>
 #include <hw/spi.h>
 
 int sd_is_sdhc;
@@ -389,7 +389,7 @@ int sd_read_sector(unsigned long lba,unsigned char *buf)
 	r=cmd_read(lba);
 	if(r!=0)
 	{
-		printf("Read command failed at %d (%d)\n",lba,r);
+		printf("Read command failed at %d (%d)\n",(int)lba,r);
 		return(result);
 	}
 	result=sd_read(buf,512);

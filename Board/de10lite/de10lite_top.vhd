@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.Toplevel_Config.all;
 
 -- -----------------------------------------------------------------------
 
@@ -115,12 +116,13 @@ architecture RTL of de10lite_top is
 
 
 -- Sigma Delta audio
-	COMPONENT hybrid_pwm_sd
-	generic ( depop : integer := 1 );
+	COMPONENT hybrid_pwm_sd_2ndorder
+--	generic ( depop : integer := 1 );
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
-		terminate : in std_logic;
+		reset_n : in std_logic;
+--		terminate : in std_logic;
 		d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 		q_l	:	OUT STD_LOGIC;
 		d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -188,7 +190,9 @@ virtualtoplevel : entity work.VirtualToplevel
 	generic map(
 		sdram_rows => 13,
 		sdram_cols => 10,
-		sysclk_frequency => 1000 -- Sysclk frequency * 10
+		sysclk_frequency => 1000, -- Sysclk frequency * 10
+		jtag_uart => false,
+		debug=>true
 	)
 	port map(
 		clk => fastclk,
@@ -242,7 +246,7 @@ virtualtoplevel : entity work.VirtualToplevel
 	txd2 => esp_txd
 );
 
-	
+genvideo: if Toplevel_UseVGA=true generate
 -- Dither the video down to 5 bits per gun.
 	vga_window<='1';
 	VGA_HS<= not vga_hsync;
@@ -264,12 +268,15 @@ virtualtoplevel : entity work.VirtualToplevel
 			oGreen => VGA_G,
 			oBlue => VGA_B
 		);
-	
-audio_sd: component hybrid_pwm_sd
+end generate;
+
+genaudio: if Toplevel_UseAudio=true generate
+audio_sd: component hybrid_pwm_sd_2ndorder
 	port map
 	(
-		clk => fastclk,
-		terminate => '0',
+		clk => slowclk,
+		reset_n => n_reset,
+--		terminate => '0',
 		d_l(15) => not audio_l(15),
 		d_l(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
 		q_l => sigma_l,
@@ -277,7 +284,7 @@ audio_sd: component hybrid_pwm_sd
 		d_r(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
 		q_r => sigma_r
 	);
-	
+end generate;	
 
 GPIO(0)<=rs232_txd;
 GPIO(1) <= 'Z';

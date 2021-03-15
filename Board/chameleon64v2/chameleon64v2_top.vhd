@@ -196,8 +196,8 @@ architecture rtl of chameleon64v2_top is
 	signal ir_d : std_logic;
 
 	-- Sigma Delta audio
-	COMPONENT hybrid_pwm_sd
-	generic ( depop : integer = 1 );
+	COMPONENT hybrid_pwm_sd is
+	generic ( depop : integer := 1 );
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
@@ -489,7 +489,7 @@ audiosd: component hybrid_pwm_sd
 	port map
 	(
 		clk => fastclk,
-		reset_n => n_reset,
+--		reset_n => n_reset,
 		terminate => '1',
 		d_l(15) => not audio_l(15),
 		d_l(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),

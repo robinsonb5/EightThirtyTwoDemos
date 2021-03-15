@@ -105,7 +105,7 @@ signal sd_sdo:	std_logic;
 
 -- Sigma Delta audio
 	COMPONENT hybrid_pwm_sd
-	generic ( depop : integer = '1');
+	generic ( depop : integer := 1);
 	PORT
 	(
 		clk	:	IN STD_LOGIC;
@@ -330,30 +330,30 @@ begin
    end if;
 end process;
 
-sd_card_d: component sd_card
-	port map
-	(
-		-- connection to io controller
-		io_lba => sd_lba,
-		io_rd  => sd_rd,
-		io_wr  => sd_wr,
-		io_ack => sd_ack,
-		io_conf => sd_conf,
-		io_sdhc => sd_sdhc,
-		io_din => sd_data_in,
-		io_din_strobe => sd_data_in_strobe,
-		io_dout => sd_data_out,
-		io_dout_strobe => sd_data_out_strobe,
-
-		-- status 1 is driven by the "O1,SHDC,enabled,disable" antry in the config string
-		allow_sdhc  => sd_allow_sdhc,   
-		
-		-- connection to host
-		sd_cs  => sd_cs,
-		sd_sck => sd_sck,
-		sd_sdi => sd_sdi,
-		sd_sdo => sd_sdo		
-	);
+--sd_card_d: component sd_card
+--	port map
+--	(
+--		-- connection to io controller
+--		io_lba => sd_lba,
+--		io_rd  => sd_rd,
+--		io_wr  => sd_wr,
+--		io_ack => sd_ack,
+--		io_conf => sd_conf,
+--		io_sdhc => sd_sdhc,
+--		io_din => sd_data_in,
+--		io_din_strobe => sd_data_in_strobe,
+--		io_dout => sd_data_out,
+--		io_dout_strobe => sd_data_out_strobe,
+--
+--		-- status 1 is driven by the "O1,SHDC,enabled,disable" antry in the config string
+--		allow_sdhc  => sd_allow_sdhc,   
+--		
+--		-- connection to host
+--		sd_cs  => sd_cs,
+--		sd_sck => sd_sck,
+--		sd_sdi => sd_sdi,
+--		sd_sdo => sd_sdo		
+--	);
 
 -- prevent joystick signals from being optimzed away
 LED <= '0' when ((joy_ana_0 /= joy_ana_1) AND (joy_0 /= joy_1)) else '1';
