@@ -113,11 +113,19 @@ module deca_top(
 	//////////// BBB Conector //////////
 	input 		          		BBB_PWR_BUT,
 	input 		          		BBB_SYS_RESET_n,
-	inout 		    [43:0]		GPIO0_D,
-	inout 		    [22:0]		GPIO1_D
+	output [12:0] SDRAM_A,
+	output  [1:0] SDRAM_BA,
+	inout  [15:0] SDRAM_DQ,
+	output        SDRAM_DQMH,
+	output        SDRAM_DQML,
+	output        SDRAM_CKE,
+	output        SDRAM_nCS,
+	output        SDRAM_nWE,
+	output        SDRAM_nRAS,
+	output        SDRAM_nCAS,
+	output        SDRAM_CLK
 );
 
-assign reset_n = 1'b1;
 assign LED = 8'hff;
 
 assign SD_CMD_DIR = 1'b1; // Must be output in SPI mode
@@ -129,6 +137,7 @@ wire ramclk;
 wire sysclk;
 wire slowclk;
 
+
 pll sysclks
 (
 	.inclk0(MAX10_CLK1_50),
@@ -138,7 +147,9 @@ pll sysclks
 	.locked(pll_locked)
 );
 
-VirtualToplevel #(.sysclk_frequency(1000),.jtag_uart("true")) virtualtoplevel
+assign SDRAM_CLK = ramclk;
+
+VirtualToplevel #(.sdram_rows(13),.sdram_cols(9),.sysclk_frequency(1000),.jtag_uart("true")) virtualtoplevel
 (
 	.clk(sysclk),
 	.slowclk(slowclk),
@@ -153,15 +164,15 @@ VirtualToplevel #(.sysclk_frequency(1000),.jtag_uart("true")) virtualtoplevel
 	.vga_window(HDMI_TX_DE),
 
 	// SDRAM
-	.sdr_data(16'h0000),//	: inout std_logic_vector(15 downto 0);
-//	sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
-//	sdr_dqm 		: out std_logic_vector(1 downto 0);
-//	sdr_we 		: out std_logic;
-//	sdr_cas 		: out std_logic;
-//	sdr_ras 		: out std_logic;
-//	sdr_cs		: out std_logic;
-//	sdr_ba		: out std_logic_vector(1 downto 0);
-//	sdr_cke		: out std_logic;
+	.sdr_data(SDRAM_DQ),//	: inout std_logic_vector(15 downto 0);
+	.sdr_addr(SDRAM_A),//		: out std_logic_vector((sdram_rows-1) downto 0);
+	.sdr_dqm({SDRAM_DQMH,SDRAM_DQML}),// 		: out std_logic_vector(1 downto 0);
+	.sdr_we(SDRAM_nWE),//		: out std_logic;
+	.sdr_cas(SDRAM_nCAS),// 		: out std_logic;
+	.sdr_ras(SDRAM_nRAS),// 		: out std_logic;
+	.sdr_cs(SDRAM_nCS),//		: out std_logic;
+	.sdr_ba(SDRAM_BA),//		: out std_logic_vector(1 downto 0);
+	.sdr_cke(SDRAM_CKE),//		: out std_logic;
 
 	// SPI signals
 	.spi_miso(SD_DAT[0]),

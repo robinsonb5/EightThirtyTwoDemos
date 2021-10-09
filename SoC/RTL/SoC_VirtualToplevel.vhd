@@ -55,7 +55,7 @@ entity VirtualToplevel is
 		ps2m_dat_out : out std_logic;
 
 		-- UARTs
-		rxd	: in std_logic;
+		rxd	: in std_logic := '1';
 		txd	: out std_logic;
 		rxd2	: in std_logic := '1';
 		txd2	: out std_logic;
@@ -291,7 +291,9 @@ end process;
 
 -- UARTs
 
-uart1 : entity work.simple_uart
+jtaguart:
+if jtag_uart=true generate
+myuart : entity work.jtag_uart
 	generic map(
 		enable_tx=>true,
 		enable_rx=>true
@@ -303,14 +305,35 @@ uart1 : entity work.simple_uart
 		txready => ser_txready,
 		txgo => ser_txgo,
 		rxdata => ser_rxdata,
-		rxready => ser_rxready,
 		rxint => ser_rxint,
 		txint => open,
 		clock_divisor => to_unsigned(uart_divisor,16),
 		rxd => rxd,
 		txd => txd
 	);
+end generate;
 
+regularuart:
+if jtag_uart=false generate
+myuart : entity work.simple_uart
+	generic map(
+		enable_tx=>true,
+		enable_rx=>true
+	)
+	port map(
+		clk => clk,
+		reset => reset_n, -- active low
+		txdata => ser_txdata,
+		txready => ser_txready,
+		txgo => ser_txgo,
+		rxdata => ser_rxdata,
+		rxint => ser_rxint,
+		txint => open,
+		clock_divisor => to_unsigned(uart_divisor,16),
+		rxd => rxd,
+		txd => txd
+	);
+end generate;
 
 uart2 : entity work.simple_uart
 	generic map(
