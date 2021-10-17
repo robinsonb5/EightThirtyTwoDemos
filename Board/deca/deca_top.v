@@ -123,7 +123,13 @@ module deca_top(
 	output        SDRAM_nWE,
 	output        SDRAM_nRAS,
 	output        SDRAM_nCAS,
-	output        SDRAM_CLK
+	output        SDRAM_CLK,
+	
+	output VGA_HS,
+	output VGA_VS,
+	output [2:0] VGA_R,
+	output [2:0] VGA_G,
+	output [2:0] VGA_B
 );
 
 assign LED = 8'hff;
@@ -149,6 +155,19 @@ pll sysclks
 
 assign SDRAM_CLK = ramclk;
 
+wire vga_hsync;
+wire vga_vsync;
+wire vga_window;
+wire [7:0] vga_red;
+wire [7:0] vga_green;
+wire [7:0] vga_blue;
+
+assign VGA_R=vga_window ? vga_red[7:5] : 3'b000;
+assign VGA_G=vga_window ? vga_green[7:5] : 3'b000;
+assign VGA_B=vga_window ? vga_blue[7:5] : 3'b000;
+assign VGA_HS=vga_hsync;
+assign VGA_VS=vga_vsync;
+
 VirtualToplevel #(.sdram_rows(13),.sdram_cols(9),.sysclk_frequency(1000),.jtag_uart("true")) virtualtoplevel
 (
 	.clk(sysclk),
@@ -156,12 +175,12 @@ VirtualToplevel #(.sdram_rows(13),.sdram_cols(9),.sysclk_frequency(1000),.jtag_u
 	.reset_in(KEY[0] & pll_locked),
 
 	// VGA
-	.vga_red(HDMI_TX_D[23:16]),
-	.vga_green(HDMI_TX_D[15:8]),
-	.vga_blue(HDMI_TX_D[7:0]),
-	.vga_hsync(HDMI_TX_HS),
-	.vga_vsync(HDMI_TX_VS),
-	.vga_window(HDMI_TX_DE),
+	.vga_red(vga_red),
+	.vga_green(vga_green),
+	.vga_blue(vga_blue),
+	.vga_hsync(vga_hsync),
+	.vga_vsync(vga_vsync),
+	.vga_window(vga_window),
 
 	// SDRAM
 	.sdr_data(SDRAM_DQ),//	: inout std_logic_vector(15 downto 0);

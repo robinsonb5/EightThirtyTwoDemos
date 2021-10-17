@@ -18,7 +18,6 @@ all: SoC_ROM_byte.vhd SoC_ROM_word.vhd
 
 clean :
 	-rm *.asm
-	-rm *.S
 	-rm *.o
 	-rm *.vhd
 	-rm *.bin
@@ -43,6 +42,9 @@ SoC.bin : $(LIBDIR)/dualcrt0.a $(LIBDIR)/lib832.a thread2boot.o main.o minfat.o 
 
 %.o : %.asm Makefile
 	$(AS) -o $*.o $*.asm
+
+%.o : %.S Makefile
+	$(AS) -o $*.o $*.S
 
 %.asm : %.c Makefile
 	$(CC) $(CFLAGS) $*.c

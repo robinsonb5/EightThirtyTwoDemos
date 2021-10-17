@@ -7,6 +7,10 @@ all: site.mk firmware init compile
 firmware:
 	make -f firmware.mk PROJECTS=$(PROJECTS)
 
+.phony firmware_clean:
+firmware_clean:
+	make -f firmware.mk PROJECTS=$(PROJECTS) clean
+
 site.mk:
 	$(info Copy the example site.template file to site.mk)
 	$(info and edit the paths for the version(s) of Quartus)
@@ -31,7 +35,7 @@ else
 	done
 endif
 
-clean:
+clean: firmware_clean
 ifdef BOARD
 	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=clean
 else

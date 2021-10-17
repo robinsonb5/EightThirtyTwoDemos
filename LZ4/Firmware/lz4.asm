@@ -6,9 +6,11 @@ start: // 0
 
 	// Setup source and destination pointers
 	.lipcrel compressed
+	addt	r7
 	mr	r0
 
 	.lipcrel decompressed
+	addt	r7
 	mr	r1
 	mr	r2
 
@@ -24,6 +26,7 @@ start: // 0
 	// Now write the depacked buffer to UART.
 
 	.lipcrel decompressed
+	addt	r7
 	mr	r1
 
 	.liconst	0xffffffc0	// UART register

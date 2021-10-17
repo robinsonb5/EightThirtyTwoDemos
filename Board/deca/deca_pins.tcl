@@ -650,8 +650,6 @@ set_location_assignment PIN_Y5 -to GPIO1_D[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[0]
 set_location_assignment PIN_Y6 -to GPIO1_D[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[1]
-set_location_assignment PIN_W6 -to GPIO1_D[2]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[2]
 set_location_assignment PIN_W7 -to GPIO1_D[3]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[3]
 set_location_assignment PIN_W8 -to GPIO1_D[4]
@@ -660,24 +658,6 @@ set_location_assignment PIN_V8 -to GPIO1_D[5]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[5]
 set_location_assignment PIN_AB8 -to GPIO1_D[6]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[6]
-set_location_assignment PIN_V7 -to GPIO1_D[7]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[7]
-set_location_assignment PIN_R11 -to GPIO1_D[8]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[8]
-set_location_assignment PIN_AB7 -to GPIO1_D[9]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[9]
-set_location_assignment PIN_AB6 -to GPIO1_D[10]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[10]
-set_location_assignment PIN_AA7 -to GPIO1_D[11]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[11]
-set_location_assignment PIN_AA6 -to GPIO1_D[12]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[12]
-set_location_assignment PIN_Y7 -to GPIO1_D[13]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[13]
-set_location_assignment PIN_V10 -to GPIO1_D[14]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[14]
-set_location_assignment PIN_U7 -to GPIO1_D[15]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[15]
 set_location_assignment PIN_W9 -to GPIO1_D[16]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO1_D[16]
 set_location_assignment PIN_W5 -to GPIO1_D[17]
@@ -695,4 +675,18 @@ set_location_assignment PIN_U6 -to BBB_PWR_BUT
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to BBB_PWR_BUT
 set_location_assignment PIN_AA2 -to BBB_SYS_RESET_n
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to BBB_SYS_RESET_n
+
+set_location_assignment PIN_V10 -to VGA_B[0]
+set_location_assignment PIN_AA6 -to VGA_B[1]
+set_location_assignment PIN_AB6 -to VGA_B[2]
+set_location_assignment PIN_AB7 -to VGA_G[0]
+set_location_assignment PIN_R11 -to VGA_G[1]
+set_location_assignment PIN_V7 -to VGA_G[2]
+set_location_assignment PIN_W7 -to VGA_HS
+set_location_assignment PIN_U7 -to VGA_R[0]
+set_location_assignment PIN_Y7 -to VGA_R[1]
+set_location_assignment PIN_AA7 -to VGA_R[2]
+set_location_assignment PIN_W6 -to VGA_VS
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_*
+
 
