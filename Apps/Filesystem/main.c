@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include <fat.h>
+#include <minfat.h>
 #include <hw/vga.h>
 
 fileTYPE *file;
@@ -54,16 +54,16 @@ int main(int argc, char **argv)
 	else
 		printf("Loading failed\n");
 
-	cluster=FindDirectory(0,"PARENT     ");
+	dir=FindDirEntry("PARENT     ");
 //	cluster=FindDirectory(0,"ADFS       ");
-	if(cluster)
+	if(dir)
 	{
-		printf("Found parent at %d\n",cluster);
-		SetDirectory(cluster);
+		printf("Found parent at %d\n",(int)dir);
+		ChangeDirectory(dir);
 
 		printf("Scanning directory\n");
 		dir=0;
-		while((dir=NextDirEntry(dir==0)))
+		while((dir=NextDirEntry(dir==0,0)))
 		{
 			if (dir->Name[0] != SLOT_EMPTY && dir->Name[0] != SLOT_DELETED) // valid entry??
 			{
@@ -71,11 +71,11 @@ int main(int argc, char **argv)
 			}
 		}
 
-		cluster=FindDirectory(cluster,"SUBDIR     ");
-		if(cluster)
+		dir=FindDirEntry("SUBDIR     ");
+		if(dir)
 		{
-			printf("Found subdir at %d\n",cluster);
-			if(ValidateDirectory(cluster))
+			printf("Found subdir at %d\n",(int)dir);
+			if(ValidateDirectory(ClusterFromDirEntry(dir)))
 				printf("cluster valid\n");
 			else
 				printf("cluster not valid\n");
@@ -96,8 +96,8 @@ int main(int argc, char **argv)
 #endif
 	printf("Scanning directory\n");
 	dir=0;
-	ChangeDirectory(0);
-	while((dir=NextDirEntry(dir==0)))
+	ChangeDirectoryByCluster(0);
+	while((dir=NextDirEntry(dir==0,0)))
 	{
 		if (dir->Name[0] != SLOT_EMPTY && dir->Name[0] != SLOT_DELETED) // valid entry??
 		{

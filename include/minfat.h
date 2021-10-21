@@ -1,15 +1,26 @@
-#ifndef _FAT16_H_INCLUDED
-#define _FAT16_H_INCLUDED
-
-#define MAXDIRENTRIES 8
+#ifndef MINFAT_H
+#define MINFAT_H
 
 #include "sys/types.h"
+
+struct fileBookmark
+{
+	uint32_t sector;
+	uint32_t cluster;
+};
 
 typedef struct
 {
     uint32_t sector;          /* sector index in file */
-    uint32_t size;            /* file size */
     uint32_t cluster;         /* current cluster */
+    uint32_t size;            /* file size */
+    uint32_t firstcluster;
+	uint32_t cursor;	/* Offset within the current sector */
+#ifdef CONFIG_FILEBOOKMARKS
+	struct fileBookmark bookmarks[CONFIG_FILEBOOKMARKS];
+	int bookmark_threshold;
+//	int bookmark_index;
+#endif
 } fileTYPE;
 
 struct PartitionEntry
@@ -102,12 +113,31 @@ extern unsigned int fat32;
 // functions
 unsigned int FindDrive(void);
 unsigned int GetFATLink(unsigned int cluster);
-unsigned int FileNextSector(fileTYPE *file);
+DIRENTRY *FindDirEntry(const char *name);
+int ClusterFromDirEntry(const DIRENTRY *p);
+void FileNextSector(fileTYPE *file, int count);
 unsigned int FileOpen(fileTYPE *file, const char *name);
-unsigned int FileRead(fileTYPE *file, unsigned char *pBuffer);
+unsigned int FileReadSector(fileTYPE *file, unsigned char *pBuffer);
+unsigned int FileWriteSector(fileTYPE *file, unsigned char *pBuffer);
 //unsigned char FileReadEx(fileTYPE *file, unsigned char *pBuffer, uint32_t nSize);
+void FileSeek(fileTYPE *file,unsigned int pos);
+#define FileTell(x) (x)->cursor
+unsigned int FileRead(fileTYPE *file, unsigned char *buffer,int count);
+char FileGetCh(fileTYPE *file);
 
-int LoadFile(const char *fn, unsigned char *buf);
+int LoadFileAbs(const char *fn, unsigned char *buf);
+
+uint32_t CurrentDirectory();
+void ChangeDirectory(DIRENTRY *p);
+void ChangeDirectoryByCluster(uint32_t cluster);
+DIRENTRY *NextDirEntry(int prev,int (*matchfunc)(const char *fn));
+int FindByCluster(uint32_t parent, uint32_t cluster);
+int ValidateDirectory(uint32_t directory);
+
+extern unsigned int dir_entries;             // number of entries in directory table
+extern char longfilename[261];
+
+#define FileFirstSector(x) { (x)->sector=0; (x)->cursor=0; (x)->cluster=(x)->firstcluster; }
 
 #endif
 

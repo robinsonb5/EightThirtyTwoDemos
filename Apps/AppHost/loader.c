@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "hw/spi.h"
-#include "fat.h"
+#include "minfat.h"
 
 #define APPID 0x38333242 /* "832B" */
 
@@ -34,11 +34,11 @@ int	CallApp(__reg("r4") char *newstack, __reg("r3") int (*entry)(int argc, char 
 void Relocate(char *addr)
 {
 	struct 832AppTag *tag=(struct 832AppTag *)addr;
-	int *reloctable=(addr+tag->reloctable);
+	int *reloctable=(int *)(addr+tag->reloctable);
 	char *ptr;
 	printf("Loaded to %x\n",(int)addr);
 	printf("Reloctable is at %x\n",(int)reloctable);
-	while(ptr=(char *)(*reloctable++)
+	while(ptr=(char *)(*reloctable++))
 	{
 		int *iptr=(int*)(ptr+(int)addr);
 		printf("reloc entry at %x, current contents: %x\n",(int)iptr,*iptr);
@@ -56,7 +56,7 @@ int LoadApp(const char *filename)
 	if(FileOpen(&file,filename))
 	{
 		struct 832AppTag *tag;
-		FileRead(&file,sector_buffer);
+		FileReadSector(&file,sector_buffer);
 		tag=(struct 832AppTag *)sector_buffer;
 		if(tag->id==APPID)
 		{
@@ -76,14 +76,14 @@ int LoadApp(const char *filename)
 				len=file.size;
 				while(len>0)
 				{
-					FileRead(&file,p);
-					FileNextSector(&file);
+					FileReadSector(&file,p);
+					FileNextSector(&file,1);
 					p+=512;
 					len-=512;
 				}
 				tag=(struct 832AppTag *)loadaddr;
 				Relocate(loadaddr);
-				printf("Loaded - calling entry function at %x, stack %x\n",tag->entry,stack+stacksize);
+				printf("Loaded - calling entry function at %x, stack %x\n",(int)tag->entry,(int)stack+stacksize);
 				CallApp(stack+stacksize,tag->entry,0,&filename);
 			}
 			else

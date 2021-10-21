@@ -2,10 +2,9 @@
 #define STDIO_H
 
 #include "printf.h"
+#include "minfat.h"
 
-#include "rafile.h"
-
-typedef struct RAFile FILE;
+typedef fileTYPE FILE;
 
 #endif
 

@@ -11,14 +11,13 @@
 #include <hw/uart.h>
 #include <hw/spi.h>
 
-#include "rafile.h"
 #include "malloc.h"
-#include "fat.h"
+#include "minfat.h"
 
 // File table
 
 #define MAX_FILES 8
-static RAFile *Files[MAX_FILES];
+static fileTYPE *Files[MAX_FILES];
 #define FILEHANDLE(x) Files[(x)-2]
 
 
@@ -120,7 +119,7 @@ __weak ssize_t read(int fd, void *buf, size_t nbytes)
 		// Handle reading from SD card
 		if(FILEHANDLE(fd))
 		{
-			if(RARead(FILEHANDLE(fd),b,nbytes))
+			if(FileRead(FILEHANDLE(fd),b,nbytes))
 				return(nbytes);
 			else
 			{
@@ -165,11 +164,11 @@ __weak int open(const char *buf,int flags, ...)
 			if(!FILEHANDLE(fd))
 			{
 				printf("Found spare fd: %d\n",fd);
-				FILEHANDLE(fd)=malloc(sizeof(RAFile));
+				FILEHANDLE(fd)=malloc(sizeof(fileTYPE));
 				if(FILEHANDLE(fd))
 				{
-					printf("Opening rafile...\n");
-					if(RAOpen(FILEHANDLE(fd),buf))
+					printf("Opening file...\n");
+					if(FileOpen(FILEHANDLE(fd),buf))
 					{
 						printf("Success - returning\n");
 						return(fd);
@@ -234,14 +233,16 @@ __weak off_t lseek(int fd,  off_t offset, int whence)
 	}
 	else if(FILEHANDLE(fd))
 	{
+		int pos=FILEHANDLE(fd)->cursor;
 		switch(whence)
 		{
 			case SEEK_SET:
+				pos=0;
 			case SEEK_CUR:
 #ifndef DISABLE_FILESYSTEM
-				RASeek(FILEHANDLE(fd),offset,whence);
+				FileSeek(FILEHANDLE(fd),pos+offset);
 #endif
-				return((off_t)FILEHANDLE(fd)->ptr);
+				return((off_t)FILEHANDLE(fd)->cursor);
 				break;
 			case SEEK_END:
 				__errno = EINVAL;

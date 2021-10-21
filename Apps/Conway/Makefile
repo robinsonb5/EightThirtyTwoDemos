@@ -1,5 +1,6 @@
 SOCDIR=../../
 832DIR=../../EightThirtyTwo/
+LIBSOCDIR=../../lib832soc/
 
 LIBDIR=$(832DIR)/lib832
 
@@ -9,14 +10,11 @@ LD=../../EightThirtyTwo/832a/832l
 
 
 INCLUDE= -I$(SOCDIR)/include -I$(832DIR)/include
-COPT = -O=1311 -size
+COPT = -O=32767 -speed
 CFLAGS = -+ $(COPT) $(INCLUDE)
 
-PRJ=Malloc
+PRJ=Conway
 PRJ_OBJ = main.o
-
-START = $(LIBDIR)/crt0.a
-LIBS = $(LIBDIR)/lib832.a $(SOCDIR)/lib832soc/lib832soc.a
 
 all: $(PRJ).bin $(PRJ).srec
 
@@ -35,7 +33,7 @@ clean :
 %.o : %.s Makefile
 	gcc -c $*.s
 
-$(PRJ).bin : $(START) $(PRJ_OBJ) $(LIBS)
+$(PRJ).bin : $(LIBDIR)/crt0.a $(PRJ_OBJ) $(LIBDIR)/lib832.a $(LIBSOCDIR)/lib832soc.a
 	$(LD) -b 0x10000000 -o $@ $+
 
 %.o : %.c Makefile

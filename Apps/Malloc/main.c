@@ -1,10 +1,10 @@
 #define NULL 0
 #include <sys/types.h>
+#include <stdio.h>
 //#include <stdlib.h>
 #include "malloc.h"
 
-#include "uart.h"
-#include <stdio.h>
+#include "hw/uart.h"
 
 int main(int argc, char **argv)
 {

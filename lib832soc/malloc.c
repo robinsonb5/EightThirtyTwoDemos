@@ -276,7 +276,7 @@ int availmem()
 
 
 extern char _bss_end__; // Defined by the linker script
-extern char STACKSIZE
+extern char STACKSIZE;
 static char *stacksize=&STACKSIZE;
 
 // Identify RAM size by searching for aliases - up to a maximum of 64 megabytes
@@ -286,7 +286,7 @@ static char *stacksize=&STACKSIZE;
 
 __constructor(100.malloc) void _initMem()
 {
-	int ss=(int)*stacksize;
+	int ss=(int)stacksize;
 	volatile int *base=(int*)&_bss_end__;
 	char *ramtop;
 	int i,j,k;
@@ -294,10 +294,10 @@ __constructor(100.malloc) void _initMem()
 	int aliases=0;
 	unsigned int size=64;
 
-	base+=(int)*stacksize;
+	base+=(int)stacksize;
 
 	printf("__bss_end__ is %x\n",(int)&_bss_end__);
-	printf("STACKSIZE is %x\n",(int)*stacksize);
+	printf("STACKSIZE is %x\n",(int)stacksize);
 
 	// Seed the RAM;
 	a1=19;
