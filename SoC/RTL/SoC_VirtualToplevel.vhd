@@ -244,18 +244,6 @@ signal debug_fromcpu : std_logic_vector(31 downto 0);
 signal debug_tocpu : std_logic_vector(31 downto 0);
 signal debug_wr : std_logic;
 
-component debug_bridge_jtag is
-port (
-	clk : in std_logic;
-	reset_n : in std_logic;
-	d : in std_logic_vector(31 downto 0);
-	q : out std_logic_vector(31 downto 0);
-	req : in std_logic;
-	wr : in std_logic;
-	ack : buffer std_logic
-);
-end component;
-
 begin
 
 sdr_cke <='1';
@@ -706,7 +694,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 	
 gendebug:
 if debug = true generate
-	debugbridge : component debug_bridge_jtag
+	debugbridge : entity work.debug_bridge_jtag
 	port map
 	(
 		clk => slowclk,

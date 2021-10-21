@@ -167,8 +167,6 @@ U00 : entity work.pll
 		locked => pll_locked
 	);
 
-vga_window<='1';
-
 n_reset<=KEY(0);
 
 
@@ -204,7 +202,7 @@ virtualtoplevel : entity work.VirtualToplevel
 		unsigned(vga_blue) => vga_blue,
 		vga_hsync => vga_hsync,
 		vga_vsync => vga_vsync,
-		vga_window => open,
+		vga_window => vga_window,
 
 		-- SDRAM
 		sdr_data => DRAM_DQ,
@@ -247,7 +245,6 @@ virtualtoplevel : entity work.VirtualToplevel
 
 genvideo: if Toplevel_UseVGA=true generate
 -- Dither the video down to 5 bits per gun.
-	vga_window<='1';
 	VGA_HS<= not vga_hsync;
 	VGA_VS<= not vga_vsync;	
 

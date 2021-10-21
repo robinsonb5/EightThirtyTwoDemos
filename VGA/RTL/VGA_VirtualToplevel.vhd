@@ -223,6 +223,13 @@ signal rom_wr : std_logic;
 signal cache_valid : std_logic;
 signal flushcaches : std_logic;
 
+-- CPU Debug signals
+signal debug_req : std_logic;
+signal debug_ack : std_logic;
+signal debug_fromcpu : std_logic_vector(31 downto 0);
+signal debug_tocpu : std_logic_vector(31 downto 0);
+signal debug_wr : std_logic;
+
 
 begin
 
@@ -582,15 +589,17 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 	generic map
 	(
 		littleendian => true,
+		interrupts => true,
 		dualthread => true,
 		prefetch => true,
-		forwarding => false
+		forwarding => false,
+		debug=> debug
 	)
 	port map
 	(
 		clk => clk,
 		reset_n => reset_n and soft_reset_n,
-		interrupt => int_req,
+		interrupt => int_req and int_enabled,
 
 		-- cpu fetch interface
 
@@ -600,9 +609,27 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 		bytesel => cpu_bytesel,
 		wr => cpu_wr,
 		req => cpu_req,
-		ack => cpu_ack
+		ack => cpu_ack,
+
+		-- Debug signals
+		debug_d=>debug_tocpu,
+		debug_q=>debug_fromcpu,
+		debug_req=>debug_req,
+		debug_wr=>debug_wr,
+		debug_ack=>debug_ack		
 	);
 
+	debugbridge : entity work.debug_bridge_jtag
+	port map
+	(
+		clk => slowclk,
+		reset_n => reset_n,
+		d => debug_fromcpu,
+		q => debug_tocpu,
+		req => debug_req,
+		ack => debug_ack,
+		wr => debug_wr
+	);
 
 
 process(clk)

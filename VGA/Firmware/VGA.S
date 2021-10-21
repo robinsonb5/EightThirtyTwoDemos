@@ -67,6 +67,12 @@ interrupt:	// We fall through to here if we're servicing an interrupt.
 		mr	r2
 		ld	r2
 		add	r1
+		li	12
+		shl	r1
+		li	1
+		or	r1
+		li	12
+		ror	r1
 		mt	r1
 		st	r2
 		
@@ -100,10 +106,11 @@ fbptr:
 
 	.global thread2_entry
 thread2_entry:
+	// Setup the stack
 	.liconst 0x400
 	mr	r6
 
-	.liconst 0x20000000
+	.liconst 0x10100000
 	mr	r4
 	li	0
 	mr	r3
@@ -114,11 +121,11 @@ thread2_entry:
 	add	r3
 	li	4
 	add	r4	// Just write an ever-increasing value to an ever-increasing address.
-	li	8
+	li	12
 	shl r4	// Get rid of MSB to avoid hitting peripheral space
-	li	0x02
+	.liconst 0x101
 	or	r4
-	li	8
+	li	12
 	ror	r4
 	.lipcrel .thread2mainloop
 	add	r7

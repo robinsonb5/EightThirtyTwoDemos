@@ -2,8 +2,8 @@ create_clock -name {MAX10_CLK1_50} -period 20.000 -waveform {0.000 10.000} { MAX
 
 derive_pll_clocks -create_base_clocks
 
-create_generated_clock -name sdram_clock -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[0]}] 
-create_generated_clock -name sysclk -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[1]}] 
+create_generated_clock -name sdram_clock -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[0]}] [get_ports DRAM_CLK] 
+create_generated_clock -name sysclk -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[1]}]  
 
 # SDRAM delays and multicycles
 
@@ -13,8 +13,9 @@ set_input_delay -clock { sdram_clock } -max 6.5 [get_ports *DRAM_DQ*]
 set_output_delay -clock { sdram_clock } -min -0.5 [get_ports DRAM_*]
 set_output_delay -clock { sdram_clock } -max -1.5 [get_ports DRAM_*]
 
-# set_multicycle_path -from [get_clocks {sdram_clock}] -to [get_clocks {U00|altpll_component|auto_generated|pll1|clk[1]}] -setup -end 2
+set_multicycle_path -from [get_clocks {sdram_clock}] -to [get_clocks {U00|altpll_component|auto_generated|pll1|clk[1]}] -setup -end 2
 
+set_false_path -to DRAM_CLK
 
 # I/O delays for non-critical ports
 

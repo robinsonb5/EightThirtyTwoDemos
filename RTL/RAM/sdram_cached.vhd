@@ -457,18 +457,14 @@ end generate;
 -------------------------------------------------------------------------
 	reset_out <= init_done and cache_ready and cache2_ready;
 
-
+	vga_data <= sdata_reg;
+	
 	process (sysclk, reset, sdwrite, datain) begin
+		
 		IF sdwrite='1' THEN	-- Keep sdram data high impedence if not writing to it.
 			sdata <= datain;
 		ELSE
 			sdata <= "ZZZZZZZZZZZZZZZZ";
-		END IF;
-
-		--   sample SDRAM data
-		if falling_edge(sysclk) then
-			sdata_reg <= sdata;
-			vga_data <= sdata;
 		END IF;
 		
 		if reset = '0' then
@@ -482,28 +478,30 @@ end generate;
 				initstate<="1111";
 			end if;			
 			
+			--   sample SDRAM data
+			sdata_reg <= sdata;
 
 			case sdram_state is	--LATENCY=3
 				when ph0 =>	sdram_state <= ph1;
+				when ph1 =>	sdram_state <= ph2;
 					slot1_fill<='0';
 					slot2_fill<='1';
-				when ph1 =>	sdram_state <= ph2;
-					slot2_ack<='1';
 				when ph2 => sdram_state <= ph3;
-					slot2_ack<='0';
+					slot2_ack<='1';
 				when ph3 =>	sdram_state <= ph4;
+					slot2_ack<='0';
 				when ph4 =>	sdram_state <= ph5;
 				when ph5 => sdram_state <= ph6;
 				when ph6 =>	sdram_state <= ph7;
 				when ph7 =>	sdram_state <= ph8;
 				when ph8 =>	sdram_state <= ph9;
+				when ph9 =>	sdram_state <= ph10;
 					slot2_fill<='0';
 					slot1_fill<='1';
-				when ph9 =>	sdram_state <= ph10;
-					slot1_ack<='1';
 				when ph10 => sdram_state <= ph11;
-					slot1_ack<='0';
+					slot1_ack<='1';
 				when ph11 => sdram_state <= ph12;
+					slot1_ack<='0';
 				when ph12 => sdram_state <= ph13;
 				when ph13 => sdram_state <= ph14;
 				when ph14 =>
