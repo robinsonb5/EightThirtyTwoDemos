@@ -299,7 +299,7 @@ end
 
 // This bridge is borrowed from the EightThirtyTwo debug interface
 
-debug_bridge_jtag bridge (
+debug_bridge_jtag #(.id('h55aa)) bridge (
 	.clk(clk),
 	.reset_n(reset_n),
 	.d(jtag_d),

@@ -88,6 +88,14 @@ end;
 
 architecture rtl of sdram_cached is
 
+constant bank_high : integer := (rows+cols+2);
+constant bank_low : integer := (rows+cols+1);
+
+constant row_high : integer := (rows+cols);
+constant row_low : integer := (cols+1);
+
+constant col_high : integer := cols;
+constant col_low : integer := 1;
 
 signal initstate	:unsigned(3 downto 0);	-- Counter used to initialise the RAM
 signal cas_sd_cs	:std_logic;	-- Temp registers...
@@ -611,11 +619,11 @@ end generate;
 							sd_ras <= '0';
 							sd_cas <= '0'; --AUTOREFRESH
 						elsif vga_req='1' then
-							if vga_addr(5 downto 4)/=slot2_bank or sdram_slot2=idle then
+							if vga_addr(bank_high downto bank_low)/=slot2_bank or sdram_slot2=idle then
 								sdram_slot1<=port0;
-								sdaddr <= vga_addr((rows+cols+2) downto (cols+3));
-								ba <= vga_addr(5 downto 4);
-								slot1_bank <= vga_addr(5 downto 4);
+								sdaddr <= vga_addr(row_high downto row_low);
+								ba <= vga_addr(bank_high downto bank_low);
+								slot1_bank <= vga_addr(bank_high downto bank_low);
 								casaddr <= vga_addr(31 downto 4) & "0000"; -- read whole cache line in burst mode.
 								cas_sd_cas <= '0';
 								cas_sd_we <= '1';
@@ -625,12 +633,12 @@ end generate;
 							end if;
 						elsif writecache_req='1'
 								and sdram_slot2/=writecache
-								and (writecache_addr(5 downto 4)/=slot2_bank or sdram_slot2=idle)
+								and (writecache_addr(bank_high downto bank_low)/=slot2_bank or sdram_slot2=idle)
 									then
 							sdram_slot1<=writecache;
-							sdaddr <= writecache_addr((rows+cols+2) downto (cols+3));
-							ba <= writecache_addr(5 downto 4);
-							slot1_bank <= writecache_addr(5 downto 4);
+							sdaddr <= writecache_addr(row_high downto row_low);
+							ba <= writecache_addr(bank_high downto bank_low);
+							slot1_bank <= writecache_addr(bank_high downto bank_low);
 							cas_dqm <= writecache_dqm(1 downto 0);
 							casaddr <= writecache_addr;
 							cas_sd_cas <= '0';
@@ -640,11 +648,11 @@ end generate;
 							sd_ras <= '0';
 							vga_nak<='1'; -- Inform the DMA Cache that it didn't get this cycle
 						elsif readcache_req='1' --req1='1' and wr1='1'
-								and (readcache_addr(5 downto 4)/=slot2_bank or sdram_slot2=idle) then
+								and (readcache_addr(bank_high downto bank_low)/=slot2_bank or sdram_slot2=idle) then
 							sdram_slot1<=port1;
-							sdaddr <= readcache_addr((rows+cols+2) downto (cols+3));
-							ba <= readcache_addr(5 downto 4);
-							slot1_bank <= readcache_addr(5 downto 4); -- slot1 bank
+							sdaddr <= readcache_addr(row_high downto row_low);
+							ba <= readcache_addr(bank_high downto bank_low);
+							slot1_bank <= readcache_addr(bank_high downto bank_low); -- slot1 bank
 							cas_dqm <= "00";
 							casaddr <= readcache_addr(31 downto 2) & "00";
 							cas_sd_cas <= '0';
@@ -654,11 +662,11 @@ end generate;
 							sd_ras <= '0';
 							vga_nak<='1'; -- Inform the VGA controller that it didn't get this cycle
 						elsif readcache2_req='1' --req1='1' and wr1='1'
-								and (readcache2_addr(5 downto 4)/=slot2_bank or sdram_slot2=idle) then
+								and (readcache2_addr(bank_high downto bank_low)/=slot2_bank or sdram_slot2=idle) then
 							sdram_slot1<=port2;
-							sdaddr <= readcache2_addr((rows+cols+2) downto (cols+3));
-							ba <= readcache2_addr(5 downto 4);
-							slot1_bank <= readcache2_addr(5 downto 4); -- slot1 bank
+							sdaddr <= readcache2_addr(row_high downto row_low);
+							ba <= readcache2_addr(bank_high downto bank_low);
+							slot1_bank <= readcache2_addr(bank_high downto bank_low); -- slot1 bank
 							cas_dqm <= "00";
 							casaddr <= readcache2_addr(31 downto 2) & "00";
 							cas_sd_cas <= '0';
@@ -710,7 +718,7 @@ end generate;
 					when ph5 => -- Read command	
 						if sdram_slot1=port0 or sdram_slot1=port1 or sdram_slot1=port2 then
 							sdaddr <= (others=>'0');
-							sdaddr((cols-1) downto 0) <= casaddr((cols+2) downto 6) & casaddr(3 downto 1) ;--auto precharge
+							sdaddr((cols-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
 --							sdaddr(10) <= cas_sd_we;  -- Don't use auto-precharge for writes.
 							sdaddr(10) <= '1'; -- Auto precharge.
 							ba <= slot1_bank;
@@ -732,7 +740,7 @@ end generate;
 					when ph9 =>
 						if sdram_slot1=writecache then -- Write command
 							sdaddr <= (others=>'0');
-							sdaddr((cols-1) downto 0) <= casaddr((cols+2) downto 6) & casaddr(3 downto 1) ;--auto precharge
+							sdaddr((cols-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
 							sdaddr(10) <= '0';  -- Don't use auto-precharge for writes.							ba <= slot1_bank;
 							sd_cs <= '0';
 							ba<=slot1_bank;
@@ -777,13 +785,13 @@ end generate;
 							sdram_slot2<=idle;
 						elsif writecache_req='1'
 								and sdram_slot1/=writecache
-								and (writecache_addr(5 downto 4)/=slot1_bank or sdram_slot1=idle)
-								and (writecache_addr(5 downto 4)/=vga_reserveaddr(5 downto 4)
+								and (writecache_addr(bank_high downto bank_low)/=slot1_bank or sdram_slot1=idle)
+								and (writecache_addr(bank_high downto bank_low)/=vga_reserveaddr(bank_high downto bank_low)
 									or vga_reservebank='0') then  -- Safe to use this slot with this bank?
 							sdram_slot2<=writecache;
-							sdaddr <= writecache_addr((rows+cols+2) downto (cols+3));
-							ba <= writecache_addr(5 downto 4);
-							slot2_bank <= writecache_addr(5 downto 4);
+							sdaddr <= writecache_addr(row_high downto row_low);
+							ba <= writecache_addr(bank_high downto bank_low);
+							slot2_bank <= writecache_addr(bank_high downto bank_low);
 							cas_dqm <= writecache_dqm(1 downto 0);
 							casaddr <= writecache_addr;
 							cas_sd_cas <= '0';
@@ -792,13 +800,13 @@ end generate;
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
 						elsif readcache_req='1' -- req1='1' and wr1='1'
-								and (readcache_addr(5 downto 4)/=slot1_bank or sdram_slot1=idle)
-								and (readcache_addr(5 downto 4)/=vga_reserveaddr(5 downto 4)
+								and (readcache_addr(bank_high downto bank_low)/=slot1_bank or sdram_slot1=idle)
+								and (readcache_addr(bank_high downto bank_low)/=vga_reserveaddr(bank_high downto bank_low)
 									or vga_reservebank='0') then  -- Safe to use this slot with this bank?
 							sdram_slot2<=port1;
-							sdaddr <= readcache_addr((rows+cols+2) downto (cols+3));
-							ba <= readcache_addr(5 downto 4);
-							slot2_bank <= readcache_addr(5 downto 4);
+							sdaddr <= readcache_addr(row_high downto row_low);
+							ba <= readcache_addr(bank_high downto bank_low);
+							slot2_bank <= readcache_addr(bank_high downto bank_low);
 							cas_dqm <= "00";
 							casaddr <= readcache_addr(31 downto 2) & "00"; -- We no longer mask off LSBs for burst read
 							cas_sd_cas <= '0';
@@ -807,13 +815,13 @@ end generate;
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
 						elsif readcache2_req='1' -- req1='1' and wr1='1'
-								and (readcache2_addr(5 downto 4)/=slot1_bank or sdram_slot1=idle)
-								and (readcache2_addr(5 downto 4)/=vga_reserveaddr(5 downto 4)
+								and (readcache2_addr(bank_high downto bank_low)/=slot1_bank or sdram_slot1=idle)
+								and (readcache2_addr(bank_high downto bank_low)/=vga_reserveaddr(bank_high downto bank_low)
 									or vga_reservebank='0') then  -- Safe to use this slot with this bank?
 							sdram_slot2<=port2;
-							sdaddr <= readcache2_addr((rows+cols+2) downto (cols+3));
-							ba <= readcache2_addr(5 downto 4);
-							slot2_bank <= readcache2_addr(5 downto 4);
+							sdaddr <= readcache2_addr(row_high downto row_low);
+							ba <= readcache2_addr(bank_high downto bank_low);
+							slot2_bank <= readcache2_addr(bank_high downto bank_low);
 							cas_dqm <= "00";
 							casaddr <= readcache2_addr(31 downto 2) & "00"; -- We no longer mask off LSBs for burst read
 							cas_sd_cas <= '0';
@@ -855,7 +863,7 @@ end generate;
 					when ph13 =>
 						if sdram_slot2=port1 then
 							sdaddr <= (others=>'0');
-							sdaddr((cols-1) downto 0) <= casaddr((cols+2) downto 6) & casaddr(3 downto 1) ;--auto precharge
+							sdaddr((cols-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
 --							sdaddr(10) <= cas_sd_we;  -- Don't use auto-precharge for writes.
 							sdaddr(10) <= '1'; -- Auto precharge.
 							ba <= slot2_bank;
@@ -868,7 +876,7 @@ end generate;
 							sd_we  <= '1'; -- Read
 						elsif sdram_slot2=port2 then
 							sdaddr <= (others=>'0');
-							sdaddr((cols-1) downto 0) <= casaddr((cols+2) downto 6) & casaddr(3 downto 1) ;--auto precharge
+							sdaddr((cols-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
 --							sdaddr(10) <= cas_sd_we;  -- Don't use auto-precharge for writes.
 							sdaddr(10) <= '1'; -- Auto precharge.
 							ba <= slot2_bank;
@@ -890,7 +898,7 @@ end generate;
 					when ph1 =>
 						if sdram_slot2=writecache then
 							sdaddr <= (others=>'0');
-							sdaddr((cols-1) downto 0) <= casaddr((cols+2) downto 6) & casaddr(3 downto 1) ;--auto precharge
+							sdaddr((cols-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
 							sdaddr(10) <= '0';  -- Don't use auto-precharge for writes.
 							ba <= slot2_bank;
 							sd_cs <= '0';

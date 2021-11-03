@@ -108,7 +108,7 @@ myDMACacheRAM : entity work.DMACacheRAM
 	);
 
 -- Employ bank reserve for SDRAM.
-sdram_reserve<='1' when internals(0).count(15 downto 0)/=X"0000"
+sdram_reserve<='1' when internals(0).count(15 downto 6)/=X"00"&"00"
 								and internals(0).full='0' else '0';
 
 

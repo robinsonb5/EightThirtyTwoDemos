@@ -190,6 +190,7 @@ virtualtoplevel : entity work.VirtualToplevel
 		sdram_cols => 10,
 		sysclk_frequency => 1000, -- Sysclk frequency * 10
 		jtag_uart => false
+--		debug => true
 	)
 	port map(
 		clk => fastclk,

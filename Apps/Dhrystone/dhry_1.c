@@ -25,6 +25,7 @@
 #include <stdio.h>
 #ifndef __GNUC__
 #include <hw/timer.h>
+#include <hw/vga.h>
 #endif
 
 /* Global Variables: */
@@ -118,6 +119,7 @@ int main ()
   REG   int             Run_Index;
 
   /* Initializations */
+	HW_VGA(FRAMEBUFFERPTR)=0x01000000; /* Move the framebuffer out of bank zero */
 
 //  Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
 //  Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));

@@ -238,6 +238,8 @@ int thread2main ()
 #define checkparam(n,v,d) if(v!=d) printf("Error %s is %d but should be %d\n",n,v,d);
 #define checksparam(n,v,d) if(strcmp(v,d)) printf("Error %s is %s but should be %s\n",n,v,d);
 
+printf("Thread 2 sleeping\n");
+
 thread_sleep();
 
 printf("Thread 2 - Checking results...\n");

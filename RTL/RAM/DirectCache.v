@@ -110,8 +110,8 @@ reg [31:0] latched_cpuaddr;
 assign sdram_addr = latched_cpuaddr;
 
 reg [31:0] firstword;
-
-assign data_to_cpu = (readword_burst ? firstword : data_q);
+reg firstword_ready;
+assign data_to_cpu = (firstword_ready ? firstword : data_q);
 
 reg cpu_req_d;
 reg cpu_req_d2;
@@ -119,7 +119,7 @@ reg [31:0] cpu_addr_d;
 reg fill_ack;
 reg write_ack;
 
-assign cpu_cachevalid = (tag_hit && data_valid) && cpu_rw && !busy;
+assign cpu_cachevalid = firstword_ready | ((tag_hit && data_valid) && cpu_rw && !busy);
 assign cpu_ack = 1'b0; // (cpu_req_d && cpu_cachevalid && cpu_rw) || fill_ack || write_ack;
 
 reg readword_burst; // Set to 1 when the lsb of the cache address should
@@ -179,6 +179,7 @@ begin
 		begin
 			ready<=1'b0;
 			state<=FLUSH1;
+			firstword_ready<=1'b0;
 		end
 		
 		FLUSH1:
@@ -210,7 +211,7 @@ begin
 			busy <= 1'b0;
 			tag_w = {4'b1111,cpu_addr[31:4]};
 			latched_cpuaddr<=cpu_addr;
-			if(cpu_req==1'b1)
+			if(!firstword_ready  && cpu_req)
 			begin
 				if(cpu_rw==1'b1)	// Read cycle
 					state<=WAITRD;
@@ -300,6 +301,7 @@ begin
 			fill_ack<=1'b1; // Maintain ack signal if necessary
 			// Forward data to CPU
 			firstword[15:0] <= data_from_sdram;
+			firstword_ready<=1'b1;
 			// write second word to Cache...
 			readword_burst<=1'b1;
 			data_w[15:0]<=data_from_sdram;
@@ -369,6 +371,9 @@ begin
 		default:
 			state<=WAITING;
 	endcase
+
+	if(!cpu_req)
+		firstword_ready<=1'b0;
 
 	if(reset==1'b0)
 		state<=INIT;
