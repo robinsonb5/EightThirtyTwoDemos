@@ -161,7 +161,7 @@ int main(int argc,char **argv)
 				c=r&255;
 				if(c==27)
 				{
-					if(havesd && LoadFile("BOOT832 BIN",BOOT_ADDR))
+					if(havesd && LoadFileAbs("BOOT832 BIN",BOOT_ADDR))
 					{
 						puts("Booting...\n");
 						_boot();
