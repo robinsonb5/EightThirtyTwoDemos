@@ -297,7 +297,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 				to_cpu<=from_mem;
 			end if;
 
-			if (mem_busy='0' or rom_ack='1') and cpu_ack='0' then
+			if (mem_busy='0' or rom_ack='1' or (cpu_wr='1' and mem_rom='1')) and cpu_ack='0' then
 				cpu_ack<='1';
 			else
 				cpu_ack<='0';

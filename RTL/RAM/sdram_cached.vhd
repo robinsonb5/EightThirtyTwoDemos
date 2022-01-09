@@ -305,21 +305,11 @@ begin
 		-- 32-bit variant of writecache for ZPU...
 		if req1='1' and wr1='0' and writecache_req='0' and readcache_busy='0' then
 			writecache_addr(31 downto 4)<=addr1(31 downto 4);
---			if wrU2='1' then -- is this a halfword write?	
-				-- 000 -> 111, 001 -> 000, 010 -> 001, 011 -> 010
-				-- 100 -> 011, 101 -> 100, 110 -> 101, 111 -> 110
---				writecache_addr(3)<=addr1(3) xor not (addr1(1) or addr1(2));
---				writecache_addr(2)<=addr1(2) xor not addr1(1);
---				writecache_addr(1)<=not addr1(1);
---			else
-				writecache_addr(3 downto 1)<=addr1(3 downto 1);
---			end if;
+			writecache_addr(3 downto 1)<=addr1(3 downto 1);
 			writecache_word0<=datawr1(31 downto 16);
 			writecache_dqm(1 downto 0)<=not (bytesel(0) & bytesel(1)); -- Are we writing the upper word?
---			writecache_dqm(1 downto 0)<=wrU2&wrU2; -- Are we writing the upper word?
 			writecache_word1<=datawr1(15 downto 0);
-			writecache_dqm(3 downto 2)<=not (bytesel(2) & bytesel(3)); -- Are we writing the upper word?
---			writecache_dqm(3 downto 2)<=wrU1&wrL1; -- Are we writing the lower two bytes?
+			writecache_dqm(3 downto 2)<=not (bytesel(2) & bytesel(3)); -- Are we writing the lower word?
 			writecache_req<='1';
 			writecache_dtack<='0';
 		end if;
