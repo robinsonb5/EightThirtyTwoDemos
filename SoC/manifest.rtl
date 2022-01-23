@@ -21,6 +21,7 @@
 ../RTL/Util/risingedge_divider.vhd
 
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
+../EightThirtyTwo/RTL/jtag_debug_bridge.qip
 
 RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
