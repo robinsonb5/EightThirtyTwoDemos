@@ -1,0 +1,91 @@
+
+NET "led_1" IOSTANDARD = LVCMOS33;
+NET "led_2" IOSTANDARD = LVCMOS33;
+NET "clock_50_i" IOSTANDARD = LVCMOS33;
+NET "reset_button" IOSTANDARD = LVCMOS18;
+
+NET "led_1" LOC = J26;
+NET "led_2" LOC = H26;
+NET "clock_50_i" LOC = F22;
+NET "reset_button" LOC = AF9;
+
+# RS232 Serial
+NET "serial_rx" IOSTANDARD = LVCMOS33;
+NET "serial_tx" IOSTANDARD = LVCMOS33;
+NET "serial_rx" LOC = AE21;
+NET "serial_tx" LOC = AD21;
+
+#NEPTUNO SD/MMC#
+NET "sd_*" IOSTANDARD = LVCMOS33;
+NET "sd_cs_n_o" LOC = T22;
+NET "sd_miso_i" LOC = U25;
+NET "sd_mosi_o" LOC = T23;
+NET "sd_sclk_o" LOC = U22;
+
+#NEPTUNO Sigma/Delta audio#
+NET "SIGMA_*" IOSTANDARD = LVCMOS33;
+NET "SIGMA_L" LOC = B15;
+NET "SIGMA_R" LOC = D16;
+
+#NEPTUNO PS/2 Keyboard / Mouse#
+NET "PS2_*" IOSTANDARD = LVCMOS33;
+NET "PS2_KEYBOARD_CLK" LOC = N23;
+NET "PS2_KEYBOARD_DAT" LOC = P23;
+NET "PS2_MOUSE_CLK" LOC = R23;
+NET "PS2_MOUSE_DAT" LOC = P25;
+
+#NEPTUNO VIDEO#
+#set_location_assignment PIN_F1 -to VGA_R[5]
+#set_location_assignment PIN_D2 -to VGA_R[4]
+#set_location_assignment PIN_E1 -to VGA_R[3]
+#set_location_assignment PIN_C2 -to VGA_R[2]
+#set_location_assignment PIN_C1 -to VGA_R[1]
+#set_location_assignment PIN_B1 -to VGA_R[0]
+#set_location_assignment PIN_P2 -to VGA_G[5]
+#set_location_assignment PIN_N2 -to VGA_G[4]
+#set_location_assignment PIN_M2 -to VGA_G[3]
+#set_location_assignment PIN_J2 -to VGA_G[2]
+#set_location_assignment PIN_H2 -to VGA_G[1]
+#set_location_assignment PIN_F2 -to VGA_G[0]
+#set_location_assignment PIN_R1 -to VGA_B[5]
+#set_location_assignment PIN_P1 -to VGA_B[4]
+#set_location_assignment PIN_N1 -to VGA_B[3]
+#set_location_assignment PIN_M1 -to VGA_B[2]
+#set_location_assignment PIN_J1 -to VGA_B[1]
+#set_location_assignment PIN_H1 -to VGA_B[0]
+#set_location_assignment PIN_B3 -to VGA_HS
+#set_location_assignment PIN_B2 -to VGA_VS
+
+#NEPTUNO JOYSTICKS#
+#set_location_assignment PIN_AA18 -to joyP7_o
+#set_location_assignment PIN_A20 -to JOY_CLK
+#set_location_assignment PIN_B19 -to JOY_DATA
+#set_location_assignment PIN_B20 -to JOY_LOAD
+#set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to JOY_DATA
+#NEPTUNO#
+#set_location_assignment PIN_N5 -to mic_o -- No asignado
+#set_location_assignment PIN_AA13 -to AUDIO_INPUT
+## I2S audio
+#set_location_assignment PIN_M20 -to I2S_BCLK
+#set_location_assignment PIN_AA15 -to I2S_DATA 
+#set_location_assignment PIN_AB14 -to I2S_LRCLK
+## Neptuno I2C
+#set_location_assignment PIN_R22 -to I2C_SCL
+#set_location_assignment PIN_V21 -to I2C_SDA 
+#NEPTUNO CONEXION STM32#
+#set_location_assignment PIN_Y21 -to stm_rst_o
+#set_location_assignment PIN_J21 -to stm_tx_i
+#set_location_assignment PIN_K21 -to stm_rx_o
+#set_location_assignment PIN_N22 -to SPI_SS2
+#set_location_assignment PIN_N21 -to SPI_SCK
+#set_location_assignment PIN_M21 -to SPI_DO
+#set_location_assignment PIN_K22 -to SPI_DI
+#set_location_assignment PIN_R6 -to SPI_nWAIT  -- No asignado
+#NEPTUNO DAC#
+#set_location_assignment PIN_M20 -to SCLK
+#set_location_assignment PIN_AB14 -to LRCLK
+#set_location_assignment PIN_AA15 -to SDIN
+#set_location_assignment PIN_E4 -to LED
+#Created by Constraints Editor (xc7k325t-fbg676-3) - 2022/01/30
+NET "clock_50_i" TNM_NET = clock_50_i;
+TIMESPEC TS_clock_50_i = PERIOD "clock_50_i" 20 ns HIGH 50%;

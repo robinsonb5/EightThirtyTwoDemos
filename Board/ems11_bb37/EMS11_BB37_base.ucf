@@ -50,7 +50,7 @@ NET UART* IOSTANDARD = LVTTL |DRIVE = 8 ;
 #
 NET "AUDIO_L" LOC = "C26";
 NET "AUDIO_R" LOC = "B26";
-NET AUDIO* IOSTANDARD = LVTTL | DRIVE = 8 ;
+NET AUDIO* IOSTANDARD = LVTTL |DRIVE = 8 ;
 #
 #	SDflash 1 & 2
 #
@@ -92,7 +92,6 @@ NET "FPGA_SD_*" IOSTANDARD = LVTTL;
 # NET "EXPMOD2<7>" LOC = "U19";
 # NET "EXPMOD2<8>" LOC = "U22";
 # NET EXPMOD_* IOSTANDARD = LVTTL | DRIVE = 8 | SLEW = SLOW;
-
 #
 #	Ethernet LAN8720 --------------------------------------------------------
 #
@@ -164,7 +163,6 @@ NET M1_* IOSTANDARD = LVTTL |DRIVE = 8 |SLEW = FAST;
 #
 #	VG96 connector, please use the corresponding ems11-bb37-vg96.ucf file for the used module
 #
-
 #
 #	The usual remaining pins ;-) --------------------------------------------
 #

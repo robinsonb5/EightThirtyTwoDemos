@@ -20,7 +20,6 @@ NET "GPIO<10>" LOC = "E3";		#-- TO LOCK THEM TO THE VG96, NO connection to MIO
 NET "GPIO<11>" LOC = "D3";		#-- TO LOCK THEM TO THE VG96, NO connection to MIO
 NET "GPIO<12>" LOC = "C4";		#-- TO LOCK THEM TO THE VG96, NO connection to MIO
 NET "GPIO<13>" LOC = "C3";		#-- TO LOCK THEM TO THE VG96, NO connection to MIO
-
 NET "GPIO<14>" LOC = "U2";		#-- RESET
 NET "GPIO<15>" LOC = "W1";		#-- CLK
 # NET "VC_A6_I2C_SDA" LOC = "AA1";

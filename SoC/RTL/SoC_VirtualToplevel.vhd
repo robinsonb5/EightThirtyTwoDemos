@@ -68,6 +68,21 @@ end entity;
 
 architecture rtl of VirtualToplevel is
 
+component debug_bridge_jtag is
+generic (
+	id : natural := 16#832D#
+);
+port (
+	clk : in std_logic;
+	reset_n : in std_logic;
+	d : in std_logic_vector(31 downto 0);
+	q : out std_logic_vector(31 downto 0);
+	req : in std_logic;
+	wr : in std_logic;
+	ack : buffer std_logic
+);
+end component;
+
 constant sysclk_hz : integer := sysclk_frequency*1000;
 constant uart_divisor : integer := sysclk_hz/1152;
 constant uart2_divisor : integer := sysclk_hz/576;
@@ -694,7 +709,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 	
 gendebug:
 if debug = true generate
-	debugbridge : entity work.debug_bridge_jtag
+	debugbridge : component debug_bridge_jtag
 	port map
 	(
 		clk => slowclk,
