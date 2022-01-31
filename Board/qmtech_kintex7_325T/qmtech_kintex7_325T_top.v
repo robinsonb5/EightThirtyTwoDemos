@@ -1,23 +1,17 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+
+// Toplevel file for QMTech Kintex 7 board, using (mostly)
+// Neptuno pin mappings.
+// UART is connected to U4 Pin 8 (AE21) for Rx and U4 Pin 7 (AD21) for Tx.
+//
+// Be aware that there are two versions of this board.  One has all pins
+// on U4 mapped to banks 12 and 13 - that's the version targetted by
+// this project.
 // 
-// Create Date:    13:40:55 02/28/2016 
-// Design Name: 
-// Module Name:    led_top 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
-//////////////////////////////////////////////////////////////////////////////////
+// On the other version, some pins on U4 are mapped to HP Banks which don't
+// support 3.3v IO.  This version of the board doesn't supply power to
+// pins 1&2 of U4, leaving the host application to supply 1.8v or lower,
+// as appropriate.
 
 module qmtech_kintex7_325T_top(
 	input  clock_50_i,
@@ -69,7 +63,7 @@ assign ps2k_dat_in = PS2_KEYBOARD_DAT;
 assign ps2m_clk_in = PS2_MOUSE_CLK;
 assign ps2m_dat_in = PS2_MOUSE_DAT;
 
-VirtualToplevel #(.sysclk_frequency(1000)) vt
+VirtualToplevel #(.sysclk_frequency(1700),.jtag_uart(0)) vt
 (
 	.clk(sysclk),
 	.slowclk(slowclk),
@@ -109,9 +103,6 @@ VirtualToplevel #(.sysclk_frequency(1000)) vt
 	.audio_r(audio_r)
 );
 
-assign SIGMA_L=1'b0;
-assign SIGMA_R=1'b0;
-
 reg [1:0] leds;
 
 assign led_1=leds[0];
@@ -122,5 +113,14 @@ always @(posedge sysclk) begin
 	leds[1]<=reset_button&pll_locked;
 end
 
+hybrid_pwm_sd audio
+(
+	.clk(slowclk),
+	.terminate(1'b0),	// Avoid pop at core change by ramping from quiescent to maximum.
+	.d_l(16'h8000),
+	.d_r(16'h8000),
+	.q_l(SIGMA_L),
+	.q_r(SIGMA_R)
+);
 
 endmodule
