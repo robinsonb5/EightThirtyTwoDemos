@@ -35,26 +35,27 @@ NET "PS2_MOUSE_CLK" LOC = R23;
 NET "PS2_MOUSE_DAT" LOC = P25;
 
 #NEPTUNO VIDEO#
-#set_location_assignment PIN_F1 -to VGA_R[5]
-#set_location_assignment PIN_D2 -to VGA_R[4]
-#set_location_assignment PIN_E1 -to VGA_R[3]
-#set_location_assignment PIN_C2 -to VGA_R[2]
-#set_location_assignment PIN_C1 -to VGA_R[1]
-#set_location_assignment PIN_B1 -to VGA_R[0]
-#set_location_assignment PIN_P2 -to VGA_G[5]
-#set_location_assignment PIN_N2 -to VGA_G[4]
-#set_location_assignment PIN_M2 -to VGA_G[3]
-#set_location_assignment PIN_J2 -to VGA_G[2]
-#set_location_assignment PIN_H2 -to VGA_G[1]
-#set_location_assignment PIN_F2 -to VGA_G[0]
-#set_location_assignment PIN_R1 -to VGA_B[5]
-#set_location_assignment PIN_P1 -to VGA_B[4]
-#set_location_assignment PIN_N1 -to VGA_B[3]
-#set_location_assignment PIN_M1 -to VGA_B[2]
-#set_location_assignment PIN_J1 -to VGA_B[1]
-#set_location_assignment PIN_H1 -to VGA_B[0]
-#set_location_assignment PIN_B3 -to VGA_HS
-#set_location_assignment PIN_B2 -to VGA_VS
+NET "VGA_*" IOSTANDARD = LVCMOS33 | DRIVE=8 | SLEW=FAST;
+NET "VGA_R<5>" LOC=A12; #set_location_assignment PIN_F1 -to "VGA_R<5>
+NET "VGA_R<4>" LOC=D14; #set_location_assignment PIN_D2 -to "VGA_R<4>
+NET "VGA_R<3>" LOC=D13; #set_location_assignment PIN_E1 -to "VGA_R<3>
+NET "VGA_R<2>" LOC=B14; #set_location_assignment PIN_C2 -to "VGA_R<2>
+NET "VGA_R<1>" LOC=A14; #set_location_assignment PIN_C1 -to "VGA_R<1>
+NET "VGA_R<0>" LOC=C13; #set_location_assignment PIN_B1 -to "VGA_R<0>
+NET "VGA_G<5>" LOC=C9; #set_location_assignment PIN_P2 -to "VGA_G<5>
+NET "VGA_G<4>" LOC=B10; #set_location_assignment PIN_N2 -to "VGA_G<4>
+NET "VGA_G<3>" LOC=E10; #set_location_assignment PIN_M2 -to "VGA_G<3>
+NET "VGA_G<2>" LOC=B12; #set_location_assignment PIN_J2 -to "VGA_G<2>
+NET "VGA_G<1>" LOC=C12; #set_location_assignment PIN_H2 -to "VGA_G<1>
+NET "VGA_G<0>" LOC=A13; #set_location_assignment PIN_F2 -to "VGA_G<0>
+NET "VGA_B<5>" LOC=A8; #set_location_assignment PIN_R1 -to "VGA_B<5>
+NET "VGA_B<4>" LOC=B9; #set_location_assignment PIN_P1 -to "VGA_B<4>
+NET "VGA_B<3>" LOC=A10; #set_location_assignment PIN_N1 -to "VGA_B<3>
+NET "VGA_B<2>" LOC=D10; #set_location_assignment PIN_M1 -to "VGA_B<2>
+NET "VGA_B<1>" LOC=B11; #set_location_assignment PIN_J1 -to "VGA_B<1>
+NET "VGA_B<0>" LOC=C11; #set_location_assignment PIN_H1 -to "VGA_B<0>
+NET "VGA_HS" LOC=A15; #set_location_assignment PIN_B3 -to VGA_HS
+NET "VGA_VS" LOC=C14; #set_location_assignment PIN_B2 -to VGA_VS
 
 #NEPTUNO JOYSTICKS#
 #set_location_assignment PIN_AA18 -to joyP7_o
