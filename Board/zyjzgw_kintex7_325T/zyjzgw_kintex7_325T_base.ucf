@@ -1,0 +1,90 @@
+
+
+NET "CLK50" IOSTANDARD = LVCMOS33;
+NET "CLK50" LOC = F22;
+
+# Core board LEDs
+NET "LED*" IOSTANDARD = LVCMOS33;
+NET "LED<0>" LOC = J26;
+NET "LED<1>" LOC = H26;
+
+# Baseboard LEDs
+NET "LED<2>" LOC = B14;
+NET "LED<3>" LOC = C14;
+NET "LED<4>" LOC = E25;
+
+# Baseboard switches
+NET "SW*" IOSTANDARD = LVCMOS18;
+NET "SW<7>" LOC = AB25;
+NET "SW<6>" LOC = AA25;
+NET "SW<5>" LOC = AC24;
+NET "SW<4>" LOC = AC23;
+NET "SW<3>" LOC = AA24;
+NET "SW<2>" LOC = Y23;
+NET "SW<1>" LOC = AA22;
+NET "SW<0>" LOC = Y22;
+
+# Baseboard keys
+
+# Coreboard keys
+NET "KEY*" IOSTANDARD = LVCMOS18;
+NET "KEY<0>" LOC = AB26;
+NET "KEY<1>" LOC = AC26;
+
+# Baseboard keys
+NET "KEY<2>" LOC = AD18;
+NET "KEY<3>" LOC = AF19;
+NET "KEY<4>" LOC = AF20;
+
+# Baseboard SD/MMC
+NET "sd_*" IOSTANDARD = LVCMOS33;
+NET "sd_cs" LOC = E26;
+NET "sd_miso" LOC = F25;
+NET "sd_mosi" LOC = B25;
+NET "sd_sclk" LOC = B26;
+
+# Baseboard Sigma/Delta audio
+NET "SIGMA_*" IOSTANDARD = LVCMOS33;
+NET "SIGMA_L" LOC = A8;
+NET "SIGMA_R" LOC = A9;
+
+# Baseboard video
+
+NET "VGA_*" IOSTANDARD = LVCMOS33 | DRIVE=8 | SLEW=FAST;
+NET "VGA_R<4>" LOC=B19;
+NET "VGA_R<3>" LOC=A18;
+NET "VGA_R<2>" LOC=A20;
+NET "VGA_R<1>" LOC=C19;
+NET "VGA_R<0>" LOC=B20;
+
+NET "VGA_G<5>" LOC=D18;
+NET "VGA_G<4>" LOC=C13;
+NET "VGA_G<3>" LOC=C18;
+NET "VGA_G<2>" LOC=E18;
+NET "VGA_G<1>" LOC=C17;
+NET "VGA_G<0>" LOC=A19;
+
+NET "VGA_B<4>" LOC=A13;
+NET "VGA_B<3>" LOC=A12;
+NET "VGA_B<2>" LOC=D14;
+NET "VGA_B<1>" LOC=D13;
+NET "VGA_B<0>" LOC=A14;
+
+NET "VGA_HS" LOC=C12;
+NET "VGA_VS" LOC=C11;
+
+# Baseboard level translator on header JP3
+NET "IO_A<*>" IOSTANDARD = LVCMOS18;
+NET "IO_A<7>" LOC=AE22;
+NET "IO_A<6>" LOC=AF22;
+NET "IO_A<5>" LOC=AE23;
+NET "IO_A<4>" LOC=AF23;
+NET "IO_A<3>" LOC=AF24;
+NET "IO_A<2>" LOC=AF25;
+NET "IO_A<1>" LOC=AD26;
+NET "IO_A<0>" LOC=AE26;
+
+#Created by Constraints Editor (xc7k325t-fbg676-3) - 2022/01/30
+NET "CLK50" TNM_NET = CLK50;
+TIMESPEC TS_CLK50 = PERIOD "CLK50" 20 ns HIGH 50%;
+

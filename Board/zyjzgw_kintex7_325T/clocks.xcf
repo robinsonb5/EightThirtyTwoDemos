@@ -1,0 +1,2 @@
+NET "clock_50_i" TNM_NET = "CLK50";
+TIMESPEC "TS_clock_50_i" = PERIOD "CLK50" 20 ns HIGH 50 %;
