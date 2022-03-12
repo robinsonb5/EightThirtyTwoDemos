@@ -17,11 +17,13 @@ set corename "${project}_${board}"
 source ../../project_defs.tcl
 source ${boardpath}/${board}/${board}_defs.tcl
 
+if { [info exists target_frequency_xilinx] == 0 } {set target_frequency_xilinx $target_frequency}
+
 if { ${requires_sdram}==0 || ${have_sdram}==1 } {
 	project open ${corename}.xise
 	source ${boardpath}/${board}/${board}_support.tcl
 	source ${corename}_files.tcl
-	xfile add ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency}/pll.${pll_extension}
+	xfile add ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency_xilinx}/pll.${pll_extension}
 	if ${requires_sdram}==1 {
 		xfile add ${boardpath}/${board}/sdram_iobs.ucf
 	} else {
