@@ -26,6 +26,11 @@ module qmtech_kintex7_325T_top(
 	input  sd_miso_i,
 	output SIGMA_L,
 	output SIGMA_R,
+	output [5:0] VGA_R,
+	output [5:0] VGA_G,
+	output [5:0] VGA_B,
+	output VGA_HS,
+	output VGA_VS,
 	inout PS2_KEYBOARD_CLK,
 	inout PS2_KEYBOARD_DAT,
 	inout PS2_MOUSE_CLK,
@@ -69,12 +74,12 @@ VirtualToplevel #(.sysclk_frequency(1700),.jtag_uart(0)) vt
 	.slowclk(slowclk),
 	.reset_in(reset_button & pll_locked),
 
-//	vga_red 		: out unsigned(7 downto 0);
-//	vga_green 	: out unsigned(7 downto 0);
-//	vga_blue 	: out unsigned(7 downto 0);
-//	vga_hsync 	: out std_logic;
-//	vga_vsync 	: buffer std_logic;
-//	vga_window	: out std_logic;
+	.vga_red(vga_red),
+	.vga_green(vga_green),
+	.vga_blue(vga_blue),
+	.vga_hsync(vga_hsync),
+	.vga_vsync(vga_vsync),
+	.vga_window(vga_window),
 
 //	-- SPI signals
 	.spi_miso(sd_miso_i),
@@ -122,5 +127,29 @@ hybrid_pwm_sd audio
 	.q_l(SIGMA_L),
 	.q_r(SIGMA_R)
 );
+
+wire [5:0] out_r;
+wire [5:0] out_g;
+wire [5:0] out_b;
+
+video_vga_dither #(.outbits(6)) dither
+(
+	.clk(sysclk),
+	.vid_ena(vga_window),
+	.hsync(vga_hsync),
+	.vsync(vga_vsync),
+	.iRed(vga_red),
+	.iGreen(vga_green),
+	.iBlue(vga_blue),
+	.oRed(out_r),
+	.oGreen(out_g),
+	.oBlue(out_b)
+);
+
+assign VGA_VS=vga_vsync;
+assign VGA_HS=vga_hsync;
+assign VGA_R=out_r[5:0];
+assign VGA_G=out_g[5:0];
+assign VGA_B=out_b[5:0];
 
 endmodule

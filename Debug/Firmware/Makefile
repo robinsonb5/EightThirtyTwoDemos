@@ -31,7 +31,7 @@ HelloWorld.bin : HelloWorld.o
 
 %_ROM_word.vhd: %.bin $(ROMGEN)
 	sed 's/eightthirtytwo_rom/$*_ROM/' >$*_ROM_word.vhd <$(ROMGENDIR)/rom_prologue_word.vhd
-	$(ROMGEN) -b $*.bin >>$*_ROM_word.vhd
+	$(ROMGEN) -b -w $*.bin >>$*_ROM_word.vhd
 	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_word.vhd
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c
