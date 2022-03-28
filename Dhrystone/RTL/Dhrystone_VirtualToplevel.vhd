@@ -17,7 +17,7 @@ entity VirtualToplevel is
 		reset_in 	: in std_logic;
 
 		-- VGA
-		vga_red 		: out unsigned(7 downto 0);
+		vga_red 	: out unsigned(7 downto 0);
 		vga_green 	: out unsigned(7 downto 0);
 		vga_blue 	: out unsigned(7 downto 0);
 		vga_hsync 	: out std_logic;

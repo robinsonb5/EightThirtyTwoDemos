@@ -4,5 +4,6 @@ package Board_Config is
 	constant Board_SDRAM_ColBits : integer := 9;
 	constant Board_VGA_Bits : integer := 6;
 	constant Board_JTAG_Uart : boolean = false;
+	constant Board_TechLevel : integer = 7;
 end package;
 

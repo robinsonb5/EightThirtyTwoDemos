@@ -1,3 +1,9 @@
+proc xcofile_add {xcofile} {
+	file mkdir ip_cores
+	file copy $xcofile ip_cores/[file tail $xcofile]
+	xfile add "ip_cores/[file tail $xcofile]"
+}
+
 package require cmdline
 variable ::argv0
 set options {

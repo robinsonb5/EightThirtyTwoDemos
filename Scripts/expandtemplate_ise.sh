@@ -15,7 +15,7 @@ cat $1 | while read a; do
 		echo "xfile add \"$2/${a}\""
 	fi
         if [ "${b: -4}" = ".xco" ]; then
-                echo "xfile add \"$2/${a}\""
+                echo "xcofile_add \"$2/${a}\""
         fi
 	if [ "${b: -4}" = ".qip" ]; then
 		bash ../../../Scripts/expandtemplate_ise.sh $2/${a%.qip}.files $2/$(dirname $a)
