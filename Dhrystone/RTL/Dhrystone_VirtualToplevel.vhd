@@ -126,6 +126,8 @@ signal mem_rd_d : std_logic;
 signal mem_wr_d : std_logic; 
 signal rom_wr : std_logic;
 
+signal peripheral_addr : std_logic_vector(3 downto 0);
+
 begin
 
 ps2k_dat_out<='1';
@@ -337,7 +339,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 		ack => cpu_ack
 	);
 
-
+peripheral_addr <= cpu_addr(31)&cpu_addr(10 downto 8);
 
 process(clk)
 begin
@@ -352,7 +354,7 @@ begin
 
 		-- Write from CPU?
 		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
-			case cpu_addr(31)&cpu_addr(10 downto 8) is
+			case peripheral_addr is
 				when X"C" =>	-- Timer controller at 0xFFFFFC00
 					timer_reg_req<='1';
 					mem_busy<='0';	-- Audio controller never blocks the CPU

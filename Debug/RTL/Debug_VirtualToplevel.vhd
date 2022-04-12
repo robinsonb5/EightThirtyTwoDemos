@@ -69,6 +69,7 @@ constant sysclk_hz : integer := sysclk_frequency*500;
 constant uart_divisor : integer := sysclk_hz/1152;
 constant maxAddrBit : integer := 31;
 
+signal soft_reset_n : std_logic;
 signal reset_n : std_logic := '0';
 signal reset_counter : unsigned(15 downto 0) := X"FFFF";
 
@@ -253,7 +254,7 @@ end generate;
 	port map
 	(
 		clk => slowclk,
-		reset_n => reset_n,
+		reset_n => reset_n and soft_reset_n,
 
 		-- cpu fetch interface
 
@@ -290,6 +291,7 @@ begin
 	if rising_edge(slowclk) then
 		mem_busy<='1';
 		ser_txgo<='0';
+		soft_reset_n<='1';
 		
 		-- Write from CPU?
 		if mem_wr='1' and mem_busy='1' then
@@ -336,6 +338,10 @@ begin
 		-- Set this after the read operation has potentially cleared it.
 		if ser_rxint='1' then
 			ser_rxrecv<='1';
+			if ser_rxdata=X"04" then -- Allow soft-reset on Ctrl-D over serial
+				soft_reset_n<='0';
+				ser_rxrecv<='0';
+			end if;
 		end if;
 
 	end if; -- rising-edge(clk)

@@ -60,50 +60,23 @@ begin
 	-- to another is not an atomic operation; leaving one state and entering the next
 	-- are distinct, and it's possible (and, in fact, common) for one 
 	-- to happen without the other if inputs aren't properly synchronised.
-	
+genrx : if enable_rx generate	
 	process(clk,rxd)
 	begin
-		if enable_rx and rising_edge(clk) then
+		if rising_edge(clk) then
 			rxd_sync2<=rxd;
 			rxd_sync<=rxd_sync2;
 		end if;
 	end process;
-	
 
-	-- Clock generators.
-	-- We have independent Rx and Tx clocks, generated from counters
-	-- which count down from clock_divisor to zero.
-	-- At zero, we generate a momentary high pulse which is used as the serial clock signal.
-
-	-- Tx Clock generation
-	-- Very simple - the counter is reset when either it reaches zero or
-	-- the Tx is idle, and counts down once per system clock tick.
-
-	process(clk)
-	begin
-		if enable_tx and rising_edge(clk) then
-			txclock<='0';
-
-			if txstate=idle then
-				txcounter<=clock_divisor;
-			else
-				txcounter<=txcounter-1;
-				if txcounter=0 then
-					txclock<='1';
-					txcounter<=clock_divisor;
-				end if;
-			end if;
-		end if;
-	end process;
-
-	
 	-- Rx Clock generation
 	-- The Rx clock is slightly more complicated.  When idle we detect the leading edge of the
 	-- start bit, and set the counter to half a bit width.  When it reaches zero, the counter is
 	-- set to a full bit width, so clock ticks should land in the centre of each bit.
+
 	process(clk,reset,rxd_sync,rxcounter,rxstate)
 	begin
-		if enable_rx and rising_edge(clk) then
+		if rising_edge(clk) then
 			rxclock<='0';
 
 			if rxstate=idle then
@@ -132,7 +105,7 @@ begin
 		if reset='0' then
 			rxstate<=idle;
 			rxint<='0';
-		elsif enable_rx and rising_edge(clk) then
+		elsif rising_edge(clk) then
 			rxint<='0';
 			case rxstate is
 				when idle =>
@@ -168,6 +141,36 @@ begin
 			end case;
 		end if;
 	end process;
+end generate;
+
+gennorx: if not enable_rx generate
+	rxint<='0';	
+end generate;
+	-- Clock generators.
+	-- We have independent Rx and Tx clocks, generated from counters
+	-- which count down from clock_divisor to zero.
+	-- At zero, we generate a momentary high pulse which is used as the serial clock signal.
+
+	-- Tx Clock generation
+	-- Very simple - the counter is reset when either it reaches zero or
+	-- the Tx is idle, and counts down once per system clock tick.
+gentx: if enable_tx generate
+	process(clk)
+	begin
+		if rising_edge(clk) then
+			txclock<='0';
+
+			if txstate=idle then
+				txcounter<=clock_divisor;
+			else
+				txcounter<=txcounter-1;
+				if txcounter=0 then
+					txclock<='1';
+					txcounter<=clock_divisor;
+				end if;
+			end if;
+		end if;
+	end process;
 
 
 	-- Data Tx
@@ -181,7 +184,7 @@ begin
 			txready<='1';
 			txd<='1';
 			txint<='0';
-		elsif enable_tx and rising_edge(clk) then
+		elsif rising_edge(clk) then
 			txint <='0';
 			case txstate is
 				when idle =>
@@ -208,5 +211,12 @@ begin
 			end case;
 		end if;
 	end process;
-	
+end generate;
+
+gennotx: if not enable_tx generate
+	txready<='0';
+	txint<='0';	
+	txd<='1';
+end generate;
+
 end architecture;

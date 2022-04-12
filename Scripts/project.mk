@@ -9,8 +9,8 @@ include site.mk
 include Board/$(BOARD)/board.mk
 
 all:
-	@for PROJECT in ${PROJECTS}; do \
+	for PROJECT in ${PROJECTS}; do \
 		mkdir -p $$PROJECT/fpga/$$BOARD; \
-		make --quiet -C $$PROJECT/fpga/$$BOARD -f ../../../Scripts/$(TOOL_MAKEFILE) BOARD=$(BOARD) PROJECT=$$PROJECT TOOLPATH=$(TOOLPATH) $(CMD); \
+		make -C $$PROJECT/fpga/$$BOARD -f ../../../Scripts/$(TOOL_MAKEFILE) BOARD=$(BOARD) PROJECT=$$PROJECT TOOLPATH=$(TOOLPATH) $(CMD); \
 	done
 

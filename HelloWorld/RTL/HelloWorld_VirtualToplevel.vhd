@@ -70,7 +70,7 @@ constant sysclk_hz : integer := sysclk_frequency*500;
 constant uart_divisor : integer := sysclk_hz/1152;
 constant maxAddrBit : integer := 31;
 
-signal reset_n : std_logic := '1';
+signal reset_n : std_logic := '0';
 signal reset_counter : unsigned(15 downto 0) := X"FFFF";
 
 -- UART signals

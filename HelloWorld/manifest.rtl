@@ -1,7 +1,7 @@
+../EightThirtyTwo/RTL/eightthirtytwo.qip
+RTL/Toplevel_Config.vhd
 ../RTL/Peripherals/simple_uart.vhd
 ../RTL/Peripherals/jtag_uart.vhd
 Firmware/HelloWorld_ROM.rom
 RTL/HelloWorld_VirtualToplevel.vhd
-RTL/Toplevel_Config.vhd
-../EightThirtyTwo/RTL/eightthirtytwo.qip
 
