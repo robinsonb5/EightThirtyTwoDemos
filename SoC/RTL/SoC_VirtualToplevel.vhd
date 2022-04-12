@@ -89,6 +89,7 @@ constant uart2_divisor : integer := sysclk_hz/576;
 constant maxAddrBit : integer := 31;
 
 signal reset_n : std_logic := '0';
+signal reset : std_logic := '0';
 signal reset_counter : unsigned(15 downto 0) := X"FFFF";
 
 -- Millisecond counter
@@ -213,6 +214,7 @@ signal vga_reg_req : std_logic;
 signal vga_reg_dtack : std_logic;
 signal vga_ack : std_logic;
 signal vblank_int : std_logic;
+signal vga_vsync_i : std_logic;
 
 
 -- SDRAM signals
@@ -230,7 +232,8 @@ signal sdram_state : sdram_states;
 
 
 -- CPU signals
-
+signal cpu_reset : std_logic;
+signal cpu_int : std_logic;
 signal soft_reset_n : std_logic;
 signal mem_busy : std_logic;
 signal mem_rom : std_logic;
@@ -244,6 +247,7 @@ signal cpu_req : std_logic;
 signal cpu_ack : std_logic; 
 signal cpu_wr : std_logic; 
 signal cpu_bytesel : std_logic_vector(3 downto 0);
+signal bytesel_rev : std_logic_vector(3 downto 0);
 signal mem_rd : std_logic; 
 signal mem_wr : std_logic; 
 signal rom_wr : std_logic;
@@ -258,6 +262,8 @@ signal debug_ack : std_logic;
 signal debug_fromcpu : std_logic_vector(31 downto 0);
 signal debug_tocpu : std_logic_vector(31 downto 0);
 signal debug_wr : std_logic;
+
+signal peripheral_block : std_logic_vector(3 downto 0);
 
 begin
 
@@ -278,6 +284,7 @@ begin
 	end if;
 end process;
 
+reset <= not reset;
 
 -- Timer
 process(clk)
@@ -368,7 +375,7 @@ uart2 : entity work.simple_uart
 		)
 		port map (
 			clk => clk,
-			reset => not reset_n, -- active high!
+			reset => reset, -- active high!
 			ps2_clk_in => ps2k_clk_in,
 			ps2_dat_in => ps2k_dat_in,
 			ps2_clk_out => ps2k_clk_out,
@@ -391,7 +398,7 @@ uart2 : entity work.simple_uart
 		)
 		port map (
 			clk => clk,
-			reset => not reset_n, -- active high!
+			reset => reset, -- active high!
 			ps2_clk_in => ps2m_clk_in,
 			ps2_dat_in => ps2m_dat_in,
 			ps2_clk_out => ps2m_clk_out,
@@ -476,6 +483,8 @@ spi : entity work.spi_interface
 
 	
 -- SDRAM
+	bytesel_rev <= cpu_bytesel(0)&cpu_bytesel(1)&cpu_bytesel(2)&cpu_bytesel(3);
+
 mysdram : entity work.sdram_cached
 	generic map
 	(
@@ -518,14 +527,13 @@ mysdram : entity work.sdram_cached
 		req1 => sdram_req,
 		cachevalid => cache_valid,
 		wr1 => sdram_wr, -- active low
-		bytesel => cpu_bytesel(0)&cpu_bytesel(1)&cpu_bytesel(2)&cpu_bytesel(3), -- cpu_bytesel,
+		bytesel => bytesel_rev, -- cpu_bytesel,
 		dataout1 => sdram_read,
 		dtack1 => sdram_ack,
 		
 		flushcaches => flushcaches
 	);
 
-	
 -- VGA controller
 -- Video
 	
@@ -552,7 +560,7 @@ mysdram : entity work.sdram_cached
 		spr0channel_tohost => spr0channel_tohost,
 
 		hsync => vga_hsync,
-		vsync => vga_vsync,
+		vsync => vga_vsync_i,
 		vblank_int => vblank_int,
 		red => vga_red,
 		green => vga_green,
@@ -560,6 +568,7 @@ mysdram : entity work.sdram_cached
 		vga_window => vga_window
 	);
 
+vga_vsync<=vga_vsync_i;
 	
 -- Audio controller
 	
@@ -617,7 +626,7 @@ generic map (
 )
 port map (
 	clk => clk,
-	reset_n => reset_n and soft_reset_n,
+	reset_n => cpu_reset,
 	trigger => int_triggers, -- Again, thanks ISE.
 	ack => int_ack,
 	int => int_req,
@@ -675,6 +684,9 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 		end if;	
 	end process;
 	
+	cpu_reset<=reset_n and soft_reset_n;
+	cpu_int <= int_req and int_enabled;
+	
 	cpu : entity work.eightthirtytwo_cpu
 	generic map
 	(
@@ -687,8 +699,8 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 	port map
 	(
 		clk => clk,
-		reset_n => reset_n and soft_reset_n,
-		interrupt => int_req and int_enabled,
+		reset_n => cpu_reset,
+		interrupt => cpu_int,
 
 		-- cpu fetch interface
 
@@ -727,6 +739,8 @@ if debug = false generate
 	debug_ack <= '0';
 end generate;
 
+peripheral_block <= cpu_addr(31)&cpu_addr(10 downto 8);
+
 process(clk)
 begin
 	if reset_n='0' then
@@ -759,7 +773,7 @@ begin
 
 		-- Write from CPU?
 		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
-			case cpu_addr(31)&cpu_addr(10 downto 8) is
+			case peripheral_block is
 
 				when X"E" =>	-- VGA controller at 0xFFFFFE00
 					vga_reg_rw<='0';

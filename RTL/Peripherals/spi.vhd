@@ -6,7 +6,7 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.STD_LOGIC_UNSIGNED.all;
+use IEEE.numeric_std.all;
 
 
 entity spi_interface is
@@ -33,7 +33,7 @@ architecture rtl of spi_interface is
 signal sck : std_logic;
 signal sd_shift : std_logic_vector(7 downto 0);
 --signal sd_shift : std_logic_vector(31 downto 0);
-signal shiftcnt : std_logic_vector(5 downto 0);
+signal shiftcnt : unsigned(5 downto 0);
 begin
 
 -----------------------------------------------------------------

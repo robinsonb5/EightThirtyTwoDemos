@@ -56,6 +56,9 @@ architecture rtl of sound_wrapper is
 	signal aud2 : signed(13 downto 0);
 	signal aud3 : signed(13 downto 0);
 
+	signal reg_addr : std_logic_vector(7 downto 0);
+	signal req : std_logic_vector(3 downto 0);
+
 begin
 
 -- Create ~3.5Mhz tick signal
@@ -82,17 +85,23 @@ port map (
 	audio_l(15 downto 1)<=(aud0(13)&aud0)+(aud3(13)&aud3);
 	audio_r(15 downto 1)<=(aud1(13)&aud1)+(aud2(13)&aud2);
 
+reg_addr <= "000" & reg_addr_in(4 downto 0);
+req(0) <= reg_req and sel0;
+req(1) <= reg_req and sel1;
+req(2) <= reg_req and sel2;
+req(3) <= reg_req and sel3;
+
 channel0 : entity work.sound_controller
 	port map (
 		clk => clk,
 		reset => reset,
 		audiotick => audiotick,
 
-		reg_addr_in => "000"&reg_addr_in(4 downto 0),
+		reg_addr_in => reg_addr,
 		reg_data_in => reg_data_in,
 		reg_data_out => open,
 		reg_rw => '0',
-		reg_req => reg_req and sel0,
+		reg_req => req(0),
 
 		dma_data => dma_data,
 		channel_fromhost => channel0_fromhost,
@@ -108,11 +117,11 @@ channel1 : entity work.sound_controller
 		reset => reset,
 		audiotick => audiotick,
 
-		reg_addr_in => "000"&reg_addr_in(4 downto 0),
+		reg_addr_in => reg_addr,
 		reg_data_in => reg_data_in,
 		reg_data_out => open,
 		reg_rw => '0',
-		reg_req => reg_req and sel1,
+		reg_req => req(1),
 
 		dma_data => dma_data,
 		channel_fromhost => channel1_fromhost,
@@ -128,11 +137,11 @@ channel2 : entity work.sound_controller
 		reset => reset,
 		audiotick => audiotick,
 
-		reg_addr_in => "000"&reg_addr_in(4 downto 0),
+		reg_addr_in => reg_addr,
 		reg_data_in => reg_data_in,
 		reg_data_out => open,
 		reg_rw => '0',
-		reg_req => reg_req and sel2,
+		reg_req => req(2),
 
 		dma_data => dma_data,
 		channel_fromhost => channel2_fromhost,
@@ -148,11 +157,11 @@ channel3 : entity work.sound_controller
 		reset => reset,
 		audiotick => audiotick,
 
-		reg_addr_in => "000"&reg_addr_in(4 downto 0),
+		reg_addr_in => reg_addr,
 		reg_data_in => reg_data_in,
 		reg_data_out => open,
 		reg_rw => '0',
-		reg_req => reg_req and sel3,
+		reg_req => req(3),
 
 		dma_data => dma_data,
 		channel_fromhost => channel3_fromhost,

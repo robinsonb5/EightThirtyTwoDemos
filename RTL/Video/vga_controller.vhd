@@ -181,6 +181,8 @@ begin
 							sprite_col<=sprite0_data(3 downto 0);
 							spr0channel_fromhost.req<='1';
 							sprite0_counter<="11";
+						when others =>
+							null;
 					end case;
 				end if;
 			else
