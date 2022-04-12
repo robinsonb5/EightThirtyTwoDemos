@@ -30,8 +30,8 @@ compile:
 ifdef BOARD
 	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=compile
 else
-	for BOARD in ${BOARDS}; do \
-		make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=compile; \
+	@for BOARD in ${BOARDS}; do \
+		make --quiet -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=compile; \
 	done
 endif
 
