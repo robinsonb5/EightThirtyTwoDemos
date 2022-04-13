@@ -11,7 +11,9 @@ port(
 	txd : out std_logic;
 	rxd : in std_logic;
 
-	user_led : out std_logic_vector(2 downto 0);
+	led_red : out std_logic;
+	led_green : out std_logic;
+	led_blue : out std_logic;
 
 	sdram_clk : out std_logic;
 	sdram_a : out std_logic_vector(12 downto 0);
@@ -80,6 +82,10 @@ signal vga_pmod_high : std_logic_vector(7 downto 0);
 signal vga_pmod_low : std_logic_vector(7 downto 0);
 
 begin
+
+	led_red<='1';
+	led_green<='0';
+	led_blue<='0';
 
 	P3_pmod_high<=vga_pmod_high;
 	P3_pmod_low<=vga_pmod_low;

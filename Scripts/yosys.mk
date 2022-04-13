@@ -30,10 +30,10 @@ $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
 
 $(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl
 
-$(CFGFILE): $(TARGET)
+$(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf
 	$(TOOLPATH)yosys -mghdl -p 'tcl $(SCRIPTSDIR)/mkproject_yosys.tcl $(PROJECT) $(BOARD)' || echo "yosys not found - skipping compilation."
 	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
 
 $(BITFILE): $(CFGFILE)
-	ecppack --svf ${TARGET}.svf $< $@
+	$(TOOLPATH)ecppack --svf ${TARGET}.svf $< $@
 

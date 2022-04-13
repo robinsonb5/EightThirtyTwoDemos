@@ -1,0 +1,12 @@
+../RTL/Peripherals/simple_uart.vhd
+../RTL/Peripherals/jtag_uart.vhd
+../RTL/Peripherals/interrupt_controller.vhd
+../RTL/Peripherals/timer_controller.vhd
+../RTL/Video/video_timings.vhd
+../RTL/Video/video_vga_dither.vhd
+Firmware/HelloWorld_ROM.rom
+RTL/Toplevel_Config.vhd
+../EightThirtyTwo/RTL/eightthirtytwo.qip
+RTL/VGA_NoRAM_VirtualToplevel.vhd
+
+

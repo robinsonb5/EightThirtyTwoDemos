@@ -1,3 +1,6 @@
+# Produce compressed bitstreams to reduce uploading time
+SYSCONFIG COMPRESS_CONFIG=ON;
+
 LOCATE      COMP "clk_i"    SITE "P6";
 IOBUF       PORT "clk_i"    IO_TYPE=LVCMOS33;
 FREQUENCY   PORT "clk_i"    25 MHZ;
@@ -223,12 +226,12 @@ IOBUF PORT "sdram_dm[1]" DRIVE=4;
 IOBUF PORT "sdram_dm[1]" SLEWRATE=FAST;
 IOBUF PORT "sdram_dm[1]" IO_TYPE=LVCMOS33;
 
-LOCATE COMP "user_led[0]" SITE "B11";
-IOBUF PORT "user_led[0]" IO_TYPE=LVCMOS33;
-LOCATE COMP "user_led[1]" SITE "A11";
-IOBUF PORT "user_led[1]" IO_TYPE=LVCMOS33;
-LOCATE COMP "user_led[2]" SITE "A12";
-IOBUF PORT "user_led[2]" IO_TYPE=LVCMOS33;
+LOCATE COMP "led_red" SITE "B11"; # PT49A
+IOBUF PORT "led_red" IO_TYPE=LVCMOS33;
+LOCATE COMP "led_green" SITE "A11"; # PT53A
+IOBUF PORT "led_green" IO_TYPE=LVCMOS33;
+LOCATE COMP "led_blue" SITE "A12"; # PT53B
+IOBUF PORT "led_blue" IO_TYPE=LVCMOS33;
 
 LOCATE COMP "spisdcard_clk" SITE "J12";
 IOBUF PORT "spisdcard_clk" SLEWRATE=FAST;
