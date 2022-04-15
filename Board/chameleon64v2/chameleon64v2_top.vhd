@@ -428,7 +428,8 @@ virtualtoplevel : entity work.VirtualToplevel
 		vga_window => open,
 
 		-- SDRAM
-		unsigned(sdr_data) => ram_d,
+		unsigned(sdr_data_in) => ram_d,
+		unsigned(sdr_data_out) => ram_d,
 		unsigned(sdr_addr)	=> ram_a,
 		sdr_dqm(1) => ram_udqm,
 		sdr_dqm(0) => ram_ldqm,

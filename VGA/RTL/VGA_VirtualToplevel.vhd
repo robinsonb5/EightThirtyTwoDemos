@@ -27,7 +27,9 @@ entity VirtualToplevel is
 		vga_window	: out std_logic;
 
 		-- SDRAM
-		sdr_data		: inout std_logic_vector(15 downto 0);
+		sdr_drive_data	: out std_logic;
+		sdr_data_in		: in std_logic_vector(15 downto 0);
+		sdr_data_out	: inout std_logic_vector(15 downto 0);
 		sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
 		sdr_dqm 		: out std_logic_vector(1 downto 0);
 		sdr_we 		: out std_logic;
@@ -400,7 +402,9 @@ mysdram : entity work.sdram_cached
 	port map
 	(
 	-- Physical connections to the SDRAM
-		sdata => sdr_data,
+		drive_sdata => sdr_drive_data,
+		sdata_in => sdr_data_in,
+		sdata_out => sdr_data_out,
 		sdaddr => sdr_addr,
 		sd_we	=> sdr_we,
 		sd_ras => sdr_ras,

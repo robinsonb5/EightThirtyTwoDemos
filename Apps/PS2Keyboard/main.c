@@ -7,10 +7,30 @@
 int MouseX=0,MouseY=0,MouseZ=0,MouseButtons=0;
 int mouseactive=0;
 
+void PS2Handler(void *userdata);
+
 int main(int argc, char **argv)
 {
 	int key=0x2a;
 	int a;
+	int b;
+
+#if 0
+	while(1)
+	{
+		key=HW_PS2(REG_PS2_KEYBOARD);
+		if(key&(1<<BIT_PS2_CTS))
+		{
+			++a;
+			if((a&255)==128)
+				HW_PS2(REG_PS2_KEYBOARD)=0xED;
+			if((a&255)==130)
+				HW_PS2(REG_PS2_KEYBOARD)=++b&7;
+		}
+			
+		printf("%x, %x\n",HW_PS2(REG_PS2_KEYBOARD),HW_PS2(REG_PS2_MOUSE));
+	}
+#endif
 
 	puts("Enabling interrupts...\n");
 	EnableInterrupts();
@@ -23,6 +43,7 @@ int main(int argc, char **argv)
 	while(1)
 	{
 		int k;
+//		PS2Handler(0);
 		k=HandlePS2RawCodes();
 //		printf("%x, %x, %x, %x, %x, %x\n",keytable[0],keytable[1],keytable[2],keytable[3],keytable[4],keytable[5]);
 		if(k)

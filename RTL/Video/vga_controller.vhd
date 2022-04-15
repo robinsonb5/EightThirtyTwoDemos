@@ -82,6 +82,9 @@ architecture rtl of vga_controller is
 	signal vsync_r : std_logic;
 	signal hsync_r : std_logic;
 	signal vga_window_r : std_logic;
+	
+	signal vgachannel_valid_d : std_logic;
+	signal sprite_valid_d : std_logic;
 
 begin
 
@@ -196,7 +199,9 @@ begin
 				sprite0_counter<="11";
 			end if;
 			
-			if enable_sprite and spr0channel_tohost.valid='1' then
+			sprite_valid_d <= spr0channel_tohost.valid;
+			
+			if enable_sprite and sprite_valid_d='1' then
 				sprite0_data<=dma_data;
 			end if;
 
@@ -221,7 +226,9 @@ begin
 			spr0setaddr<='0';
 			spr0channel_fromhost.setreqlen<='0';	
 
-			if(vgachannel_tohost.valid='1') then
+			vgachannel_valid_d <= vgachannel_tohost.valid;
+			
+			if(vgachannel_valid_d='1') then
 				vgadata<=dma_data;
 			end if;
 

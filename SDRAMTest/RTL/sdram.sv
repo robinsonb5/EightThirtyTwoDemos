@@ -43,10 +43,12 @@
 module sdram #(parameter SDRAM_tCK=7800 )
 (
 	// interface to the MT48LC16M16 chip
-	inout  [15:0] SDRAM_DQ,   // 16 bit bidirectional data bus
+	input  [15:0] SDRAM_DQ_IN,   // 16 bit bidirectional data bus
+	output  [15:0] SDRAM_DQ_OUT,   // 16 bit bidirectional data bus
+	output SDRAM_DRIVE_DQ,
 	output reg [`SDRAM_ROWBITS-1:0] SDRAM_A,    // 13 bit multiplexed address bus
-	output reg        SDRAM_DQML, // two byte masks
-	output reg        SDRAM_DQMH, // two byte masks
+	output            SDRAM_DQML, // two byte masks
+	output            SDRAM_DQMH, // two byte masks
 	output reg [1:0]  SDRAM_BA,   // two banks
 	output            SDRAM_nCS,  // a single chip select
 	output            SDRAM_nWE,  // write enable
@@ -60,7 +62,7 @@ module sdram #(parameter SDRAM_tCK=7800 )
 	input             sync_en,
 
 	input      [15:0] rom_din,
-	output reg [15:0] rom_dout,
+	output     [15:0] rom_dout,
 	input      [21:1] rom_addr,
 	input             rom_req,
 	output reg        rom_req_ack,
@@ -68,7 +70,7 @@ module sdram #(parameter SDRAM_tCK=7800 )
 	
 	input      [21:0] wram_addr,
 	input       [7:0] wram_din,
-	output reg [15:0] wram_dout,
+	output     [15:0] wram_dout,
 	input             wram_req,
 	output reg        wram_req_ack,
 	input             wram_we,
@@ -77,19 +79,19 @@ module sdram #(parameter SDRAM_tCK=7800 )
 	output reg        vram0_ack,
 	input      [15:1] vram0_addr,
 	input      [15:0] vram0_din,
-	output reg [15:0] vram0_dout,
+	output     [15:0] vram0_dout,
 	input             vram0_we,
 
 	input             vram1_req,
 	output reg        vram1_ack,
 	input      [15:1] vram1_addr,
 	input      [15:0] vram1_din,
-	output reg [15:0] vram1_dout,
+	output     [15:0] vram1_dout,
 	input             vram1_we,
 
 	input      [16:0] aram_addr,
 	input       [7:0] aram_din,
-	output reg [15:0] aram_dout,
+	output     [15:0] aram_dout,
 	input             aram_req,
 	output reg        aram_req_ack,
 	input             aram_we
@@ -99,8 +101,8 @@ localparam BANK_DELAY = ((`SDRAM_tRC+(SDRAM_tCK-1))/SDRAM_tCK)-2; // tRC-2 in cy
 localparam BANK_WRITE_DELAY = ((`SDRAM_tRP+(SDRAM_tCK-1))/SDRAM_tCK)+`SDRAM_tWR; // tWR + tRP in cycles (rounded up)
 localparam REFRESH_DELAY = ((`SDRAM_tRC+(SDRAM_tCK-1))/SDRAM_tCK)-1; // tRC-1 in cycles (rounded up)
 
-initial assert(`SDRAM_CL!=2 || SDRAM_tCK>=`SDRAM_tCKminCL2)
-	else $error("CL2 not allowed at %d MHz (max speed is %d)",1000000/SDRAM_tCK,1000000/`SDRAM_tCKminCL2);
+//initial assert(`SDRAM_CL!=2 || SDRAM_tCK>=`SDRAM_tCKminCL2)
+//	else $error("CL2 not allowed at %d MHz (max speed is %d)",1000000/SDRAM_tCK,1000000/`SDRAM_tCKminCL2);
 
 // RAM configuration
 
@@ -542,12 +544,13 @@ reg [3:0] latch2_port;
 integer loopvar;
 
 reg [15:0] dq_reg;
-`ifdef VERILATOR
+//`ifdef VERILATOR
 reg drive_dq;
-assign SDRAM_DQ = drive_dq ? dq_reg : 16'bzzzzzzzzzzzzzzzz;
-`else
-assign SDRAM_DQ = dq_reg;
-`endif
+assign SDRAM_DRIVE_DQ = drive_dq;
+assign SDRAM_DQ_OUT = dq_reg;
+//`else
+//assign SDRAM_DQ = dq_reg;
+//`endif
 
 reg init = 1'b1;
 reg [4:0] reset;
@@ -580,9 +583,9 @@ always @(posedge clk,negedge init_n) begin
 				bankbusy[loopvar]<=bankbusy[loopvar]-4'b1;
 		end
 
-`ifndef VERILATOR
-		dq_reg<=16'bZZZZZZZZZZZZZZZZ;
-`endif
+//`ifndef VERILATOR
+//		dq_reg<=16'bZZZZZZZZZZZZZZZZ;
+//`endif
 
 		SDRAM_A <= cas_addr;
 		sd_dqm<=2'b11;
@@ -621,9 +624,9 @@ always @(posedge clk,negedge init_n) begin
 
 			// Request dispatching
 
-`ifdef VERILATOR
+//`ifdef VERILATOR
 			drive_dq<=1'b0;
-`endif
+//`endif
 			sd_cmd<=CMD_INHIBIT;
 			// RAS stage
 			ras1_port<=PORT_NONE;
@@ -728,9 +731,9 @@ always @(posedge clk,negedge init_n) begin
 				if(cas_wr) begin
 					sd_cmd<=CMD_WRITE;
 					bankbusy[cas_ba]<=BANK_WRITE_DELAY[4:0];
-`ifdef VERILATOR
+//`ifdef VERILATOR
 					drive_dq<=1'b1;
-`endif
+//`endif
 					dq_reg <= cas_wrdata;
 					SDRAM_A[`SDRAM_ROWBITS-1:`SDRAM_ROWBITS-2] <= cas_dqm;
 					sd_dqm<=cas_dqm;
@@ -793,7 +796,7 @@ always @(posedge clk, negedge init_n) begin
 		aram_req_ack <= 1'b0;
 	end else begin
 
-		sd_din<=SDRAM_DQ;
+		sd_din<=SDRAM_DQ_IN;
 
 		// Acknowledge writes
 		// We also mirror the port inputs to outputs here.

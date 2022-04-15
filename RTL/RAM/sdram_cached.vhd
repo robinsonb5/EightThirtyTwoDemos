@@ -36,7 +36,9 @@ generic
 port
 	(
 -- Physical connections to the SDRAM
-	sdata		: inout std_logic_vector(15 downto 0);
+	drive_sdata	: out std_logic;
+	sdata_in		: in std_logic_vector(15 downto 0);
+	sdata_out		: inout std_logic_vector(15 downto 0);
 	sdaddr		: out std_logic_vector((rows-1) downto 0);
 	sd_we		: out std_logic;	-- Write enable, active low
 	sd_ras		: out std_logic;	-- Row Address Strobe, active low
@@ -285,12 +287,12 @@ begin
 								or (slot2_fill='1' and sdram_slot2=port0)
 									else '0';
 
-	process(sysclk)
-	begin
-	
 	dtack1 <= port1_dtack and writecache_dtack and not readcache_dtack;
 
 	dtack2 <= port2_dtack and not readcache2_dtack;
+
+	process(sysclk,reset)
+	begin
 	
 -- Write cache implementation: (AMR)
 
@@ -458,11 +460,11 @@ end generate;
 	vga_data <= sdata_reg;
 	
 	process (sysclk, reset, sdwrite, datain) begin
-		
+		drive_sdata<=sdwrite;
 		IF sdwrite='1' THEN	-- Keep sdram data high impedence if not writing to it.
-			sdata <= datain;
+			sdata_out <= datain;
 		ELSE
-			sdata <= "ZZZZZZZZZZZZZZZZ";
+			sdata_out <= "ZZZZZZZZZZZZZZZZ";
 		END IF;
 		
 		if reset = '0' then
@@ -477,7 +479,7 @@ end generate;
 			end if;			
 			
 			--   sample SDRAM data
-			sdata_reg <= sdata;
+			sdata_reg <= sdata_in;
 
 			case sdram_state is	--LATENCY=3
 				when ph0 =>	sdram_state <= ph1;
@@ -520,7 +522,7 @@ end generate;
 
 
 	
-	process (sysclk, initstate, datain, init_done, casaddr, refreshcycle) begin
+	process (sysclk, reset) begin
 
 
 		if reset='0' then
@@ -678,10 +680,10 @@ end generate;
 
 						-- Second word of reads if bypassing the cache
 						if sdram_slot2=port1 and dcache=false then
-							longword(15 downto 0)<=sdata;
+							longword(15 downto 0)<=sdata_in;
 						end if;
 						if sdram_slot2=port2 and cache=false then
-							longword2(15 downto 0)<=sdata;
+							longword2(15 downto 0)<=sdata_in;
 						end if;
 
 
@@ -746,10 +748,10 @@ end generate;
 
 						-- First word of reads if bypassing the cache
 						if sdram_slot1=port1 and dcache=false then
-							longword(31 downto 16)<=sdata;
+							longword(31 downto 16)<=sdata_in;
 						end if;
 						if sdram_slot1=port2 and cache=false then
-							longword2(31 downto 16)<=sdata;
+							longword2(31 downto 16)<=sdata_in;
 						end if;
 
 					when ph10 =>
@@ -823,10 +825,10 @@ end generate;
 						
 						-- Second word of reads if bypassing the cache
 						if sdram_slot1=port1 and dcache=false then
-							longword(15 downto 0)<=sdata;
+							longword(15 downto 0)<=sdata_in;
 						end if;
 						if sdram_slot1=port2 and cache=false then
-							longword2(15 downto 0)<=sdata;
+							longword2(15 downto 0)<=sdata_in;
 						end if;
 
 				
@@ -904,10 +906,10 @@ end generate;
 						
 						-- First word of reads if bypassing the cache
 						if sdram_slot2=port1 and dcache=false then
-							longword(31 downto 16)<=sdata;
+							longword(31 downto 16)<=sdata_in;
 						end if;
 						if sdram_slot2=port2 and cache=false then
-							longword2(31 downto 16)<=sdata;
+							longword2(31 downto 16)<=sdata_in;
 						end if;
 
 					when others =>

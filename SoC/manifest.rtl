@@ -8,7 +8,6 @@ RTL/DMACache_config.vhd
 ../RTL/Peripherals/interrupt_controller.vhd
 ../RTL/Peripherals/timer_controller.vhd
 
-../RTL/RAM/DualPortRAM.vhd
 ../RTL/RAM/BurstCache.v
 ../RTL/RAM/DirectCache.v
 ../RTL/RAM/sdram_cached.vhd
@@ -24,7 +23,6 @@ RTL/DMACache_config.vhd
 ../RTL/Video/vga_controller.vhd
 
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
-../EightThirtyTwo/RTL/jtag_debug_bridge.qip
 
 
 Firmware/SoC_ROM.rom

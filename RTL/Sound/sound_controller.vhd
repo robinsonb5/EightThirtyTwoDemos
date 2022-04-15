@@ -53,7 +53,8 @@ architecture rtl of sound_controller is
 	signal sampleout : signed(14 downto 0);
 	signal sampletick : std_logic; 	-- single pulse on underflow of period counter
 	signal trigger : std_logic;
-
+	signal valid_d : std_logic;
+	
 begin
 
 	volume(6)<='0'; -- Make volume effectively unsigned.
@@ -68,9 +69,20 @@ begin
 	process(clk,reset)
 	begin
 		if reset='0' then
+			channel_fromhost.req <='0';
+			channel_fromhost.setaddr <='0';
 			channel_fromhost.reqlen <= (others => '0');
 			channel_fromhost.setreqlen <='1';
+			channel_fromhost.addr <= (others => '0');
+			channel_fromhost.setaddr <= '0';
 			volume(5 downto 0) <= (others => '0');
+			hibyte <='0';
+			trigger <='0';
+			datalen<=(others => '0');
+			sampleword <= (others => '0');
+			reg_data_out<=(others => '0');
+			period <= (others => '0');
+			sampleout <= (others => '0');
 		elsif rising_edge(clk) then
 
 			-- Register sampleout to reduce combinational length and pipeline the multiplication
@@ -100,7 +112,9 @@ begin
 			-- Channel fetch
 			end if;
 
-			if channel_tohost.valid='1' then
+			valid_d <= channel_tohost.valid;
+			
+			if valid_d='1' then
 				sampleword<=dma_data;
 				hibyte <= '1'; -- First or second sample from the word?
 			end if;

@@ -9,7 +9,8 @@ ecp5pll
 #(
 	.in_hz(25000000),
 	.out0_hz(100000000),
-	.out1_hz(100000000), .out1_deg(30),
+	.out1_hz(100000000),
+	.out1_deg(270),
 	.out2_hz(50000000)
 ) pll (
 	.clk_i(clk_i),

@@ -49,20 +49,36 @@ type DMAChannel_Internal is record
 	valid_d : std_logic; -- Used to delay the valid flag
 	wrptr : unsigned(DMACache_MaxCacheBit downto 0);
 	wrptr_next : unsigned(DMACache_MaxCacheBit downto 0);
-	rdptr : unsigned(DMACache_MaxCacheBit downto 0);
+--	rdptr : unsigned(DMACache_MaxCacheBit downto 0);
 	addr : std_logic_vector(31 downto 0); -- Current RAM address
 	count : unsigned(DMACache_ReqLenMaxBit+1 downto 0); -- Number of words to transfer.
-	pending : std_logic; -- Host has a request pending on this channel
+--	pending : std_logic; -- Host has a request pending on this channel
 	fill : std_logic;	-- Add a word to the FIFO
-	full : std_logic; -- Is the FIFO full?
-	drain : std_logic; -- Drain a word from the FIFO
-	empty : std_logic; -- Is the FIFO completely empty?
+--	full : std_logic; -- Is the FIFO full?
+--	drain : std_logic; -- Drain a word from the FIFO
+--	empty : std_logic; -- Is the FIFO completely empty?
 	extend : std_logic;
 end record;
 
 type DMAChannels_Internal is array (DMACache_MaxChannel downto 0) of DMAChannel_Internal;
-
 signal internals : DMAChannels_Internal;
+
+type DMAChannel_Internal_Read is record
+	rdptr : unsigned(DMACache_MaxCacheBit downto 0);
+	pending : std_logic; -- Host has a request pending on this channel
+	drain : std_logic; -- Drain a word from the FIFO
+end record;
+
+type DMAChannels_Internal_Read is array (DMACache_MaxChannel downto 0) of DMAChannel_Internal_Read;
+signal internals_read : DMAChannels_Internal_Read;
+
+type DMAChannel_Internal_FIFO is record
+	full : std_logic; -- Is the FIFO full?
+	empty : std_logic; -- Is the FIFO completely empty?
+end record;
+type DMAChannels_Internal_FIFO is array (DMACache_MaxChannel downto 0) of DMAChannel_Internal_FIFO;
+signal internals_FIFO : DMAChannels_Internal_FIFO;
+
 
 -- interface to the blockram
 
@@ -86,9 +102,9 @@ for CHANNEL in 0 to DMACache_MaxChannel generate
 		clk => clk,
 		reset => channels_from_host(CHANNEL).setaddr,
 		fill => internals(CHANNEL).fill,
-		drain => internals(CHANNEL).drain,
-		full => internals(CHANNEL).full,
-		empty => internals(CHANNEL).empty
+		drain => internals_read(CHANNEL).drain,
+		full => internals_FIFO(CHANNEL).full,
+		empty => internals_FIFO(CHANNEL).empty
 	);
 end generate;
 
@@ -109,10 +125,12 @@ myDMACacheRAM : entity work.DMACacheRAM
 
 -- Employ bank reserve for SDRAM.
 sdram_reserve<='1' when internals(0).count(15 downto 6)/=X"00"&"00"
-								and internals(0).full='0' else '0';
+								and internals_FIFO(0).full='0' else '0';
 
 
-process(clk)
+process(clk,internals,activechannel,cache_wraddr_lsb)
+	variable servicechannel : integer range 0 to DMACache_MaxChannel;
+	variable serviceactive : std_logic;
 begin
 
 	-- We update these outside the clock edge
@@ -155,7 +173,7 @@ begin
 			-- full.
 			when rd1 =>
 				for I in DMACache_MaxChannel downto 0 loop
-					if internals(I).full='0'
+					if internals_FIFO(I).full='0'
 						and internals(I).count(DMACache_ReqLenMaxBit downto 0)/=X"0000"
 							and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
 						activechannel <= I;
@@ -231,7 +249,7 @@ begin
 				internals(activechannel).wrptr_next<=internals(activechannel).wrptr_next+8;
 
 				for I in DMACache_MaxChannel downto 0 loop
-					if internals(I).full='0'
+					if internals_FIFO(I).full='0'
 						and internals(I).count(DMACache_ReqLenMaxBit downto 0)/=X"0000"
 							and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
 						activechannel <= I;
@@ -262,15 +280,13 @@ begin
 			end if;
 		end loop;
 
-	end if;
-end process;
+--	end if;
+--end process;
 
 
-process(clk)
-	variable servicechannel : integer range 0 to DMACache_MaxChannel;
-	variable serviceactive : std_logic;
-begin
-	if rising_edge(clk) then
+--process(clk)
+--begin
+--	if rising_edge(clk) then
 
 	-- Handle timeslicing of output registers
 	-- We prioritise simply by testing in order of priority.
@@ -279,36 +295,36 @@ begin
 
 		for I in 0 to DMACache_MaxChannel loop -- Channel 0 has priority, so is never held pending.
 			if channels_from_host(I).req='1' then
-				internals(I).pending<='1';
+				internals_read(I).pending<='1';
 			end if;
 
-			internals(I).drain<='0';
+			internals_read(I).drain<='0';
 			channels_to_host(I).valid<='0';
 		end loop;
 		
 		serviceactive := '0';
 		for I in DMACache_MaxChannel downto 0 loop
-			if internals(I).pending='1' and internals(I).empty='0' then
+			if internals_read(I).pending='1' and internals_FIFO(I).empty='0' then
 				serviceactive := '1';
 				servicechannel := I;
 			end if;
 		end loop;
 
 		if serviceactive='1' then
-			cache_rdaddr<=std_logic_vector(to_unsigned(servicechannel,3))&std_logic_vector(internals(servicechannel).rdptr);
-			internals(servicechannel).rdptr<=internals(servicechannel).rdptr+1;
+			cache_rdaddr<=std_logic_vector(to_unsigned(servicechannel,3))&std_logic_vector(internals_read(servicechannel).rdptr);
+			internals_read(servicechannel).rdptr<=internals_read(servicechannel).rdptr+1;
 			channels_to_host(servicechannel).valid<='1';
-			internals(servicechannel).drain<='1';
-			internals(servicechannel).pending<='0';
+			internals_read(servicechannel).drain<='1';
+			internals_read(servicechannel).pending<='0';
 		end if;
 
 		-- Reset read pointers when a new address is set
 		for I in 0 to DMACache_MaxChannel loop
 			if channels_from_host(I).setaddr='1' then
-				internals(I).rdptr<=(others => '0');
-				internals(I).rdptr(2 downto 0)<=
+				internals_read(I).rdptr<=(others => '0');
+				internals_read(I).rdptr(2 downto 0)<=
 					unsigned(channels_from_host(I).addr(3 downto 1));	-- Offset to allow non-aligned accesses.
-				internals(I).pending<='0';
+				internals_read(I).pending<='0';
 			end if;
 		end loop;
 

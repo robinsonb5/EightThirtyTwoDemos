@@ -26,9 +26,13 @@ architecture rtl of interrupt_controller is
 signal pending : std_logic_vector(max_int+1 downto 0) := (others => '0'); -- highest bit is set if any other bit is set.
 begin
 
-process(clk)
+process(clk,reset_n)
 begin
-	if rising_edge(clk) then
+	if reset_n='0' then
+		pending<=(others=>'0');
+		int<='0';
+		status<=(others=>'0');
+	elsif rising_edge(clk) then
 		-- Clear the int bit if the interrupt is acknowledged.
 		-- While int is 1, the status is frozen, and new interrupts
 		-- are held pending, which prevents them being lost.
@@ -55,13 +59,6 @@ begin
 				pending(pending'high)<='1';
 			end if;
 		end loop;
-		
-		if reset_n='0' then
-			pending<=(others=>'0');
-			int<='0';
-			status<=(others=>'0');
-		end if;
-
 	end if;
 end process;
 

@@ -61,6 +61,7 @@ __constructor(100.interrupts) void intconstructor()
 	puts("In interrupt constructor\n");
 	DisableInterrupts();
 	intchain=0;
+	enabled=0;
 	*(void **)13=(void *)inthandler;
 }
 

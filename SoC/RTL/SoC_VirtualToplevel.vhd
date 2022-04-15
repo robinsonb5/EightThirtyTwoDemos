@@ -27,7 +27,9 @@ entity VirtualToplevel is
 		vga_window	: out std_logic;
 
 		-- SDRAM
-		sdr_data		: inout std_logic_vector(15 downto 0);
+		sdr_drive_data  : out std_logic;
+		sdr_data_in		: in std_logic_vector(15 downto 0) := X"0000";
+		sdr_data_out	: inout std_logic_vector(15 downto 0);
 		sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
 		sdr_dqm 		: out std_logic_vector(1 downto 0);
 		sdr_we 		: out std_logic;
@@ -271,7 +273,7 @@ sdr_cke <='1';
 
 -- Reset counter.
 
-process(clk)
+process(clk,reset_in,sdr_ready)
 begin
 	if reset_in='0' or sdr_ready='0' then
 		reset_counter<=X"FFFF";
@@ -284,7 +286,7 @@ begin
 	end if;
 end process;
 
-reset <= not reset;
+reset <= not reset_n;
 
 -- Timer
 process(clk)
@@ -496,7 +498,9 @@ mysdram : entity work.sdram_cached
 	port map
 	(
 	-- Physical connections to the SDRAM
-		sdata => sdr_data,
+		drive_sdata => sdr_drive_data,
+		sdata_in => sdr_data_in,
+		sdata_out => sdr_data_out,
 		sdaddr => sdr_addr,
 		sd_we	=> sdr_we,
 		sd_ras => sdr_ras,
@@ -527,7 +531,7 @@ mysdram : entity work.sdram_cached
 		req1 => sdram_req,
 		cachevalid => cache_valid,
 		wr1 => sdram_wr, -- active low
-		bytesel => bytesel_rev, -- cpu_bytesel,
+		bytesel => sdram_bytesel, -- cpu_bytesel,
 		dataout1 => sdram_read,
 		dtack1 => sdram_ack,
 		
@@ -718,6 +722,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 		debug_wr=>debug_wr,
 		debug_ack=>debug_ack		
 	);
+	cpu_addr(1 downto 0) <= (others => '0'); -- Ensure the low order bits are clear
 	
 gendebug:
 if debug = true generate
@@ -741,7 +746,7 @@ end generate;
 
 peripheral_block <= cpu_addr(31)&cpu_addr(10 downto 8);
 
-process(clk)
+process(clk,reset_n)
 begin
 	if reset_n='0' then
 		spi_cs<='1';
@@ -842,7 +847,7 @@ begin
 							null;
 					end case;
 				when others =>
-					sdram_bytesel<=cpu_bytesel;
+					sdram_bytesel<=bytesel_rev;
 					sdram_wr<='0';
 					sdram_req<='1';
 					sdram_write<=from_cpu;

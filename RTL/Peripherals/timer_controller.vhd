@@ -20,7 +20,8 @@ entity timer_controller is
 		reg_rw : in std_logic;
 		reg_req : in std_logic;
 
-		ticks : out std_logic_vector(2**timers-1 downto 0)
+		ticks : out std_logic_vector(2**timers-1 downto 0);
+		trace_out : out std_logic_vector(24 downto 0)
 	);
 end entity;
 	
@@ -35,15 +36,18 @@ architecture rtl of timer_controller is
 	signal timer_index : unsigned(7 downto 0);
 begin
 
+	trace_out(24) <= reg_req; -- timer_enabled(0);
+	trace_out(15 downto 0) <= reg_data_in(15 downto 0); -- std_logic_vector(timer_counter(0));
+	trace_out(23 downto 16) <= reg_addr_in;
 	-- Prescaled tick
-	process(clk)
+	process(clk,reset)
 	begin
 		if reset='0' then
 			prescale_counter<=(others=>'0');
 		elsif rising_edge(clk) then
 			prescaled_tick<='0';
 			prescale_counter<=prescale_counter-1;
-			if prescale_counter=X"00" then
+			if prescale_counter=X"0000" then
 				prescaled_tick<='1';
 				prescale_counter<=to_unsigned(prescale_adj,16);
 			end if;

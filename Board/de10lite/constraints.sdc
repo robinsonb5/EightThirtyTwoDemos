@@ -1,6 +1,7 @@
 create_clock -name {MAX10_CLK1_50} -period 20.000 -waveform {0.000 10.000} { MAX10_CLK1_50 }
 
 derive_pll_clocks -create_base_clocks
+derive_clock_uncertainty
 
 create_generated_clock -name sdram_clock -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[0]}] [get_ports DRAM_CLK] 
 create_generated_clock -name sysclk -source [get_pins {U00|altpll_component|auto_generated|pll1|clk[1]}]  

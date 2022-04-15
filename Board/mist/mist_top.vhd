@@ -265,7 +265,8 @@ port map
 	vga_window => vga_window,
 	
 	-- sdram
-	sdr_data => SDRAM_DQ,
+	sdr_data_in => SDRAM_DQ,
+	sdr_data_out => SDRAM_DQ,
 	sdr_addr => SDRAM_A,
 	sdr_dqm(1) => SDRAM_DQMH,
 	sdr_dqm(0) => SDRAM_DQML,

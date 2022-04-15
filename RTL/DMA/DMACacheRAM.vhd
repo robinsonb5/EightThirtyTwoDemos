@@ -1,4 +1,4 @@
--- Generic RTL expression of Dual port RAM with one read and one write port, unregistered output.
+-- Generic RTL expression of Dual port RAM with one read and one write port, registered output.
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -29,7 +29,7 @@ begin
 
 process (clock)
 begin
-	if (clock'event and clock = '1') then
+	if rising_edge(clock) then
 		if wren='1' then
 			ram(to_integer(unsigned(wraddress))) := data;
 		end if;
@@ -38,7 +38,9 @@ end process;
 
 process (clock)
 begin
-	q <= ram(to_integer(unsigned(rdaddress)));
+	if rising_edge(clock) then
+		q <= ram(to_integer(unsigned(rdaddress)));
+	end if;
 end process;
 
 end rtl;

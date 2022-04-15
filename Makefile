@@ -35,6 +35,15 @@ else
 	done
 endif
 
+config:
+ifdef BOARD
+	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=config
+else
+	@for BOARD in ${BOARDS}; do \
+		make --quiet -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=config; \
+	done
+endif
+
 clean: firmware_clean
 ifdef BOARD
 	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=clean

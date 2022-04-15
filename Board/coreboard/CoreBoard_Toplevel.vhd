@@ -149,8 +149,9 @@ myproject : entity work.VirtualToplevel
 
 			-- SDRAM - presenting a single interface to both chips.
 			sdr_addr => SDRAM_Addr,
-			sdr_data => SDRAM_DQ,
-			sdr_ba => SDRAM_BA,
+			sdr_data_in => SDRAM_DQ,
+			sdr_data_out => SDRAM_DQ,
+			sdr_ba => SDRsAM_BA,
 			sdr_cke => SDRAM_CKE,
 			sdr_dqm => SDRAM_DQM,
 			sdr_cs => SDRAM_CS_N,

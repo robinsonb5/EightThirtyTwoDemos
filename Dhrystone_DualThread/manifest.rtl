@@ -3,7 +3,7 @@
 ../RTL/Peripherals/interrupt_controller.vhd
 ../RTL/Peripherals/timer_controller.vhd
 Firmware/Dhrystone_ROM.rom
-RTL/Dhrystone_VirtualToplevel.vhd
-RTL/Toplevel_Config.vhd
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
+RTL/Toplevel_Config.vhd
+RTL/Dhrystone_VirtualToplevel.vhd
 

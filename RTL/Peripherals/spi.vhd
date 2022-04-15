@@ -41,13 +41,15 @@ begin
 -----------------------------------------------------------------	
 	spiclk_out <= sck;
 	busy <= shiftcnt(5) or trigger;
-   spi_to_host <= X"000000"&sd_shift;
+	spi_to_host <= X"000000"&sd_shift;
 
 	PROCESS (sysclk, reset) BEGIN
 
 		IF reset ='0' THEN 
-			shiftcnt(5)<='0';
+			shiftcnt<=(others => '0');
 			sck <= '0';
+			mosi <= '1';
+			sd_shift<=(others =>'1');
 		ELSIF rising_edge(sysclk) then
 			IF trigger='1' then
 --				shiftcnt <= "1" & wide & wide & "111";  -- shift out 8 (or 32) bits, underflow will clear bit 5, mapped to busy

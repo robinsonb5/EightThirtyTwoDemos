@@ -1,9 +1,9 @@
+RTL/Toplevel_Config.vhd
 ../RTL/Peripherals/simple_uart.vhd
 ../RTL/Peripherals/jtag_uart.vhd
 ../RTL/Peripherals/interrupt_controller.vhd
 ../RTL/Peripherals/timer_controller.vhd
+../EightThirtyTwo/RTL/eightthirtytwo.qip
 Firmware/Interrupts_ROM.rom
 RTL/Interrupts_VirtualToplevel.vhd
-RTL/Toplevel_Config.vhd
-../EightThirtyTwo/RTL/eightthirtytwo.qip
 

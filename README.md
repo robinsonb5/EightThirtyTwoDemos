@@ -70,9 +70,8 @@ This project sets up and fills a simple VGA framebuffer.  Requires SDRAM, so won
 be built for boards which don't have it.
 
 ### Interrupts:
-Similar to the VGA demo, this project sets up and fills a simple VGA framebuffer but
-also sets up a vblank interrupt to scroll it.  Requires SDRAM, so won't
-be built for boards which don't have it.
+This project sets up a timer interrupt and prints a message to the serial console
+every second.
 
 ### Dhrystone:
 The firmware for this project is written in C and compiled using the vbcc backend.
@@ -91,8 +90,8 @@ and each thread greets the user over serial in turn.
 ### Debug:
 A project demonstrating the use of 832's debug interface, which allows the
 832ocd program to connect to the CPU over JTAG, using quartus_stp as a bridge.
-Currently this is Altera/Intel only, though there's no reason why something
-similar wouldn't be possible with Xilinx parts.
+Currently this is usable on Altera/Intel and Xilinx parts - porting to Lattice
+and Yosys is still to be done.
 
 ### SoC:
 This project includes a System-on-Chip with VGA framebuffer, PS/2 keyboard and

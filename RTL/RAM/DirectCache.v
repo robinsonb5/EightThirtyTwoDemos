@@ -24,7 +24,7 @@
 // To do - can we create an L1 cache that tracks the address immediately?
 
 
-module DirectMappedCache
+module DirectMappedCache #(parameter cachebits=11)
 (
 	input clk,
 	input reset, // active low
@@ -48,8 +48,6 @@ module DirectMappedCache
 	input flush,
 	output [2:0] debug
 );
-
-parameter cachebits=10;
 
 // Debugging
 reg cache_error;
@@ -75,24 +73,28 @@ wire [31:0] data_q;
 reg[31:0] data_w;
 reg data_wren;
 
-wire [cachebits-1:0] tag_a;
+wire [cachebits-2:0] tag_a;
 wire [31:0] tag_q;
 reg [31:0] tag_w;
 reg tag_wren;
 
-defparam dataram.addrbits = cachebits;
-defparam dataram.databits = 32;
+//defparam dataram.addrbits = cachebits;
+//defparam dataram.databits = 32;
 
-DualPortRAM dataram(
-	.clock(clk),
-	.address_a(data_a),
-	.address_b(tag_a),
-	.data_a(data_w),
-	.data_b(tag_w),
-	.q_a(data_q),
-	.q_b(tag_q),
-	.wren_a(data_wren),
-	.wren_b(tag_wren)
+DirectCacheRAM #(.addrbits(cachebits)) dataram (
+	.clk(clk),
+	.address(data_a),
+	.data(data_w),
+	.q(data_q),
+	.wren(data_wren)
+);
+
+DirectCacheRAM #(.addrbits(cachebits-1)) tagram (
+	.clk(clk),
+	.address(tag_a),
+	.data(tag_w),
+	.q(tag_q),
+	.wren(tag_wren)
 );
 
 wire data_valid;
@@ -128,8 +130,8 @@ reg [1:0] readword;
 
 assign cacheline = {1'b0,cpu_addr[cachebits:4],(readword_burst ? readword : cpu_addr[3:2])};
 
-assign tag_a = init ? {1'b1,initctr} :
-			{3'b100,cpu_addr[cachebits:4]};
+assign tag_a = init ? initctr :
+			{2'b00,cpu_addr[cachebits:4]};
 
 wire tag_hit;
 assign tag_hit = tag_q[27:0]==cpu_addr[31:4];
@@ -379,5 +381,25 @@ begin
 		state<=INIT;
 end
 
+
+endmodule
+
+module DirectCacheRAM #(parameter addrbits=10) (
+	input clk,
+	input [addrbits-1:0] address,
+	input [31:0] data,
+	output reg [31:0] q,
+	input wren
+);
+
+reg [31:0] storage[0:(2**addrbits)-1];
+
+always @(posedge clk) begin
+	if(wren) begin
+		storage[address]<=data;
+		q<=data;
+	end else
+		q<=storage[address];
+end
 
 endmodule

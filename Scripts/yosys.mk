@@ -9,7 +9,7 @@ SCRIPTSDIR=../../../Scripts
 include $(BOARDDIR)/board.mk
 
 TARGET=$(PROJECT).json
-
+SVFFILE=$(PROJECT).svf
 BITFILE=$(PROJECT).bit
 CFGFILE=$(PROJECT).config
 
@@ -18,6 +18,13 @@ ALL: init compile
 init: $(TARGET)
 
 compile: $(BITFILE)
+
+config: $(SVFFILE)
+	openocd -f $(BOARDDIR)/target.cfg -c \
+	"   init; \
+	    scan_chain; \
+	    svf -tap target.tap -quiet -progress ${SVFFILE}; \
+	    exit;"
 
 clean:
 	-rm $(TARGET)
@@ -35,5 +42,7 @@ $(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf
 	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
 
 $(BITFILE): $(CFGFILE)
-	$(TOOLPATH)ecppack --svf ${TARGET}.svf $< $@
+	$(TOOLPATH)ecppack --svf ${SVFFILE} $< $@
+
+$(SVFFILE): $(BITFILE)
 

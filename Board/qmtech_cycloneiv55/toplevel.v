@@ -57,7 +57,8 @@ VirtualToplevel #(.sdram_rows(13), .sdram_cols(9), .sysclk_frequency(1000)) virt
 //		vga_vsync 	: buffer std_logic;
 //		vga_window	: out std_logic;
 
-	.sdr_data(DRAM_DQ),
+	.sdr_data_in(DRAM_DQ),
+	.sdr_data_out(DRAM_DQ),
 	.sdr_addr(DRAM_ADDR),
 	.sdr_dqm({DRAM_UDQM,DRAM_LDQM}),
 	.sdr_we(DRAM_WE_N),

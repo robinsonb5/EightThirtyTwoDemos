@@ -312,7 +312,8 @@ myReset : entity work.gen_reset
 			
 			-- SDRAM
 			sdr_addr => ram_addr(12 downto 0),
-			sdr_data(15 downto 0) => ram_data,
+			sdr_data_in(15 downto 0) => ram_data,
+			sdr_data_out(15 downto 0) => ram_data,
 			sdr_ba(1) => ram_ba_1,
 			sdr_ba(0) => ram_ba_0,
 			sdr_cke => open, -- sd_cke,

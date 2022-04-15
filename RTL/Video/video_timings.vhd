@@ -37,6 +37,8 @@ entity video_timings is
 		vsync_n : out std_logic;
 		hblank_n : out std_logic;
 		vblank_n : out std_logic;
+		hblank_stb : out std_logic;
+		vblank_stb : out std_logic;
 		
 		-- Pixel positions
 		xpos : out unsigned(hFramingBits-1 downto 0);
@@ -67,6 +69,7 @@ architecture rtl of video_timings is
 	signal vb_internal : std_logic;
 begin
 
+pixel_stb<=pixel_stb_r;
 hblank_n <= hb_internal;
 vblank_n <= vb_internal;
 xpos <= hcounter when hb_internal='1' else (others => '0');
@@ -84,17 +87,20 @@ begin
 		hb_internal<='1';
 		vb_internal<='1';
 	elsif rising_edge(clk) then	
-		pixel_stb<='0';
+		hblank_stb<='0';
+		vblank_stb<='0';
+		pixel_stb_r<='0';
 		clkdivCnt<=clkdivCnt+1;
 
 		if clkdivCnt=clkdiv then -- new pixel
-			pixel_stb<='1';
+			pixel_stb_r<='1';
 			
 			-- Horizontal counters
 			
 			hcounter<=hcounter+1;
 
 			if hcounter=hbstart then
+				hblank_stb<='1';
 				hb_internal<='0';
 			end if;
 			
@@ -114,7 +120,8 @@ begin
 			
 			-- Vertical counters
 
-			if vcounter=vbstart then
+			if hcounter=hsstop and vcounter=vbstart then
+				vblank_stb<='1';
 				vb_internal<='0';
 			end if;
 			

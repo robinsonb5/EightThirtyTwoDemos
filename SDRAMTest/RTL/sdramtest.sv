@@ -1,9 +1,12 @@
 // SDRAM testbench
 
 module sdramtest #(parameter sysclk_frequency=1000) (
-	input  wire       clk,
-	input  wire       reset_in,
-	inout [15:0] DRAM_DQ,
+	input  wire clk,
+	input  wire slowclk,
+	input  wire reset_in,
+	output DRAM_DRIVE_DQ,
+	input [15:0] DRAM_DQ_IN,
+	output [15:0] DRAM_DQ_OUT,
 	output [`SDRAM_ROWBITS-1:0]	DRAM_ADDR,
 	output DRAM_LDQM,
 	output DRAM_UDQM,
@@ -11,19 +14,30 @@ module sdramtest #(parameter sysclk_frequency=1000) (
 	output DRAM_RAS_N,
 	output DRAM_CAS_N,
 	output DRAM_CS_N,
-	output [1:0] DRAM_BA
+	output [1:0] DRAM_BA,
+	output hs,
+	output vs,
+	output reg [7:0] r,
+	output reg [7:0] g,
+	output reg [7:0] b,
+	output vena,
+	output pixel
 );
 
 reg jtag_reset=1'b1;
 wire reset_n;
 assign reset_n = jtag_reset & reset_in;
 
+
 // 5 ports under test
 
 wire [4:0] errors;
 wire [15:0] errorbits[5];
+reg  [15:0] errorbits_cumulative[5];
 wire [31:0] readcount[5];
 wire [31:0] errorcount[5];
+
+wire [15:0] port_din[5];
 
 
 // Test the ROM ports
@@ -39,6 +53,7 @@ wire [15:0] rom_din;
 wire [15:0] rom_dout;
 
 assign rom_req = rom_we ? romwr_req : romrd_req;
+assign port_din[0] = rom_din;
 
 porttest #(.addrwidth(rom_high),.datawidth(16),.cyclewidth(4)) romport
 (
@@ -73,6 +88,7 @@ wire [7:0] wram_din;
 wire [15:0] wram_dout;
 
 assign wram_req = wram_we ? wram_wr_req : wram_rd_req;
+assign port_din[1] = wram_din;
 
 porttest #(.addrwidth(wram_high),.datawidth(8),.cyclewidth(4)) wramport
 (
@@ -107,6 +123,7 @@ wire [15:0] vram0_din;
 wire [15:0] vram0_dout;
 
 assign vram0_req = vram0_we ? vram0_wr_req : vram0_rd_req;
+assign port_din[2] = vram0_din;
 
 porttest #(.addrwidth(vram0_high),.datawidth(16),.cyclewidth(3)) vram0port
 (
@@ -141,6 +158,7 @@ wire [15:0] vram1_din;
 wire [15:0] vram1_dout;
 
 assign vram1_req = vram1_we ? vram1_wr_req : vram1_rd_req;
+assign port_din[3] = vram1_din;
 
 porttest #(.addrwidth(vram1_high),.datawidth(16),.cyclewidth(3)) vram1port
 (
@@ -175,6 +193,7 @@ wire [7:0] aram_din;
 wire [15:0] aram_dout;
 
 assign aram_req = aram_we ? aram_wr_req : aram_rd_req;
+assign port_din[4] = aram_din;
 
 porttest #(.addrwidth(aram_high),.datawidth(8),.cyclewidth(4)) aramport
 (
@@ -206,7 +225,9 @@ end
 	
 // SDRAM controller
 sdram #(.SDRAM_tCK(10000000/sysclk_frequency)) sdram_ctrl (
-	.SDRAM_DQ(DRAM_DQ),   // 16 bit bidirectional data bus
+	.SDRAM_DRIVE_DQ(DRAM_DRIVE_DQ),   // 16 bit bidirectional data bus
+	.SDRAM_DQ_IN(DRAM_DQ_IN),   // 16 bit bidirectional data bus
+	.SDRAM_DQ_OUT(DRAM_DQ_OUT),   // 16 bit bidirectional data bus
 	.SDRAM_A(DRAM_ADDR),    // 13 bit multiplexed address bus
 	.SDRAM_DQML(DRAM_LDQM), // two byte masks
 	.SDRAM_DQMH(DRAM_UDQM), // two byte masks
@@ -234,10 +255,10 @@ localparam jtag_wait=5;
 localparam jtag_doreset=6;
 reg [2:0] jtag_nextstate;
 reg [2:0] jtag_state;
-wire jtag_req;
+reg jtag_req;
 wire jtag_ack;
-wire jtag_wr;
-wire [31:0] jtag_d;
+reg jtag_wr;
+reg [31:0] jtag_d;
 wire [31:0] jtag_q;
 
 always @(posedge clk or negedge reset_in) begin
@@ -299,15 +320,111 @@ end
 
 // This bridge is borrowed from the EightThirtyTwo debug interface
 
-debug_bridge_jtag #(.id('h55aa)) bridge (
+//debug_bridge_jtag #(.id('h55aa)) bridge (
+//	.clk(clk),
+//	.reset_n(reset_n),
+//	.d(jtag_d),
+//	.q(jtag_q),
+//	.req(jtag_req),
+//	.wr(jtag_wr),
+//	.ack(jtag_ack)
+//);
+
+
+// Video timings / frame generation
+
+wire [10:0] xpos;
+wire hb;
+wire vb;
+wire vb_stb;
+wire hs_i;
+wire vs_i;
+
+assign vs = vs_i;
+assign hs = hs_i;
+
+video_timings vt
+(
 	.clk(clk),
 	.reset_n(reset_n),
-	.d(jtag_d),
-	.q(jtag_q),
-	.req(jtag_req),
-	.wr(jtag_wr),
-	.ack(jtag_ack)
+	.hsync_n(hs_i),
+	.vsync_n(vs_i),
+	.hblank_n(hb),
+	.vblank_n(vb),
+	.vblank_stb(vb_stb),
+	.xpos(xpos),
+	.pixel_stb(pixel),
+	.clkdiv(`SDRAM_tCKminCL2 < 10000 ? 4 : 3),
+	
+	.htotal(11'd800),
+	.hbstart(11'd640),
+	.hsstart(11'd656),
+	.hsstop(11'd752),
+
+	.vtotal(11'd523),
+	.vbstart(11'd480),
+	.vsstart(11'd491),
+	.vsstop(11'd493) 
 );
+
+assign vena=hb&vb;
+
+// Widen strobe pulses so they're visible from slowclk
+reg vb_stb_d;
+always @(posedge clk)
+	vb_stb_d<=vb_stb;
+wire vb_stb_slowclk=vb_stb|vb_stb_d;
+
+
+// Render the heatmap
+
+reg [7:0] hm_idx;
+reg [7:0] hm_v;
+always @(posedge slowclk) begin
+	hm_idx<=xpos[10:3];
+	hm_v<=heatmap[hm_idx];
+
+	if(hb&vb) begin
+		r<=hm_v;
+		g<=hm_v ^ 8'hff;
+		b<=hm_idx; //8'b0;
+	end else begin
+		r<=8'b0;
+		g<=8'b0;
+		b<=8'b0;
+	end
+end
+
+
+// Build a "heat map" of error bits
+
+reg [7:0] heatmap [5*16]; /* 5 ports under test */
+
+integer port;
+integer errorbit;
+
+always @(posedge slowclk or negedge reset_n) begin
+	if(!reset_n) begin
+		for(port=0;port<5;port=port+1)
+			errorbits_cumulative[port]<=16'h0;
+	end else begin
+		for(port=0;port<5;port=port+1) begin
+			if(vb_stb_slowclk) begin
+				for(errorbit=0;errorbit<16;errorbit=errorbit+1) begin
+					if(|heatmap[port*16+errorbit])
+						heatmap[port*16+errorbit]<=heatmap[port*16+errorbit]-8'b1;
+				end
+			end
+			if(errors[port]) begin
+				errorbits_cumulative[port]<=errorbits_cumulative[port]|errorbits[port];
+				for(errorbit=0;errorbit<16;errorbit=errorbit+1) begin
+					if (errorbits[port][errorbit])
+						heatmap[port*16+errorbit]<=8'hff;
+				end			
+			end			
+		end
+	end
+end
 
 
 endmodule

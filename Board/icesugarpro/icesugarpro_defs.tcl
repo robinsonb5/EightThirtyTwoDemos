@@ -5,3 +5,5 @@ set device --25k
 set device_package CABGA256
 set device_speed 6
 
+lappend verilog_files ${boardpath}/${board}/icesugarpro_sdram_defs.v
+

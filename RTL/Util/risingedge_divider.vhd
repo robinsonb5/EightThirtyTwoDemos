@@ -22,7 +22,7 @@ architecture behavioural of risingedge_divider is
 constant divisor_adj : integer := divisor-1;
 signal counter : unsigned(bits-1 downto 0);
 begin
-	process(clk)
+	process(clk,reset_n)
 	begin
 		if reset_n='0' then
 			counter<=(others=>'0');

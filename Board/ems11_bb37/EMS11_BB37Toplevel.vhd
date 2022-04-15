@@ -291,7 +291,8 @@ project: entity work.VirtualToplevel
 		vga_window => vga_window,
 
 		-- SDRAM
-		sdr_data => DR_D,
+		sdr_data_in => DR_D,
+		sdr_data_out => DR_D,
 		sdr_addr => DR_A(12 downto 0),
 		sdr_dqm(1) => DR_DQMH,
 		sdr_dqm(0) => DR_DQML,

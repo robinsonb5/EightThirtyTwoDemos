@@ -24,7 +24,9 @@ entity VirtualToplevel is
 		vga_window	: out std_logic;
 
 		-- SDRAM
-		sdr_data		: inout std_logic_vector(15 downto 0);
+		sdr_drive_data	: out std_logic;
+		sdr_data_in		: in std_logic_vector(15 downto 0);
+		sdr_data_out	: inout std_logic_vector(15 downto 0);
 		sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
 		sdr_dqm 		: out std_logic_vector(1 downto 0);
 		sdr_we 		: out std_logic;
@@ -125,6 +127,8 @@ signal mem_rd_d : std_logic;
 signal mem_wr_d : std_logic; 
 signal rom_wr : std_logic;
 
+signal peripheral_addr : std_logic_vector(3 downto 0);
+
 begin
 
 ps2k_dat_out<='1';
@@ -138,7 +142,8 @@ audio_r <= X"0000";
 sdr_cke <='0'; -- Disable SDRAM for now
 sdr_cs <='1'; -- Disable SDRAM for now
 
-sdr_data <=(others => 'Z');
+sdr_drive_data <= '0';
+sdr_data_out <=(others => 'Z');
 sdr_addr <=(others => '1');
 sdr_dqm <=(others => '1');
 sdr_we <='1';
@@ -335,7 +340,7 @@ int_triggers<=(0=>timer_tick, others => '0');
 		ack => cpu_ack
 	);
 
-
+peripheral_addr <= cpu_addr(31)&cpu_addr(10 downto 8);
 
 process(clk)
 begin
@@ -350,7 +355,7 @@ begin
 
 		-- Write from CPU?
 		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
-			case cpu_addr(31)&cpu_addr(10 downto 8) is
+			case peripheral_addr is
 				when X"C" =>	-- Timer controller at 0xFFFFFC00
 					timer_reg_req<='1';
 					mem_busy<='0';	-- Audio controller never blocks the CPU

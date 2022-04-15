@@ -141,7 +141,8 @@ virtualtoplevel : entity work.VirtualToplevel
 		vga_window => vga_window,
 
 		-- SDRAM
-		sdr_data => DRAM_DQ(15 downto 0),
+		sdr_data_in => DRAM_DQ(15 downto 0),
+		sdr_data_out => DRAM_DQ(15 downto 0),
 		sdr_addr	=> DRAM_ADDR,
 		sdr_dqm => DRAM_DQM(1 downto 0),
 		sdr_we => DRAM_WE_N,

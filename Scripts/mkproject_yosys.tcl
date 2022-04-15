@@ -35,13 +35,20 @@ if {[info exists vhdl_files]} {
 		exec ghdl -a $f
 	}
 }
+if { [info exists vhdl_hierarchies] == 1 } {
+	foreach {h} $vhdl_hierarchies {
+		yosys ghdl $h
+	}
+}
 if {[info exists verilog_files]} {
 	foreach {f} $verilog_files {
-		yosys read_verilog $f
+		yosys read_verilog -sv $f
 	}
 }
 yosys ghdl ${topmodule}
-
 # Create .json file
-yosys synth_ecp5 -json ${corename}.json
+yosys synth_ecp5 -top ${topmodule} -json ${corename}.json
+# yosys hierarchy -top ${topmodule}
+# yosys proc
+# yosys scc -specify
 

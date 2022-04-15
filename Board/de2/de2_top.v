@@ -396,7 +396,8 @@ VirtualToplevel myvirtualtoplevel
 	.vga_window(vga_window),
 	
 	// sdram
-	.sdr_data(DRAM_DQ),
+	.sdr_data_in(DRAM_DQ),
+	.sdr_data_out(DRAM_DQ),
 	.sdr_addr(DRAM_ADDR),
 	.sdr_dqm({DRAM_UDQM,DRAM_LDQM}),
 	.sdr_we(DRAM_WE_N),
