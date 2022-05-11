@@ -3,5 +3,4 @@
 ../../RTL/Util/cdc_bus.vhd
 ../../RTL/Sound/i2s_dac.vhd
 ../../RTL/Sound/hybrid_pwm_sd_2ndorder.v
-icesugarpro_pmod_pkg.vhd
 

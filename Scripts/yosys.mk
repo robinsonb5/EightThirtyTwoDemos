@@ -42,7 +42,7 @@ $(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf
 	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
 
 $(BITFILE): $(CFGFILE)
-	$(TOOLPATH)ecppack --svf ${SVFFILE} $< $@
+	$(TOOLPATH)ecppack --svf $(SVFFILE) $< $@
 
 $(SVFFILE): $(BITFILE)
 

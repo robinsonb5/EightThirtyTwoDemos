@@ -227,25 +227,6 @@ begin
 --		trace_out => trace
 	);
 
-	-- PS/2 tristating
-
-	-- Instantiate IOs explicitly to avoid potential issues with tristate signals.
-	ps2kd : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_KDAT+ps2_pmod_offset), I => '0',	T => ps2k_dat_out, O => ps2k_dat_in );
-	ps2kc : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_KCLK+ps2_pmod_offset), I => '0',	T => ps2k_clk_out, O => ps2k_clk_in );
-	ps2md : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_MDAT+ps2_pmod_offset), I => '0',	T => ps2m_dat_out, O => ps2m_dat_in );
-	ps2mc : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_MCLK+ps2_pmod_offset), I => '0',	T => ps2m_clk_out, O => ps2m_clk_in );
-
-	--ps2_pmod_in<=P6_pmod_high;
---	ps2_pmod(0) <= 'Z' when ps2k_dat_out='1' else '0';
---	ps2_pmod(1) <= 'Z' when ps2m_dat_out='1' else '0';
---	ps2_pmod(2) <= 'Z' when ps2k_clk_out='1' else '0';
---	ps2_pmod(3) <= 'Z' when ps2m_clk_out='1' else '0';
-
---	ps2k_dat_in<=ps2_pmod(0);
---	ps2m_dat_in<=ps2_pmod(1);
---	ps2k_clk_in<=ps2_pmod(2);
---	ps2m_clk_in<=ps2_pmod(3);
-
 
 	genvideo: if Toplevel_UseVGA=true generate
 		-- Dither the video down to 4 bits per gun.
@@ -276,6 +257,11 @@ begin
 
 
 	genaudio: if Toplevel_UseAudio=true generate
+		signal i2s_mclk : std_logic;
+		signal i2s_sclk : std_logic;
+		signal i2s_lrclk : std_logic;
+		signal i2s_sdata : std_logic;
+	begin
 	audio_l_msb <= not audio_l(15);
 	audio_r_msb <= not audio_r(15);
 
@@ -305,22 +291,36 @@ begin
 			left_in => std_logic_vector(audio_l),
 			right_in => std_logic_vector(audio_r),
 			--
-			mclk => i2s_pmod(PMOD_I2S_DA_MCLK),
-			sclk => i2s_pmod(PMOD_I2S_DA_SCLK),
-			lrclk => i2s_pmod(PMOD_I2S_DA_LRCK),
-			sdata => i2s_pmod(PMOD_I2S_DA_SDIN)
+			mclk => i2s_mclk,
+			sclk => i2s_sclk,
+			lrclk => i2s_lrclk,
+			sdata => i2s_sdata
 		);
 
+		i2smclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_MCLK), I => i2s_mclk, T => '0', O => open );
+		i2ssclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_SCLK), I => i2s_sclk, T => '0', O => open );
+		i2slrclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_LRCK), I => i2s_lrclk, T => '0', O => open );
+		i2ssdata : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_SDIN), I => i2s_sdata, T => '0', O => open );
+
 	end generate;	
+
+
+	-- PS/2 tristating
+
+	-- Instantiate IOs explicitly to avoid potential issues with tristate signals.
+	ps2kd : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_KDAT+ps2_pmod_offset), I => '0',	T => ps2k_dat_out, O => ps2k_dat_in );
+	ps2kc : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_KCLK+ps2_pmod_offset), I => '0',	T => ps2k_clk_out, O => ps2k_clk_in );
+	ps2md : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_MDAT+ps2_pmod_offset), I => '0',	T => ps2m_dat_out, O => ps2m_dat_in );
+	ps2mc : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_MCLK+ps2_pmod_offset), I => '0',	T => ps2m_clk_out, O => ps2m_clk_in );
 
 
 	-- PMOD-based SD card socket
 	genpmodsd : if use_pmod_sdcard=true generate
 		-- Instantiate a TRELLIS_IO manually to create an input from the "inout" PMOD ports.
-		sdcardmiso : component TRELLIS_IO port map ( B => sdcard_pmod(PMOD_SD_MISO), I => '0',	T => '1', O => sdcard_miso );
-		sdcard_pmod(PMOD_SD_CS) <= sdcard_cs;
-		sdcard_pmod(PMOD_SD_MOSI) <= sdcard_mosi;
-		sdcard_pmod(PMOD_SD_CLK) <= sdcard_clk;
+		sdcardmiso : component TRELLIS_IO port map ( B => sdcard_pmod(PMOD_SD_MISO), I => '0', T => '1', O => sdcard_miso );
+		sdcardcs : component TRELLIS_IO port map ( B => sdcard_pmod(PMOD_SD_CS), I => sdcard_cs, T => '0', O => open );
+		sdcardmosi : component TRELLIS_IO port map ( B => sdcard_pmod(PMOD_SD_MOSI), I => sdcard_mosi, T => '0', O => open );
+		sdcardclk : component TRELLIS_IO port map ( B => sdcard_pmod(PMOD_SD_CLK), I => sdcard_clk, T => '0', O => open );
 		spisdcard_cs_n <= '1';
 		spisdcard_mosi <= '1';
 		spisdcard_clk <= '1';
@@ -334,34 +334,43 @@ begin
 		sdcard_miso <= spisdcard_miso;
 	end generate;
 
---	capblock : block
---		signal capd : std_logic_vector(63 downto 0);
---		signal capq : std_logic_vector(63 downto 0);
---		signal capu : std_logic;
---	begin
 
---		cap : entity work.jcapture
---		port map(
---			clk => clk_sys,
---			reset_n => pll_locked,
---			d => capd,
---			q => capq,
---			update => capu
---		);
-
---		capd <= trace;
---		process(clk_sys) begin
---			if rising_edge(clk_sys) then
---				if capu='1' then
---					capreset<=capq(0);
---					led_red <= capq(1);
---					led_green <= capq(2);
---					led_blue <= capq(3);
---				end if;
---			end if;
---		end process;
-
---	end block;
+	-- LEDS.  Not so much a "blinky" as a "pulsey"...
+	pwmblock : block
+		signal pwmcounter : unsigned(15 downto 0);
+		signal redctr : unsigned(16 downto 0);
+		signal greenctr : unsigned(16 downto 0);
+		signal bluectr : unsigned(16 downto 0);
+		signal redctr_i : unsigned(15 downto 0);
+		signal greenctr_i : unsigned(15 downto 0);
+		signal bluectr_i : unsigned(15 downto 0);
+	begin
+		redctr_i <= redctr(16 downto 1) when redctr(16)='0' else not redctr(16 downto 1);
+		greenctr_i <= greenctr(16 downto 1) when greenctr(16)='0' else not greenctr(16 downto 1);
+		bluectr_i <= bluectr(16 downto 1) when bluectr(16)='0' else not bluectr(16 downto 1);
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+				pwmcounter<=pwmcounter + 1;
+				if pwmcounter=X"FFFF" then
+					redctr<=redctr+13;
+					greenctr<=greenctr+7;
+					bluectr<=bluectr+19;
+					led_red<='1';
+					led_green<='1';
+					led_blue<='1';
+				end if;
+				if redctr_i = pwmcounter then
+					led_red<='0';
+				end if; 
+				if greenctr_i = pwmcounter then
+					led_green<='0';
+				end if; 
+				if bluectr_i = pwmcounter then
+					led_blue<='0';
+				end if; 
+			end if;
+		end process;
+	end block;
 
 end architecture;
 

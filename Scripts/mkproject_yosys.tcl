@@ -24,7 +24,8 @@ if { ${requires_sdram}==1 && ${have_sdram}==0 } {
 source ${corename}_${board}_files.tcl
 
 # Add clocks to the project
-lappend verilog_files "${boardpath}/../PLL/${fpga}_${base_clock}_${target_frequency_lattice}/pll.v"
+lappend vhdl_files [file normalize "${boardpath}/../PLL/${fpga}_${base_clock}_${target_frequency_lattice}/pll.vhd"]
+puts [file normalize "${boardpath}/../PLL/${fpga}_${base_clock}_${target_frequency_lattice}/pll.vhd"]
 
 # Bring in any standard files or definitions required by the board.
 source ${boardpath}/${board}/${board}_support.tcl
@@ -32,23 +33,27 @@ source ${boardpath}/${board}/${board}_support.tcl
 # Parse HDL files
 if {[info exists vhdl_files]} {
 	foreach {f} $vhdl_files {
+		puts $f
 		exec ghdl -a $f
 	}
 }
 if { [info exists vhdl_hierarchies] == 1 } {
 	foreach {h} $vhdl_hierarchies {
+		puts $h
 		yosys ghdl $h
 	}
 }
 if {[info exists verilog_files]} {
 	foreach {f} $verilog_files {
+		puts $f
 		yosys read_verilog -sv $f
 	}
 }
 yosys ghdl ${topmodule}
 # Create .json file
-yosys synth_ecp5 -top ${topmodule} -json ${corename}.json
-# yosys hierarchy -top ${topmodule}
-# yosys proc
-# yosys scc -specify
+yosys synth_ecp5 -abc9 -top ${topmodule} -json ${corename}.json
+#yosys hierarchy -top ${topmodule}
+#yosys proc
+#yosys bugpoint -script ${boardpath}/${board}/test.ys -clean -grep "combinatorial loop"
+#yosys write_rtlil result.il
 
