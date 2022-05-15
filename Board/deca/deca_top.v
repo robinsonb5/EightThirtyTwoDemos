@@ -183,7 +183,8 @@ VirtualToplevel #(.sdram_rows(13),.sdram_cols(9),.sysclk_frequency(1000),.jtag_u
 	.vga_window(vga_window),
 
 	// SDRAM
-	.sdr_data(SDRAM_DQ),//	: inout std_logic_vector(15 downto 0);
+	.sdr_data_in(SDRAM_DQ),//	: inout std_logic_vector(15 downto 0);
+	.sdr_data_out(SDRAM_DQ),//	: inout std_logic_vector(15 downto 0);
 	.sdr_addr(SDRAM_A),//		: out std_logic_vector((sdram_rows-1) downto 0);
 	.sdr_dqm({SDRAM_DQMH,SDRAM_DQML}),// 		: out std_logic_vector(1 downto 0);
 	.sdr_we(SDRAM_nWE),//		: out std_logic;

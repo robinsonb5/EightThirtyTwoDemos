@@ -46,7 +46,8 @@ entity vga_controller is
 		red : out unsigned(7 downto 0);		-- Allow for 8bpp even if we
 		green : out unsigned(7 downto 0);	-- only currently support 16-bit
 		blue : out unsigned(7 downto 0);		-- 5-6-5 output
-		vga_window : out std_logic	-- '1' during the display window
+		vga_window : out std_logic;	-- '1' during the display window
+		vga_pixel : out std_logic
 	);
 end entity;
 	
@@ -88,6 +89,7 @@ architecture rtl of vga_controller is
 
 begin
 
+	vga_pixel <= end_of_pixel;
 	vsync<=vsync_r;
 	hsync<=hsync_r;
 	vga_window<=vga_window_r;

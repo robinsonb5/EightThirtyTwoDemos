@@ -10,7 +10,10 @@ EightThirtyTwo/vbcc/bin/vbcc832: EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd
 EightThirtyTwo/lib832/lib832.a: EightThirtyTwo/vbcc/bin/vbcc832
 	make -C EightThirtyTwo/lib832
 
-firmware: EightThirtyTwo/vbcc/bin/vbcc832 EightThirtyTwo/lib832/lib832.a
+lib832soc/lib832soc.a: EightThirtyTwo/lib832/lib832.a
+	make -C lib832soc
+
+firmware: EightThirtyTwo/vbcc/bin/vbcc832 lib832soc/lib832soc.a
 	for PROJECT in ${PROJECTS}; do \
 		make -C $$PROJECT/Firmware/; \
 	done

@@ -25,6 +25,7 @@ entity VirtualToplevel is
 		vga_hsync 	: out std_logic;
 		vga_vsync 	: buffer std_logic;
 		vga_window	: out std_logic;
+		vga_pixel	: out std_logic;
 
 		-- SDRAM
 		sdr_drive_data  : out std_logic;
@@ -569,7 +570,8 @@ mysdram : entity work.sdram_cached
 		red => vga_red,
 		green => vga_green,
 		blue => vga_blue,
-		vga_window => vga_window
+		vga_window => vga_window,
+		vga_pixel => vga_pixel
 	);
 
 vga_vsync<=vga_vsync_i;

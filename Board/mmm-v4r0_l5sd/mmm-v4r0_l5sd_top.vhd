@@ -42,8 +42,11 @@ port(
 	sd_m_d3 : out std_logic; -- SPI CS
 	
 	AUDIO_L : out std_logic;
-	AUDIO_R : out std_logic
-
+	AUDIO_R : out std_logic;
+	
+	dio_p : out std_logic_vector(3 downto 0)
+--	dio_n : out std_logic_vector(3 downto 0) -- Don't declare the _n pins - the _p pins are declared as
+	                                         -- LVCMOS33D so their conjugate pairs will be used automatically.
 );
 end entity;
 
@@ -83,19 +86,16 @@ architecture rtl of mmm_v4r0_l5sd_top is
 	signal clk_sdram : std_logic;
 	signal clk_sys : std_logic;
 	signal clk_slow : std_logic;
-	signal clk_none : std_logic;
+	signal clk_tmds : std_logic;
 	signal pll_locked : std_logic;
 
-	signal vga_r : unsigned(3 downto 0);
-	signal vga_g : unsigned(3 downto 0);
-	signal vga_b : unsigned(3 downto 0);
 	signal vga_hs : std_logic;
 	signal vga_vs : std_logic;
-
 	signal vga_r_i : unsigned(7 downto 0);
 	signal vga_g_i : unsigned(7 downto 0);
 	signal vga_b_i : unsigned(7 downto 0);
 	signal vga_window : std_logic;
+	signal vga_pixel : std_logic;
 
 	signal dr_drive_dq : std_logic;
 	signal dr_dq_in : std_logic_vector(15 downto 0);
@@ -126,7 +126,7 @@ begin
 		clk_o(0) => clk_sys,
 		clk_o(1) => clk_sdram,
 		clk_o(2) => clk_slow,
-		clk_o(3) => clk_none,
+		clk_o(3) => clk_tmds,
 		reset => '0',
 		locked => pll_locked
 	);
@@ -154,6 +154,7 @@ begin
 		vga_hsync => vga_hs,
 		vga_vsync => vga_vs,
 		vga_window => vga_window,
+		vga_pixel => vga_pixel,
 
 		spi_miso => sdcard_miso,
 		spi_mosi => sdcard_mosi,
@@ -230,6 +231,77 @@ begin
 			);
 
 	end generate;	
+
+	-- Instantiate DVI out:
+	genvideo: if Toplevel_UseVGA=true generate
+		constant useddr : integer := 1;
+		
+		component dvi
+		generic ( DDR_ENABLED : integer := useddr );
+		port (
+			pclk : in std_logic;
+			tmds_clk : in std_logic; -- 10 times faster of pclk
+
+			in_vga_red : in unsigned(7 downto 0);
+			in_vga_green : in unsigned(7 downto 0);
+			in_vga_blue : in unsigned(7 downto 0);
+
+			in_vga_vsync : in std_logic;
+			in_vga_hsync : in std_logic;
+			in_vga_pixel : in std_logic;
+			in_vga_window : in std_logic;
+
+			out_tmds_red : out std_logic_vector(useddr downto 0);
+			out_tmds_green : out std_logic_vector(useddr downto 0);
+			out_tmds_blue : out std_logic_vector(useddr downto 0);
+			out_tmds_clk : out std_logic_vector(useddr downto 0)
+		); end component;
+		
+		component ODDRX1F
+		port (
+			D0 : in std_logic;
+			D1 : in std_logic;
+			Q : out std_logic;
+			SCLK : in std_logic;
+			RST : in std_logic
+		); end component;
+
+		signal dvi_r : std_logic_vector(useddr downto 0);
+		signal dvi_g : std_logic_vector(useddr downto 0);
+		signal dvi_b : std_logic_vector(useddr downto 0);
+		signal dvi_clk : std_logic_vector(useddr downto 0);
+		
+	begin
+
+		dvi_inst : component dvi
+		generic map (
+			DDR_ENABLED => useddr
+		)
+		port map (
+			pclk => clk_sys,
+			tmds_clk => clk_tmds,
+
+			in_vga_red => vga_r_i,
+			in_vga_green => vga_g_i,
+			in_vga_blue => vga_b_i,
+
+			in_vga_vsync => vga_vs,
+			in_vga_hsync => vga_hs,
+			in_vga_pixel => vga_pixel,
+			in_vga_window => vga_window,
+
+			out_tmds_red => dvi_r,
+			out_tmds_green => dvi_g,
+			out_tmds_blue => dvi_b,
+			out_tmds_clk => dvi_clk
+		);
+		
+		dviout_c : component ODDRX1F port map (D0 => dvi_clk(0), D1=>dvi_clk(1), Q => dio_p(3), SCLK =>clk_tmds, RST=>'0');
+		dviout_r : component ODDRX1F port map (D0 => dvi_r(0), D1=>dvi_r(1), Q => dio_p(2), SCLK =>clk_tmds, RST=>'0');
+		dviout_g : component ODDRX1F port map (D0 => dvi_g(0), D1=>dvi_g(1), Q => dio_p(1), SCLK =>clk_tmds, RST=>'0');
+		dviout_b : component ODDRX1F port map (D0 => dvi_b(0), D1=>dvi_b(1), Q => dio_p(0), SCLK =>clk_tmds, RST=>'0');
+		
+	end generate;
 
 	sd_m_d3 <= sdcard_cs;
 	sd_m_cmd <= sdcard_mosi;

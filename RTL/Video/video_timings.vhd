@@ -51,10 +51,10 @@ entity video_timings is
 		hsstart : in unsigned(hFramingBits-1 downto 0) := to_unsigned(656,hFramingBits);
 		hsstop : in unsigned(hFramingBits-1 downto 0) := to_unsigned(752,hFramingBits);
 
-		vtotal : in unsigned(vFramingBits-1 downto 0) := to_unsigned(523,vFramingBits) ;
+		vtotal : in unsigned(vFramingBits-1 downto 0) := to_unsigned(525,vFramingBits) ;
 		vbstart : in unsigned(vFramingBits-1 downto 0) := to_unsigned(480,vFramingBits) ;
-		vsstart : in unsigned(vFramingBits-1 downto 0) := to_unsigned(491,vFramingBits) ;
-		vsstop : in unsigned(vFramingBits-1 downto 0) := to_unsigned(493,vFramingBits) 
+		vsstart : in unsigned(vFramingBits-1 downto 0) := to_unsigned(490,vFramingBits) ;
+		vsstop : in unsigned(vFramingBits-1 downto 0) := to_unsigned(492,vFramingBits) 
 	);
 end entity;
 

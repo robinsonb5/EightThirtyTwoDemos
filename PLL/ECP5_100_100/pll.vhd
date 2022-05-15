@@ -21,7 +21,7 @@ generic map(
 	out1_hz => 100000,
 	out1_deg => 270,
 	out2_hz => 50000,
-	out3_hz => 100000
+	out3_hz => 125000
 )
 port map (
 	clk_i => clk_i,
