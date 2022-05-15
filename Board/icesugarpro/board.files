@@ -1,5 +1,7 @@
 ../../PLL/ECP5/ecp5pll.vhd
 ../../RTL/Video/video_vga_dither.vhd
+../../RTL/Video/dvi.v
+../../RTL/Video/tmds_encoder.v
 ../../RTL/Util/cdc_bus.vhd
 ../../RTL/Sound/i2s_dac.vhd
 ../../RTL/Sound/hybrid_pwm_sd_2ndorder.v

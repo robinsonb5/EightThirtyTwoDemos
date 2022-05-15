@@ -1,6 +1,8 @@
 PROJECTS="HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread Debug QuadCore"
 
-include site.mk
+FPGA_SITE_MK ?= site.mk
+
+include $(FPGA_SITE_MK)
 
 all: site.mk firmware init compile
 

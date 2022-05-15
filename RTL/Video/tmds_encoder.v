@@ -28,7 +28,7 @@ module tmds_encoder(
            input C0,
            output reg[9:0] q_out = 0
        );
-parameter LEGACY_DVI_CONTROL_LUT = 0;
+parameter LEGACY_DVI_CONTROL_LUT = 1;
 
 function [3:0] N0;
     input [7:0] d;

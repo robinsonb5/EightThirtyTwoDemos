@@ -134,7 +134,7 @@ architecture rtl of icesugarpro_top is
 	signal clk_sdram : std_logic;
 	signal clk_sys : std_logic;
 	signal clk_slow : std_logic;
-	signal clk_none : std_logic;
+	signal clk_tmds : std_logic;
 	signal pll_locked : std_logic;
 
 	signal vga_r : unsigned(3 downto 0);
@@ -147,6 +147,7 @@ architecture rtl of icesugarpro_top is
 	signal vga_g_i : unsigned(7 downto 0);
 	signal vga_b_i : unsigned(7 downto 0);
 	signal vga_window : std_logic;
+	signal vga_pixel : std_logic;
 
 	signal sdram_drive_dq : std_logic;
 	signal sdram_dq_in : std_logic_vector(15 downto 0);
@@ -167,7 +168,7 @@ begin
 		clk_o(0) => clk_sys,
 		clk_o(1) => clk_sdram,
 		clk_o(2) => clk_slow,
-		clk_o(3) => clk_none,
+		clk_o(3) => clk_tmds,
 		locked => pll_locked
 	);
 
@@ -194,6 +195,7 @@ begin
 		vga_hsync => vga_hs,
 		vga_vsync => vga_vs,
 		vga_window => vga_window,
+		vga_pixel => vga_pixel,
 
 		spi_miso => sdcard_miso,
 		spi_mosi => sdcard_mosi,
@@ -228,8 +230,106 @@ begin
 	);
 
 
+	-- Instantiate DVI out:
 	genvideo: if Toplevel_UseVGA=true generate
-		-- Dither the video down to 4 bits per gun.
+		constant useddr : integer := 1;
+		
+		component dvi
+		generic ( DDR_ENABLED : integer := useddr );
+		port (
+			pclk : in std_logic;
+			tmds_clk : in std_logic; -- 10 times faster of pclk
+
+			in_vga_red : in unsigned(7 downto 0);
+			in_vga_green : in unsigned(7 downto 0);
+			in_vga_blue : in unsigned(7 downto 0);
+
+			in_vga_vsync : in std_logic;
+			in_vga_hsync : in std_logic;
+			in_vga_pixel : in std_logic;
+			in_vga_window : in std_logic;
+
+			out_tmds_red : out std_logic_vector(useddr downto 0);
+			out_tmds_green : out std_logic_vector(useddr downto 0);
+			out_tmds_blue : out std_logic_vector(useddr downto 0);
+			out_tmds_clk : out std_logic_vector(useddr downto 0);
+			out_tmds_red_n : out std_logic_vector(useddr downto 0);
+			out_tmds_green_n : out std_logic_vector(useddr downto 0);
+			out_tmds_blue_n : out std_logic_vector(useddr downto 0);
+			out_tmds_clk_n : out std_logic_vector(useddr downto 0)
+		); end component;
+		
+		component ODDRX1F
+		port (
+			D0 : in std_logic;
+			D1 : in std_logic;
+			Q : out std_logic;
+			SCLK : in std_logic;
+			RST : in std_logic
+		); end component;
+
+		signal dvi_r : std_logic_vector(useddr downto 0);
+		signal dvi_g : std_logic_vector(useddr downto 0);
+		signal dvi_b : std_logic_vector(useddr downto 0);
+		signal dvi_clk : std_logic_vector(useddr downto 0);
+		signal dvi_r_n : std_logic_vector(useddr downto 0);
+		signal dvi_g_n : std_logic_vector(useddr downto 0);
+		signal dvi_b_n : std_logic_vector(useddr downto 0);
+		signal dvi_clk_n : std_logic_vector(useddr downto 0);
+		
+	begin
+
+		dvi_inst : component dvi
+		generic map (
+			DDR_ENABLED => useddr
+		)
+		port map (
+			pclk => clk_sys,
+			tmds_clk => clk_tmds,
+
+			in_vga_red => vga_r_i,
+			in_vga_green => vga_g_i,
+			in_vga_blue => vga_b_i,
+
+			in_vga_vsync => vga_vs,
+			in_vga_hsync => vga_hs,
+			in_vga_pixel => vga_pixel,
+			in_vga_window => vga_window,
+
+			out_tmds_red => dvi_r,
+			out_tmds_green => dvi_g,
+			out_tmds_blue => dvi_b,
+			out_tmds_clk => dvi_clk,
+			out_tmds_red_n => dvi_r_n,
+			out_tmds_green_n => dvi_g_n,
+			out_tmds_blue_n => dvi_b_n,
+			out_tmds_clk_n => dvi_clk_n
+		);
+
+		dviout_c : component ODDRX1F port map (D0 => dvi_clk(0), D1=>dvi_clk(1), Q => gpdi_dp(3), SCLK =>clk_tmds, RST=>'0');
+		dviout_r : component ODDRX1F port map (D0 => dvi_r(0), D1=>dvi_r(1), Q => gpdi_dp(2), SCLK =>clk_tmds, RST=>'0');
+		dviout_g : component ODDRX1F port map (D0 => dvi_g(0), D1=>dvi_g(1), Q => gpdi_dp(1), SCLK =>clk_tmds, RST=>'0');
+		dviout_b : component ODDRX1F port map (D0 => dvi_b(0), D1=>dvi_b(1), Q => gpdi_dp(0), SCLK =>clk_tmds, RST=>'0');
+		dviout_c_n : component ODDRX1F port map (D0 => dvi_clk_n(0), D1=>dvi_clk_n(1), Q => gpdi_dn(3), SCLK =>clk_tmds, RST=>'0');
+		dviout_r_n : component ODDRX1F port map (D0 => dvi_r_n(0), D1=>dvi_r_n(1), Q => gpdi_dn(2), SCLK =>clk_tmds, RST=>'0');
+		dviout_g_n : component ODDRX1F port map (D0 => dvi_g_n(0), D1=>dvi_g_n(1), Q => gpdi_dn(1), SCLK =>clk_tmds, RST=>'0');
+		dviout_b_n : component ODDRX1F port map (D0 => dvi_b_n(0), D1=>dvi_b_n(1), Q => gpdi_dn(0), SCLK =>clk_tmds, RST=>'0');
+		
+
+--		process(clk_tmds) begin
+--			if rising_edge(clk_tmds) then
+--				gpdi_dp(3) <= dvi_clk(0);
+--				gpdi_dn(3) <= not dvi_clk(0);
+--				gpdi_dp(2) <= dvi_r(0);
+--				gpdi_dn(2) <= not dvi_r(0);
+--				gpdi_dp(1) <= dvi_g(0);
+--				gpdi_dn(1) <= not dvi_g(0);
+--				gpdi_dp(0) <= dvi_b(0);
+--				gpdi_dn(0) <= not dvi_b(0);
+--			end if;
+--		end process;
+		
+		-- Dither the video down to 4 bits per gun for PMOD VGA out
 
 		mydither : entity work.video_vga_dither
 			generic map(
@@ -254,6 +354,7 @@ begin
 		vga_pmod_low(3 downto 0)<="00"&vga_vs&vga_hs;
 
 	end generate;
+
 
 
 	genaudio: if Toplevel_UseAudio=true generate
