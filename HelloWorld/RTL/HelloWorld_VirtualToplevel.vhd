@@ -23,6 +23,7 @@ entity VirtualToplevel is
 		vga_hsync 	: out std_logic;
 		vga_vsync 	: buffer std_logic;
 		vga_window	: out std_logic;
+		vga_pixel	: out std_logic;
 
 		-- SDRAM
 		sdr_drive_data	: out std_logic;

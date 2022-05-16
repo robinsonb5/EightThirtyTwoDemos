@@ -23,8 +23,9 @@ entity VirtualToplevel is
 		vga_green 	: out unsigned(7 downto 0);
 		vga_blue 	: out unsigned(7 downto 0);
 		vga_hsync 	: out std_logic;
-		vga_vsync 	: buffer std_logic;
+		vga_vsync 	: out std_logic;
 		vga_window	: out std_logic;
+		vga_pixel	: out std_logic;
 
 		-- SDRAM
 		sdr_drive_data	: out std_logic;
@@ -70,11 +71,28 @@ end entity;
 
 architecture rtl of VirtualToplevel is
 
+component debug_bridge_jtag is
+generic (
+	id : natural := 16#832D#
+);
+port (
+	clk : in std_logic;
+	reset_n : in std_logic;
+	d : in std_logic_vector(31 downto 0);
+	q : out std_logic_vector(31 downto 0);
+	req : in std_logic;
+	wr : in std_logic;
+	ack : buffer std_logic
+);
+end component;
+
+
 constant sysclk_hz : integer := sysclk_frequency*1000;
 constant uart_divisor : integer := sysclk_hz/1152;
 constant maxAddrBit : integer := 31;
 
 signal reset_n : std_logic := '0';
+signal reset_p : std_logic;
 signal reset_counter : unsigned(15 downto 0) := X"FFFF";
 
 -- Millisecond counter
@@ -115,6 +133,7 @@ signal int_ack : std_logic;
 signal int_req : std_logic;
 signal int_enabled : std_logic :='0'; -- Disabled by default
 signal int_trigger : std_logic;
+signal cpu_int : std_logic;
 
 
 -- Timer register block signals
@@ -154,6 +173,7 @@ signal vga_fill : std_logic;
 signal vga_refresh : std_logic;
 signal vga_reservebank : std_logic; -- Keep bank clear for instant access.
 signal vga_reserveaddr : std_logic_vector(31 downto 0); -- to SDRAM
+signal vga_vsync_i : std_logic;
 
 signal dma_data : std_logic_vector(15 downto 0);
 
@@ -232,6 +252,7 @@ signal debug_fromcpu : std_logic_vector(31 downto 0);
 signal debug_tocpu : std_logic_vector(31 downto 0);
 signal debug_wr : std_logic;
 
+signal peripheral_block : std_logic_vector(3 downto 0);
 
 begin
 
@@ -252,6 +273,7 @@ begin
 	end if;
 end process;
 
+reset_p <= not reset_n;
 
 -- UART
 
@@ -283,7 +305,7 @@ myuart : entity work.simple_uart
 		)
 		port map (
 			clk => clk,
-			reset => not reset_n, -- active high!
+			reset => reset_p, -- active high!
 			ps2_clk_in => ps2k_clk_in,
 			ps2_dat_in => ps2k_dat_in,
 			ps2_clk_out => ps2k_clk_out,
@@ -306,7 +328,7 @@ myuart : entity work.simple_uart
 		)
 		port map (
 			clk => clk,
-			reset => not reset_n, -- active high!
+			reset => reset_p, -- active high!
 			ps2_clk_in => ps2m_clk_in,
 			ps2_dat_in => ps2m_dat_in,
 			ps2_clk_out => ps2m_clk_out,
@@ -466,14 +488,16 @@ mysdram : entity work.sdram_cached
 		spr0channel_tohost => spr0channel_tohost,
 
 		hsync => vga_hsync,
-		vsync => vga_vsync,
+		vsync => vga_vsync_i,
 		vblank_int => vblank_int,
 		red => vga_red,
 		green => vga_green,
 		blue => vga_blue,
-		vga_window => vga_window
+		vga_window => vga_window,
+		vga_pixel => vga_pixel
 	);
 
+vga_vsync <= vga_vsync_i;
 	
 -- Audio controller
 	
@@ -539,7 +563,7 @@ port map (
 );
 
 int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
-
+cpu_int <= int_req and int_enabled;
 
 -- ROM
 
@@ -602,8 +626,8 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 	port map
 	(
 		clk => clk,
-		reset_n => reset_n and soft_reset_n,
-		interrupt => int_req and int_enabled,
+		reset_n => reset_n,
+		interrupt => cpu_int,
 
 		-- cpu fetch interface
 
@@ -622,8 +646,11 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 		debug_wr=>debug_wr,
 		debug_ack=>debug_ack		
 	);
+	cpu_addr(1 downto 0)<="00";
 
-	debugbridge : entity work.debug_bridge_jtag
+gendebug:
+if debug = true generate
+	debugbridge : component debug_bridge_jtag
 	port map
 	(
 		clk => slowclk,
@@ -634,7 +661,14 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, others => '0');
 		ack => debug_ack,
 		wr => debug_wr
 	);
+end generate;
 
+gennodebug:
+if debug = false generate
+	debug_ack <= '0';
+end generate;
+
+peripheral_block <= cpu_addr(31)&cpu_addr(10 downto 8);
 
 process(clk)
 begin
@@ -660,7 +694,7 @@ begin
 
 		-- Write from CPU?
 		if mem_wr='1' and mem_busy='1' then
-			case cpu_addr(31)&cpu_addr(10 downto 8) is
+			case peripheral_block is
 
 				when X"E" =>	-- VGA controller at 0xFFFFFE00
 					vga_reg_rw<='0';

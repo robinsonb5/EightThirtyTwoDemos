@@ -22,6 +22,7 @@ entity VirtualToplevel is
 		vga_hsync 	: out std_logic;
 		vga_vsync 	: buffer std_logic;
 		vga_window	: out std_logic;
+		vga_pixel	: out std_logic;
 
 		-- SDRAM
 		sdr_drive_data	: out std_logic;
@@ -149,6 +150,8 @@ signal mem_req : std_logic;
 signal mem_req_d : std_logic;
 signal mem_wr : std_logic;
 signal mem_cpu : std_logic;
+
+signal peripheral_addr : std_logic_vector(3 downto 0);
 
 begin
 
@@ -292,16 +295,16 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 
 	rom : entity work.QuadTest_rom
 	generic map(
-		ADDR_WIDTH => 15
+		ADDR_WIDTH => 14
 	)
 	port map(
 		clk => clk,
-		addr => cpu_addr(16 downto 2),
+		addr => cpu_addr(15 downto 2),
 		d => from_cpu,
 		q => from_rom,
 		we => rom_wr,
 		bytesel => cpu_bytesel,
-		addr2 => cpu_addr2(16 downto 2),
+		addr2 => cpu_addr2(15 downto 2),
 		d2 => from_cpu2,
 		q2 => from_rom2,
 		we2 => rom_wr2,
@@ -422,7 +425,7 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 		req => cpu_req,
 		ack => cpu_ack
 	);
-
+cpu_addr(1 downto 0)<="00";
 
 	cpu2 : entity work.eightthirtytwo_cpu
 	generic map
@@ -448,8 +451,9 @@ int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 		req => cpu_req2,
 		ack => cpu_ack2
 	);
+cpu_addr2(1 downto 0)<="00";
 
-
+peripheral_addr <= mem_addr(31)&mem_addr(10 downto 8);
 
 process(clk)
 begin
@@ -466,7 +470,7 @@ begin
 
 		-- Write from CPU?
 		if mem_wr='1' and mem_req='1' and mem_req_d='0' and mem_busy='1' then
-			case mem_addr(31)&mem_addr(10 downto 8) is
+			case peripheral_addr is
 				when X"C" =>	-- Timer controller at 0xFFFFFC00
 					timer_reg_req<='1';
 					mem_busy<='0';	-- Timer controller never blocks the CPU

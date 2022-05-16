@@ -3,7 +3,7 @@
 ../RTL/Peripherals/interrupt_controller.vhd
 ../RTL/Peripherals/timer_controller.vhd
 Firmware/QuadTest_ROM.rom
-RTL/QuadTest_VirtualToplevel.vhd
 RTL/Toplevel_Config.vhd
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
+RTL/QuadTest_VirtualToplevel.vhd
 
