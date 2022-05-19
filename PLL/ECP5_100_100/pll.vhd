@@ -3,6 +3,9 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity pll is
+generic (
+	sdram_phase : integer := 270
+);
 port (
 	clk_i : in std_logic;
 	clk_o : out std_logic_vector(3 downto 0);
@@ -19,7 +22,7 @@ generic map(
 	in_hz => 100000,
 	out0_hz => 100000,
 	out1_hz => 100000,
-	out1_deg => 270,
+	out1_deg => sdram_phase,
 	out2_hz => 50000,
 	out3_hz => 125000
 )

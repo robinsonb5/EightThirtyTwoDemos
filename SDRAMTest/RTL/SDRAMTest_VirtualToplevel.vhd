@@ -23,6 +23,7 @@ entity VirtualToplevel is
 		vga_hsync 	: out std_logic;
 		vga_vsync 	: out std_logic;
 		vga_window	: out std_logic;
+		vga_pixel	: out std_logic;
 
 		-- SDRAM
 		sdr_drive_data : out std_logic;
@@ -102,6 +103,13 @@ end component;
 begin
 
 sdr_cke<='1';
+ps2k_clk_out <= '1';
+ps2k_dat_out <= '1';
+ps2m_clk_out <= '1';
+ps2m_dat_out <= '1';
+
+audio_l <= (others => '0');
+audio_r <= (others => '0');
 
 mysdramtest : component sdramtest
 generic map(
@@ -128,7 +136,8 @@ port map(
 	r => vga_red,
 	g => vga_green,
 	b => vga_blue,
-	vena => vga_window
+	vena => vga_window,
+	pixel => vga_pixel
 );
 
 	

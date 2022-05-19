@@ -97,21 +97,6 @@ architecture rtl of icesugarpro_top is
 	);
 	end component;
 
--- Sigma Delta audio
-	COMPONENT hybrid_pwm_sd_2ndorder
-	PORT
-	(
-		clk	:	IN STD_LOGIC;
-		reset_n : in std_logic;
---		terminate : in std_logic;
-		d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		q_l	:	OUT STD_LOGIC;
-		d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		q_r	:	OUT STD_LOGIC
-	);
-	END COMPONENT;
-
-
 	signal ps2k_dat_in : std_logic;
 	signal ps2k_dat_out : std_logic;
 	signal ps2k_clk_in : std_logic;
@@ -150,6 +135,7 @@ architecture rtl of icesugarpro_top is
 	signal vga_pixel : std_logic;
 
 	signal sdram_drive_dq : std_logic;
+	signal sdram_tristate_dq : std_logic;
 	signal sdram_dq_in : std_logic_vector(15 downto 0);
 	signal sdram_dq_out : std_logic_vector(15 downto 0);
 
@@ -159,8 +145,13 @@ architecture rtl of icesugarpro_top is
 
 begin
 
-	sdram_dq <= sdram_dq_out when sdram_drive_dq='1' else (others => 'Z');
-	sdram_dq_in <= sdram_dq;
+	sdram_tristate_dq <= not sdram_drive_dq;
+	
+	gensdram_dq_ffs : for i in 0 to 15 generate
+		sdram_dq_ff : component TRELLIS_IO port map ( B => sdram_dq(i), I => sdram_dq_out(i), T => sdram_tristate_dq, O => sdram_dq_in(i) );
+	end generate;
+--	sdram_dq <= sdram_dq_out when sdram_drive_dq='1' else (others => 'Z');
+--	sdram_dq_in <= sdram_dq;
 
 	clk : component pll
 	port map (
@@ -315,19 +306,6 @@ begin
 		dviout_g_n : component ODDRX1F port map (D0 => dvi_g_n(0), D1=>dvi_g_n(1), Q => gpdi_dn(1), SCLK =>clk_tmds, RST=>'0');
 		dviout_b_n : component ODDRX1F port map (D0 => dvi_b_n(0), D1=>dvi_b_n(1), Q => gpdi_dn(0), SCLK =>clk_tmds, RST=>'0');
 		
-
---		process(clk_tmds) begin
---			if rising_edge(clk_tmds) then
---				gpdi_dp(3) <= dvi_clk(0);
---				gpdi_dn(3) <= not dvi_clk(0);
---				gpdi_dp(2) <= dvi_r(0);
---				gpdi_dn(2) <= not dvi_r(0);
---				gpdi_dp(1) <= dvi_g(0);
---				gpdi_dn(1) <= not dvi_g(0);
---				gpdi_dp(0) <= dvi_b(0);
---				gpdi_dn(0) <= not dvi_b(0);
---			end if;
---		end process;
 		
 		-- Dither the video down to 4 bits per gun for PMOD VGA out
 
@@ -356,28 +334,14 @@ begin
 	end generate;
 
 
-
 	genaudio: if Toplevel_UseAudio=true generate
 		signal i2s_mclk : std_logic;
 		signal i2s_sclk : std_logic;
 		signal i2s_lrclk : std_logic;
 		signal i2s_sdata : std_logic;
 	begin
-	audio_l_msb <= not audio_l(15);
-	audio_r_msb <= not audio_r(15);
-
-	audio_sd: component hybrid_pwm_sd_2ndorder
-		port map
-		(
-			clk => clk_slow,
-			reset_n => '1',
-			d_l(15) => audio_l_msb,
-			d_l(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
-			q_l => sigmadelta_pmod(0),
-			d_r(15) => audio_r_msb,
-			d_r(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
-			q_r => sigmadelta_pmod(1)
-		);
+		audio_l_msb <= not audio_l(15);
+		audio_r_msb <= not audio_r(15);
 
 		dac : entity work.i2s_dac
 		generic map (
@@ -393,10 +357,11 @@ begin
 			right_in => std_logic_vector(audio_r),
 			--
 			mclk => i2s_mclk,
-			sclk => i2s_sclk,
+			sclk => open, -- i2s_sclk,
 			lrclk => i2s_lrclk,
 			sdata => i2s_sdata
 		);
+		i2s_sclk <= '1';
 
 		i2smclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_MCLK), I => i2s_mclk, T => '0', O => open );
 		i2ssclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_SCLK), I => i2s_sclk, T => '0', O => open );
@@ -405,6 +370,12 @@ begin
 
 	end generate;	
 
+	gennoaudio: if TopLevel_UseAudio=false generate
+		i2smclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_MCLK), I => '1', T => '0', O => open );
+		i2ssclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_SCLK), I => '1', T => '0', O => open );
+		i2slrclk : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_LRCK), I => '1', T => '0', O => open );
+		i2ssdata : component TRELLIS_IO port map ( B => i2s_pmod(PMOD_I2S_DA_SDIN), I => '1', T => '0', O => open );
+	end generate;
 
 	-- PS/2 tristating
 

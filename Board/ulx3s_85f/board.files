@@ -1,0 +1,5 @@
+../../PLL/ECP5/ecp5pll.vhd
+../../RTL/Video/dvi.v
+../../RTL/Video/tmds_encoder.v
+../../RTL/Sound/hybrid_pwm_sd.v
+
