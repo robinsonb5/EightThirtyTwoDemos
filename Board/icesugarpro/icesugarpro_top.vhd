@@ -88,15 +88,6 @@ architecture rtl of icesugarpro_top is
 	);
 	end component;
 
-	component pll is
-	port (
-		clk_i : in std_logic;
-		clk_o : out std_logic_vector(3 downto 0);
-		reset : in std_logic :='0';
-		locked : out std_logic
-	);
-	end component;
-
 	signal ps2k_dat_in : std_logic;
 	signal ps2k_dat_out : std_logic;
 	signal ps2k_clk_in : std_logic;
@@ -153,9 +144,13 @@ begin
 --	sdram_dq <= sdram_dq_out when sdram_drive_dq='1' else (others => 'Z');
 --	sdram_dq_in <= sdram_dq;
 
-	clk : component pll
+	clk : entity work.pll
+	generic map (
+		sdram_phase => 315
+	)
 	port map (
 		clk_i => clk_i,
+		reset => '0',
 		clk_o(0) => clk_sys,
 		clk_o(1) => clk_sdram,
 		clk_o(2) => clk_slow,

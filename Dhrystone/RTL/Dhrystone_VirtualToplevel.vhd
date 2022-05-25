@@ -27,7 +27,7 @@ entity VirtualToplevel is
 
 		-- SDRAM
 		sdr_drive_data : out std_logic;
-		sdr_data_in 	: in std_logic_vector(15 downto 0);
+		sdr_data_in 	: in std_logic_vector(15 downto 0) := (others => '0');
 		sdr_data_out	: inout std_logic_vector(15 downto 0);
 		sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
 		sdr_dqm 		: out std_logic_vector(1 downto 0);
@@ -324,7 +324,9 @@ int_triggers<=(0=>timer_tick, others => '0');
 		littleendian => true,
 		interrupts => false,
 		dualthread => false,
-		debug => debug
+		debug => debug,
+		prefetch => true,
+		forwarding => true
 	)
 	port map
 	(

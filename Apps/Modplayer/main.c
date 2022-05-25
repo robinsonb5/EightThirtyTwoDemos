@@ -46,8 +46,8 @@ char *LoadFile(const char *filename)
 int main(int argc, char **argv)
 {
 	char *ptr;
-//	if((ptr=LoadFile("GROOVESTMOD")))
-	if((ptr=LoadFile("INTERSPCMOD")))
+	if((ptr=LoadFile("GROOVESTMOD")))
+//	if((ptr=LoadFile("INTERSPCMOD")))
 //	if((ptr=LoadFile("DEEPHOUSMOD")))
 //	if((ptr=LoadFile("DAWN    MOD")))
 //	if((ptr=LoadFile("SCARPTCHMOD")))

@@ -22,6 +22,7 @@ entity VirtualToplevel is
 		vga_hsync 	: out std_logic;
 		vga_vsync 	: buffer std_logic;
 		vga_window	: out std_logic;
+		vga_pixel   : out std_logic;
 
 		-- SDRAM
 		sdr_drive_data	: out std_logic;
@@ -101,6 +102,7 @@ signal cpu_bytesel : std_logic_vector(3 downto 0);
 signal mem_rd : std_logic; 
 signal mem_wr : std_logic; 
 signal rom_wr : std_logic; 
+signal cpu_reset : std_logic;
 
 -- CPU Debug signals
 signal debug_req : std_logic;
@@ -247,6 +249,8 @@ end generate;
 		end if;	
 	end process;
 	
+	cpu_reset <= reset_n and soft_reset_n;
+	
 	cpu : entity work.eightthirtytwo_cpu
 	generic map
 	(
@@ -257,7 +261,7 @@ end generate;
 	port map
 	(
 		clk => slowclk,
-		reset_n => reset_n and soft_reset_n,
+		reset_n => cpu_reset,
 
 		-- cpu fetch interface
 

@@ -6,6 +6,10 @@ use ieee.std_logic_1164.all;
 -- slowly than either clock signal.
 -- A code takes three clk_d cycles and three clk_q cycles to propagate.
 
+-- Optional strobe input d_stb will cause a strobe to appear on q_stb at the
+-- appropriate time, but any further d_stb pulses before the q_stb pulse
+-- will be ingored.
+
 entity cdc_bus is
 generic (
 	width : integer := 16
@@ -13,8 +17,10 @@ generic (
 port (
 	clk_d : in std_logic;
 	d : in std_logic_vector(width-1 downto 0);
+	d_stb : in std_logic := '1';
 	clk_q : in std_logic;
-	q : out std_logic_vector(width-1 downto 0)
+	q : out std_logic_vector(width-1 downto 0);
+	q_stb : out std_logic
 );
 end entity;
 
@@ -35,7 +41,7 @@ begin
 				ack_d2<=q_ack;
 				ack_d<=ack_d2;
 				
-				if ack_d=d_req then
+				if ack_d=d_req and d_stb='1' then
 					buf <= d;
 					d_req<=not d_req;
 				end if;
@@ -55,8 +61,10 @@ begin
 			if rising_edge(clk_q) then
 				req_q2 <= d_req;
 				req_q <= req_q2;
+				q_stb <= '0';
 				if req_q /= q_ack then
 					q <= buf;
+					q_stb <= '1';
 					q_ack <= req_q;
 				end if;
 			end if;

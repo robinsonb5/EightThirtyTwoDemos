@@ -696,6 +696,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 	cpu : entity work.eightthirtytwo_cpu
 	generic map
 	(
+		multiplier => true,
 		littleendian => true,
 		dualthread => true,
 		prefetch => true,
