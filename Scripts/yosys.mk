@@ -12,12 +12,13 @@ TARGET=$(PROJECT).json
 SVFFILE=$(PROJECT).svf
 BITFILE=$(PROJECT).bit
 CFGFILE=$(PROJECT).config
+DEPFILE=$(PROJECT)_$(BOARD)_deps.mk
 
-ALL: init compile
+ALL: $(DEPFILE) init compile
 
-init: $(TARGET)
+init: $(DEPFILE) $(TARGET)
 
-compile: $(BITFILE)
+compile: $(DEPFILE) $(BITFILE)
 
 config: $(SVFFILE)
 	openocd -f $(BOARDDIR)/target.cfg -c \
@@ -25,10 +26,17 @@ config: $(SVFFILE)
 	    svf -tap target.tap -quiet -progress ${SVFFILE}; \
 	    exit;"
 
+$(DEPFILE): $(MANIFEST)
+	echo >$@ -n "DEPS="
+	$(SCRIPTSDIR)/expandtemplate_dep.sh $+ $(PROJECTDIR) >>$@
+	$(SCRIPTSDIR)/expandtemplate_dep.sh $(BOARDDIR)/board.files $(BOARDDIR) >>$@
+
 clean:
 	-rm $(TARGET)
 	-rm $(PROJECT)_$(BOARD)_files.tcl
 	-rm $(BITIFLE)
+
+include $(PROJECT)_$(BOARD)_deps.mk
 
 $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
 	$(SCRIPTSDIR)/expandtemplate_yosys.sh $+ $(PROJECTDIR) >$@
@@ -36,7 +44,7 @@ $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
 
 $(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl
 
-$(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf
+$(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf $(DEPS)
 	$(TOOLPATH)yosys -mghdl -p 'tcl $(SCRIPTSDIR)/mkproject_yosys.tcl $(PROJECT) $(BOARD)' || echo "yosys not found - skipping compilation."
 	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
 

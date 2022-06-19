@@ -34,7 +34,10 @@ source ${boardpath}/${board}/${board}_support.tcl
 if {[info exists vhdl_files]} {
 	foreach {f} $vhdl_files {
 		puts $f
-		exec ghdl -a $f
+		if {[catch {exec ghdl -a $f} details ]} {
+			puts $details
+			exit
+		}
 	}
 }
 if { [info exists vhdl_hierarchies] == 1 } {

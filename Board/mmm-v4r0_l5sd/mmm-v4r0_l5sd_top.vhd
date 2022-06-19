@@ -108,9 +108,6 @@ architecture rtl of mmm_v4r0_l5sd_top is
 
 begin
 
-	led1<='0';
-	led2<='0';
-
 	UART_U1_TXD <= txd;
 	UART_U2_TXD <= txd;
 	UART_D1_TXD <= txd;
@@ -307,6 +304,35 @@ begin
 	sd_m_cmd <= sdcard_mosi;
 	sd_m_clk <= sdcard_clk;
 	sdcard_miso <= sd_m_d0;
+
+	-- LEDS.  Not so much a "blinky" as a "pulsey"...
+	pwmblock : block
+		signal pwmcounter : unsigned(16 downto 0);
+		signal redctr : unsigned(16 downto 0);
+		signal greenctr : unsigned(16 downto 0);
+		signal redctr_i : unsigned(15 downto 0);
+		signal greenctr_i : unsigned(15 downto 0);
+	begin
+		redctr_i <= redctr(16 downto 1) when redctr(16)='0' else not redctr(16 downto 1);
+		greenctr_i <= greenctr(16 downto 1) when greenctr(16)='0' else not greenctr(16 downto 1);
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+				pwmcounter<=pwmcounter + 1;
+				if pwmcounter='1'&X"FFFF" then
+					redctr<=redctr+13;
+					greenctr<=greenctr+7;
+					led1<='1';
+					led2<='1';
+				end if;
+				if redctr_i = pwmcounter then
+					led2<='0';
+				end if; 
+				if greenctr_i = pwmcounter then
+					led1<='0';
+				end if; 
+			end if;
+		end process;
+	end block;
 
 end architecture;
 
