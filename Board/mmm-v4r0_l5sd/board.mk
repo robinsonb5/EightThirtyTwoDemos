@@ -5,4 +5,6 @@ DEVICE_PACKAGE=CABGA381
 DEVICE_SPEED=6
 DEVICE_IDCODE=0x01113043
 ECPPACK_OPTS=--compress --spimode=qspi
+vendor=lattice_yosys
+fpga=ECP5
 

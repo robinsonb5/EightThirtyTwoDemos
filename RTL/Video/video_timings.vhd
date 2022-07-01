@@ -115,7 +115,7 @@ begin
 
 			if hcounter=htotal then -- New row
 				hb_internal<='1';
-				hcounter<=(others=>'0');
+				hcounter<=(0=>'1',others=>'0');
 			end if;
 			
 			-- Vertical counters
@@ -135,7 +135,7 @@ begin
 			
 			if hcounter=hsstop and vcounter=vtotal then -- New frame
 				vb_internal<='1';
-				vcounter<=(others=>'0');
+				vcounter<=(0=>'1',others=>'0');
 			end if;
 			
 			clkdivCnt<=(others=>'0');

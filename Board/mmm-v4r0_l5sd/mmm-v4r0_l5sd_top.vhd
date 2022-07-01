@@ -25,13 +25,13 @@ port(
 	dr_clk : out std_logic;
 	dr_cs_n : out std_logic;
 	dr_a : out std_logic_vector(12 downto 0);
-	dr_d : inout std_logic_vector(15 downto 0);
+	dr_d : inout std_logic_vector(31 downto 0);
 	dr_we_n : out std_logic;
 	dr_ras_n : out std_logic;
 	dr_cas_n : out std_logic;
 	dr_cke : out std_logic;
 	dr_ba : out std_logic_vector(1 downto 0);
-	dr_dqm : out std_logic_vector(1 downto 0);
+	dr_dqm : out std_logic_vector(3 downto 0);
 	
 	sd_m_cdet : out std_logic;
 	sd_m_clk : out std_logic; -- SPI clk
@@ -98,8 +98,8 @@ architecture rtl of mmm_v4r0_l5sd_top is
 	signal vga_pixel : std_logic;
 
 	signal dr_drive_dq : std_logic;
-	signal dr_dq_in : std_logic_vector(15 downto 0);
-	signal dr_dq_out : std_logic_vector(15 downto 0);
+	signal dr_dq_in : std_logic_vector(Toplevel_SDRAMWidth-1 downto 0);
+	signal dr_dq_out : std_logic_vector(Toplevel_SDRAMWidth-1 downto 0);
 
 	signal reset_n : std_logic;
 
@@ -114,8 +114,11 @@ begin
 	UART_D2_TXD <= txd;
 	rxd <= UART_U1_RXD;
 
-	dr_d <= dr_dq_out when dr_drive_dq='1' else (others => 'Z');
-	dr_dq_in <= dr_d;
+gentsdram : if Toplevel_SDRAMWidth<32 generate
+	dr_d(31 downto Toplevel_SDRAMWidth) <= (others => 'Z');
+end generate;
+	dr_d(Toplevel_SDRAMWidth-1 downto 0) <= dr_dq_out when dr_drive_dq='1' else (others => 'Z');
+	dr_dq_in(Toplevel_SDRAMWidth-1 downto 0) <= dr_d(Toplevel_SDRAMWidth-1 downto 0);
 
 	clocks : entity work.pll
 	port map (
@@ -136,7 +139,8 @@ begin
 	generic map(
 		sdram_rows => 13,
 		sdram_cols => 9,
-		sysclk_frequency => 1000
+		sysclk_frequency => 1000,
+		debug => false
 	)
 	port map(
 		clk => clk_sys,
@@ -176,7 +180,7 @@ begin
 		sdr_we => dr_we_n,
 		sdr_cas => dr_cas_n,
 		sdr_ras => dr_ras_n,
-		sdr_dqm => dr_dqm,
+		sdr_dqm => dr_dqm(Toplevel_SDRAMWidth/8-1 downto 0),
 		sdr_ba => dr_ba,
 		sdr_cke => dr_cke,
 		
@@ -208,23 +212,43 @@ begin
 			q_r	:	OUT STD_LOGIC
 		);
 		END COMPONENT;
-		signal pcm_l_msb : std_logic;
-		signal pcm_r_msb : std_logic;
+		COMPONENT hybrid_2ndorder
+		PORT
+		(
+			clk	:	IN STD_LOGIC;
+			reset_n : in std_logic;
+	--		terminate : in std_logic;
+			d	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+			q	:	OUT STD_LOGIC
+		);
+		END COMPONENT;
+		signal aud_d_l : std_logic_vector(15 downto 0);
+		signal aud_d_r : std_logic_vector(15 downto 0);
 	begin
-		pcm_l_msb <= not pcm_l(15);
-		pcm_r_msb <= not pcm_r(15);
-
-		audio_sd: component hybrid_pwm_sd_2ndorder
+		
+		process(clk_slow) begin
+			if rising_edge(clk_slow) then
+				aud_d_l <= not pcm_l(15) & std_logic_vector(pcm_l(14 downto 0));
+				aud_d_r <= not pcm_r(15) & std_logic_vector(pcm_r(14 downto 0));
+			end if;
+		end process;
+		
+		audio_sd_l: component hybrid_2ndorder
 			port map
 			(
 				clk => clk_slow,
 				reset_n => '1',
-				d_l(15) => pcm_l_msb,
-				d_l(14 downto 0) => std_logic_vector(pcm_l(14 downto 0)),
-				q_l => AUDIO_L,
-				d_r(15) => pcm_r_msb,
-				d_r(14 downto 0) => std_logic_vector(pcm_r(14 downto 0)),
-				q_r => AUDIO_R
+				d => aud_d_l,
+				q => AUDIO_l
+			);
+
+		audio_sd_r: component hybrid_2ndorder
+			port map
+			(
+				clk => clk_slow,
+				reset_n => '1',
+				d => aud_d_r,
+				q => AUDIO_r
 			);
 
 	end generate;	

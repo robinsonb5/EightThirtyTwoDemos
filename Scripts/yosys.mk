@@ -39,8 +39,8 @@ clean:
 include $(PROJECT)_$(BOARD)_deps.mk
 
 $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
-	$(SCRIPTSDIR)/expandtemplate_yosys.sh $+ $(PROJECTDIR) >$@
-	$(SCRIPTSDIR)/expandtemplate_yosys.sh $(BOARDDIR)/board.files $(BOARDDIR) >>$@
+	$(SCRIPTSDIR)/expandtemplate_yosys.sh $(BOARDDIR)/board.files $(BOARDDIR) >$@
+	$(SCRIPTSDIR)/expandtemplate_yosys.sh $+ $(PROJECTDIR) >>$@
 
 $(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl
 

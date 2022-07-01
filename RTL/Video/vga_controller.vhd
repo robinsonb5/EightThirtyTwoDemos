@@ -83,16 +83,22 @@ architecture rtl of vga_controller is
 	signal vsync_r : std_logic;
 	signal hsync_r : std_logic;
 	signal vga_window_r : std_logic;
+	signal vga_window_d : std_logic;
 	
 	signal vgachannel_valid_d : std_logic;
 	signal sprite_valid_d : std_logic;
 
 begin
 
-	vga_pixel <= end_of_pixel;
-	vsync<=vsync_r;
-	hsync<=hsync_r;
-	vga_window<=vga_window_r;
+	process(clk) begin
+		if rising_edge(clk) then
+			vga_pixel <= end_of_pixel;
+			if end_of_pixel = '1' then
+				vsync<=vsync_r;
+				hsync<=hsync_r;
+			end if;
+		end if;
+	end process;
 
 	vgachannel_fromhost.setaddr<=vgasetaddr;
 	spr0channel_fromhost.setaddr<=spr0setaddr;
@@ -234,31 +240,35 @@ begin
 				vgadata<=dma_data;
 			end if;
 
+
 			if end_of_pixel='1' then
+
+				if sprite_col(3)='1' then
+					red <= (others => sprite_col(2));
+				else
+					red <= unsigned(vgadata(15 downto 11)&"000");
+				end if;
+
+				if sprite_col(3)='1' then
+					green <= (others=>sprite_col(1));
+				else
+					green <= unsigned(vgadata(10 downto 5)&"00");
+				end if;
+
+				if sprite_col(3)='1' then
+					blue <= (others=>sprite_col(0));
+				else
+					blue <= unsigned(vgadata(4 downto 0)&"000");
+				end if;
+
+				vga_window_d<=vga_window_r;
+				vga_window<=vga_window_d;
 
 				if currentX<640 and currentY<480 then
 					vga_window_r<='1';
 					-- Request next pixel from VGA cache
 					vgachannel_fromhost.req<='1';
-
-					if sprite_col(3)='1' then
-						red <= (others => sprite_col(2));
-					else
-						red <= unsigned(vgadata(15 downto 11)&"000");
-					end if;
-
-					if sprite_col(3)='1' then
-						green <= (others=>sprite_col(1));
-					else
-						green <= unsigned(vgadata(10 downto 5)&"00");
-					end if;
-
-					if sprite_col(3)='1' then
-						blue <= (others=>sprite_col(0));
-					else
-						blue <= unsigned(vgadata(4 downto 0)&"000");
-					end if;
-
+					
 				else
 					vga_window_r<='0';
 					

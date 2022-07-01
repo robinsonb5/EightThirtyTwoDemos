@@ -143,11 +143,20 @@ architecture RTL of de10lite_top is
 		iBlue	:	IN UNSIGNED(7 DOWNTO 0);
 		oRed	:	OUT UNSIGNED(outbits-1 DOWNTO 0);
 		oGreen	:	OUT UNSIGNED(outbits-1 DOWNTO 0);
-		oBlue	:	OUT UNSIGNED(outbits-1 DOWNTO 0)
+		oBlue	:	OUT UNSIGNED(outbits-1 DOWNTO 0);
+		ohsync : out std_logic;
+		ovsync : out std_logic
 	);
 	END COMPONENT;
 
+	signal sdram_dq_out : std_logic_vector(15 downto 0);
+	signal sdram_dq_in : std_logic_vector(15 downto 0);
+	signal sdram_drive_dq : std_logic;
 begin
+
+-- SDRAM
+DRAM_DQ <= sdram_dq_out when sdram_drive_dq='1' else (others => 'Z');
+sdram_dq_in<=DRAM_DQ;
 
 -- SPI
 
@@ -206,8 +215,9 @@ virtualtoplevel : entity work.VirtualToplevel
 		vga_window => vga_window,
 
 		-- SDRAM
-		sdr_data_out => DRAM_DQ,
-		sdr_data_in => DRAM_DQ,
+		sdr_drive_data => sdram_drive_dq,
+		sdr_data_out => sdram_dq_out,
+		sdr_data_in => sdram_dq_in,
 		sdr_addr	=> DRAM_ADDR,
 		sdr_dqm(1) => DRAM_UDQM,
 		sdr_dqm(0) => DRAM_LDQM,
@@ -247,8 +257,6 @@ virtualtoplevel : entity work.VirtualToplevel
 
 genvideo: if Toplevel_UseVGA=true generate
 -- Dither the video down to 5 bits per gun.
-	VGA_HS<= not vga_hsync;
-	VGA_VS<= not vga_vsync;	
 
 	mydither : component video_vga_dither
 		generic map(
@@ -264,7 +272,9 @@ genvideo: if Toplevel_UseVGA=true generate
 			iBlue => unsigned(vga_blue),
 			oRed => VGA_R,
 			oGreen => VGA_G,
-			oBlue => VGA_B
+			oBlue => VGA_B,
+			ohsync => VGA_HS,
+			ovsync => VGA_VS
 		);
 end generate;
 

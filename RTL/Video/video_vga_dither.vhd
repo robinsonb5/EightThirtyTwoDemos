@@ -19,9 +19,11 @@ entity video_vga_dither is
 		iRed : in unsigned(7 downto 0);
 		iGreen : in unsigned(7 downto 0);
 		iBlue : in unsigned(7 downto 0);
+		ohsync : out std_logic;
+		ovsync : out std_logic;
 		oRed : out unsigned(outbits-1 downto 0);
 		oGreen : out unsigned(outbits-1 downto 0);
-		oBlue : out unsigned(outbits-1 downto 0)
+		oBlue : out unsigned(outbits-1 downto 0)		
 	);
 end entity;
 
@@ -49,8 +51,8 @@ begin
 		if rising_edge(clk) then
 			ctr <= ctr+1;
 
-			vid_ena_d2<=vid_ena; -- Delay by the same amount as the video itself.
-			vid_ena_d<=vid_ena_d2; -- Delay by the same amount as the video itself.
+--			vid_ena_d2<=vid_ena; -- Delay by the same amount as the video itself.
+			vid_ena_d<=vid_ena; -- Delay by the same amount as the video itself.
 
 			if prevhsync='0' and hsync='1' then
 				row<=not row;
@@ -85,6 +87,9 @@ begin
 				blue <= (iBlue+ dither);
 			end if;
 			
+			-- Delay sync signals by the same amount as the actual video.
+			ohsync <= hsync;
+			ovsync <= vsync;
 		end if;
 	end process;
 end architecture;
