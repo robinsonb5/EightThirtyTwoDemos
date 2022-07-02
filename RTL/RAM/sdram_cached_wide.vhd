@@ -25,26 +25,28 @@ library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
 
-entity sdram_cached is
+entity sdram_cached_wide is
 generic
 	(
 		rows : integer := 12;	-- FIXME - change access sizes according to number of rows
 		cols : integer := 8;
 		cache : boolean := true;
-		dcache : boolean := true
+		dcache : boolean := true;
+		dqwidth : integer := 32;
+		dqmwidth : integer :=4
 	);
 port
 	(
 -- Physical connections to the SDRAM
 	drive_sdata	: out std_logic;
-	sdata_in		: in std_logic_vector(15 downto 0);
-	sdata_out		: inout std_logic_vector(15 downto 0);
+	sdata_in		: in std_logic_vector(dqwidth-1 downto 0);
+	sdata_out		: inout std_logic_vector(dqwidth-1 downto 0);
 	sdaddr		: out std_logic_vector((rows-1) downto 0);
 	sd_we		: out std_logic;	-- Write enable, active low
 	sd_ras		: out std_logic;	-- Row Address Strobe, active low
 	sd_cas		: out std_logic;	-- Column Address Strobe, active low
 	sd_cs		: out std_logic;	-- Chip select - only the lsb does anything.
-	dqm			: out std_logic_vector(1 downto 0);	-- Data mask, upper and lower byte
+	dqm			: out std_logic_vector(dqmwidth-1 downto 0);	-- Data mask, upper and lower byte
 	ba			: out std_logic_vector(1 downto 0); -- Bank?
 
 -- Housekeeping
@@ -55,7 +57,7 @@ port
 
 -- Port 0 - VGA
 	vga_addr : in std_logic_vector(31 downto 0) := X"00000000";
-	vga_data	: out std_logic_vector(15 downto 0);
+	vga_data	: out std_logic_vector(dqwidth-1 downto 0);
 	vga_req : in std_logic := '0';
 	vga_fill : out std_logic;
 	vga_ack : out std_logic;
@@ -84,24 +86,25 @@ port
 	);
 end;
 
-architecture rtl of sdram_cached is
+architecture rtl of sdram_cached_wide is
 
-constant bank_high : integer := (rows+cols+2);
-constant bank_low : integer := (rows+cols+1);
+constant col_low : integer := 2;
+constant col_high : integer := cols+col_low-1;
 
-constant row_high : integer := (rows+cols);
-constant row_low : integer := (cols+1);
+constant row_low : integer := col_high+1;
+constant row_high : integer := row_low+rows-1;
 
-constant col_high : integer := cols;
-constant col_low : integer := 1;
+constant bank_low : integer := row_high+1;
+constant bank_high : integer := bank_low+1;
+
 
 signal initstate	:unsigned(3 downto 0);	-- Counter used to initialise the RAM
-signal cas_dqm		:std_logic_vector(1 downto 0);	-- ...mask register for entire burst
+signal cas_dqm		:std_logic_vector(dqmwidth-1 downto 0);	-- ...mask register for entire burst
 signal init_done	:std_logic :='0';
-signal datain		:std_logic_vector(15 downto 0);
+signal datain		:std_logic_vector(dqwidth-1 downto 0);
 signal casaddr		:std_logic_vector(31 downto 0);
 signal sdwrite 		:std_logic;
-signal sdata_reg	:std_logic_vector(15 downto 0);
+signal sdata_reg	:std_logic_vector(dqwidth-1 downto 0);
 
 type sdram_states is (ph0,ph1,ph2,ph3,ph4,ph5,ph6,ph7,ph8,ph9,ph10,ph11,ph12,ph13,ph14,ph15);
 signal sdram_state		: sdram_states;
@@ -130,8 +133,8 @@ type writecache_states is (waitwrite,fill,finish);
 signal writecache_state : writecache_states;
 
 signal writecache_addr : std_logic_vector(31 downto 0);
-signal writecache_word0 : std_logic_vector(15 downto 0);
-signal writecache_word1 : std_logic_vector(15 downto 0);
+signal writecache_word0 : std_logic_vector(dqwidth-1 downto 0);
+signal writecache_word1 : std_logic_vector(dqwidth-1 downto 0);
 signal writecache_dqm : std_logic_vector(7 downto 0);
 signal writecache_req : std_logic;
 signal writecache_ack : std_logic;
@@ -172,15 +175,14 @@ COMPONENT TwoWayCache
 		bytesel : in std_logic_vector(3 downto 0);
 		data_from_cpu		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		data_from_sdram		:	 IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		data_to_sdram		:	 OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+		data_from_sdram		:	 IN STD_LOGIC_VECTOR(dqwidth-1 downto 0);
+		data_to_sdram		:	 OUT STD_LOGIC_VECTOR(dqwidth-1 downto 0);
 		sdram_addr	: out std_logic_vector(31 downto 0);
 		sdram_req		:	 OUT STD_LOGIC;
 		sdram_fill		:	 IN STD_LOGIC;
 		sdram_rw		:	 OUT STD_LOGIC;
 		busy : out std_logic;
-		flush : in std_logic;
-		debug : out std_logic_vector(2 downto 0)
+		flush : in std_logic
 	);
 END COMPONENT;
 
@@ -202,15 +204,12 @@ generic
 		bytesel : in std_logic_vector(3 downto 0);
 		data_from_cpu		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		data_from_sdram		:	 IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		data_to_sdram		:	 OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+		data_from_sdram		:	 IN STD_LOGIC_VECTOR(dqwidth-1 downto 0);
 		sdram_addr	: out std_logic_vector(31 downto 0);
 		sdram_req		:	 OUT STD_LOGIC;
 		sdram_fill		:	 IN STD_LOGIC;
-		sdram_rw		:	 OUT STD_LOGIC;
 		busy : out std_logic;
-		flush : in std_logic;
-		debug : out std_logic_vector(2 downto 0)
+		flush : in std_logic
 	);
 END COMPONENT;
 
@@ -229,15 +228,14 @@ COMPONENT BurstCache
 		bytesel : in std_logic_vector(3 downto 0);
 		data_from_cpu		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		data_from_sdram		:	 IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		data_to_sdram		:	 OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+		data_from_sdram		:	 IN STD_LOGIC_VECTOR(dqwidth-1 downto 0);
+		data_to_sdram		:	 OUT STD_LOGIC_VECTOR(dqwidth-1 downto 0);
 		sdram_addr	: out std_logic_vector(31 downto 0);
 		sdram_req		:	 OUT STD_LOGIC;
 		sdram_fill		:	 IN STD_LOGIC;
 		sdram_rw		:	 OUT STD_LOGIC;
 		busy : out std_logic;
-		flush : in std_logic;
-		debug : out std_logic_vector(2 downto 0)
+		flush : in std_logic
 	);
 END COMPONENT;
 
@@ -277,10 +275,8 @@ begin
 		if req1='1' and wr1='0' and writecache_req='0' and readcache_busy='0' then
 			writecache_addr(31 downto 4)<=addr1(31 downto 4);
 			writecache_addr(3 downto 1)<=addr1(3 downto 1);
-			writecache_word0<=datawr1(31 downto 16);
-			writecache_dqm(1 downto 0)<=not (bytesel(0) & bytesel(1)); -- Are we writing the upper word?
-			writecache_word1<=datawr1(15 downto 0);
-			writecache_dqm(3 downto 2)<=not (bytesel(2) & bytesel(3)); -- Are we writing the lower word?
+			writecache_word0<=datawr1;
+			writecache_dqm(3 downto 0)<=not (bytesel(0) & bytesel(1) & bytesel(2) & bytesel(3));
 			writecache_req<='1';
 			writecache_dtack<='0';
 		end if;
@@ -342,11 +338,9 @@ mytwc : component DirectMappedCache
 		data_from_cpu => datawr1,
 		data_to_cpu => dataout1,
 		data_from_sdram => sdata_reg,
-		data_to_sdram => open,
 		sdram_addr => readcache_addr,
 		sdram_req => readcache_req,
 		sdram_fill => readcache_fill,
-		sdram_rw => open,
 		busy => readcache_busy,
 		flush => flushcaches
 	);
@@ -450,10 +444,10 @@ end generate;
 				when ph1 =>	sdram_state <= ph2;
 					slot1_fill<='0';
 					slot2_fill<='1';
-				when ph2 => sdram_state <= ph3;
 					slot2_ack<='1';
-				when ph3 =>	sdram_state <= ph4;
+				when ph2 => sdram_state <= ph3;
 					slot2_ack<='0';
+				when ph3 =>	sdram_state <= ph4;
 				when ph4 =>	sdram_state <= ph5;
 				when ph5 => sdram_state <= ph6;
 				when ph6 =>	sdram_state <= ph7;
@@ -462,10 +456,10 @@ end generate;
 				when ph9 =>	sdram_state <= ph10;
 					slot2_fill<='0';
 					slot1_fill<='1';
-				when ph10 => sdram_state <= ph11;
 					slot1_ack<='1';
-				when ph11 => sdram_state <= ph12;
+				when ph10 => sdram_state <= ph11;
 					slot1_ack<='0';
+				when ph11 => sdram_state <= ph12;
 				when ph12 => sdram_state <= ph13;
 				when ph13 => sdram_state <= ph14;
 				when ph14 =>
@@ -557,7 +551,7 @@ end generate;
 
 					when ph2 => -- ACTIVE for first access slot
 
-						cas_dqm <= "00";
+						cas_dqm <= (others => '0');
 
 						sdram_slot1<=idle;
 						if refreshpending='1' and sdram_slot2=idle then	-- refreshcycle
@@ -584,7 +578,7 @@ end generate;
 							sdaddr <= writecache_addr(row_high downto row_low);
 							ba <= writecache_addr(bank_high downto bank_low);
 							slot1_bank <= writecache_addr(bank_high downto bank_low);
-							cas_dqm <= writecache_dqm(1 downto 0);
+							cas_dqm <= writecache_dqm(3 downto 0);
 							casaddr <= writecache_addr;
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
@@ -595,7 +589,7 @@ end generate;
 							sdaddr <= readcache_addr(row_high downto row_low);
 							ba <= readcache_addr(bank_high downto bank_low);
 							slot1_bank <= readcache_addr(bank_high downto bank_low); -- slot1 bank
-							cas_dqm <= "00";
+							cas_dqm <= (others => '0');
 							casaddr <= readcache_addr(31 downto 2) & "00";
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
@@ -606,7 +600,7 @@ end generate;
 							sdaddr <= readcache2_addr(row_high downto row_low);
 							ba <= readcache2_addr(bank_high downto bank_low);
 							slot1_bank <= readcache2_addr(bank_high downto bank_low); -- slot1 bank
-							cas_dqm <= "00";
+							cas_dqm <= (others => '0');
 							casaddr <= readcache2_addr(31 downto 2) & "00";
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
@@ -616,25 +610,17 @@ end generate;
 						-- SLOT 2
 						 -- Second word of burst write
 						if sdram_slot2=writecache then
-							sdwrite<='1';
-							datain <= writecache_word1;
-							dqm <= writecache_dqm(3 downto 2);
-							writecache_ack<='1'; -- End write burst after 32 bits.
-						end if;
-
-						-- Second word of reads if bypassing the cache
-						if sdram_slot2=port1 and dcache=false then
-							longword(15 downto 0)<=sdata_in;
-						end if;
-						if sdram_slot2=port2 and cache=false then
-							longword2(15 downto 0)<=sdata_in;
+							dqm <= (others => '1'); -- Mask off end of write burst
+--							sdwrite<='1';
+--							datain <= writecache_word1;
+--							dqm <= writecache_dqm(3 downto 2);
 						end if;
 
 
 					when ph3 =>
 						-- Third word of burst write
 						if sdram_slot2=writecache then
-							dqm <= "11"; -- Mask off end of write burst
+							dqm <= (others => '1'); -- Mask off end of write burst
 						end if;
 
 
@@ -647,7 +633,7 @@ end generate;
 							sd_ras<='0';
 							sd_cs<='0'; -- Chip select
 							ba<=slot2_bank;
-							dqm <= "11"; -- Mask off end of write burst
+							dqm <= (others => '1'); -- Mask off end of write burst
 						end if;
 
 
@@ -686,30 +672,31 @@ end generate;
 
 							sdwrite<='1';
 							datain <= writecache_word0;
-							dqm <= writecache_dqm(1 downto 0);
+							dqm <= writecache_dqm(3 downto 0);
+							writecache_ack<='1'; -- End write burst after 32 bits.
 						end if;
 
 						-- First word of reads if bypassing the cache
 						if sdram_slot1=port1 and dcache=false then
-							longword(31 downto 16)<=sdata_in;
+							longword<=sdata_in;
 						end if;
 						if sdram_slot1=port2 and cache=false then
-							longword2(31 downto 16)<=sdata_in;
+							longword2<=sdata_in;
 						end if;
 
 					when ph10 =>
 						-- Slot 1
 						-- Next word of burst write
 						if sdram_slot1=writecache then
-							sdwrite<='1';
-							datain <= writecache_word1;
-							dqm <= writecache_dqm(3 downto 2);
-							writecache_ack<='1'; -- End write burst after 32 bits.
+--							sdwrite<='1';
+--							datain <= writecache_word1;
+--							dqm <= writecache_dqm(3 downto 2);
+							dqm <= (others => '1'); -- Mask off end of write burst
 						end if;					
 						
 						-- Slot 2, active command
 						
-						cas_dqm <= "00";
+						cas_dqm <= (others => '0');
 
 						sdram_slot2<=idle;
 						if refreshpending='1' or sdram_slot1=refresh then
@@ -723,7 +710,7 @@ end generate;
 							sdaddr <= writecache_addr(row_high downto row_low);
 							ba <= writecache_addr(bank_high downto bank_low);
 							slot2_bank <= writecache_addr(bank_high downto bank_low);
-							cas_dqm <= writecache_dqm(1 downto 0);
+							cas_dqm <= writecache_dqm(3 downto 0);
 							casaddr <= writecache_addr;
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
@@ -735,7 +722,7 @@ end generate;
 							sdaddr <= readcache_addr(row_high downto row_low);
 							ba <= readcache_addr(bank_high downto bank_low);
 							slot2_bank <= readcache_addr(bank_high downto bank_low);
-							cas_dqm <= "00";
+							cas_dqm <= (others => '0');
 							casaddr <= readcache_addr(31 downto 2) & "00"; -- We no longer mask off LSBs for burst read
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
@@ -747,25 +734,17 @@ end generate;
 							sdaddr <= readcache2_addr(row_high downto row_low);
 							ba <= readcache2_addr(bank_high downto bank_low);
 							slot2_bank <= readcache2_addr(bank_high downto bank_low);
-							cas_dqm <= "00";
+							cas_dqm <= (others => '0');
 							casaddr <= readcache2_addr(31 downto 2) & "00"; -- We no longer mask off LSBs for burst read
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
 						end if;
 						
-						-- Second word of reads if bypassing the cache
-						if sdram_slot1=port1 and dcache=false then
-							longword(15 downto 0)<=sdata_in;
-						end if;
-						if sdram_slot1=port2 and cache=false then
-							longword2(15 downto 0)<=sdata_in;
-						end if;
-
 				
 					when ph11 =>
 						-- third word of burst write
 						if sdram_slot1=writecache then
-							dqm<="11"; -- Mask off end of burst
+							dqm <= (others => '1'); -- Mask off end of write burst
 						end if;
 
 
@@ -777,7 +756,7 @@ end generate;
 							sd_cs<='0'; -- Chip select
 							ba<=slot1_bank;
 							sdaddr(10)<='0'; -- Precharge only the one bank.
-							dqm<="11"; -- Mask off end of burst
+							dqm <= (others => '1'); -- Mask off end of write burst
 						end if;
 
 					
@@ -790,7 +769,7 @@ end generate;
 							ba <= slot2_bank;
 							sd_cs <= '0';
 
-							dqm <= "00";
+							dqm <= (others => '0');
 
 							sd_ras <= '1';
 							sd_cas <= '0'; -- CAS
@@ -802,7 +781,7 @@ end generate;
 							ba <= slot2_bank;
 							sd_cs <= '0';
 
-							dqm <= "00";
+							dqm <= (others => '0');
 
 							sd_ras <= '1';
 							sd_cas <= '0'; -- CAS
@@ -829,15 +808,16 @@ end generate;
 							
 							sdwrite<='1';
 							datain <= writecache_word0;
-							dqm <= writecache_dqm(1 downto 0);
+							dqm <= writecache_dqm(dqmwidth-1 downto 0);
+							writecache_ack<='1'; -- End write burst after 32 bits.
 						end if;
 						
 						-- First word of reads if bypassing the cache
 						if sdram_slot2=port1 and dcache=false then
-							longword(31 downto 16)<=sdata_in;
+							longword<=sdata_in;
 						end if;
 						if sdram_slot2=port2 and cache=false then
-							longword2(31 downto 16)<=sdata_in;
+							longword2<=sdata_in;
 						end if;
 
 					when others =>

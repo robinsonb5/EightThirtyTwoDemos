@@ -176,7 +176,7 @@ U00 : entity work.pll
 		locked => pll_locked
 	);
 
-n_reset<=KEY(0);
+n_reset<=KEY(0) and pll_locked;
 
 
 -- External devices tied to GPIOs
