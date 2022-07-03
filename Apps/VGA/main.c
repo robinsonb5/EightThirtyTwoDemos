@@ -27,6 +27,7 @@ void initDisplay(void)
 {
 	FrameBuffer=(short *)malloc(sizeof(short)*640*480);
 	HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
+	HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB16;
 }
 
 #define SWAP(x) ((x<<8) | (x>>8))

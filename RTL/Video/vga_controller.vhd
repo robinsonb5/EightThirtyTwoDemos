@@ -20,7 +20,8 @@ use work.DMACache_config.ALL;
 
 entity vga_controller is
   generic(
-		enable_sprite : boolean := true
+		enable_sprite : boolean := true;
+		dmawidth : integer := 16
 	);
   port (
 		clk : in std_logic;
@@ -32,7 +33,7 @@ entity vga_controller is
 		reg_rw : in std_logic;
 		reg_req : in std_logic;
 
-		dma_data : in std_logic_vector(15 downto 0);
+		dma_data : in std_logic_vector(dmawidth-1 downto 0);
 		vgachannel_fromhost : out DMAChannel_FromHost;
 		vgachannel_tohost : in DMAChannel_ToHost;
 		spr0channel_fromhost : out DMAChannel_FromHost;
@@ -58,6 +59,7 @@ architecture rtl of vga_controller is
 	signal spr0setaddr : std_logic;
 	
 	signal framebuffer_pointer : std_logic_vector(31 downto 0) := X"00000000";
+	signal framebuffer_pixelformat : std_logic_vector(7 downto 0) := X"00";
 	constant hsize : unsigned(11 downto 0) := TO_UNSIGNED(640,12);
 	constant htotal : unsigned(11 downto 0) := TO_UNSIGNED(800,12);
 	constant hbstart : unsigned(11 downto 0) := TO_UNSIGNED(656,12);
@@ -78,7 +80,7 @@ architecture rtl of vga_controller is
 	signal currentX : unsigned(11 downto 0);
 	signal currentY : unsigned(11 downto 0);
 	signal end_of_pixel : std_logic;
-	signal vgadata : std_logic_vector(15 downto 0);
+	signal vgadata : std_logic_vector(dmawidth-1 downto 0);
 
 	signal vsync_r : std_logic;
 	signal hsync_r : std_logic;
@@ -150,6 +152,10 @@ begin
 						if reg_rw='0' then
 							framebuffer_pointer(31 downto 0) <= reg_data_in;
 						end if;
+					when X"04" =>
+						if reg_rw='0' then
+							framebuffer_pixelformat <= reg_data_in(7 downto 0);
+						end if;
 					when X"10" =>
 						if reg_rw='0' and enable_sprite then
 							sprite0_pointer(31 downto 0) <= reg_data_in;
@@ -216,88 +222,136 @@ begin
 		end if;
 	end process;
 	
-	
-	process(clk, reset,currentX, currentY)
+	framebuffer : block
+		signal pixcounter : unsigned(1 downto 0) := (others =>'0');
+		signal pixel_r : std_logic_vector(7 downto 0);
+		signal pixel_g : std_logic_vector(7 downto 0);
+		signal pixel_b : std_logic_vector(7 downto 0);
+		signal format : std_logic_vector(9 downto 0);
 	begin
-		if rising_edge(clk) then
-			sdr_refresh <='0';
-			if end_of_pixel='1' and currentX=hsize then
-				sdr_refresh<='1';
-			end if;
-		end if;
+	
+		format <= framebuffer_pixelformat & std_logic_vector(pixcounter);
+	
+		demux : if dmawidth=32 generate
+			-- Demultiplex 
+			process(vgadata,format) begin
+				case(format) is
+					when X"00"&"00" =>
+						pixel_r <= vgadata(31 downto 27)&"000";
+						pixel_g <= vgadata(26 downto 21)&"00";
+						pixel_b <= vgadata(20 downto 16)&"000";
+					when X"00"&"01" =>
+						pixel_r <= vgadata(15 downto 11)&"000";
+						pixel_g <= vgadata(10 downto 5)&"00";
+						pixel_b <= vgadata(4 downto 0)&"000";
+					when X"01"&"00" =>
+						pixel_r <= vgadata(31 downto 24);
+						pixel_g <= vgadata(23 downto 16);
+						pixel_b <= vgadata(15 downto 8);
+					when others =>
+						pixel_r<=(others => '0');
+						pixel_g<=(others => '0');
+						pixel_b<=(others => '0');
+				end case;		
+			end process;
+		end generate;
 		
-		if rising_edge(clk) then
-			vblank_int<='0';
-			vgachannel_fromhost.req<='0';
-			vgasetaddr<='0';
-			vgachannel_fromhost.setreqlen<='0';
-			spr0setaddr<='0';
-			spr0channel_fromhost.setreqlen<='0';	
+		demux16 : if dmawidth=16 generate
+			pixel_r <= vgadata(15 downto 11)&"000";
+			pixel_g <= vgadata(10 downto 5)&"00";
+			pixel_b <= vgadata(4 downto 0)&"000";		
+		end generate;
 
-			vgachannel_valid_d <= vgachannel_tohost.valid;
+
+		process(clk)
+		begin
+			if rising_edge(clk) then
+				sdr_refresh <='0';
+				if end_of_pixel='1' and currentX=hsize then
+					sdr_refresh<='1';
+				end if;
+			end if;
 			
-			if(vgachannel_valid_d='1') then
-				vgadata<=dma_data;
+			if rising_edge(clk) then
+				vblank_int<='0';
+				vgachannel_fromhost.req<='0';
+				vgasetaddr<='0';
+				vgachannel_fromhost.setreqlen<='0';
+				spr0setaddr<='0';
+				spr0channel_fromhost.setreqlen<='0';	
+
+				vgachannel_valid_d <= vgachannel_tohost.valid;
+				
+				if(vgachannel_valid_d='1') then
+					vgadata<=dma_data;
+				end if;
+
+
+				if end_of_pixel='1' then
+
+					if sprite_col(3)='1' then
+						red <= (others => sprite_col(2));
+						green <= (others=>sprite_col(1));
+						blue <= (others=>sprite_col(0));
+					else
+						red <= unsigned(pixel_r);
+						green <= unsigned(pixel_g);
+						blue <= unsigned(pixel_b);
+					end if;
+
+					vga_window_d<=vga_window_r;
+					vga_window<=vga_window_d;
+
+					if currentX<640 and currentY<480 then
+						vga_window_r<='1';
+						-- Request next pixel from VGA cache
+						if pixcounter="00" then
+							vgachannel_fromhost.req<='1';
+							case framebuffer_pixelformat is
+								when X"00" =>
+									pixcounter<="01";
+								when others =>
+									pixcounter<="00";
+							end case;
+						else
+							pixcounter<=pixcounter-1;
+						end if;						
+					else
+						vga_window_r<='0';
+						
+						-- New frame...
+						if currentY=vsize and currentX=0 then
+							vblank_int<='1';
+						end if;
+
+						-- Last line of VBLANK - update DMA pointers
+						if currentY=vtotal then
+								if currentX=0 then
+									vgachannel_fromhost.addr<=framebuffer_pointer;
+									vgasetaddr<='1';
+								elsif currentX=1 then
+									spr0channel_fromhost.addr<=sprite0_pointer;
+									spr0setaddr<='1';
+								end if;
+						end if;
+						
+						if currentX=(htotal - 20) then	-- Signal to SDRAM controller that we're about to start displaying
+							case framebuffer_pixelformat is
+								when X"00" =>
+									vgachannel_fromhost.reqlen<=TO_UNSIGNED(320,16);
+								when others =>
+									vgachannel_fromhost.reqlen<=TO_UNSIGNED(640,16);
+							end case;								
+							vgachannel_fromhost.setreqlen<='1';
+						elsif enable_sprite and currentX=(htotal - 19) then
+							spr0channel_fromhost.reqlen<=TO_UNSIGNED(4,16);
+							spr0channel_fromhost.setreqlen<='1';
+						end if;
+					end if;
+				end if;
 			end if;
+		end process;
+	end block;
 
-
-			if end_of_pixel='1' then
-
-				if sprite_col(3)='1' then
-					red <= (others => sprite_col(2));
-				else
-					red <= unsigned(vgadata(15 downto 11)&"000");
-				end if;
-
-				if sprite_col(3)='1' then
-					green <= (others=>sprite_col(1));
-				else
-					green <= unsigned(vgadata(10 downto 5)&"00");
-				end if;
-
-				if sprite_col(3)='1' then
-					blue <= (others=>sprite_col(0));
-				else
-					blue <= unsigned(vgadata(4 downto 0)&"000");
-				end if;
-
-				vga_window_d<=vga_window_r;
-				vga_window<=vga_window_d;
-
-				if currentX<640 and currentY<480 then
-					vga_window_r<='1';
-					-- Request next pixel from VGA cache
-					vgachannel_fromhost.req<='1';
-					
-				else
-					vga_window_r<='0';
-					
-					-- New frame...
-					if currentY=vsize and currentX=0 then
-						vblank_int<='1';
-					end if;
-
-					-- Last line of VBLANK - update DMA pointers
-					if currentY=vtotal then
-							if currentX=0 then
-								vgachannel_fromhost.addr<=framebuffer_pointer;
-								vgasetaddr<='1';
-							elsif currentX=1 then
-								spr0channel_fromhost.addr<=sprite0_pointer;
-								spr0setaddr<='1';
-							end if;
-					end if;
-					
-					if currentX=(htotal - 20) then	-- Signal to SDRAM controller that we're about to start displaying
-						vgachannel_fromhost.reqlen<=TO_UNSIGNED(640,16);
-						vgachannel_fromhost.setreqlen<='1';
-					elsif enable_sprite and currentX=(htotal - 19) then
-						spr0channel_fromhost.reqlen<=TO_UNSIGNED(4,16);
-						spr0channel_fromhost.setreqlen<='1';
-					end if;
-				end if;
-			end if;
-		end if;
-	end process;
 		
 end architecture;

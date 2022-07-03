@@ -546,6 +546,7 @@ mysdram : entity work.sdram_cached_wide
 	
 	myvga : entity work.vga_controller
 		generic map (
+			dmawidth => 32,
 			enable_sprite => false
 		)
 		port map (
@@ -560,7 +561,7 @@ mysdram : entity work.sdram_cached_wide
 
 		sdr_refresh => vga_refresh,
 
-		dma_data => dma_data(15 downto 0),
+		dma_data => dma_data,
 		vgachannel_fromhost => vgachannel_fromhost,
 		vgachannel_tohost => vgachannel_tohost,
 		spr0channel_fromhost => spr0channel_fromhost,
@@ -646,7 +647,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others =
 
 -- ROM
 
-	rom : entity work.SoC_rom
+	rom : entity work.SoCWide_rom
 	generic map(
 		ADDR_WIDTH => 13
 	)

@@ -25,7 +25,7 @@ RTL/DMACache_config.vhd
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
 
 
-Firmware/SoC_ROM.rom
+Firmware/SoCWide_ROM.rom
 
 RTL/SoCWide_VirtualToplevel.vhd
 

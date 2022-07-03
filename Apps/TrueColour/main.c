@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
  
-unsigned short *FrameBuffer;	// Frame Buffer pointer
+unsigned int *FrameBuffer;	// Frame Buffer pointer
 int screenwidth=640;		// Initial screen width
 int screenheigth=480;		// Initial screen heigth
 
@@ -20,7 +20,9 @@ void makeRect(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE
 		yoff = y * screenwidth;
 		for (x = xS; x <= xE; x += 1)
 		{
-			*(FrameBuffer + x + yoff) = color;
+			int t=*(FrameBuffer + x + yoff);
+			t=((t>>1)&0x7f7f7f7f)+((color>>1)&0x7f7f7f7f);
+			*(FrameBuffer + x + yoff) = t;
 		}
 	}
 }
@@ -28,10 +30,10 @@ void makeRect(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE
 
 void initDisplay(void)
 {
-	FrameBuffer=(short *)malloc(sizeof(short)*640*480);
+	FrameBuffer=(short *)malloc(sizeof(int)*640*480);
 	HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
-	HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB16;
-	memset(FrameBuffer,0,sizeof(short)*640*480);
+	HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB32;
+	memset(FrameBuffer,0,sizeof(int)*640*480);
 }
 
 
@@ -43,7 +45,7 @@ int main(int argc, char **argv)
 
 	while(1)
 	{
-		unsigned int c=rand()&0xffff;
+		unsigned int c=rand()&0x00fffffff;
 		unsigned int x=rand()%640u;
 		unsigned int y=rand()%480u;
 		unsigned int w=640-x;

@@ -4,6 +4,8 @@
 -- Copyright (c) 2009 Tobias Gubener                                        -- 
 -- Subdesign fAMpIGA by TobiFlex                                            --
 --                                                                          --
+-- Second access slot, cache and 8-word burst added by AMR                  --
+--                                                                          --
 -- This source file is free software: you can redistribute it and/or modify --
 -- it under the terms of the GNU General Public License as published        --
 -- by the Free Software Foundation, either version 3 of the License, or     --
@@ -28,7 +30,7 @@ use IEEE.numeric_std.ALL;
 entity sdram_cached_wide is
 generic
 	(
-		rows : integer := 12;	-- FIXME - change access sizes according to number of rows
+		rows : integer := 12;
 		cols : integer := 8;
 		cache : boolean := true;
 		dcache : boolean := true;
@@ -447,7 +449,12 @@ end generate;
 					slot2_ack<='1';
 				when ph2 => sdram_state <= ph3;
 					slot2_ack<='0';
-				when ph3 =>	sdram_state <= ph4;
+				when ph3 =>
+					if init_done='1' and sdram_slot1=idle and sdram_slot2=idle then
+						sdram_state<=ph2;
+					else
+						sdram_state<=ph4;
+					end if;
 				when ph4 =>	sdram_state <= ph5;
 				when ph5 => sdram_state <= ph6;
 				when ph6 =>	sdram_state <= ph7;
@@ -565,7 +572,7 @@ end generate;
 								sdaddr <= vga_addr(row_high downto row_low);
 								ba <= vga_addr(bank_high downto bank_low);
 								slot1_bank <= vga_addr(bank_high downto bank_low);
-								casaddr <= vga_addr(31 downto 4) & "0000"; -- read whole cache line in burst mode.
+								casaddr <= vga_addr(31 downto 5) & "00000"; -- read whole cache line in burst mode.
 								sd_cs <= '0'; --ACTIVE
 								sd_ras <= '0';
 								vga_ack<='1'; -- Signal to VGA controller that it can bump bankreserve
@@ -829,3 +836,25 @@ end generate;
 		END IF;	
 	END process;		
 END;
+
+-- Phases                  SLOT 1                                        SLOT 2
+-- (d = driving bus)
+--           FPGA          SDRAM         FPGA             FPGA           SDRAM           FPGA
+-- ph0                                   r 8th word                      (launch) d
+-- ph1                                                    WRITE      d            d      r1
+-- ph2       ACT                                          w 2nd word d            d      r2
+-- ph3                     (act)                          w 3rd word d            d      r3
+-- ph4                                                    w 4th word d            d      r4
+-- ph5       READ                                                                 d      r5
+-- ph6       (dqm)         (read)                                                 d      r6
+-- ph7       (dqm)                                                                d      r7
+-- ph8       (dqm)         (launch) d                                                    r8
+-- ph9       WRITE      d           d    r 1st word
+-- ph10      w 2nd word d           d    r 2nd word       ACT
+-- ph11      w 3rd word d           d    r 3rd word                      (act)
+-- ph12      w 4th word d           d    r 4th word
+-- ph13                             d    r 5th word       READ
+-- ph14                             d    r 6th word                      (read)
+-- ph15                             d    r 7th word
+
+

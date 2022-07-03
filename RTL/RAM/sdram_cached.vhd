@@ -4,6 +4,8 @@
 -- Copyright (c) 2009 Tobias Gubener                                        -- 
 -- Subdesign fAMpIGA by TobiFlex                                            --
 --                                                                          --
+-- Second access slot, cache and 8-word burst added by AMR                  --
+--                                                                          --
 -- This source file is free software: you can redistribute it and/or modify --
 -- it under the terms of the GNU General Public License as published        --
 -- by the Free Software Foundation, either version 3 of the License, or     --
@@ -28,7 +30,7 @@ use IEEE.numeric_std.ALL;
 entity sdram_cached is
 generic
 	(
-		rows : integer := 12;	-- FIXME - change access sizes according to number of rows
+		rows : integer := 12;
 		cols : integer := 8;
 		cache : boolean := true;
 		dcache : boolean := true

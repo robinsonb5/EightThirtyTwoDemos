@@ -42,10 +42,12 @@ $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
 	$(SCRIPTSDIR)/expandtemplate_yosys.sh $(BOARDDIR)/board.files $(BOARDDIR) >$@
 	$(SCRIPTSDIR)/expandtemplate_yosys.sh $+ $(PROJECTDIR) >>$@
 
-$(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl
-
-$(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf $(DEPS)
+$(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf $(DEPS)
+	-rm $@
 	$(TOOLPATH)yosys -mghdl -p 'tcl $(SCRIPTSDIR)/mkproject_yosys.tcl $(PROJECT) $(BOARD)' || echo "yosys not found - skipping compilation."
+
+$(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl
+	-rm $@
 	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
 
 $(BITFILE): $(CFGFILE)
