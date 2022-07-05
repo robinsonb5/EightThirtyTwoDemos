@@ -1103,21 +1103,16 @@ void mt_init(unsigned char *mt_data)
 static void timer_interrupt()
 {
 	int ints;
-	DisableInterrupts();
-	ints=GetInterrupts();
-	if(ints&1)
-	{
-		tick=1;
-		mt_music();
-	}
-	EnableInterrupts();
+	tick=1;
+	mt_music();
 }
 
 static struct InterruptHandler handler =
 {
 	0,
 	timer_interrupt,
-	0
+	0,
+	INTERRUPT_TIMER
 };
 
 

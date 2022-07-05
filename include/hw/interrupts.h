@@ -11,6 +11,18 @@
 
 #define REG_INTERRUPT_CTRL 0x0
 
+#define INTERRUPT_ENABLE_B 0x00
+#define INTERRUPT_ENABLE_F 0x01
+
+#define INTERRUPT_ACKNOWLEDGE_B 0x08
+#define INTERRUPT_ACKNOWLEDGE_F 0x100
+
+#define INTERRUPT_TIMER 0
+#define INTERRUPT_VBLANK 1
+#define INTERRUPT_PS2 2
+#define INTERRUPT_SERIAL 3
+#define INTERRUPT_AUDIO 4
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,8 +30,9 @@ extern "C" {
 struct InterruptHandler
 {
 	struct InterruptHandler *next;
-	void (*handler)();
+	void (*handler)(void *);
 	void *userdata;
+	int bit;
 };
 
 void AddInterruptHandler(struct InterruptHandler *handler);
@@ -27,6 +40,7 @@ void RemoveInterruptHandler(struct InterruptHandler *handler);
 void EnableInterrupts();
 int DisableInterrupts();
 volatile int GetInterrupts();
+void AcknowledgeInterrupts();
 
 #ifdef __cplusplus
 }

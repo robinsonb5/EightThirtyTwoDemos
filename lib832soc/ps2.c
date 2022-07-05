@@ -49,7 +49,8 @@ static struct InterruptHandler ps2_inthandler=
 {
 	0,
 	PS2Handler,
-	0
+	0,
+	INTERRUPT_PS2
 };
 
 __constructor(101.ps2) void PS2Init()

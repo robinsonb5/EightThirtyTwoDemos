@@ -7,14 +7,17 @@ static int enabled;
 static void inthandler()
 {
 	struct InterruptHandler *handler;
+	int interrupts;
 	DisableInterrupts();
+	interrupts=GetInterrupts();
 	handler=intchain;
 	while(handler)
 	{
-		handler->handler(handler->userdata);
+		if(interrupts & (1<<handler->bit))
+			handler->handler(handler->userdata);
 		handler=handler->next;
 	}
-	GetInterrupts();	/* Acknowledge interrupts signalled so far */
+	AcknowledgeInterrupts();	/* Acknowledge interrupts signalled so far */
 	EnableInterrupts();
 }
 
@@ -76,11 +79,23 @@ volatile int GetInterrupts()
 	return(HW_INTERRUPT(REG_INTERRUPT_CTRL));
 }
 
+void AcknowledgeInterrupts()
+{
+	HW_INTERRUPT(REG_INTERRUPT_CTRL)=INTERRUPT_ENABLE_F | INTERRUPT_ACKNOWLEDGE_F;
+	enabled=1;
+}
 
 void EnableInterrupts()
 {
 	HW_INTERRUPT(REG_INTERRUPT_CTRL)=1;
 	enabled=1;
+}
+
+void EnableInterruptsAndSleep()
+{
+	enabled=1;
+	HW_INTERRUPT(REG_INTERRUPT_CTRL)=1;
+	__asm("\tcond nex\n\tmr r0\n");
 }
 
 

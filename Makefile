@@ -49,6 +49,8 @@ project_help:
 	$(info )
 	$(info SoC - a system-on-chip with SDRAM, video and sound.)
 	$(info )
+	$(info SoCWide - a version of SoC which makes use of 32-bit wide SDRAM.)
+	$(info )
 
 board_help:
 	$(info )

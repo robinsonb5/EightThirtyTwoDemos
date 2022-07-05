@@ -25,7 +25,8 @@ static struct InterruptHandler uart_inthandler=
 {
 	0,
 	UARTHandler,
-	0
+	0,
+	INTERRUPT_SERIAL
 };
 
 __constructor(101.uart) void UARTInit()

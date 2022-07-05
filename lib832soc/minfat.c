@@ -464,7 +464,6 @@ void FileSeek(fileTYPE *file, uint32_t pos)
 void FileSeek(fileTYPE *file, uint32_t pos)
 {
 	uint32_t p=pos;
-//	printf("Fseek: %d, %d\n",file->cursor,pos);
 	if(p<(file->cursor&(~cluster_mask)))
 	{
 		file->sector=0;
@@ -484,10 +483,12 @@ unsigned int FileRead(fileTYPE *file, unsigned char *buffer, int count)
 	unsigned char *p;
 	int c;
 	uint32_t curs;
+	uint32_t result;
 	if(count+file->cursor>file->size)
 		count=file->size-file->cursor;
 	if(count<=0)
 		return(0);
+	result=count;
 	curs=file->cursor&0x1ff;
 	if(curs)
 	{
@@ -499,7 +500,8 @@ unsigned int FileRead(fileTYPE *file, unsigned char *buffer, int count)
 		count-=c;
 		while(c--)
 			*buffer++=*p++;
-		FileNextSector(file,1);
+		if(count)
+			FileNextSector(file,1);
 	}
 	while(count>0)
 	{
@@ -510,6 +512,8 @@ unsigned int FileRead(fileTYPE *file, unsigned char *buffer, int count)
 			file->cursor+=512;
 			count-=512;
 			FileNextSector(file,1);
+			if(!count)	/* Make sure we don't leave a stale sector buffer */
+				FileReadSector(file, sector_buffer);
 		}
 		else
 		{
@@ -520,7 +524,7 @@ unsigned int FileRead(fileTYPE *file, unsigned char *buffer, int count)
 				*buffer++=*p++;
 		}
 	}
-	return(1);
+	return(result);
 }
 
 

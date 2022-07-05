@@ -138,7 +138,7 @@ signal ser2_rxint : std_logic;
 
 -- Interrupt signals
 
-constant int_max : integer := 3;
+constant int_max : integer := 4;
 signal int_triggers : std_logic_vector(int_max downto 0);
 signal int_status : std_logic_vector(int_max downto 0);
 signal int_ack : std_logic;
@@ -206,6 +206,11 @@ signal aud3_fromhost : DMAChannel_FromHost;
 signal aud3_tohost : DMAChannel_ToHost;
 
 signal audio_reg_req : std_logic;
+signal audio_ints : std_logic_vector(3 downto 0);
+signal audio_int : std_logic;
+
+signal audio_l_i : signed(23 downto 0);
+signal audio_r_i : signed(23 downto 0);
 
 -- VGA register block signals
 
@@ -601,9 +606,13 @@ myaudio : entity work.sound_wrapper
 		channel3_fromhost => aud3_fromhost,
 		channel3_tohost => aud3_tohost,
 
-		audio_l => audio_l,
-		audio_r => audio_r
+		audio_l => audio_l_i,
+		audio_r => audio_r_i,
+		audio_ints => audio_ints
 	);
+
+audio_l<=audio_l_i(23 downto 8);
+audio_r<=audio_r_i(23 downto 8);
 
 	
 mytimer : entity work.timer_controller
@@ -639,7 +648,8 @@ port map (
 	status => int_status
 );
 
-int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, others => '0');
+audio_int <= '0' when audio_ints="0000" else '1';
+int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, 4=>audio_int, others => '0');
 
 
 -- ROM

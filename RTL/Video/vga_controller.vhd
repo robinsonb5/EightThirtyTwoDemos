@@ -231,7 +231,7 @@ begin
 	begin
 	
 		format <= framebuffer_pixelformat & std_logic_vector(pixcounter);
-	
+
 		demux : if dmawidth=32 generate
 			-- Demultiplex 
 			process(vgadata,format) begin
@@ -326,13 +326,13 @@ begin
 
 						-- Last line of VBLANK - update DMA pointers
 						if currentY=vtotal then
-								if currentX=0 then
-									vgachannel_fromhost.addr<=framebuffer_pointer;
-									vgasetaddr<='1';
-								elsif currentX=1 then
-									spr0channel_fromhost.addr<=sprite0_pointer;
-									spr0setaddr<='1';
-								end if;
+							if currentX=0 then
+								vgachannel_fromhost.addr<=framebuffer_pointer;
+								vgasetaddr<='1';
+							elsif currentX=1 then
+								spr0channel_fromhost.addr<=sprite0_pointer;
+								spr0setaddr<='1';
+							end if;
 						end if;
 						
 						if currentX=(htotal - 20) then	-- Signal to SDRAM controller that we're about to start displaying

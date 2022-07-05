@@ -274,7 +274,7 @@ begin
 				internals(I).count(DMACache_ReqLenMaxBit downto 0)<=channels_from_host(I).reqlen;
 				internals(I).count(DMACache_ReqLenMaxBit+1)<='0';
 				internals(I).extend<='1'; -- If the data isn't burst-aligned we need to read an extra burst.
-				if internals(I).addr(3 downto 0)="0000" then
+				if internals(I).addr(4 downto 0)="00000" then
 					internals(I).extend<='0';
 				end if;
 				channels_to_host(I).done<='0';

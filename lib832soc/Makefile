@@ -17,7 +17,7 @@ clean :
 	-rm *.a
 
 
-lib832soc.a : $(OBJDIR)/interrupts.o $(OBJDIR)/syscalls.o $(OBJDIR)/uart_buffered.o \
+lib832soc.a : $(OBJDIR)/interrupts.o $(OBJDIR)/syscalls.o $(OBJDIR)/uart_buffered.o $(OBJDIR)/signals.o \
 				$(OBJDIR)/minfat.o $(OBJDIR)/keyboard.o $(OBJDIR)/ps2.o $(OBJDIR)/hw_ringbuffer.o \
 				$(OBJDIR)/spi_c.o $(OBJDIR)/hexdump.o $(OBJDIR)/malloc.o $(OBJDIR)/swap.o $(OBJDIR)/rand.o
 	cat >$@ $+

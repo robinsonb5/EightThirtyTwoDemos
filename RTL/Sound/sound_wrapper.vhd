@@ -9,6 +9,7 @@ use work.DMACache_config.ALL;
 
 entity sound_wrapper is
 	generic (
+		dmawidth : integer := 16;
 		clk_frequency : integer := 1000 -- System clock frequency
 	);
 	port (
@@ -21,7 +22,7 @@ entity sound_wrapper is
 		reg_rw : in std_logic;
 		reg_req : in std_logic;
 
-		dma_data : in std_logic_vector(15 downto 0);
+		dma_data : in std_logic_vector(dmawidth-1 downto 0);
 		channel0_fromhost : out DMAChannel_FromHost;
 		channel0_tohost : in DMAChannel_ToHost;
 		channel1_fromhost : out DMAChannel_FromHost;
@@ -31,8 +32,8 @@ entity sound_wrapper is
 		channel3_fromhost : out DMAChannel_FromHost;
 		channel3_tohost : in DMAChannel_ToHost;
 		
-		audio_l : out signed(15 downto 0);
-		audio_r : out signed(15 downto 0);
+		audio_l : out signed(23 downto 0);
+		audio_r : out signed(23 downto 0);
 		audio_ints : out std_logic_vector(3 downto 0)
 	);
 end entity;
@@ -51,10 +52,10 @@ architecture rtl of sound_wrapper is
 
 	-- The output of each channel.  Aud0 and 3 will be summed to make the left channel
 	-- while aud1 and 2 will be summed to make the right channel.
-	signal aud0 : signed(13 downto 0);
-	signal aud1 : signed(13 downto 0);
-	signal aud2 : signed(13 downto 0);
-	signal aud3 : signed(13 downto 0);
+	signal aud0 : signed(21 downto 0);
+	signal aud1 : signed(21 downto 0);
+	signal aud2 : signed(21 downto 0);
+	signal aud3 : signed(21 downto 0);
 
 	signal reg_addr : std_logic_vector(7 downto 0);
 	signal req : std_logic_vector(3 downto 0);
@@ -82,8 +83,8 @@ port map (
 	sel3<='1' when reg_addr_in(6 downto 5)="11" else '0';
 	audio_l(0)<='0';
 	audio_r(0)<='0';
-	audio_l(15 downto 1)<=(aud0(13)&aud0)+(aud3(13)&aud3);
-	audio_r(15 downto 1)<=(aud1(13)&aud1)+(aud2(13)&aud2);
+	audio_l(23 downto 1)<=(aud0(21)&aud0)+(aud3(21)&aud3);
+	audio_r(23 downto 1)<=(aud1(21)&aud1)+(aud2(21)&aud2);
 
 reg_addr <= "000" & reg_addr_in(4 downto 0);
 req(0) <= reg_req and sel0;
@@ -92,6 +93,9 @@ req(2) <= reg_req and sel2;
 req(3) <= reg_req and sel3;
 
 channel0 : entity work.sound_controller
+	generic map (
+		dmawidth => dmawidth
+	)
 	port map (
 		clk => clk,
 		reset => reset,
@@ -112,6 +116,9 @@ channel0 : entity work.sound_controller
 	);
 
 channel1 : entity work.sound_controller
+	generic map (
+		dmawidth => dmawidth
+	)
 	port map (
 		clk => clk,
 		reset => reset,
@@ -132,6 +139,9 @@ channel1 : entity work.sound_controller
 	);
 
 channel2 : entity work.sound_controller
+	generic map (
+		dmawidth => dmawidth
+	)
 	port map (
 		clk => clk,
 		reset => reset,
@@ -152,6 +162,9 @@ channel2 : entity work.sound_controller
 	);
 
 channel3 : entity work.sound_controller
+	generic map (
+		dmawidth => dmawidth
+	)
 	port map (
 		clk => clk,
 		reset => reset,

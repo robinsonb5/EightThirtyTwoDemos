@@ -1,4 +1,4 @@
-APPS = HelloWorld Dhrystone Dhrystone_Dual Malloc PS2Keyboard Filesystem Modplay Conway AppHost UBasic RandTest VGA TrueColour
+APPS = HelloWorld Dhrystone Dhrystone_Dual Malloc PS2Keyboard Filesystem Modplayer Conway AppHost UBasic RandTest VGA Interrupts WAVPlayer TrueColour
 
 all:
 	for APP in ${APPS}; do \

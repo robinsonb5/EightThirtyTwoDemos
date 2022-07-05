@@ -100,7 +100,6 @@ __weak ssize_t write(int fd, const void *buf, size_t nbytes)
 __weak ssize_t read(int fd, void *buf, size_t nbytes)
 {
 	char *b=(char *)buf;
-	printf("Reading %d bytes from fd %d\n",nbytes,fd);
 	if(fd==0) // stdin
 	{
 		// Read from UART
@@ -119,8 +118,11 @@ __weak ssize_t read(int fd, void *buf, size_t nbytes)
 		// Handle reading from SD card
 		if(FILEHANDLE(fd))
 		{
-			if(FileRead(FILEHANDLE(fd),b,nbytes))
-				return(nbytes);
+			int result;
+			if((result=FileRead(FILEHANDLE(fd),b,nbytes)))
+			{
+				return(result);
+			}
 			else
 			{
 				__errno=EIO;
@@ -141,7 +143,7 @@ __weak int access(const char *filename,int flags)
 		return(-1);
 	if(flags & W_OK)
 		return(-1);
-	if(FileFind(filename))
+	if(FindDirEntry(filename))
 		return(0);
 	return(-1);
 }
@@ -233,25 +235,23 @@ __weak off_t lseek(int fd,  off_t offset, int whence)
 	}
 	else if(FILEHANDLE(fd))
 	{
-		int pos=FILEHANDLE(fd)->cursor;
-		switch(whence)
+		int pos;
+		if(whence==SEEK_CUR)
+			pos=FileTell(FILEHANDLE(fd));
+		else if(whence==SEEK_SET)
+			pos=0;
+		else if(whence==SEEK_END)
+			pos=FILEHANDLE(fd)->size;
+		else
 		{
-			case SEEK_SET:
-				pos=0;
-			case SEEK_CUR:
-#ifndef DISABLE_FILESYSTEM
-				FileSeek(FILEHANDLE(fd),pos+offset);
-#endif
-				return((off_t)FILEHANDLE(fd)->cursor);
-				break;
-			case SEEK_END:
-				__errno = EINVAL;
-				printf("SEEK_END not yet supported\n");
-				return((off_t)-1);
-				break;
-			default:
-				break;
+			__errno = EINVAL;
+			return((off_t)-1);
 		}
+
+#ifndef DISABLE_FILESYSTEM
+		FileSeek(FILEHANDLE(fd),pos+offset);
+#endif
+		return((off_t)FileTell(FILEHANDLE(fd));
 	}
 }
 
@@ -311,6 +311,16 @@ __weak int stat(const char *path, struct stat *buf)
 {
 	__errno = EIO;
 	return (-1);
+}
+
+
+/* Currently only supports a single path name from the current directory */
+__weak int chdir(const char *path)
+{
+	DIRENTRY *d=FindDirEntry(path);
+	if(d)
+		ChangeDirectory(d);
+	return(d ? 0 : -1);
 }
 
 

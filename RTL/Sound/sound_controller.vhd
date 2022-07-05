@@ -16,6 +16,9 @@ use work.DMACache_config.ALL;
 
 
 entity sound_controller is
+	generic (
+		dmawidth : integer := 16
+	);
 	port (
 		clk : in std_logic;
 		reset : in std_logic;
@@ -27,11 +30,11 @@ entity sound_controller is
 		reg_rw : in std_logic;
 		reg_req : in std_logic;
 
-		dma_data : in std_logic_vector(15 downto 0);
+		dma_data : in std_logic_vector(dmawidth-1 downto 0);
 		channel_fromhost : out DMAChannel_FromHost;
 		channel_tohost : in DMAChannel_ToHost;
 		
-		audio_out : out signed(13 downto 0);
+		audio_out : out signed(21 downto 0);
 		audio_int : out std_logic
 	);
 end entity;
@@ -45,12 +48,15 @@ architecture rtl of sound_controller is
 	signal period : std_logic_vector(15 downto 0);
 	signal periodcounter : unsigned(15 downto 0);
 	signal volume : signed(6 downto 0);
+	signal pan : std_logic_vector(1 downto 0);
+	signal format : std_logic_vector(1 downto 0);
+	signal mode : std_logic_vector(1 downto 0);
 
 	-- Sound data
-	signal hibyte : std_logic;
-	signal sampleword : std_logic_vector(15 downto 0);
-	signal sample : signed(7 downto 0);
-	signal sampleout : signed(14 downto 0);
+	signal byte : unsigned(1 downto 0);
+	signal sampleword : std_logic_vector(dmawidth-1 downto 0);
+	signal sample : signed(15 downto 0);
+	signal sampleout : signed(22 downto 0);
 	signal sampletick : std_logic; 	-- single pulse on underflow of period counter
 	signal trigger : std_logic;
 	signal valid_d : std_logic;
@@ -61,8 +67,28 @@ begin
 
 
 	-- Multiplexer, selects between high and low byte of the sampleword.
-	sample <= signed(sampleword(15 downto 8)) when hibyte='1' else signed(sampleword(7 downto 0));
-	audio_out<=sampleout(13 downto 0);
+	demux16 : if dmawidth=16 generate
+		signal sel : std_logic_vector(3 downto 0);
+	begin
+		sel <= std_logic_vector(byte) & format; 
+ 		sample <= signed(sampleword(15 downto 8)&X"00") when sel="0100" else
+		          signed(sampleword(7 downto 0)&X"00") when sel="0000" else
+		          signed(sampleword(7 downto 0) & sampleword(15 downto 8));
+	end generate;
+
+	demux32 : if dmawidth=32 generate
+		signal sel : std_logic_vector(3 downto 0);
+	begin
+		sel <= std_logic_vector(byte) & format; 
+		sample <= signed(sampleword(31 downto 24)&X"00") when sel="1100" else
+		          signed(sampleword(23 downto 16)&X"00") when sel="1000" else
+		          signed(sampleword(15 downto 8)&X"00") when sel="0100" else
+		          signed(sampleword(7 downto 0)&X"00") when sel="0000" else
+		          signed(sampleword(23 downto 16) & sampleword(31 downto 24)) when sel="0101" else
+		          signed(sampleword(7 downto 0) & sampleword(15 downto 8));
+	end generate;
+
+	audio_out<=sampleout(21 downto 0);
 
 	-- Handle CPU access to hardware registers
 	
@@ -76,13 +102,17 @@ begin
 			channel_fromhost.addr <= (others => '0');
 			channel_fromhost.setaddr <= '0';
 			volume(5 downto 0) <= (others => '0');
-			hibyte <='0';
+			byte <="00";
 			trigger <='0';
 			datalen<=(others => '0');
 			sampleword <= (others => '0');
 			reg_data_out<=(others => '0');
 			period <= (others => '0');
 			sampleout <= (others => '0');
+			audio_int <= '0';
+			mode <= (others =>'0');
+			pan <= (others =>'0');
+			format <= (others =>'0');
 		elsif rising_edge(clk) then
 
 			-- Register sampleout to reduce combinational length and pipeline the multiplication
@@ -93,20 +123,33 @@ begin
 			channel_fromhost.req <='0';
 			reg_data_out<=(others => '0');
 			trigger<='0';
-
+			audio_int <= '0';
 			if sampletick='1' then
-				if hibyte='0' and datalen/=X"0000" then
+				if byte="00" and datalen/=X"0000" then
 					-- request one sample
 					channel_fromhost.req<='1';
 					datalen<=datalen-1;
 				else
-					hibyte<='0';
+					byte<=byte-1;
+				end if;
+				
+				if byte="01" then
 					if datalen=X"0000" then
 						channel_fromhost.addr <= datapointer;
-						channel_fromhost.setaddr <='1';			
-						channel_fromhost.reqlen <= repeatlen;
-						datalen <= repeatlen;
+						channel_fromhost.setaddr <='1';
+						if dmawidth=32 then
+							datalen(15)<='0';
+							datalen(14 downto 0) <= repeatlen(15 downto 1);
+							channel_fromhost.reqlen(15)<='0';
+							channel_fromhost.reqlen(14 downto 0) <= repeatlen(15 downto 1);
+						else
+							datalen <= repeatlen;
+							channel_fromhost.reqlen <= repeatlen;
+						end if;
 						channel_fromhost.setreqlen <='1';
+						if repeatlen/=X"0000" then
+							audio_int <= mode(0);
+						end if;
 					end if;
 				end if;
 			-- Channel fetch
@@ -116,7 +159,19 @@ begin
 			
 			if valid_d='1' then
 				sampleword<=dma_data;
-				hibyte <= '1'; -- First or second sample from the word?
+				if dmawidth=16 then
+					if format="00" then
+						byte <= "01"; -- First of two bytes
+					else
+						byte <= "00"; -- Only one word
+					end if;
+				else
+					if format="00" then
+						byte <= "11"; -- First of four bytes
+					else
+						byte <= "01"; -- First of two words
+					end if;
+				end if;
 			end if;
 
 			if reg_req='1' and reg_rw='0' then
@@ -127,12 +182,19 @@ begin
 						repeatlen <= unsigned(reg_data_in(15 downto 0));
 					when X"08" => -- Trigger
 						channel_fromhost.addr <= datapointer;
-						channel_fromhost.setaddr <='1';			
-						channel_fromhost.reqlen <= repeatlen;
-						datalen <= repeatlen;
+						channel_fromhost.setaddr <='1';
+						if dmawidth=32 then
+							datalen(15)<='0';
+							datalen(14 downto 0) <= repeatlen(15 downto 1);
+							channel_fromhost.reqlen(15)<='0';
+							channel_fromhost.reqlen(14 downto 0) <= repeatlen(15 downto 1);
+						else
+							datalen <= repeatlen;
+							channel_fromhost.reqlen <= repeatlen;
+						end if;
 						channel_fromhost.setreqlen <='1';
 						trigger<='1';
-						hibyte<='1';
+						byte<="01";
 					when X"0c" => -- Period
 						period <= reg_data_in(15 downto 0);
 					when X"10" => -- Volume
@@ -141,6 +203,12 @@ begin
 						else
 							volume(5 downto 0) <= signed(reg_data_in(5 downto 0));
 						end if;
+					when X"14" => -- Panning
+						pan <= reg_data_in(1 downto 0);
+					when X"18" => -- Sample format
+						format <= reg_data_in(1 downto 0);
+					when X"1C" => -- Mode
+						mode <= reg_data_in(1 downto 0);
 					when others =>
 				end case;
 			end if;
