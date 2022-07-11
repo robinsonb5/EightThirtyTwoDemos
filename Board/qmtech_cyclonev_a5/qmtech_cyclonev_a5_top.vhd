@@ -2,6 +2,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.Toplevel_Config.all;
+
 -- -----------------------------------------------------------------------
 
 entity qmtech_cyclonev_a5_top is
@@ -141,10 +144,10 @@ virtualtoplevel : entity work.VirtualToplevel
 		vga_window => vga_window,
 
 		-- SDRAM
-		sdr_data_in => DRAM_DQ(15 downto 0),
-		sdr_data_out => DRAM_DQ(15 downto 0),
+		sdr_data_in => DRAM_DQ(Toplevel_SDRAMWidth-1 downto 0),
+		sdr_data_out => DRAM_DQ(Toplevel_SDRAMWidth-1 downto 0),
 		sdr_addr	=> DRAM_ADDR,
-		sdr_dqm => DRAM_DQM(1 downto 0),
+		sdr_dqm => DRAM_DQM(Toplevel_SDRAMWidth/8-1 downto 0),
 		sdr_we => DRAM_WE_N,
 		sdr_cas => DRAM_CAS_N,
 		sdr_ras => DRAM_RAS_N,

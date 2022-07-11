@@ -26,7 +26,7 @@ char small_blinker[] = {
 char temp_blinker[BLINKER_SIZE*BLINKER_SIZE];
  
 #define FIELD_SIZE 45
-#define FIELD_GEN 175
+#define FIELD_GEN 64
 char field[FIELD_SIZE * FIELD_SIZE];
 char temp_field[FIELD_SIZE*FIELD_SIZE];
  
@@ -120,7 +120,7 @@ void dump_rectangles(const char *f, int size)
 			if (f[(y*size)+x] == 0)
 				makeRect(x*cellSize,y*cellSize,(x*cellSize)+cellSize-1,(y*cellSize)+cellSize-1,0);
 			else
-				makeRect(x*cellSize,y*cellSize,(x*cellSize)+cellSize-1,(y*cellSize)+cellSize-1,Random());
+				makeRect(x*cellSize,y*cellSize,(x*cellSize)+cellSize-1,(y*cellSize)+cellSize-1,rand());
 		}
 	}
 }
@@ -130,16 +130,10 @@ void initDisplay(void)
 {
 	FrameBuffer=(short *)malloc(sizeof(short)*640*480);
 	HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
+	HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB16;
 	memset(FrameBuffer,0,sizeof(short)*640*480);
 }
 
-
-int Random()
-{
-	static int random=0xe4219f;
-	random=(random<<13)^(random>>6)^HW_TIMER(REG_TIMER_COUNTER);
-	return(random);
-}
 
 
 int main(int argc, char **argv)
@@ -150,56 +144,60 @@ int main(int argc, char **argv)
 		unsigned short randomY;
  
     op = 'g';
+
+	srand(HW_TIMER(REG_MILLISECONDS));
 	
 	initDisplay();
+	while(1)
+	{
+		switch ( op )
+		{
+		  // case 'B':
+		  // case 'b':		// blinker test
+		    // fa = small_blinker;
+		    // fb = temp_blinker;
+		    // for(i=0; i< BLINKER_GEN; i++)
+		    // {
+		       // dump_field(fa, BLINKER_SIZE);
+		       // dump_rectangles(fa, BLINKER_SIZE);
+		       // evolve(fa, fb, BLINKER_SIZE);
+		       // tt = fb; fb = fa; fa = tt;
+		    // }
+		    // return 0;
+		  case 'G':
+		  case 'g':		// Glider
+		    for(i=0; i < (FIELD_SIZE*FIELD_SIZE) ; i++) field[i]=0;
+		    /* prepare the glider */
+		    //            SCELL(0, 1);
+		    //                          SCELL(1, 2);
+		    //SCELL(2, 0); SCELL(2, 1); SCELL(2, 2);
+					// Put up 400 random cells
+					for (i=0; i < 600; i++)
+					{
+						randomX = rand() % 45;
+						randomY = rand() % 45;
+						SCELL(randomX, randomY);
+					}
 
-    switch ( op )
-    {
-      // case 'B':
-      // case 'b':		// blinker test
-        // fa = small_blinker;
-        // fb = temp_blinker;
-        // for(i=0; i< BLINKER_GEN; i++)
-        // {
-           // dump_field(fa, BLINKER_SIZE);
-           // dump_rectangles(fa, BLINKER_SIZE);
-           // evolve(fa, fb, BLINKER_SIZE);
-           // tt = fb; fb = fa; fa = tt;
-        // }
-        // return 0;
-      case 'G':
-      case 'g':		// Glider
-        for(i=0; i < (FIELD_SIZE*FIELD_SIZE) ; i++) field[i]=0;
-        /* prepare the glider */
-        //            SCELL(0, 1);
-        //                          SCELL(1, 2);
-        //SCELL(2, 0); SCELL(2, 1); SCELL(2, 2);
-				// Put up 400 random cells
-				for (i=0; i < 400; i++)
-				{
-					randomX = Random() % 45;
-					randomY = Random() % 45;
-					SCELL(randomX, randomY);
-				}
-
-        /* evolve */
-        fa = field;
-        fb = temp_field;
-        for (i=0; i < FIELD_GEN; i++)
-        {
-           //tb_puts("Dumping frame\r\n");
-           //dump_field(fa, FIELD_SIZE);
-           //tb_puts("Dumped frame to tb\r\n");
-           dump_rectangles(fa, FIELD_SIZE);
-           //tb_puts("Dumped frame to fb\r\n");
-		   		 evolve(fa, fb, FIELD_SIZE);
-           tt = fb; fb = fa; fa = tt;
-        }
-        return 0;
-      default:
-        puts("no CA for this\n");
-        break;
-    }
+		    /* evolve */
+		    fa = field;
+		    fb = temp_field;
+		    for (i=0; i < FIELD_GEN; i++)
+		    {
+		       //tb_puts("Dumping frame\r\n");
+		       //dump_field(fa, FIELD_SIZE);
+		       //tb_puts("Dumped frame to tb\r\n");
+		       dump_rectangles(fa, FIELD_SIZE);
+		       //tb_puts("Dumped frame to fb\r\n");
+			   		 evolve(fa, fb, FIELD_SIZE);
+		       tt = fb; fb = fa; fa = tt;
+		    }
+		    break;
+		  default:
+		    puts("no CA for this\n");
+		    break;
+		}
+	}
     return 1;
 }
 

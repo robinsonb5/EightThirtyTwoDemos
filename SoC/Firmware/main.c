@@ -137,6 +137,32 @@ void HandleByte(char d0)
 	}
 }
 
+int payload[]={
+	0x11112222,
+	0x33334444,
+	0x55556666,
+	0x77778888,
+	0x9999aaaa,
+	0xbbbbcccc,
+	0xddddeeee,
+	0xffff0000
+};
+
+void test()
+{
+	int i;
+	int *o=payload;
+	int *p=(int *)BOOT_ADDR;
+	for(i=0;i<8;++i)
+	{
+		*p++=*o++;
+	}		
+	p=(int *)BOOT_ADDR;
+	for(i=0;i<8;++i)
+	{
+		printf("%d: %x\n",i,*p++);
+	}
+}
 
 int main(int argc,char **argv)
 {
@@ -148,6 +174,7 @@ int main(int argc,char **argv)
 
 	puts("RS232 boot - press ESC to boot from SD.");
 	SREC_MAX_ADDR=0;
+	test();
 	while(1)
 	{
 		int c;

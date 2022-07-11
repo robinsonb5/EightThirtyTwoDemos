@@ -142,6 +142,135 @@ void HandleByte(char d0)
 	}
 }
 
+char bytepayload[]=
+{
+	0x11,0x22,0x33,0x44,
+	0xff,0xee,0xdd,0xcc,
+	0x55,0x66,0x77,0x88,
+	0xbb,0xaa,0x99,0x88
+};
+
+int payload[]={
+	0x11112222,
+	0x33334444,
+	0x55556666,
+	0x77778888,
+	0x9999aaaa,
+	0xbbbbcccc,
+	0xddddeeee,
+	0xffff0000
+};
+
+void test1()
+{
+	int i;
+	int *p=(int *)BOOT_ADDR;
+	*p++=0x5;
+	*p++=0x5;
+	*p++=0x5;
+	*p++=0x5;
+	*p++=0x5;
+	*p++=0x5;
+	*p++=0x5;
+	*p++=0x5;
+	p=(int *)BOOT_ADDR;
+	for(i=0;i<8;++i)
+	{
+		printf("%d: %x\n",i,*p++);
+	}
+}
+
+void test2()
+{
+	int i;
+	int *p;
+	char *p2=(char *)BOOT_ADDR;
+	*p2++=0xa;
+	*p2++=0xa;
+	*p2++=0xa;
+	*p2++=0xa;
+	*p2++=0xa;
+	*p2++=0xa;
+	*p2++=0xa;
+	*p2++=0xa;
+	p=(int *)BOOT_ADDR;
+	for(i=0;i<2;++i)
+	{
+		printf("%d: %x\n",i,*p++);
+	}
+}
+
+void test()
+{
+	int i;
+	int *o=payload;
+	char *o2=bytepayload;
+	int *p=(int *)BOOT_ADDR;
+	char *p2=(char *)BOOT_ADDR;
+	for(i=0;i<8;++i)
+	{
+		*p++=*o++;
+	}		
+	p=(int *)BOOT_ADDR;
+	for(i=0;i<8;++i)
+	{
+		printf("%d: %x\n",i,*p++);
+	}
+	for(i=0;i<16;++i)
+	{
+		*p2++=*o2++;
+	}		
+	p2=(char *)BOOT_ADDR;
+	for(i=0;i<16;++i)
+	{
+		printf("%d: %x\n",i,*p2++);
+	}
+}
+
+// Identify RAM size by searching for aliases - up to a maximum of 64 megabytes
+
+#define ADDRCHECKWORD 0x55aa44bb
+#define ADDRCHECKWORD2 0xf0e1d2c3
+
+void _initMem()
+{
+	volatile int *base=(int*)BOOT_ADDR;
+	char *ramtop;
+	int i,j,k;
+	int a1,a2;
+	int aliases=0;
+	unsigned int size=64;
+
+	// Seed the RAM;
+	a1=19;
+	*base=ADDRCHECKWORD;
+	for(j=18;j<25;++j)
+	{
+		base[a1]=ADDRCHECKWORD;
+		a1<<=1;
+	}	
+
+	//	If we have a cache we need to flush it here.
+
+	// Now check for aliases
+	a1=1;
+	*base=ADDRCHECKWORD2;
+	for(j=1;j<25;++j)
+	{
+		if(base[a1]==ADDRCHECKWORD2)
+			aliases|=a1;
+		a1<<=1;
+	}
+
+	aliases<<=2;
+
+	while(aliases)
+	{
+		aliases=(aliases<<1)&0x3ffffff;	// Test currently supports up to 16m longwords = 64 megabytes.
+		size>>=1;
+	}
+	printf("RAM size (assuming no address faults) is 0x%x megabytes\n",size);
+}
 
 int main(int argc,char **argv)
 {
@@ -150,27 +279,13 @@ int main(int argc,char **argv)
 	int havesd;
 	int i;
 
-	mem[0]=0x0;
-	mem[1]=0x0;
-	mem[2]=0x0;
-	mem[3]=0x1;
-//	memb[3]=0x55;
-	puts("Memory test (should be identical)\n");
-	for(i=0;i<32;++i)
-	{
-		int checksum=0;
-		int j;
-		for(j=0;j<4;++j)
-		{
-			checksum+=mem[j];		
-		}
-		printf("%x, %x\n",mem[0],checksum);			
-	}
 	puts("Initializing SD card\n");
 	havesd=spi_init() && FindDrive();
 
 	puts("RS232 boot - press ESC to boot from SD.");
 	SREC_MAX_ADDR=0;
+	test1();
+	test2();
 	while(1)
 	{
 		int c;

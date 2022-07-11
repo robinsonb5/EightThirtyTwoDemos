@@ -46,9 +46,6 @@ module DirectMappedCache #(parameter cachebits=11)
 	input flush
 );
 
-// Debugging
-reg cache_error;
-
 
 // States for state machine
 localparam	INIT=0, FLUSH1=1, WAITING=2, WAITRD=3, PAUSE1=4;
@@ -110,12 +107,8 @@ reg firstword_ready;
 assign data_to_cpu = (firstword_ready ? firstword : data_q);
 
 reg cpu_req_d;
-reg cpu_req_d2;
-reg [31:0] cpu_addr_d;
-reg fill_ack;
-reg write_ack;
 
-assign cpu_cachevalid = firstword_ready | ((tag_hit && data_valid) && cpu_rw && !busy);
+assign cpu_cachevalid = firstword_ready | ((tag_hit && data_valid) && cpu_req && cpu_rw && !busy);
 assign cpu_ack = 1'b0; // (cpu_req_d && cpu_cachevalid && cpu_rw) || fill_ack || write_ack;
 
 reg readword_burst; // Set to 1 when the lsb of the cache address should
@@ -151,17 +144,10 @@ begin
 //	cpu_ack<=1'b0;
 	init<=1'b0;
 	readword_burst<=1'b0;
-	cache_error<=1'b0;
-
-	write_ack<=1'b0;
 	
 	busy <=1'b1;
 	
 	cpu_req_d<=cpu_req;
-	cpu_req_d2<=cpu_req_d;
-	cpu_addr_d <= cpu_addr;
-	
-	debug_hit=tag_hit;
 	
 	if(flush)
 		flushpending<=1'b1;
@@ -185,13 +171,12 @@ begin
 			tag_w = 32'h00000000;
 			tag_wren<=1'b1;
 			state<=FLUSH2;
-			fill_ack<=1'b0;
 		end
 		
 		FLUSH2:
 		begin
 			init<=1'b1;
-			initctr<=initctr+1;
+			initctr<=initctr+1'b1;
 			tag_wren<=1'b1;
 			if(initctr==0)
 			begin
@@ -213,7 +198,7 @@ begin
 					state<=WAITRD;
 				else	// Write cycle
 				begin
-					tag_w = {4'b00000,cpu_addr[31:5]};
+					tag_w = {5'b00000,cpu_addr[31:5]};
 //					if(tag_hit) // FIXME - brute force clear the tag.
 						tag_wren<=1'b1;
 				end
@@ -235,7 +220,7 @@ begin
 					tag_wren<=1'b1;
 
 					sdram_req<=1'b1;
-					sdram_rw<=1'b1;	// Read cycle
+//					sdram_rw<=1'b1;	// Read cycle
 					state<=WAITFILL;
 				end
 			end
@@ -268,13 +253,10 @@ begin
 
 		FILL2:
 		begin
-			fill_ack<=1'b1; // Maintain ack signal if necessary
 			// Forward data to CPU
-			firstword[15:0] <= data_from_sdram;
-			firstword_ready<=1'b1;
 			// write second word to Cache...
 			readword_burst<=1'b1;
-			readword<=readword+1;
+			readword<=readword+1'b1;
 			data_w<=data_from_sdram;
 			data_wren<=1'b1;
 			state<=FILL3;
@@ -282,10 +264,8 @@ begin
 
 		FILL3:
 		begin
-			if(!cpu_req)
-				fill_ack<=1'b0;
 			readword_burst<=1'b1;
-			readword<=readword+1;
+			readword<=readword+1'b1;
 			data_w<=data_from_sdram;
 			data_wren<=1'b1;
 			state<=FILL4;
@@ -293,10 +273,8 @@ begin
 
 		FILL4:
 		begin
-			if(!cpu_req)
-				fill_ack<=1'b0;
 			readword_burst<=1'b1;
-			readword<=readword+1;
+			readword<=readword+1'b1;
 			data_w<=data_from_sdram;
 			data_wren<=1'b1;
 			state<=FILL5;
@@ -304,9 +282,8 @@ begin
 
 		FILL5:
 		begin
-			fill_ack<=1'b0;
 			readword_burst<=1'b1;
-			readword<=readword+1;
+			readword<=readword+1'b1;
 			data_w<=data_from_sdram;
 			data_wren<=1'b1;
 			state<=FILL6;
@@ -316,7 +293,7 @@ begin
 		begin
 			readword_burst<=1'b1;
 			readword_burst<=1'b1;
-			readword<=readword+1;
+			readword<=readword+1'b1;
 			data_w<=data_from_sdram;
 			data_wren<=1'b1;
 			state<=FILL7;
@@ -325,7 +302,7 @@ begin
 		FILL7:
 		begin
 			readword_burst<=1'b1;
-			readword<=readword+1;
+			readword<=readword+1'b1;
 			data_w<=data_from_sdram;
 			data_wren<=1'b1;
 			state<=FILL8;
@@ -334,7 +311,7 @@ begin
 		FILL8:
 		begin
 			readword_burst<=1'b1;
-			readword<=readword+1;
+			readword<=readword+1'b1;
 			data_w<=data_from_sdram;
 			data_wren<=1'b1;
 			state<=FILL9;
