@@ -1,4 +1,9 @@
-APPS = HelloWorld Dhrystone Dhrystone_Dual Malloc PS2Keyboard Filesystem Modplayer Conway AppHost UBasic RandTest VGA Interrupts WAVPlayer TrueColour
+APPS_TEXT = HelloWorld Dhrystone Dhrystone_Dual Malloc PS2Keyboard Filesystem AppHost UBasic Interrupts
+APPS_GRAPHICS = Conway RandTest VGA
+APPS_SOUND = Modplayer WAVPlayer
+APPS_32BIT = RandTest32 TrueColour
+
+APPS = $(APPS_TEXT) $(APPS_GRAPHICS) $(APPS_SOUND) $(APPS_32BIT)
 
 all:
 	for APP in ${APPS}; do \

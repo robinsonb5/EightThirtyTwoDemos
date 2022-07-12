@@ -30,7 +30,7 @@ void makeRect(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE
 
 void initDisplay(void)
 {
-	FrameBuffer=(short *)malloc(sizeof(int)*640*480);
+	FrameBuffer=(int *)malloc(sizeof(int)*640*480);
 	HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
 	HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB32;
 	memset(FrameBuffer,0,sizeof(int)*640*480);
