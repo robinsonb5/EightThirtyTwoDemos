@@ -1,6 +1,5 @@
 RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
-RTL/jcapture_cfg_pkg.vhd
 
 ../RTL/Peripherals/simple_uart.vhd
 ../RTL/Peripherals/jtag_uart.vhd
@@ -8,8 +7,6 @@ RTL/jcapture_cfg_pkg.vhd
 ../RTL/Peripherals/io_ps2_com.vhd
 ../RTL/Peripherals/interrupt_controller.vhd
 ../RTL/Peripherals/timer_controller.vhd
-
-../RTL/jcapture/jcapture.qip
 
 ../RTL/RAM/BurstCache.v
 ../RTL/RAM/DirectCache_wide.v

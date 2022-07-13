@@ -14,7 +14,7 @@ COPT = -O=32767 -speed
 CFLAGS = -+ $(COPT) $(INCLUDE)
 
 PRJ=TrueColour
-PRJ_OBJ = main.o
+PRJ_OBJ = main.o gfx.o
 
 all: $(PRJ).bin $(PRJ).srec
 
@@ -31,7 +31,7 @@ clean :
 	objcopy -Ibinary $*.bin --adjust-vma 0x10000000 -O srec $@
 
 %.o : %.s Makefile
-	gcc -c $*.s
+	$(AS) -o $*.o $*.s
 
 $(PRJ).bin : $(LIBDIR)/crt0.a $(PRJ_OBJ) $(LIBDIR)/lib832.a $(LIBSOCDIR)/lib832soc.a
 	$(LD) -b 0x10000000 -o $@ $+

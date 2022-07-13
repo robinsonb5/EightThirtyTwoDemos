@@ -43,17 +43,19 @@ int main(int argc, char **argv)
 {
     int i;
 	int t;
+	unsigned int c,x,y,w,h;
+
 	initDisplay();
 
 	srand(0x55aa55aa); /* Seed the random number generator so the sequence is repeatable */
 	t=HW_TIMER(REG_MILLISECONDS);
 	for(i=0;i<ITERATIONS;++i)
 	{
-		unsigned int c=rand();
-		unsigned int x=rand()%640u;
-		unsigned int y=rand()%480u;
-		unsigned int w=640-x;
-		unsigned int h=480-y;
+		c=rand();
+		x=rand()%640u;
+		y=rand()%480u;
+		w=640-x;
+		h=480-y;
 		w=rand()%w;
 		h=rand()%h;
 		if(w>0 && h>0)
@@ -66,11 +68,11 @@ int main(int argc, char **argv)
 	t=HW_TIMER(REG_MILLISECONDS);
 	for(i=0;i<ITERATIONS;++i)
 	{
-		unsigned int c=rand();
-		unsigned int x=rand()%640u;
-		unsigned int y=rand()%480u;
-		unsigned int w=640-x;
-		unsigned int h=480-y;
+		c=rand();
+		x=rand()%640u;
+		y=rand()%480u;
+		w=640-x;
+		h=480-y;
 		w=rand()%w;
 		h=rand()%h;
 		if(w>0 && h>0)
@@ -83,11 +85,11 @@ int main(int argc, char **argv)
 	t=HW_TIMER(REG_MILLISECONDS);
 	for(i=0;i<ITERATIONS;++i)
 	{
-		unsigned int c=rand();
-		unsigned int x=rand()%640u;
-		unsigned int y=rand()%480u;
-		unsigned int w=640-x;
-		unsigned int h=480-y;
+		c=rand();
+		x=rand()%640u;
+		y=rand()%480u;
+		w=640-x;
+		h=480-y;
 		w=rand()%w;
 		h=rand()%h;
 		if(w>0 && h>0)
@@ -95,6 +97,20 @@ int main(int argc, char **argv)
 	}
 	t=HW_TIMER(REG_MILLISECONDS)-t;
 	printf("%d iterations using unrolled assembly draw functions in %d ms.\n",ITERATIONS,t);
+
+	/* After timing is finished just keep running */
+	while(1)
+	{
+		c=rand();
+		x=rand()%640u;
+		y=rand()%480u;
+		w=640-x;
+		h=480-y;
+		w=rand()%w;
+		h=rand()%h;
+		if(w>0 && h>0)
+			makeRectFastUnrolled(x,y,x+w,y+h,c);	
+	}
 
     return 0;
 }

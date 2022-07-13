@@ -27,9 +27,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
 
-library work;
-use work.jcapture_cfg_pkg.all;
-
 entity sdram_cached_wide is
 generic
 	(
@@ -259,14 +256,6 @@ END COMPONENT;
 	signal wbreq : std_logic;
 	signal wback : std_logic;
 
-	signal debug_a : std_logic_vector(12 downto 0);	
-	signal debug_d : std_logic_vector(31 downto 0);
-	signal debug_dqm : std_logic_vector(3 downto 0);
-	signal debug_drive : std_logic;
-	signal debug_ras : std_logic;
-	signal debug_cas : std_logic;
-	signal debug_we : std_logic;
-
 begin
 
 	readcache_fill <= '1' when (slot1_fill='1' and sdram_slot1=port1)
@@ -302,8 +291,6 @@ newwritebuffer : block
 	signal burstend : std_logic;
 	signal wbend_d : std_logic;
 	signal wbactive : std_logic;
-
-	signal debugdata : std_logic_vector(jcapture_width-1 downto 0);
 
 begin
 
@@ -375,33 +362,6 @@ begin
 			end if;
 		end if;
 	end process;
-
-	debugdata(debugdata'high downto 173) <= (others => '0');
-	debugdata(0) <= wbempty;
-	debugdata(1) <= wbfull;
-	debugdata(2) <= req1;
-	debugdata(3) <= wr1;
-	debugdata(11 downto 4) <= std_logic_vector(wbwriteptr);
-	debugdata(19 downto 12) <= std_logic_vector(wbreadptr);
-	debugdata(51 downto 20) <= datawr1;
-	debugdata(55 downto 52) <= bytesel;
-	debugdata(87 downto 56) <= wbflagsaddr;
-	debugdata(119 downto 88) <= wbdata;
-	debugdata(132 downto 120) <= debug_a;
-	debugdata(164 downto 133) <= debug_d;
-	debugdata(165) <= debug_ras;
-	debugdata(166) <= debug_cas;
-	debugdata(167) <= debug_we;
-	debugdata(171 downto 168) <= debug_dqm;
-	debugdata(172) <= debug_drive;
-
---	debugcapture : entity work.jcapture
---	port map(
---		clk => sysclk,
---		reset_n => reset,
---		-- Design interface
---		d => debugdata
---	);	
 
 end block;
 
@@ -685,12 +645,6 @@ end generate;
 			sdaddr <= (others => 'X');
 			ba <= "00";
 			dqm <= (others => '0');  -- safe defaults for everything...
-
-			debug_we<='1';
-			debug_ras<='1';
-			debug_cas<='1';
-			debug_dqm<="0000";
-			debug_drive<='0';
 
 			-- The following block only happens during reset.
 			if init_done='0' then
