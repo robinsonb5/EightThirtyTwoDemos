@@ -287,12 +287,80 @@ end generate;
 			RST : in std_logic
 		); end component;
 
+		component DCSC
+		generic (
+			DCSMODE : string := "POS"
+		);
+		port (
+			CLK1, CLK0 : in std_logic;
+			SEL1, SEL0 : in std_logic;
+			MODESEL : in std_logic;
+			DCSOUT : out std_logic
+		);
+		end component;
+
+		component PCSCLKDIV 
+		generic (
+			GSR : string := "DISABLED"
+		);
+		port (
+			CLKI : in std_logic;
+			RST : in std_logic;
+			SEL2 : in std_logic;
+			SEL1 : in std_logic;
+			SEL0 : in std_logic;
+			CDIV1 : out std_logic;
+			CDIVX : out std_logic
+		);
+		end component;
+		signal clk_tmds_div : std_logic;
+		signal pcnt : unsigned(3 downto 0);
+		signal clksel : std_logic_vector(1 downto 0);
+
 		signal dvi_r : std_logic_vector(useddr downto 0);
 		signal dvi_g : std_logic_vector(useddr downto 0);
 		signal dvi_b : std_logic_vector(useddr downto 0);
 		signal dvi_clk : std_logic_vector(useddr downto 0);
+		signal vidclks : std_logic_vector(3 downto 0);
 		
 	begin
+
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+				if vga_pixel='1' then
+					pcnt <=(others => '0');
+					if pcnt=3 then
+						clksel(0)<='1';
+					else
+						clksel(0)<='0';
+					end if;
+				else
+					pcnt<=pcnt+1;
+				end if;
+			end if;
+			clksel(1) <= not clksel(0);
+		end process;
+
+		vidpll : entity work.ecp5pll
+		generic map(
+			in_hz => 100000,
+			out0_hz => 125000,
+			out1_hz => 250000
+		)
+		port map (
+			clk_i => clk_sys,
+			clk_o => vidclks
+		);
+		
+		clkdiv : component DCSC
+		port map (
+			CLK1 => vidclks(1),
+			CLK0 => vidclks(0),
+			SEL1 => clksel(1),
+			SEL0 => clksel(0),
+			MODESEL => '1',
+			DCSOUT => clk_tmds_div
+		);
 
 		dvi_inst : component dvi
 		generic map (
@@ -300,7 +368,7 @@ end generate;
 		)
 		port map (
 			pclk => clk_sys,
-			tmds_clk => clk_tmds,
+			tmds_clk => clk_tmds_div,
 
 			in_vga_red => vga_r_i,
 			in_vga_green => vga_g_i,
@@ -317,10 +385,10 @@ end generate;
 			out_tmds_clk => dvi_clk
 		);
 		
-		dviout_c : component ODDRX1F port map (D0 => dvi_clk(0), D1=>dvi_clk(1), Q => dio_p(3), SCLK =>clk_tmds, RST=>'0');
-		dviout_r : component ODDRX1F port map (D0 => dvi_r(0), D1=>dvi_r(1), Q => dio_p(2), SCLK =>clk_tmds, RST=>'0');
-		dviout_g : component ODDRX1F port map (D0 => dvi_g(0), D1=>dvi_g(1), Q => dio_p(1), SCLK =>clk_tmds, RST=>'0');
-		dviout_b : component ODDRX1F port map (D0 => dvi_b(0), D1=>dvi_b(1), Q => dio_p(0), SCLK =>clk_tmds, RST=>'0');
+		dviout_c : component ODDRX1F port map (D0 => dvi_clk(0), D1=>dvi_clk(1), Q => dio_p(3), SCLK =>clk_tmds_div, RST=>'0');
+		dviout_r : component ODDRX1F port map (D0 => dvi_r(0), D1=>dvi_r(1), Q => dio_p(2), SCLK =>clk_tmds_div, RST=>'0');
+		dviout_g : component ODDRX1F port map (D0 => dvi_g(0), D1=>dvi_g(1), Q => dio_p(1), SCLK =>clk_tmds_div, RST=>'0');
+		dviout_b : component ODDRX1F port map (D0 => dvi_b(0), D1=>dvi_b(1), Q => dio_p(0), SCLK =>clk_tmds_div, RST=>'0');
 		
 	end generate;
 

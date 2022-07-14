@@ -15,8 +15,6 @@ use work.DMACache_config.ALL;
 -- Programmable, must provide hardware registers that will respond to
 -- writes.  Registers will include:  (Decode a 4k chunk)
 
--- 0 Framebuffer Address - hi and low
-
 
 entity vga_controller is
   generic(
@@ -29,7 +27,6 @@ entity vga_controller is
 
 		reg_addr_in : in std_logic_vector(7 downto 0); -- from host CPU
 		reg_data_in: in std_logic_vector(31 downto 0);
-		reg_data_out: out std_logic_vector(15 downto 0);
 		reg_rw : in std_logic;
 		reg_req : in std_logic;
 
@@ -60,14 +57,16 @@ architecture rtl of vga_controller is
 	
 	signal framebuffer_pointer : std_logic_vector(31 downto 0) := X"00000000";
 	signal framebuffer_pixelformat : std_logic_vector(7 downto 0) := X"00";
-	constant hsize : unsigned(11 downto 0) := TO_UNSIGNED(640,12);
-	constant htotal : unsigned(11 downto 0) := TO_UNSIGNED(800,12);
-	constant hbstart : unsigned(11 downto 0) := TO_UNSIGNED(656,12);
-	constant hbstop : unsigned(11 downto 0) := TO_UNSIGNED(752,12);
-	constant vsize : unsigned(11 downto 0) := TO_UNSIGNED(480,12);
-	constant vtotal : unsigned(11 downto 0) := TO_UNSIGNED(525,12);
-	constant vbstart : unsigned(11 downto 0) := TO_UNSIGNED(500,12);
-	constant vbstop : unsigned(11 downto 0) := TO_UNSIGNED(502,12);
+	signal hsize : unsigned(11 downto 0) := TO_UNSIGNED(640,12);
+	signal htotal : unsigned(11 downto 0) := TO_UNSIGNED(800,12);
+	signal hbstart : unsigned(11 downto 0) := TO_UNSIGNED(656,12);
+	signal hbstop : unsigned(11 downto 0) := TO_UNSIGNED(752,12);
+	signal vsize : unsigned(11 downto 0) := TO_UNSIGNED(480,12);
+	signal vtotal : unsigned(11 downto 0) := TO_UNSIGNED(525,12);
+	signal vbstart : unsigned(11 downto 0) := TO_UNSIGNED(500,12);
+	signal vbstop : unsigned(11 downto 0) := TO_UNSIGNED(502,12);
+
+	signal clkdiv : unsigned(3 downto 0) := TO_UNSIGNED(3,4);
 
 	signal sprite0_pointer : std_logic_vector(31 downto 0) := X"00000000";
 	signal sprite0_xpos : unsigned(11 downto 0);
@@ -112,7 +111,7 @@ begin
 		port map (
 			clk => clk,
 			reset => reset,
-			clkDiv => X"3",	-- 100 Mhz / (3+1) = 25 Mhz
+			clkDiv => clkdiv,	-- 100 Mhz / (3+1) = 25 Mhz
 --			clkDiv => X"4",	-- 125 Mhz / (4+1) = 25 Mhz
 
 			hSync => hsync_r,
@@ -136,40 +135,63 @@ begin
 		);		
 
 	-- Handle CPU access to hardware registers
-	
+
 	process(clk,reset)
 	begin
 		if reset='0' then
-			reg_data_out<=X"0000";
+			hsize <= TO_UNSIGNED(640,12);
+			htotal <= TO_UNSIGNED(800,12);
+			hbstart <= TO_UNSIGNED(656,12);
+			hbstop <= TO_UNSIGNED(752,12);
+			vsize <= TO_UNSIGNED(480,12);
+			vtotal <= TO_UNSIGNED(525,12);
+			vbstart <= TO_UNSIGNED(500,12);
+			vbstop <= TO_UNSIGNED(502,12);
+			clkdiv <= TO_UNSIGNED(3,4);
 			if enable_sprite then
 				sprite0_xpos<=X"000";
 				sprite0_ypos<=X"000";
 			end if;
 		elsif rising_edge(clk) then
-			if reg_req='1' then
+			if reg_req='1' and reg_rw='0' then
 				case reg_addr_in is
 					when X"00" =>
-						if reg_rw='0' then
-							framebuffer_pointer(31 downto 0) <= reg_data_in;
-						end if;
+						framebuffer_pointer(31 downto 0) <= reg_data_in;
 					when X"04" =>
-						if reg_rw='0' then
-							framebuffer_pixelformat <= reg_data_in(7 downto 0);
-						end if;
+						framebuffer_pixelformat <= reg_data_in(7 downto 0);
+					when X"08" =>
+						clkdiv <= unsigned(reg_data_in(3 downto 0));
 					when X"10" =>
-						if reg_rw='0' and enable_sprite then
+						htotal <= unsigned(reg_data_in(11 downto 0));
+					when X"14" =>
+						hsize <= unsigned(reg_data_in(11 downto 0));
+					when X"18" =>
+						hbstart <= unsigned(reg_data_in(11 downto 0));
+					when X"1c" =>
+						hbstop <= unsigned(reg_data_in(11 downto 0));
+					when X"20" =>
+						vtotal <= unsigned(reg_data_in(11 downto 0));
+					when X"24" =>
+						vsize <= unsigned(reg_data_in(11 downto 0));
+					when X"28" =>
+						vbstart <= unsigned(reg_data_in(11 downto 0));
+					when X"2c" =>
+						vbstop <= unsigned(reg_data_in(11 downto 0));
+
+					when X"80" =>
+						if enable_sprite then
 							sprite0_pointer(31 downto 0) <= reg_data_in;
 						end if;
-					when X"14" =>
-						if reg_rw='0' and enable_sprite then
+					when X"84" =>
+						if enable_sprite then
 							sprite0_xpos <= unsigned(reg_data_in(11 downto 0));
 						end if;
-					when X"18" =>
-						if reg_rw='0' and enable_sprite then
+					when X"88" =>
+						if enable_sprite then
 							sprite0_ypos <= unsigned(reg_data_in(11 downto 0));
 						end if;
 					when others =>
-						reg_data_out<=X"0000";
+						null;
 				end case;
 			end if;
 		end if;
@@ -302,7 +324,7 @@ begin
 					vga_window_d<=vga_window_r;
 					vga_window<=vga_window_d;
 
-					if currentX<640 and currentY<480 then
+					if currentX<hsize and currentY<vsize then
 						vga_window_r<='1';
 						-- Request next pixel from VGA cache
 						if pixcounter="00" then
@@ -338,9 +360,9 @@ begin
 						if currentX=(htotal - 20) then	-- Signal to SDRAM controller that we're about to start displaying
 							case framebuffer_pixelformat is
 								when X"00" =>
-									vgachannel_fromhost.reqlen<=TO_UNSIGNED(320,16);
+									vgachannel_fromhost.reqlen<=UNSIGNED(X"0"&'0'&hsize(hsize'high downto 1));
 								when others =>
-									vgachannel_fromhost.reqlen<=TO_UNSIGNED(640,16);
+									vgachannel_fromhost.reqlen<=unsigned(X"0"&hsize);
 							end case;								
 							vgachannel_fromhost.setreqlen<='1';
 						elsif enable_sprite and currentX=(htotal - 19) then

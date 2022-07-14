@@ -560,7 +560,6 @@ begin
 
 		reg_addr_in => cpu_addr(7 downto 0),
 		reg_data_in => from_cpu,
---		reg_data_out => vga_reg_dataout,
 		reg_rw => vga_reg_rw,
 		reg_req => vga_reg_req,
 
