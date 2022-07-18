@@ -86,7 +86,9 @@ architecture rtl of mmm_v4r0_l5sd_top is
 	signal clk_sdram : std_logic;
 	signal clk_sys : std_logic;
 	signal clk_slow : std_logic;
+	signal clk_video : std_logic;
 	signal clk_tmds : std_logic;
+	signal clk_video_src : std_logic;
 	signal pll_locked : std_logic;
 
 	signal vga_hs : std_logic;
@@ -126,7 +128,7 @@ end generate;
 		clk_o(0) => clk_sys,
 		clk_o(1) => clk_sdram,
 		clk_o(2) => clk_slow,
-		clk_o(3) => clk_tmds,
+		clk_o(3) => clk_video_src,
 		reset => '0',
 		locked => pll_locked
 	);
@@ -145,6 +147,7 @@ end generate;
 	port map(
 		clk => clk_sys,
 		slowclk => clk_slow,
+		videoclk => clk_video,
 		reset_in => reset_n,
 		txd => txd,
 		rxd => rxd,
@@ -299,21 +302,6 @@ end generate;
 		);
 		end component;
 
-		component PCSCLKDIV 
-		generic (
-			GSR : string := "DISABLED"
-		);
-		port (
-			CLKI : in std_logic;
-			RST : in std_logic;
-			SEL2 : in std_logic;
-			SEL1 : in std_logic;
-			SEL0 : in std_logic;
-			CDIV1 : out std_logic;
-			CDIVX : out std_logic
-		);
-		end component;
-		signal clk_tmds_div : std_logic;
 		signal pcnt : unsigned(3 downto 0);
 		signal clksel : std_logic_vector(1 downto 0);
 
@@ -325,15 +313,28 @@ end generate;
 		
 	begin
 
-		process(clk_sys) begin
-			if rising_edge(clk_sys) then
+		process(clk_video) begin
+
+			-- Clock multiplexing:  Video timings are derived from a 150MHz clock.
+			-- vga_pixel is high for one cycle at the start of each pixel, so by counting
+			-- the number of clocks between each pulse we can determine the pixel clock and
+			-- thus the appropriate TMDS clock to use.
+			-- We will see a pcnt value of 1 for 75MHz modes, 2 for 50MHz modes, 3 for 37.5MHz
+			-- 4 for 30MHz, and 5 for 25MHz.
+			-- Since we don't seem to be able to cascade DCSCs, we're stuck with just two
+			-- TDMS clocks, which will be 5*75MHz*5 and 5*50Mhz.
+			if rising_edge(clk_video) then
 				if vga_pixel='1' then
 					pcnt <=(others => '0');
-					if pcnt=3 then
-						clksel(0)<='1';
-					else
-						clksel(0)<='0';
-					end if;
+					clksel(0)<='0';
+					case pcnt is 
+						when X"5" => -- 25MHz pixel clock
+							clksel(0) <= '1';
+						when X"2" => -- 50Mhz pixel clock
+							clksel(0) <= '1';
+						when others =>
+							null;
+					end case;
 				else
 					pcnt<=pcnt+1;
 				end if;
@@ -343,32 +344,46 @@ end generate;
 
 		vidpll : entity work.ecp5pll
 		generic map(
-			in_hz => 100000,
-			out0_hz => 125000,
-			out1_hz => 250000
+			in_hz => 150000,
+			out0_hz => 250000,
+			out1_hz => 375000,
+			out2_hz => 150000
 		)
 		port map (
-			clk_i => clk_sys,
+			clk_i => clk_video_src,
 			clk_o => vidclks
 		);
 		
-		clkdiv : component DCSC
+		clkmux1 : component DCSC
 		port map (
-			CLK1 => vidclks(1),
 			CLK0 => vidclks(0),
+			CLK1 => vidclks(1),
 			SEL1 => clksel(1),
 			SEL0 => clksel(0),
 			MODESEL => '1',
-			DCSOUT => clk_tmds_div
+			DCSOUT => clk_tmds
 		);
+
+		clk_video <= vidclks(2);
+
+
+--		clkmux2 : component DCSC
+--		port map (
+--			CLK0 => clk_tmds_mux1,
+--			CLK1 => vidclks(2),
+--			SEL1 => clksel(3),
+--			SEL0 => clksel(2),
+--			MODESEL => '1',
+--			DCSOUT => clk_tmds
+--		);
 
 		dvi_inst : component dvi
 		generic map (
 			DDR_ENABLED => useddr
 		)
 		port map (
-			pclk => clk_sys,
-			tmds_clk => clk_tmds_div,
+			pclk => clk_video,
+			tmds_clk => clk_tmds,
 
 			in_vga_red => vga_r_i,
 			in_vga_green => vga_g_i,
@@ -385,10 +400,10 @@ end generate;
 			out_tmds_clk => dvi_clk
 		);
 		
-		dviout_c : component ODDRX1F port map (D0 => dvi_clk(0), D1=>dvi_clk(1), Q => dio_p(3), SCLK =>clk_tmds_div, RST=>'0');
-		dviout_r : component ODDRX1F port map (D0 => dvi_r(0), D1=>dvi_r(1), Q => dio_p(2), SCLK =>clk_tmds_div, RST=>'0');
-		dviout_g : component ODDRX1F port map (D0 => dvi_g(0), D1=>dvi_g(1), Q => dio_p(1), SCLK =>clk_tmds_div, RST=>'0');
-		dviout_b : component ODDRX1F port map (D0 => dvi_b(0), D1=>dvi_b(1), Q => dio_p(0), SCLK =>clk_tmds_div, RST=>'0');
+		dviout_c : component ODDRX1F port map (D0 => dvi_clk(0), D1=>dvi_clk(1), Q => dio_p(3), SCLK =>clk_tmds, RST=>'0');
+		dviout_r : component ODDRX1F port map (D0 => dvi_r(0), D1=>dvi_r(1), Q => dio_p(2), SCLK =>clk_tmds, RST=>'0');
+		dviout_g : component ODDRX1F port map (D0 => dvi_g(0), D1=>dvi_g(1), Q => dio_p(1), SCLK =>clk_tmds, RST=>'0');
+		dviout_b : component ODDRX1F port map (D0 => dvi_b(0), D1=>dvi_b(1), Q => dio_p(0), SCLK =>clk_tmds, RST=>'0');
 		
 	end generate;
 
@@ -417,10 +432,10 @@ end generate;
 					led2<='1';
 				end if;
 				if redctr_i = pwmcounter then
-					led2<='0';
+					led1<='0';
 				end if; 
 				if greenctr_i = pwmcounter then
-					led1<='0';
+					led2<='0';
 				end if; 
 			end if;
 		end process;

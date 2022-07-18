@@ -26,6 +26,12 @@
 #define SP0XPOS 0x84
 #define SP0YPOS 0x88
 
+
+#define VGA_HSYNC_POS (1<<30)
+#define VGA_HSYNC_NEG 0
+#define VGA_VSYNC_POS (1<<31)
+#define VGA_VSYNC_NEG 0
+
 #define PIXELFORMAT_RGB16 0
 #define PIXELFORMAT_RGB32 1
 

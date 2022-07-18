@@ -48,7 +48,7 @@ $(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf $(
 
 $(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl
 	-rm $@
-	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
+	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --pre-pack $(BOARDDIR)/constraints.py --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
 
 $(BITFILE): $(CFGFILE)
 	$(TOOLPATH)ecppack $(ECPPACKOPTS) --svf $(SVFFILE) --input $< --bit $@ 

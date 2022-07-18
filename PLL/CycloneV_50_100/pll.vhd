@@ -15,6 +15,7 @@ entity pll is
 		outclk_0 : out std_logic;        -- outclk0.clk
 		outclk_1 : out std_logic;        -- outclk1.clk
 		outclk_2 : out std_logic;        -- outclk2.clk
+		outclk_3 : out std_logic;        -- outclk2.clk
 		locked   : out std_logic         --  locked.export
 	);
 end entity pll;
@@ -27,6 +28,7 @@ architecture rtl of pll is
 			outclk_0 : out std_logic;        -- clk
 			outclk_1 : out std_logic;        -- clk
 			outclk_2 : out std_logic;        -- clk
+			outclk_3 : out std_logic;        -- clk
 			locked   : out std_logic         -- export
 		);
 	end component pll_0002;
@@ -40,6 +42,7 @@ begin
 			outclk_0 => outclk_0, -- outclk0.clk
 			outclk_1 => outclk_1, -- outclk1.clk
 			outclk_2 => outclk_2, -- outclk2.clk
+			outclk_3 => outclk_3, -- outclk2.clk
 			locked   => locked    --  locked.export
 		);
 

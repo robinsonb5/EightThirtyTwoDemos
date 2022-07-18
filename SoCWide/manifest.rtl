@@ -8,19 +8,23 @@ RTL/DMACache_config.vhd
 ../RTL/Peripherals/interrupt_controller.vhd
 ../RTL/Peripherals/timer_controller.vhd
 
+../RTL/Util/cdc_pulse.vhd
+../RTL/Util/cdc_bus.vhd
+../RTL/Util/risingedge_divider.vhd
 ../RTL/RAM/BurstCache.v
 ../RTL/RAM/DirectCache_wide.v
+../RTL/RAM/sdram_refresh_schedule.vhd
 ../RTL/RAM/sdram_cached_wide.vhd
 ../RTL/DMA/FIFO_Counter.vhd
 ../RTL/DMA/DMACache_pkg.vhd
 ../RTL/DMA/DMACacheRAM.vhd
 ../RTL/DMA/DMACache_wide.vhd
-../RTL/Util/risingedge_divider.vhd
+../RTL/DMA/VideoFIFO.vhd
 ../RTL/Sound/sound_controller.vhd
 ../RTL/Sound/sound_wrapper.vhd
-../RTL/Video/video_vga_master.vhd
 ../RTL/Video/video_vga_dither.vhd
-../RTL/Video/vga_controller.vhd
+../RTL/Video/video_timings.vhd
+../RTL/Video/vga_controller_new.vhd
 
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
 

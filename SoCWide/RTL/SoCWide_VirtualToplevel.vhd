@@ -16,6 +16,7 @@ entity VirtualToplevel is
 	port (
 		clk 			: in std_logic;
 		slowclk		: in std_logic;
+		videoclk	: in std_logic;
 		reset_in 	: in std_logic;
 
 		-- VGA
@@ -177,13 +178,18 @@ architecture rtl of VirtualToplevel is
 
 	-- Plumbing between DMA controller and SDRAM
 
-	signal vga_addr : std_logic_vector(31 downto 0);
-	signal vga_data : std_logic_vector(31 downto 0);
-	signal vga_req : std_logic;
-	signal vga_fill : std_logic;
-	signal vga_refresh : std_logic;
-	signal vga_reservebank : std_logic; -- Keep bank clear for instant access.
-	signal vga_reserveaddr : std_logic_vector(31 downto 0); -- to SDRAM
+	signal video_addr : std_logic_vector(31 downto 0);
+	signal video_data_in : std_logic_vector(31 downto 0);
+	signal video_req : std_logic;
+	signal video_pri : std_logic;
+	signal video_ack : std_logic;
+	signal video_fill : std_logic;
+
+	signal dma_addr : std_logic_vector(31 downto 0);
+	signal dma_data_in : std_logic_vector(31 downto 0);
+	signal dma_req : std_logic;
+	signal dma_ack : std_logic;
+	signal dma_fill : std_logic;
 
 	signal dma_data : std_logic_vector(31 downto 0);
 
@@ -463,30 +469,28 @@ begin
 			clk => clk,
 			reset_n => cpu_reset,
 
-			channels_from_host(0) => vgachannel_fromhost,
-			channels_from_host(1) => spr0channel_fromhost,
-			channels_from_host(2) => aud0_fromhost,
-			channels_from_host(3) => aud1_fromhost,
-			channels_from_host(4) => aud2_fromhost,
-			channels_from_host(5) => aud3_fromhost,
-			
-			channels_to_host(0) => vgachannel_tohost,
-			channels_to_host(1) => spr0channel_tohost,
-			channels_to_host(2) => aud0_tohost,
-			channels_to_host(3) => aud1_tohost,
-			channels_to_host(4) => aud2_tohost,
-			channels_to_host(5) => aud3_tohost,
+--			channels_from_host(0) => vgachannel_fromhost,
+			channels_from_host(0) => spr0channel_fromhost,
+			channels_from_host(1) => aud0_fromhost,
+			channels_from_host(2) => aud1_fromhost,
+			channels_from_host(3) => aud2_fromhost,
+			channels_from_host(4) => aud3_fromhost,
+
+--			channels_to_host(0) => vgachannel_tohost,
+			channels_to_host(0) => spr0channel_tohost,
+			channels_to_host(1) => aud0_tohost,
+			channels_to_host(2) => aud1_tohost,
+			channels_to_host(3) => aud2_tohost,
+			channels_to_host(4) => aud3_tohost,
 
 			data_out => dma_data,
 
 			-- SDRAM interface
-			sdram_addr=> vga_addr,
-			sdram_reserveaddr(31 downto 0) => vga_reserveaddr,
-			sdram_reserve => vga_reservebank,
-			sdram_req => vga_req,
-			sdram_ack => vga_ack,
-			sdram_fill => vga_fill,
-			sdram_data => vga_data
+			sdram_addr=> dma_addr,
+			sdram_req => dma_req,
+			sdram_ack => dma_ack,
+			sdram_fill => dma_fill,
+			sdram_data => dma_data_in
 		);
 
 	
@@ -522,14 +526,12 @@ begin
 			reset => reset_in,  -- Contributes to reset, so have to use reset_in here.
 			reset_out => sdr_ready,
 
-			vga_addr => vga_addr,
-			vga_data => vga_data,
-			vga_fill => vga_fill,
-			vga_req => vga_req,
-			vga_ack => vga_ack,
-			vga_refresh => vga_refresh,
-			vga_reservebank => vga_reservebank,
-			vga_reserveaddr => vga_reserveaddr,
+			vga_addr => video_addr,
+			vga_data => video_data_in,
+			vga_fill => video_fill,
+			vga_req => video_req,
+			vga_pri => video_pri,
+			vga_ack => video_ack,
 
 			datawr1(31 downto 24) => sdram_write(7 downto 0),
 			datawr1(23 downto 16) => sdram_write(15 downto 8),
@@ -549,37 +551,37 @@ begin
 	-- VGA controller
 	-- Video
 	
-	myvga : entity work.vga_controller
+	myvga : entity work.vga_controller_new
 		generic map (
-			dmawidth => 32,
-			enable_sprite => false
+			dmawidth => 32
 		)
 		port map (
-		clk => clk,
-		reset => reset_in,
+		clk_sys => clk,
+		reset_n => reset_in,
 
 		reg_addr_in => cpu_addr(7 downto 0),
 		reg_data_in => from_cpu,
 		reg_rw => vga_reg_rw,
 		reg_req => vga_reg_req,
 
-		sdr_refresh => vga_refresh,
+		clk_video => videoclk,
+		video_req => video_req,
+		video_pri => video_pri,
+		video_ack => video_ack,
+		video_fill => video_fill,
+		video_addr => video_addr,
+		video_data_in => video_data_in,		
 
-		dma_data => dma_data,
-		vgachannel_fromhost => vgachannel_fromhost,
-		vgachannel_tohost => vgachannel_tohost,
-		spr0channel_fromhost => spr0channel_fromhost,
-		spr0channel_tohost => spr0channel_tohost,
-
+		vblank_int => vblank_int,
 		hsync => vga_hsync,
 		vsync => vga_vsync_i,
-		vblank_int => vblank_int,
 		red => vga_red,
 		green => vga_green,
 		blue => vga_blue,
 		vga_window => vga_window,
 		vga_pixel => vga_pixel
 	);
+
 
 vga_vsync<=vga_vsync_i;
 	

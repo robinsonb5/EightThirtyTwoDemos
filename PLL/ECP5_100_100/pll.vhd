@@ -24,7 +24,7 @@ generic map(
 	out1_hz => 100000,
 	out1_deg => sdram_phase,
 	out2_hz => 50000,
-	out3_hz => 250000
+	out3_hz => 150000
 )
 port map (
 	clk_i => clk_i,

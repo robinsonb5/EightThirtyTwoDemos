@@ -43,6 +43,7 @@ architecture RTL of qmtech_cyclonev_a5_top is
 
 	signal slowclk : std_logic;
 	signal fastclk : std_logic;
+	signal videoclk : std_logic;
 	signal pll_locked : std_logic;
 
 -- SPI signals
@@ -107,6 +108,7 @@ architecture RTL of qmtech_cyclonev_a5_top is
 			outclk_0 : out std_logic;        -- clk
 			outclk_1 : out std_logic;        -- clk
 			outclk_2 : out std_logic;        -- clk
+			outclk_3 : out std_logic;        -- clk
 			locked   : out std_logic         -- export
 		);
 	end component pll;
@@ -118,10 +120,11 @@ U00 : component pll
 		outclk_0     => DRAM_CLK,        -- Fast clock - external
 		outclk_1     => fastclk,         -- Fast clock - internal
 		outclk_2     => slowclk,         -- Slow clock - internal
+		outclk_3     => videoclk,
 		locked => pll_locked
 	);
 
-n_reset<=RESET_N;
+n_reset<=RESET_N and pll_locked;
 
 
 virtualtoplevel : entity work.VirtualToplevel
@@ -133,6 +136,7 @@ virtualtoplevel : entity work.VirtualToplevel
 	port map(
 		clk => fastclk,
 		slowclk => slowclk,
+		videoclk => videoclk,
 		reset_in => n_reset,
 
 		-- VGA
@@ -192,7 +196,7 @@ spi_miso <= SD_MISO;
 			outbits => 6
 		)
 		port map(
-			clk=>fastclk,
+			clk=>videoclk,
 			hsync=>vga_hsync,
 			vsync=>vga_vsync,
 			vid_ena=>vga_window,

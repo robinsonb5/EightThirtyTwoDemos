@@ -1,6 +1,7 @@
 #include <hw/uart.h>
-#include <hw/vga.h>
 #include <hw/timer.h>
+#include <hw/vga.h>
+#include <hw/screenmode.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -23,73 +24,49 @@ void drawRectangle(unsigned int xS, unsigned int yS, unsigned int xE, unsigned i
 	}
 }
 
-enum screenmode {SCREENMODE_640x480,SCREENMODE_1280x480,SCREENMODE_800x600,test};
 
-void SetScreenmode(enum screenmode mode)
+void *malloc_aligned(size_t size,int alignment)
 {
-	switch(mode) {
-		case SCREENMODE_640x480:
-			HW_VGA(REG_VGA_HTOTAL)=800;
-			HW_VGA(REG_VGA_HSIZE)=640;
-			HW_VGA(REG_VGA_HSSTART)=656;
-			HW_VGA(REG_VGA_HSSTOP)=752;
-			HW_VGA(REG_VGA_VTOTAL)=525;
-			HW_VGA(REG_VGA_VSIZE)=480;
-			HW_VGA(REG_VGA_VSSTART)=500;
-			HW_VGA(REG_VGA_VSSTOP)=502;
-			HW_VGA(REG_VGA_PIXELCLOCK)=3;	
-			break;
-		case SCREENMODE_1280x480:
-			HW_VGA(REG_VGA_HTOTAL)=1600;
-			HW_VGA(REG_VGA_HSIZE)=1280;
-			HW_VGA(REG_VGA_HSSTART)=1312;
-			HW_VGA(REG_VGA_HSSTOP)=1504;
-			HW_VGA(REG_VGA_VTOTAL)=525;
-			HW_VGA(REG_VGA_VSIZE)=480;
-			HW_VGA(REG_VGA_VSSTART)=500;
-			HW_VGA(REG_VGA_VSSTOP)=502;
-			HW_VGA(REG_VGA_PIXELCLOCK)=1;	
-			break;
-		case SCREENMODE_800x600:
-			HW_VGA(REG_VGA_HTOTAL)=1040;
-			HW_VGA(REG_VGA_HSIZE)=800;
-			HW_VGA(REG_VGA_HSSTART)=856;
-			HW_VGA(REG_VGA_HSSTOP)=976;
-			HW_VGA(REG_VGA_VTOTAL)=666;
-			HW_VGA(REG_VGA_VSIZE)=600;
-			HW_VGA(REG_VGA_VSSTART)=637;
-			HW_VGA(REG_VGA_VSSTOP)=643;
-			HW_VGA(REG_VGA_PIXELCLOCK)=1;
-			break;
-		default:
-			printf("Unknown screenmode %d\n",mode);
-			break;
-	}
+	char *result,*real;
+	int *tmp;
+	--alignment;
+	real=(char *)malloc(size+4+alignment);
+	printf("Real address is %x\n",(int)real);
+	result=(char *)(((int)real+4+alignment)&~alignment);
+	tmp=(int *)result;
+	printf("Aligned to %x\n",(int)tmp);
+	--tmp;
+	printf("Wrote to %x\n",(int)tmp);
+	*tmp=(int)real;
+	return(result);
 }
 
-void initDisplay(enum screenmode mode)
+void free_aligned(char *ptr)
+{
+	int *tmp;
+	int real;
+	tmp=(int *)ptr;
+	printf("Free pointer %x\n",(int)tmp);
+	--tmp;
+	real=*tmp;
+	printf("Freeing real pointer %x fetched from %x\n",real,(int)tmp);
+	free((char *)real);
+}
+
+void initDisplay(enum screenmode mode,int bits)
 {
 	int w,h;
-	switch(mode) {
-		case SCREENMODE_640x480:
-			w=640;
-			h=480;
-			break;
-		case SCREENMODE_1280x480:
-			w=1280;
-			h=480;
-			break;
-		case SCREENMODE_800x600:
-			w=800;
-			h=600;
-			break;
+	w=Screenmode_GetWidth(mode);
+	h=Screenmode_GetHeight(mode);
+	if(w && h)
+	{
+		screenwidth=w;
+		screenheight=h;
+		FrameBuffer=(short *)malloc_aligned((bits/8) * w*h,32);
+		Screenmode_Set(mode);
+		HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
+		HW_VGA(PIXELFORMAT) = bits==32 ? PIXELFORMAT_RGB32 : PIXELFORMAT_RGB16;
 	}
-	screenwidth=w;
-	screenheight=h;
-	FrameBuffer=(short *)malloc(sizeof(short)*w*h);
-	SetScreenmode(mode);
-	HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
-	HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB16;
 }
 
 #define SWAP(x) ((x<<8) | (x>>8))
@@ -110,39 +87,50 @@ char getserial()
 int main(int argc, char **argv)
 {
 	int i;
-	enum screenmode mode=SCREENMODE_640x480;
+	int bits=16;
+	enum screenmode mode=SCREENMODE_640x480_60;
 	while(1)
 	{
 		int c;
-		initDisplay(mode);
+		int sw;
+		initDisplay(mode,bits);
+		sw=(screenwidth-32)/4;
 		drawRectangle(0,0,screenwidth-1,screenheight-1,SWAP(0x39e7));
 		for(i=0;i<240;++i)
 		{
 			int g=(i>>3) | ((i>>2)<<5) | ((i>>3) << 11); 
-			drawRectangle(0,i*2,149,i*2+1,SWAP(g));
-			drawRectangle(150,i*2,299,i*2+1,SWAP((i>>3)<<11));
-			drawRectangle(300,i*2,449,i*2+1,SWAP((i>>2)<<5));
-			drawRectangle(450,i*2,599,i*2+1,SWAP(i>>3));
+			drawRectangle(0,i*2,sw-1,i*2+1,SWAP(g));
+			drawRectangle(sw,i*2,2*sw-1,i*2+1,SWAP((i>>3)<<11));
+			drawRectangle(2*sw,i*2,3*sw-1,i*2+1,SWAP((i>>2)<<5));
+			drawRectangle(3*sw,i*2,4*sw-1,i*2+1,SWAP(i>>3));
 		}
-		printf("Press 1, 2 or 3 to switch screenmodes.\n");
+		printf("\nCurrently using %d x %d in %d bits\n",screenwidth,screenheight,bits);
+		printf("Press 1 - 7 to switch screenmodes, a for 16 bit, b for 32-bit.\n");
 		c=getserial();
 		if (c)
 		{
-			switch(c) {
+			switch(c)
+			{
 				case '1':
-					mode=SCREENMODE_640x480;
-					break;
-
 				case '2':
-					mode=SCREENMODE_800x600;
-					break;			
-				
 				case '3':
-					mode=SCREENMODE_1280x480;
-					break;			
-			
-			}		
-			free(FrameBuffer);
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				case '0':
+					mode=c-'1';
+					break;
+				case 'a':
+					bits=16;
+					break;
+				case 'b':
+					bits=32;
+					break;
+			}
+			free_aligned(FrameBuffer);
 		}				
 	}
 	
