@@ -74,7 +74,7 @@ void initDisplay(enum screenmode mode,int bits)
 }
 
 
-#define ITERATIONS 500
+#define ITERATIONS 100
 
 void timetest(char *description,void (*drawfunc)(unsigned int,unsigned int,unsigned int,unsigned int,unsigned int))
 {

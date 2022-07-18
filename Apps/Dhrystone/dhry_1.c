@@ -105,7 +105,19 @@ Rec_Type rec2;
 Str_30          Str_1_Loc;
 Str_30          Str_2_Loc;
 
-int main ()
+int main()
+{
+  /* Initializations */
+	HW_VGA(FRAMEBUFFERPTR)=0x00000000; /* Move the framebuffer out of bank zero */
+	go();
+	printf("With video contention\n");
+	HW_VGA(FRAMEBUFFERPTR)=0x01000000; /* Move the framebuffer out of bank zero */
+	go();
+	printf("With video moved to a different bank\n");	
+}
+
+
+int go ()
 /*****/
 
   /* main program, corresponds to procedures        */
@@ -117,9 +129,6 @@ int main ()
   REG   char            Ch_Index;
         Enumeration     Enum_Loc;
   REG   int             Run_Index;
-
-  /* Initializations */
-	HW_VGA(FRAMEBUFFERPTR)=0x01000000; /* Move the framebuffer out of bank zero */
 
 //  Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
 //  Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
