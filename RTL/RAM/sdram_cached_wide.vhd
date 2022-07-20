@@ -33,7 +33,6 @@ generic
 		rows : integer := 12;
 		cols : integer := 8;
 		cache : boolean := false;
-		dcache : boolean := false;
 		dqwidth : integer := 32;
 		dqmwidth : integer :=4;
 		tCK : integer := 10000
@@ -77,12 +76,12 @@ port
 	wr1			: in std_logic;	-- Read (1) / write (0) 
 	dataout1		: out std_logic_vector(31 downto 0);
 	dtack1	: buffer std_logic;
-	-- Port 2 - instructions only
+	-- Port 2 - DMA
 	Addr2		: in std_logic_vector(31 downto 0):=X"00000000";
 	req2		: in std_logic:='0';
-	cachevalid2 : out std_logic;
-	dataout2		: out std_logic_vector(31 downto 0);
-	dtack2	: buffer std_logic;
+	ack2		: out std_logic;
+	fill2		: out std_logic;
+	dataout2		: out std_logic_vector(dqwidth-1 downto 0);
 	--
 	flushcaches : in std_logic:='0'
 	);
@@ -138,18 +137,9 @@ signal readcache_dtack : std_logic;
 signal readcache_fill : std_logic;
 signal readcache_busy : std_logic;
 
-signal readcache2_addr : std_logic_vector(31 downto 0);
-signal readcache2_req : std_logic;
-signal readcache2_req_e : std_logic;
-signal readcache2_dtack : std_logic;
-signal readcache2_fill : std_logic;
-signal readcache2_busy : std_logic;
-
 signal longword : std_logic_vector(31 downto 0);
-signal longword2 : std_logic_vector(31 downto 0);
 
 signal cache_ready : std_logic;
-signal cache2_ready : std_logic;
 
 signal bankbusy : std_logic_vector(3 downto 0);
 
@@ -253,25 +243,22 @@ END COMPONENT;
 begin
 
 	readcache_fill <= '1' when (slot1_fill='1' and sdram_slot1=port1)
-								or (slot2_fill='1' and sdram_slot2=port1)
-									else '0';
+	                        or (slot2_fill='1' and sdram_slot2=port1)
+	                          else '0';
 
-	readcache2_fill <= '1' when (slot1_fill='1' and sdram_slot1=port2)
-								or (slot2_fill='1' and sdram_slot2=port2)
-									else '0';
+	fill2 <= '1' when (slot1_fill='1' and sdram_slot1=port2)
+	               or (slot2_fill='1' and sdram_slot2=port2)
+	                 else '0';
 
 	vga_fill <= '1' when (slot1_fill='1' and sdram_slot1=port0)
-								or (slot2_fill='1' and sdram_slot2=port0)
-									else '0';
+	                  or (slot2_fill='1' and sdram_slot2=port0)
+	                    else '0';
 
 	dtack1 <= wback and not readcache_dtack;
-
-	dtack2 <= not readcache2_dtack;
 
 
 arbiter : block
 	signal readcache_req_mask : std_logic;
-	signal readcache2_req_mask : std_logic;
 begin
 	process(sysclk) begin
 		if rising_edge(sysclk) then
@@ -290,15 +277,14 @@ begin
 				readcache_req_mask<=not wbreq; -- For cache coherency reasons we don't service CPU read requests while the writebuffer contains data.
 			end if;
 
-			readcache2_req_mask<='0';
+			port2_req_masked <='0';
 			if bankbusy(to_integer(unsigned(Addr2(bank_high downto bank_low))))='0' then
-				readcache2_req_mask<=not wbreq;
+				port2_req_masked<=req2;
 			end if;
 		end if;	
 	end process;
 	
 	port1_req_masked <= readcache_req and readcache_req_mask;
-	port2_req_masked <= readcache2_req and readcache2_req_mask;
 
 	process(port1_req_masked,port2_req_masked,vga_req_masked,wb_req_masked) begin
 		if vga_req_masked='1' then
@@ -410,37 +396,7 @@ end block;
 
 GENCACHE:
 if cache=true generate
-mytwc2 : component DirectMappedCache
-	generic map
-	(
-		cachebits => 11
-	)
-	PORT map
-	(
-		clk => sysclk,
-		reset => reset,
-		ready => cache2_ready,
-		cpu_addr => addr2,
-		cpu_req => req2,
-		cpu_ack => readcache2_dtack,
-		cpu_cachevalid => cachevalid2,
-		cpu_rw => '1',
-		bytesel => "0000",
-		data_from_cpu => (others=>'X'),
-		data_to_cpu => dataout2,
-		data_from_sdram => sdata_reg,
-		sdram_addr => readcache2_addr,
-		sdram_req => readcache2_req,
-		sdram_fill => readcache2_fill,
-		busy => readcache2_busy,
-		flush => flushcaches
-	);
-end generate;
-
-
-GENDCACHE:
-if dcache=true generate
-mytwc : component DirectMappedCache
+cache_inst : component DirectMappedCache
 	generic map
 	(
 		cachebits => 11
@@ -468,39 +424,8 @@ mytwc : component DirectMappedCache
 end generate;
 
 
-GENNOCACHE:
-if cache=false generate
-	cachevalid2<='0';
-	readcache2_addr<=addr2;
-	process(sysclk)
-	begin
-		if rising_edge(sysclk) then
-			if reset='0' then
-				readcache2_req_e<='1';
-			else
-				if readcache2_dtack='1' then
-					readcache2_req_e<='0';
-				end if;
-				if req2='0' then
-					readcache2_req_e<='1';
-				end if;
-			end if;
-		end if;
-	end process;
-
-	readcache2_req<=req2 and readcache2_req_e;
-	
-	readcache2_dtack <= '1' when (slot1_ack='1' and sdram_slot1=port2)
-			or (slot2_ack='1' and sdram_slot2=port2)
-				else '0';
-	dataout2<=longword2;
-	cache2_ready<='1';
-	readcache2_busy<='0';
-end generate;
-
-
 GENNODCACHE:
-if dcache=false generate
+if cache=false generate
 	cachevalid<='0';
 	readcache_addr<=addr1;
 	process(sysclk)
@@ -539,9 +464,10 @@ end generate;
 -------------------------------------------------------------------------
 -- SDRAM Basic
 -------------------------------------------------------------------------
-	reset_out <= init_done and cache_ready and cache2_ready;
+	reset_out <= init_done and cache_ready;
 
 	vga_data <= sdata_reg;
+	dataout2 <= sdata_reg;
 
 	process (sdram_state,slot1write,slot2write,slot1writeextra,slot2writeextra) begin
 	
@@ -718,6 +644,7 @@ end generate;
 
 -- Time slot control			
 				vga_ack<='0';
+				ack2<='0';
 				case sdram_state is
 
 					when ph2 => -- ACTIVE for first access slot
@@ -778,14 +705,15 @@ end generate;
 							sd_ras <= '0';
 						elsif nextport=port2 then
 							sdram_slot1<=port2;
-							sdaddr <= readcache2_addr(row_high downto row_low);
-							ba <= readcache2_addr(bank_high downto bank_low);
-							slot1_bank <= readcache2_addr(bank_high downto bank_low); -- slot1 bank
-							bankbusy(to_integer(unsigned(readcache2_addr(bank_high downto bank_low))))<='1';
+							sdaddr <= Addr2(row_high downto row_low);
+							ba <= Addr2(bank_high downto bank_low);
+							slot1_bank <= Addr2(bank_high downto bank_low); -- slot1 bank
+							bankbusy(to_integer(unsigned(Addr2(bank_high downto bank_low))))<='1';
 							cas_dqm <= (others => '0');
-							casaddr <= readcache2_addr(31 downto 2) & "00";
+							casaddr <= Addr2(31 downto 5) & "00000"; -- read whole cache line in burst mode.
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
+							ack2<='1'; -- Signal to DMA controller that it can bump bankreserve
 						end if;
 
 					when ph3 =>
@@ -839,11 +767,8 @@ end generate;
 
 					when ph9 =>
 						-- First word of reads if bypassing the cache
-						if sdram_slot1=port1 and dcache=false then
+						if sdram_slot1=port1 and cache=false then
 							longword<=sdata_in;
-						end if;
-						if sdram_slot1=port2 and cache=false then
-							longword2<=sdata_in;
 						end if;
 
 					when ph10 =>
@@ -887,13 +812,15 @@ end generate;
 							sd_ras <= '0';
 						elsif nextport=port2 then
 							sdram_slot2<=port2;
-							sdaddr <= readcache2_addr(row_high downto row_low);
-							ba <= readcache2_addr(bank_high downto bank_low);
-							slot2_bank <= readcache2_addr(bank_high downto bank_low);
-							bankbusy(to_integer(unsigned(readcache2_addr(bank_high downto bank_low))))<='1';
-							casaddr <= readcache2_addr(31 downto 2) & "00"; -- We no longer mask off LSBs for burst read
+							sdaddr <= Addr2(row_high downto row_low);
+							ba <= Addr2(bank_high downto bank_low);
+							slot1_bank <= Addr2(bank_high downto bank_low); -- slot1 bank
+							bankbusy(to_integer(unsigned(Addr2(bank_high downto bank_low))))<='1';
+							cas_dqm <= (others => '0');
+							casaddr <= Addr2(31 downto 5) & "00000"; -- read whole cache line in burst mode.
 							sd_cs <= '0'; --ACTIVE
 							sd_ras <= '0';
+							ack2<='1'; -- Signal to DMA controller that it can bump bankreserve
 						end if;
 						
 				
@@ -952,11 +879,8 @@ end generate;
 
 					when ph1 =>
 						-- First word of reads if bypassing the cache
-						if sdram_slot2=port1 and dcache=false then
+						if sdram_slot2=port1 and cache=false then
 							longword<=sdata_in;
-						end if;
-						if sdram_slot2=port2 and cache=false then
-							longword2<=sdata_in;
 						end if;
 
 					when others =>

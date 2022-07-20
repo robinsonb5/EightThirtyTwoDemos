@@ -464,6 +464,11 @@ begin
 
 -- DMA controller
 
+	-- Stub out the sprite channel until we re-instate it:
+	spr0channel_fromhost.setaddr<='0';
+	spr0channel_fromhost.setreqlen<='0';
+	spr0channel_fromhost.req<='0';
+
 	mydmacache : entity work.DMACache
 		port map(
 			clk => clk,
@@ -503,7 +508,6 @@ begin
 			rows => sdram_rows,
 			cols => sdram_cols,
 			cache => true,
-			dcache => true,
 			dqwidth => 32,
 			dqmwidth => 4
 		)
@@ -544,6 +548,12 @@ begin
 			bytesel => sdram_bytesel, -- cpu_bytesel,
 			dataout1 => sdram_read,
 			dtack1 => sdram_ack,
+
+			addr2 => dma_addr,
+			dataout2 => dma_data_in,
+			fill2 => dma_fill,
+			req2 => dma_req,
+			ack2 => dma_ack,
 			
 			flushcaches => flushcaches
 		);

@@ -1,14 +1,15 @@
 #include <hw/uart.h>
-#include <hw/vga.h>
 #include <hw/timer.h>
+#include <hw/vga.h>
+#include <hw/screenmode.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
  
 unsigned int *FrameBuffer;	// Frame Buffer pointer
-int screenwidth=640;		// Initial screen width
-int screenheigth=480;		// Initial screen heigth
+unsigned int screenwidth=640;		// Initial screen width
+unsigned int screenheight=480;		// Initial screen heigth
 
 void makeRectFast(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE, unsigned int color);
 
@@ -30,67 +31,146 @@ void makeRect(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE
 }
 
 
-void initDisplay(void)
+void *malloc_aligned(size_t size,int alignment)
 {
-	FrameBuffer=(int *)malloc(sizeof(int)*640*480);
-	HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
-	HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB32;
-	memset(FrameBuffer,0,sizeof(int)*640*480);
+	char *result,*real;
+	int *tmp;
+	--alignment;
+	real=(char *)malloc(size+4+alignment);
+	printf("Real address is %x\n",(int)real);
+	result=(char *)(((int)real+4+alignment)&~alignment);
+	tmp=(int *)result;
+	printf("Aligned to %x\n",(int)tmp);
+	--tmp;
+	printf("Wrote to %x\n",(int)tmp);
+	*tmp=(int)real;
+	return(result);
 }
 
-#define ITERATIONS 500
+void free_aligned(char *ptr)
+{
+	int *tmp;
+	int real;
+	tmp=(int *)ptr;
+	printf("Free pointer %x\n",(int)tmp);
+	--tmp;
+	real=*tmp;
+	printf("Freeing real pointer %x fetched from %x\n",real,(int)tmp);
+	free((char *)real);
+}
+
+void initDisplay(enum screenmode mode,int bits)
+{
+	int w,h;
+	w=Screenmode_GetWidth(mode);
+	h=Screenmode_GetHeight(mode);
+	if(w && h)
+	{
+		screenwidth=w;
+		screenheight=h;
+		FrameBuffer=(unsigned int *)malloc_aligned((bits/8) * w*h,32);
+		Screenmode_Set(mode);
+		HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
+		HW_VGA(PIXELFORMAT) = bits==32 ? PIXELFORMAT_RGB32 : PIXELFORMAT_RGB16;
+	}
+}
+
+#define ITERATIONS 100
+
+void timetest(char *description,void (*drawfunc)(unsigned int,unsigned int,unsigned int,unsigned int,unsigned int))
+{
+	int i;
+	int t;
+	unsigned int c,x,y,w,h;
+	srand(0x55aa55aa); /* Seed the random number generator so the sequence is repeatable */
+	t=HW_TIMER(REG_MILLISECONDS);
+	for(i=0;i<ITERATIONS;++i)
+	{
+		c=rand();
+		x=rand()%screenwidth;
+		y=rand()%screenheight;
+		w=screenwidth-x;
+		h=screenheight-y;
+		w=rand()%w;
+		h=rand()%h;
+		if(w>0 && h>0)
+			drawfunc(x,y,x+w,y+h,c);
+	}
+	t=HW_TIMER(REG_MILLISECONDS)-t;
+	printf("%d iterations using %s draw functions in %d ms.\n",ITERATIONS,description,t);
+}
+
+
+char getserial()
+{
+	int c=HW_UART(REG_UART);
+	if(c&(1<<REG_UART_RXINT))
+	{
+		c&=0xff;
+		return(c);
+	}
+	return(0);
+}
+
 
 int main(int argc, char **argv)
 {
     int i;
 	int t;
 	unsigned int c,x,y,w,h;
-	initDisplay();
+	int update=1;
+	int mode=SCREENMODE_640x480_60;
 
-	t=HW_TIMER(REG_MILLISECONDS);
-	for(i=0;i<ITERATIONS;++i)
-	{
-		c=rand();
-		x=rand()%640u;
-		y=rand()%480u;
-		w=640-x;
-		h=480-y;
-		w=rand()%w;
-		h=rand()%h;
-		if(w>0 && h>0)
-			makeRect(x,y,x+w,y+h,c);
-	}
-	t=HW_TIMER(REG_MILLISECONDS)-t;
-	printf("%d iterations using C draw functions in %d ms.\n",ITERATIONS,t);
-
-	t=HW_TIMER(REG_MILLISECONDS);
-	for(i=0;i<ITERATIONS;++i)
-	{
-		c=rand();
-		x=rand()%640u;
-		y=rand()%480u;
-		w=640-x;
-		h=480-y;
-		w=rand()%w;
-		h=rand()%h;
-		if(w>0 && h>0)
-			makeRectFast(x,y,x+w,y+h,c);
-	}
-	t=HW_TIMER(REG_MILLISECONDS)-t;
-	printf("%d iterations using assembly draw functions in %d ms.\n",ITERATIONS,t);
-
-	/* After timing is finished just keep running */
 	while(1)
 	{
+		if(update)
+		{
+			update=0;
+			initDisplay(mode,32);
+			printf("Timing...\n");
+			timetest("C",makeRect);
+			timetest("assembly",&makeRectFast);
+			FrameBuffer=(int *)(((int)FrameBuffer)|0x40000000); /* Evil hack - upper image of memory which doesn't clear cachelines on write */
+			timetest("assembly (cache bypass)",&makeRectFast);
+
+			printf("\nCurrently using %d x %d\n",screenwidth,screenheight);
+			printf("Press 1 - 7 to switch screenmodes.\n");
+		}
+
 		c=rand();
-		x=rand()%640u;
-		y=rand()%480u;
-		w=640-x;
-		h=480-y;
+		x=rand()%screenwidth;
+		y=rand()%screenheight;
+		w=screenwidth-x;
+		h=screenheight-y;
 		w=rand()%w;
 		h=rand()%h;
 		if(w>0 && h>0)
-			makeRectFast(x,y,x+w,y+h,c);
+			makeRectFast(x,y,x+w,y+h,c);	
+
+		c=getserial();
+		if (c)
+		{
+			switch(c)
+			{
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				case '0':
+					mode=c-'1';
+					break;
+				default:
+					break;
+			}
+			FrameBuffer=(int *)(((int)FrameBuffer)&0x3fffffff); /* Evil hack - upper image of memory which doesn't clear cachelines on write */
+			free_aligned((char *)FrameBuffer);
+			update=1;
+		}				
 	}
 
     return 0;

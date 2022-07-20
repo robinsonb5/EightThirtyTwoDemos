@@ -200,6 +200,7 @@ begin
 				begin
 					tag_w = {5'b00000,cpu_addr[31:5]};
 //					if(tag_hit) // FIXME - brute force clear the tag.
+					if(cpu_addr[30]==1'b0)	// An upper image of the RAM with cache clear bypass.
 						tag_wren<=1'b1;
 				end
 			end
