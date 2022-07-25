@@ -141,7 +141,7 @@ end generate;
 	generic map(
 		sdram_rows => 13,
 		sdram_cols => 9,
-		sysclk_frequency => 1000,
+		sysclk_frequency => 1200,
 		debug => false
 	)
 	port map(
@@ -207,7 +207,7 @@ end generate;
 		PORT
 		(
 			clk	:	IN STD_LOGIC;
-			reset_n : in std_logic;
+			reset_n : in std_logic :='1';
 	--		terminate : in std_logic;
 			d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 			q_l	:	OUT STD_LOGIC;
@@ -216,8 +216,7 @@ end generate;
 		);
 		END COMPONENT;
 		COMPONENT hybrid_2ndorder
-		PORT
-		(
+		PORT (
 			clk	:	IN STD_LOGIC;
 			reset_n : in std_logic;
 	--		terminate : in std_logic;
@@ -225,16 +224,53 @@ end generate;
 			q	:	OUT STD_LOGIC
 		);
 		END COMPONENT;
+		COMPONENT hybrid_2ndorder_filtered
+		PORT (
+			clk	:	IN STD_LOGIC;
+			reset_n : in std_logic;
+	--		terminate : in std_logic;
+			d	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+			q	:	OUT STD_LOGIC
+		);
+		END COMPONENT;
+		component hybrid_pwm_sd
+		port (
+			clk : in std_logic;
+			terminate : in std_logic := '0';
+			d_l : in std_logic_vector(15 downto 0);
+			d_r : in std_logic_vector(15 downto 0);
+			q_l : out std_logic;
+			q_r : out std_logic
+		);
+		end component;
+				
 		signal aud_d_l : std_logic_vector(15 downto 0);
 		signal aud_d_r : std_logic_vector(15 downto 0);
+		signal aud_l_ext : std_logic_vector(5 downto 0);
+		signal aud_r_ext : std_logic_vector(5 downto 0);
 	begin
+		
+		aud_l_ext <= (others => '1') when pcm_l(15)='1' else (others => '0');
+		aud_r_ext <= (others => '1') when pcm_r(15)='1' else (others => '0');
 		
 		process(clk_slow) begin
 			if rising_edge(clk_slow) then
+--				aud_d_l <= not pcm_l(15) & aud_l_ext & std_logic_vector(pcm_l(14 downto 6));
+--				aud_d_r <= not pcm_r(15) & aud_r_ext & std_logic_vector(pcm_r(14 downto 6));
 				aud_d_l <= not pcm_l(15) & std_logic_vector(pcm_l(14 downto 0));
 				aud_d_r <= not pcm_r(15) & std_logic_vector(pcm_r(14 downto 0));
 			end if;
 		end process;
+
+--		audio_sd: component hybrid_pwm_sd_2ndorder
+--		port map
+--		(
+--			clk => clk_slow,
+--			d_l => aud_d_l,
+--			q_l => AUDIO_l,
+--			d_r => aud_d_r,
+--			q_r => AUDIO_r
+--		);
 		
 		audio_sd_l: component hybrid_2ndorder
 			port map

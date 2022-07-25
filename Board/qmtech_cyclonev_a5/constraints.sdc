@@ -22,4 +22,8 @@ set_input_delay -clock altera_reserved_tck -clock_fall 3 altera_reserved_tdi
 set_input_delay -clock altera_reserved_tck -clock_fall 3 altera_reserved_tms
 set_output_delay -clock altera_reserved_tck 3 altera_reserved_tdo
 
-set topmodule guest|
+set_false_path -from [get_clocks {U00|pll_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk}] -to [get_clocks {U00|pll_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk}]
+set_false_path -from [get_clocks {U00|pll_inst|altera_pll_i|general[3].gpll~PLL_OUTPUT_COUNTER|divclk}] -to [get_clocks {U00|pll_inst|altera_pll_i|general[1].gpll~PLL_OUTPUT_COUNTER|divclk}]
+
+set_false_path -from {VirtualToplevel:virtualtoplevel|sdram_cached_wide:mysdram|altsyncram:\newwritebuffer:wbstore_data_rtl_0|altsyncram_g3q1:auto_generated|ram_block1a0~PORT_B_WRITE_ENABLE_REG} -to {VirtualToplevel:virtualtoplevel|sdram_cached_wide:mysdram|*}
+set_false_path -from {VirtualToplevel:virtualtoplevel|sdram_cached_wide:mysdram|altsyncram:\newwritebuffer:wbstore_flagsaddr_rtl_0|altsyncram_07n1:auto_generated|ram_block1a0~PORT_B_WRITE_ENABLE_REG} -to {VirtualToplevel:virtualtoplevel|sdram_cached_wide:mysdram|*}

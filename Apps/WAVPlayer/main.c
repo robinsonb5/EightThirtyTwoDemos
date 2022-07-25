@@ -3,6 +3,7 @@
 
 #include <signals.h>
 
+#include "hw/vga.h"
 #include "audiocontext.h"
 #include "wav.h"
 
@@ -16,6 +17,7 @@ int main(int argc,char **argv)
 {
     struct AudioContext *ac=0;
 	struct Wav *wav=0;
+	HW_VGA(FRAMEBUFFERPTR)=0x01000000; /* Move the framebuffer out of bank zero */
 	if(!chdir("WAVs"))
 	{
 		printf("Chdir succeeded\n");
