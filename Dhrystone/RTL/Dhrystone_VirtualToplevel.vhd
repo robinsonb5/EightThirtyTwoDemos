@@ -14,6 +14,7 @@ entity VirtualToplevel is
 	port (
 		clk 			: in std_logic;
 		slowclk		: in std_logic;
+		videoclk    : in std_logic :='0'; -- For projects that support a separate video clock
 		reset_in 	: in std_logic;
 
 		-- VGA

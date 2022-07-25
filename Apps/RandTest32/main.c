@@ -74,16 +74,16 @@ void initDisplay(enum screenmode mode,int bits)
 }
 
 
-#define ITERATIONS 100
-
 void timetest(char *description,void (*drawfunc)(unsigned int,unsigned int,unsigned int,unsigned int,unsigned int))
 {
+	int iterations;
 	int i;
 	int t;
 	unsigned int c,x,y,w,h;
 	srand(0x55aa55aa); /* Seed the random number generator so the sequence is repeatable */
+	iterations=(640*480*200) / (screenwidth*screenheight);
 	t=HW_TIMER(REG_MILLISECONDS);
-	for(i=0;i<ITERATIONS;++i)
+	for(i=0;i<iterations;++i)
 	{
 		c=rand();
 		x=rand()%screenwidth;
@@ -96,8 +96,9 @@ void timetest(char *description,void (*drawfunc)(unsigned int,unsigned int,unsig
 			drawfunc(x,y,x+w,y+h,c);
 	}
 	t=HW_TIMER(REG_MILLISECONDS)-t;
-	printf("%d iterations using %s draw functions in %d ms.\n",ITERATIONS,description,t);
+	printf("%d iterations using %s draw functions in %d ms.\n",iterations,description,t);
 }
+
 
 char getserial()
 {
@@ -126,12 +127,16 @@ int main(int argc, char **argv)
 			update=0;
 			initDisplay(mode,32);
 				
+			printf("\nTesting %d x %d\n",screenwidth,screenheight);
 			timetest("C",makeRect);
 			timetest("assembly",&makeRectFast);
 			timetest("unrolled assembly",&makeRectFastUnrolled);
+			FrameBuffer=(int *)(((int)FrameBuffer)|0x40000000); /* Evil hack - upper image of memory which doesn't clear cachelines on write */
+			timetest("C (cache bypass)",makeRect);
+			timetest("assembly (cache bypass)",&makeRectFast);
+			timetest("unrolled assembly (cache bypass)",&makeRectFastUnrolled);
 
-			printf("\nCurrently using %d x %d\n",screenwidth,screenheight);
-			printf("Press 1 - 7 to switch screenmodes.\n");
+			printf("Press 1 - %d to switch screenmodes.\n",SCREENMODE_MAX);
 		}
 
 		c=rand();
@@ -164,6 +169,7 @@ int main(int argc, char **argv)
 				default:
 					break;
 			}
+			FrameBuffer=(int *)(((int)FrameBuffer)&0x3fffffff); /* Evil hack - upper image of memory which doesn't clear cachelines on write */
 			free_aligned((char *)FrameBuffer);
 			update=1;
 		}				

@@ -58,6 +58,12 @@ void initDisplay(enum screenmode mode,int bits)
 	int w,h;
 	w=Screenmode_GetWidth(mode);
 	h=Screenmode_GetHeight(mode);
+	if((!w) || (!h))
+	{
+		mode=SCREENMODE_640x480_60;
+		w=640;
+		h=480;
+	}	
 	if(w && h)
 	{
 		screenwidth=w;
@@ -105,7 +111,7 @@ int main(int argc, char **argv)
 			drawRectangle(3*sw,i*2,4*sw-1,i*2+1,SWAP(i>>3));
 		}
 		printf("\nCurrently using %d x %d in %d bits\n",screenwidth,screenheight,bits);
-		printf("Press 1 - 7 to switch screenmodes, a for 16 bit, b for 32-bit.\n");
+		printf("Press 1 - %d to switch screenmodes, a for 16 bit, b for 32-bit.\n",SCREENMODE_MAX);
 		c=getserial();
 		if (c)
 		{
