@@ -8,7 +8,8 @@ entity VirtualToplevel is
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
 		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10
-		jtag_uart : boolean := false
+		jtag_uart : boolean := false;
+		debug : boolean:=false
 	);
 	port (
 		clk 			: in std_logic;

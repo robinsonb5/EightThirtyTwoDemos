@@ -14,6 +14,7 @@ entity VirtualToplevel is
 	port (
 		clk 			: in std_logic;
 		slowclk		: in std_logic;
+		videoclk	: in std_logic;
 		reset_in 	: in std_logic;
 
 		-- VGA
@@ -441,7 +442,7 @@ end process;
 
 vtimings : entity work.video_timings
 	port map (
-		clk => clk,
+		clk => videoclk,
 		reset_n => reset_n,
 		
 		-- Sync / blanking
@@ -453,7 +454,8 @@ vtimings : entity work.video_timings
 		
 		-- Pixel positions
 		xpos => xpos,
-		ypos => ypos
+		ypos => ypos,
+		clkdiv => to_unsigned(5,4)
 	);
 
 vga_red <= xpos(7 downto 0);

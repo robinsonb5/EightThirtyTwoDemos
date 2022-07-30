@@ -19,6 +19,11 @@ port(
 	UART_D2_TXD : out std_logic;
 	UART_D2_RXD : in std_logic;
 
+	PS2_K_CLK : inout std_logic;
+	PS2_K_DATA : inout std_logic;
+	PS2_M_CLK : inout std_logic;
+	PS2_M_DATA : inout std_logic;
+
 	led1 : out std_logic;
 	led2 : out std_logic;
 
@@ -141,7 +146,7 @@ end generate;
 	generic map(
 		sdram_rows => 13,
 		sdram_cols => 9,
-		sysclk_frequency => 1200,
+		sysclk_frequency => Toplevel_Frequency * 10,
 		debug => false
 	)
 	port map(
@@ -193,13 +198,12 @@ end generate;
 	);
 
 	-- PS/2 tristating
-	-- Leave SP/2 unconnected for now...
 
 	-- Instantiate IOs explicitly to avoid potential issues with tristate signals.
---	ps2kd : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_KDAT+ps2_pmod_offset), I => '0',	T => ps2k_dat_out, O => ps2k_dat_in );
---	ps2kc : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_KCLK+ps2_pmod_offset), I => '0',	T => ps2k_clk_out, O => ps2k_clk_in );
---	ps2md : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_MDAT+ps2_pmod_offset), I => '0',	T => ps2m_dat_out, O => ps2m_dat_in );
---	ps2mc : component TRELLIS_IO port map ( B => ps2_pmod(PMOD_PS2_MCLK+ps2_pmod_offset), I => '0',	T => ps2m_clk_out, O => ps2m_clk_in );
+	ps2kd : component TRELLIS_IO port map ( B => PS2_K_DATA, I => '0',	T => ps2k_dat_out, O => ps2k_dat_in );
+	ps2kc : component TRELLIS_IO port map ( B => PS2_K_CLK, I => '0',	T => ps2k_clk_out, O => ps2k_clk_in );
+	ps2md : component TRELLIS_IO port map ( B => PS2_M_DATA, I => '0',	T => ps2m_dat_out, O => ps2m_dat_in );
+	ps2mc : component TRELLIS_IO port map ( B => PS2_M_CLK, I => '0',	T => ps2m_clk_out, O => ps2m_clk_in );
 
 	-- Sigma Delta audio
 	genaudio: if Toplevel_UseAudio=true generate
