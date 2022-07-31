@@ -34,7 +34,7 @@ void *malloc_aligned(size_t size,int alignment)
 	char *result,*real;
 	int *tmp;
 	--alignment;
-	real=(char *)malloc(size+4+alignment);
+	real=(char *)malloc_high(size+4+alignment);
 	printf("Real address is %x\n",(int)real);
 	result=(char *)(((int)real+4+alignment)&~alignment);
 	tmp=(int *)result;

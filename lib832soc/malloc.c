@@ -52,7 +52,7 @@ static inline void remove_from_chains(struct free_arena_header *ah)
 	remove_from_main_chain(ah);
 }
 
-void *__malloc_from_block(struct free_arena_header *fp, size_t size)
+static void *__malloc_from_block(struct free_arena_header *fp, size_t size, int end)
 {
 	size_t fsize;
 	struct free_arena_header *nfp, *na, *fpn, *fpp;
@@ -62,14 +62,16 @@ void *__malloc_from_block(struct free_arena_header *fp, size_t size)
 	   free block */
 	if (fsize >= (size + 2 * sizeof(struct arena_header))) {
 		/* Bigger block than required -- split block */
-		nfp = (struct free_arena_header *)((char *)fp + size);
 		na = fp->a.next;
 
-		nfp->a.type = ARENA_TYPE_FREE;
-		nfp->a.size = fsize - size;
-		fp->a.type = ARENA_TYPE_USED;
-		fp->a.size = size;
-
+		if(end)
+		{
+			nfp = (struct free_arena_header *)((char *)fp + fsize - size);
+		}
+		else
+		{
+			nfp = (struct free_arena_header *)((char *)fp + size);
+		}
 
 		/* Insert into all-block chain */
 		nfp->a.prev = fp;
@@ -80,8 +82,26 @@ void *__malloc_from_block(struct free_arena_header *fp, size_t size)
 		/* Replace current block on free chain */
 		nfp->next_free = fpn = fp->next_free;
 		nfp->prev_free = fpp = fp->prev_free;
-		fpn->prev_free = nfp;
-		fpp->next_free = nfp;
+
+		/* Swap the current and next free pointers if we're allocating from the end of memory */
+		if(end)
+		{
+			na=nfp;
+			nfp=fp;
+			fp=na;
+		}
+		else
+		{
+			/* Replace current block on free chain */
+			fpn->prev_free = nfp;
+			fpp->next_free = nfp;
+		}
+		
+		nfp->a.type = ARENA_TYPE_FREE;
+		nfp->a.size = fsize - size;
+		fp->a.type = ARENA_TYPE_USED;
+		fp->a.size = size;		
+
 	} else {
 		fp->a.type = ARENA_TYPE_USED; /* Allocate the whole block */
 		remove_from_free_chain(fp);
@@ -186,6 +206,35 @@ void malloc_add(void *p,size_t size)
 }
 
 
+void *malloc_high(size_t size)
+{
+	struct free_arena_header *fp;
+	struct free_arena_header *pah;
+	size_t fsize;
+
+	printf("Custom malloc asking for 0x%x bytes\n",size);
+
+	if (size == 0)
+		return NULL;
+
+	/* Add the obligatory arena header, and round up */
+	size = (size + 2 * sizeof(struct arena_header) - 1) & ARENA_SIZE_MASK;
+	for (fp = __malloc_head.prev_free; fp->a.type != ARENA_TYPE_HEAD;
+	     fp = fp->prev_free) {
+
+		if (fp->a.size >= size) {
+			/* Found fit -- allocate out of this block */
+			return __malloc_from_block(fp, size,1);
+		}
+	}
+
+	/* Nothing found... need to request a block from the kernel */
+
+	fsize = (size + MALLOC_CHUNK_MASK) & ~MALLOC_CHUNK_MASK;
+
+	return NULL;
+}
+
 void *malloc(size_t size)
 {
 	struct free_arena_header *fp;
@@ -204,7 +253,7 @@ void *malloc(size_t size)
 
 		if (fp->a.size >= size) {
 			/* Found fit -- allocate out of this block */
-			return __malloc_from_block(fp, size);
+			return __malloc_from_block(fp, size,0);
 		}
 	}
 
@@ -231,16 +280,22 @@ void free(void *ptr)
 
 // Initialise memory for malloc.
 
+static const char *arenatypes[]=
+{
+	"Used",
+	"Free",
+	"Head"
+};
 
-void malloc_dump()
+void malloc_dump(int count)
 {
 	struct free_arena_header *h=&__malloc_head;
 	struct arena_header *a=&h->a;
-	int c=5;
+	int c=count;
 	printf("All chunks\n");
 	do
 	{
-		printf("Arena header at %x, type %x, size %x\n",a,a->type,a->size);
+		printf("Arena header at %x, type %s, size %x\n",a,arenatypes[a->type % (sizeof(arenatypes)/sizeof(char *))],a->size);
 //		hexdump(a,sizeof(struct free_arena_header));
 		h=a->next;
 		a=&h->a;
@@ -249,12 +304,13 @@ void malloc_dump()
 
 	printf("Free chunks\n");
 	a=&__malloc_head.a;
-	c=5;
+	c=count;
 	do
 	{
-		printf("Arena header at %x, type %x, size %x\n",a,a->type,a->size);
+		printf("Arena header at %x, type %s, size %x\n",a,arenatypes[a->type % (sizeof(arenatypes)/sizeof(char *))],a->size);
 //		hexdump(a,sizeof(struct arena_header));
 		h=h->next_free;
+		printf("-> Next: %x\n",(int)h);
 		a=&h->a;
 		--c;
 	} while(c && a && a->type!=ARENA_TYPE_HEAD);

@@ -55,11 +55,12 @@ struct free_arena_header {
 void malloc_add(void *p,size_t size);
 
 void *malloc(size_t);
+void *malloc_high(size_t);
 void *calloc(int nmemb,size_t size);
 void free(void *m);
 int availmem();
 
-void malloc_dump();
+void malloc_dump(int count);
 
 #ifdef __cplusplus
 }

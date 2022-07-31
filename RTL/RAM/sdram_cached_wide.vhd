@@ -196,7 +196,6 @@ generic
 		ready : out std_logic;
 		cpu_addr		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		cpu_req		:	 IN STD_LOGIC;
-		cpu_ack		:	 OUT STD_LOGIC;
 		cpu_cachevalid		:	 OUT STD_LOGIC;
 		cpu_rw		:	 IN STD_LOGIC;
 		bytesel : in std_logic_vector(3 downto 0);
@@ -254,7 +253,7 @@ begin
 	                  or (slot2_fill='1' and sdram_slot2=port0)
 	                    else '0';
 
-	dtack1 <= wback and not readcache_dtack;
+	dtack1 <= wback; -- and not readcache_dtack;
 
 
 arbiter : block
@@ -431,7 +430,7 @@ cache_inst : component DirectMappedCache
 		ready => cache_ready,
 		cpu_addr => addr1,
 		cpu_req => req1,
-		cpu_ack => readcache_dtack,
+--		cpu_ack => readcache_dtack,
 		cpu_cachevalid => cachevalid,
 		cpu_rw => wr1,
 		bytesel => bytesel,
