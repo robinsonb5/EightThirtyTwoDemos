@@ -22,10 +22,11 @@
 #define REG_VGA_VSSTART 0x28
 #define REG_VGA_VSSTOP 0x2c
 
-#define SP0PTR 0x80
-#define SP0XPOS 0x84
-#define SP0YPOS 0x88
-
+#define REG_VGA_SP0PTR 0x80
+#define REG_VGA_SP0XPOS 0x84
+#define REG_VGA_SP0YPOS 0x88
+#define REG_VGA_SP0WORDS 0x8c
+#define REG_VGA_SP0WIDTH 0x90
 
 #define VGA_HSYNC_POS (1<<30)
 #define VGA_HSYNC_NEG 0

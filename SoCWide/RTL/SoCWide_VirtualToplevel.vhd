@@ -464,11 +464,6 @@ begin
 
 -- DMA controller
 
-	-- Stub out the sprite channel until we re-instate it:
-	spr0channel_fromhost.setaddr<='0';
-	spr0channel_fromhost.setreqlen<='0';
-	spr0channel_fromhost.req<='0';
-
 	mydmacache : entity work.DMACache
 		port map(
 			clk => clk,
@@ -574,6 +569,13 @@ begin
 		reg_rw => vga_reg_rw,
 		reg_req => vga_reg_req,
 
+		-- Sprite
+		sprite0_sys => spr0channel_fromhost,
+		sprite0_status => spr0channel_tohost,
+		spritedata => dma_data,
+
+		-- Video
+		
 		clk_video => videoclk,
 		video_req => video_req,
 		video_pri => video_pri,
@@ -593,11 +595,11 @@ begin
 	);
 
 
-vga_vsync<=vga_vsync_i;
-	
--- Audio controller
-	
-myaudio : entity work.sound_wrapper
+	vga_vsync<=vga_vsync_i;
+		
+	-- Audio controller
+		
+	myaudio : entity work.sound_wrapper
 		generic map(
 			dmawidth => 32,
 			clk_frequency => sysclk_frequency -- Prescale incoming clock
@@ -626,15 +628,15 @@ myaudio : entity work.sound_wrapper
 		audio_ints => audio_ints
 	);
 
-audio_l<=audio_l_i(23 downto 8);
-audio_r<=audio_r_i(23 downto 8);
-	
-mytimer : entity work.timer_controller
-  generic map(
+	audio_l<=audio_l_i(23 downto 8);
+	audio_r<=audio_r_i(23 downto 8);
+		
+	mytimer : entity work.timer_controller
+	generic map(
 		prescale => sysclk_frequency, -- Prescale incoming clock
 		timers => 0
-  )
-  port map (
+	)
+	port map (
 		clk => clk,
 		reset => reset_n,
 
@@ -647,26 +649,26 @@ mytimer : entity work.timer_controller
 	);
 
 
--- Interrupt controller
+	-- Interrupt controller
 
-intcontroller: entity work.interrupt_controller
-generic map (
-	max_int => int_max
-)
-port map (
-	clk => clk,
-	reset_n => cpu_reset,
-	trigger => int_triggers, -- Again, thanks ISE.
-	ack => int_ack,
-	int => int_req,
-	status => int_status
-);
+	intcontroller: entity work.interrupt_controller
+	generic map (
+		max_int => int_max
+	)
+	port map (
+		clk => clk,
+		reset_n => cpu_reset,
+		trigger => int_triggers, -- Again, thanks ISE.
+		ack => int_ack,
+		int => int_req,
+		status => int_status
+	);
 
-audio_int <= '0' when audio_ints="0000" else '1';
-int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, 4=>audio_int, others => '0');
+	audio_int <= '0' when audio_ints="0000" else '1';
+	int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, 4=>audio_int, others => '0');
 
 
--- ROM
+	-- ROM
 
 	rom : entity work.SoCWide_rom
 	generic map(

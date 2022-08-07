@@ -47,18 +47,40 @@ int Screenmode_Set(enum screenmode mode)
 {
 	if(mode>=0 && mode<SCREENMODE_MAX)
 	{
-		HW_VGA(REG_VGA_HTOTAL)=timings[mode].htotal;
-		HW_VGA(REG_VGA_HSIZE)=timings[mode].hsize;
-		HW_VGA(REG_VGA_HSSTART)=timings[mode].hsstart;
-		HW_VGA(REG_VGA_HSSTOP)=timings[mode].hsstop;
-		HW_VGA(REG_VGA_VTOTAL)=timings[mode].vtotal;
-		HW_VGA(REG_VGA_VSIZE)=timings[mode].vsize;
-		HW_VGA(REG_VGA_VSSTART)=timings[mode].vsstart;
-		HW_VGA(REG_VGA_VSSTOP)=timings[mode].vsstop;
+		HW_VGA(REG_VGA_HTOTAL)=timings[mode].htotal-1;
+		HW_VGA(REG_VGA_HSIZE)=timings[mode].hsize-1;
+		HW_VGA(REG_VGA_HSSTART)=timings[mode].hsstart-1;
+		HW_VGA(REG_VGA_HSSTOP)=timings[mode].hsstop-1;
+		HW_VGA(REG_VGA_VTOTAL)=timings[mode].vtotal-1;
+		HW_VGA(REG_VGA_VSIZE)=timings[mode].vsize-1;
+		HW_VGA(REG_VGA_VSSTART)=timings[mode].vsstart-1;
+		HW_VGA(REG_VGA_VSSTOP)=timings[mode].vsstop-1;
 		HW_VGA(REG_VGA_PIXELCLOCK)=timings[mode].pixelclock;
 		return(1);
 	}
 	else
 		return(0);
 }
+
+#define SWAP(x) ((x>>24)|((x>>8)&0xff00)|((x<<8)&0xff0000)|((x<<24)&0xff000000))
+
+unsigned int Screenmode_StandardSprite[]=
+{
+	SWAP(0xCF000000),SWAP(0x00000000),
+	SWAP(0x8CFFF000),SWAP(0x00000000),
+	SWAP(0x08CCFFF0),SWAP(0x00000000),
+	SWAP(0x08CCCCFF),SWAP(0xFF000000),
+	SWAP(0x088CCCCC),SWAP(0xCFFF0000),
+	SWAP(0x008CCCCC),SWAP(0xCCC80000),
+	SWAP(0x0088CCCC),SWAP(0xCC800000),
+	SWAP(0x0008CCCC),SWAP(0xCF000000),
+	SWAP(0x0008CCCC),SWAP(0xCCF00000),
+	SWAP(0x00088CC8),SWAP(0xCCCF0000),
+	SWAP(0x00008C80),SWAP(0x8CCCF000),
+	SWAP(0x00008800),SWAP(0x08CCCF00),
+	SWAP(0x00000000),SWAP(0x008CCCF0),
+	SWAP(0x00000000),SWAP(0x0008CCC8),
+	SWAP(0x00000000),SWAP(0x00008C80),
+	SWAP(0x00000000),SWAP(0x00000800)
+};
 

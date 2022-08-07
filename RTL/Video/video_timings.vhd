@@ -46,15 +46,15 @@ entity video_timings is
 
 		-- Framing parameters
 		clkdiv : in unsigned(clkdivBits-1 downto 0) := to_unsigned(3,clkdivBits);
-		htotal : in unsigned(hFramingBits-1 downto 0) := to_unsigned(800,hFramingBits);
-		hbstart : in unsigned(hFramingBits-1 downto 0) := to_unsigned(640,hFramingBits);
-		hsstart : in unsigned(hFramingBits-1 downto 0) := to_unsigned(656,hFramingBits);
-		hsstop : in unsigned(hFramingBits-1 downto 0) := to_unsigned(752,hFramingBits);
+		htotal : in unsigned(hFramingBits-1 downto 0) := to_unsigned(800-1,hFramingBits);
+		hbstart : in unsigned(hFramingBits-1 downto 0) := to_unsigned(640-1,hFramingBits);
+		hsstart : in unsigned(hFramingBits-1 downto 0) := to_unsigned(656-1,hFramingBits);
+		hsstop : in unsigned(hFramingBits-1 downto 0) := to_unsigned(752-1,hFramingBits);
 
-		vtotal : in unsigned(vFramingBits-1 downto 0) := to_unsigned(525,vFramingBits) ;
-		vbstart : in unsigned(vFramingBits-1 downto 0) := to_unsigned(480,vFramingBits) ;
-		vsstart : in unsigned(vFramingBits-1 downto 0) := to_unsigned(490,vFramingBits) ;
-		vsstop : in unsigned(vFramingBits-1 downto 0) := to_unsigned(492,vFramingBits) 
+		vtotal : in unsigned(vFramingBits-1 downto 0) := to_unsigned(525-1,vFramingBits) ;
+		vbstart : in unsigned(vFramingBits-1 downto 0) := to_unsigned(480-1,vFramingBits) ;
+		vsstart : in unsigned(vFramingBits-1 downto 0) := to_unsigned(490-1,vFramingBits) ;
+		vsstop : in unsigned(vFramingBits-1 downto 0) := to_unsigned(492-1,vFramingBits) 
 	);
 end entity;
 
@@ -72,8 +72,8 @@ begin
 pixel_stb<=pixel_stb_r;
 hblank_n <= hb_internal;
 vblank_n <= vb_internal;
-xpos <= hcounter when hb_internal='1' else (others => '0');
-ypos <= vcounter when vb_internal='1' else (others => '0');
+xpos <= hcounter when hb_internal='1' else (others => '1');
+ypos <= vcounter when vb_internal='1' else (others => '1');
 
 process(clk,reset_n)
 begin
@@ -115,7 +115,7 @@ begin
 
 			if hcounter=htotal then -- New row
 				hb_internal<='1';
-				hcounter<=(0=>'1',others=>'0');
+				hcounter<=(others=>'0');
 			end if;
 			
 			-- Vertical counters
@@ -135,7 +135,7 @@ begin
 			
 			if hcounter=hsstop and vcounter=vtotal then -- New frame
 				vb_internal<='1';
-				vcounter<=(0=>'1',others=>'0');
+				vcounter<=(others=>'0');
 			end if;
 			
 			clkdivCnt<=(others=>'0');

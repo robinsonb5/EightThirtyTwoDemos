@@ -40,6 +40,7 @@ port (
 	sys_reset_n : in std_logic;
 	sys_baseaddr : in std_logic_vector(31 downto 0);
 	sys_req : in std_logic;
+	sys_newframe : out std_logic;
 
 	-- RAM Ports:
 	ram_req : out std_logic;
@@ -158,7 +159,9 @@ begin
 			clk_q => sys_clk,
 			q => newframe_ram
 		);
-		
+
+		sys_newframe<=newframe_ram;
+
 		process(sys_clk) begin
 			if rising_edge(sys_clk) then
 				

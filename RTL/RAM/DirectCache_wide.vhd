@@ -22,11 +22,9 @@ port (
 	cpu_cachevalid : out std_logic;
 	cpu_rw : in std_logic; -- 1 for read cycle, 0 for write cycles
 	bytesel : in std_logic_vector(3 downto 0);
-	data_from_cpu : in std_logic_vector(31 downto 0);
 	data_to_cpu : out std_logic_vector(31 downto 0);
 	-- SDRAM interface
 	data_from_sdram : in std_logic_vector(31 downto 0);
-	sdram_addr : out std_logic_vector(31 downto 0);
 	sdram_req : out std_logic;
 	sdram_fill : in std_logic;
 	busy : out std_logic;

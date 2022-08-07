@@ -199,7 +199,6 @@ generic
 		cpu_cachevalid		:	 OUT STD_LOGIC;
 		cpu_rw		:	 IN STD_LOGIC;
 		bytesel : in std_logic_vector(3 downto 0);
-		data_from_cpu		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_from_sdram		:	 IN STD_LOGIC_VECTOR(dqwidth-1 downto 0);
 		sdram_addr	: out std_logic_vector(31 downto 0);
@@ -418,32 +417,36 @@ end block;
 
 GENCACHE:
 if cache=true generate
-cache_inst : component DirectMappedCache
-	generic map
-	(
-		cachemsb => 11
-	)
-	PORT map
-	(
-		clk => sysclk,
-		reset => reset,
-		ready => cache_ready,
-		cpu_addr => addr1,
-		cpu_req => req1,
---		cpu_ack => readcache_dtack,
-		cpu_cachevalid => cachevalid,
-		cpu_rw => wr1,
-		bytesel => bytesel,
-		data_from_cpu => datawr1,
-		data_to_cpu => dataout1,
-		data_from_sdram => sdata_reg,
-		sdram_addr => readcache_addr,
-		sdram_req => readcache_req,
-		sdram_fill => readcache_fill,
-		busy => readcache_busy,
-		flush => flushcaches
-	);
-end generate;
+
+	process(sysclk) begin
+		if rising_edge(sysclk) then
+			readcache_addr<=addr1;
+		end if;
+	end process;
+
+	cache_inst : component DirectMappedCache
+		generic map
+		(
+			cachemsb => 11
+		)
+		PORT map
+		(
+			clk => sysclk,
+			reset => reset,
+			ready => cache_ready,
+			cpu_addr => addr1,
+			cpu_req => req1,
+			cpu_cachevalid => cachevalid,
+			cpu_rw => wr1,
+			bytesel => bytesel,
+			data_to_cpu => dataout1,
+			data_from_sdram => sdata_reg,
+			sdram_req => readcache_req,
+			sdram_fill => readcache_fill,
+			busy => readcache_busy,
+			flush => flushcaches
+		);
+	end generate;
 
 
 GENNODCACHE:
