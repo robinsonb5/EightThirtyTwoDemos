@@ -69,9 +69,16 @@ entity vga_controller_new is
 end entity;
 	
 architecture rtl of vga_controller_new is
+	constant PIX_16BIT : std_logic_vector(3 downto 0) := X"0";
+	constant PIX_32BIT : std_logic_vector(3 downto 0) := X"1";
+	constant PIX_MONO : std_logic_vector(3 downto 0) := X"2";
+	constant PIX_CLUT4BIT : std_logic_vector(3 downto 0) := X"3";
+	constant PIX_CLUT8BIT : std_logic_vector(3 downto 0) := X"4";
+	signal framebuffer_pixelformat : std_logic_vector(3 downto 0) := PIX_16BIT;
+	
 	signal framebuffer_pointer : std_logic_vector(31 downto 0) := X"00000000";
 	signal framebuffer_update : std_logic;
-	signal framebuffer_pixelformat : std_logic_vector(7 downto 0) := X"00";
+	
 	signal hsize : unsigned(11 downto 0);
 	signal htotal : unsigned(11 downto 0);
 	signal hsstart : unsigned(11 downto 0);
@@ -86,6 +93,7 @@ architecture rtl of vga_controller_new is
 	signal ypos : unsigned(11 downto 0);
 
 	signal clkdiv : unsigned(3 downto 0);
+	signal pixdiv : unsigned(5 downto 0):=to_unsigned(1,6);
 
 	signal end_of_pixel : std_logic;
 	signal nextword : std_logic;
@@ -97,6 +105,7 @@ architecture rtl of vga_controller_new is
 	signal vblank_stb_vc : std_logic; -- In video clock domain
 	signal vblank_stb : std_logic; -- In sys clock domain
 	signal hblank_stb_vc : std_logic; -- In sys clock domain
+	signal frame_stb_vc : std_logic;
 	signal hblank_r : std_logic;
 	signal vga_window_r : std_logic;
 	signal vga_window_d : std_logic;
@@ -115,6 +124,12 @@ architecture rtl of vga_controller_new is
 	signal cpu_req_vc : std_logic;
 	signal cpu_data_vc : std_logic_vector(31 downto 0);
 	signal cpu_addr_vc : std_logic_vector(7 downto 0);
+
+	signal palette_idx_w : unsigned(7 downto 0);
+	signal palette_data_w : std_logic_vector(23 downto 0);
+	signal palette_w : std_logic;
+	signal palette_idx_r : unsigned(7 downto 0);
+	signal palette_data_r : std_logic_vector(23 downto 0);
 
 begin
 
@@ -146,6 +161,7 @@ begin
 		vblank_n => vblank_r,
 		hblank_stb => hblank_stb_vc,
 		vblank_stb => vblank_stb_vc,
+		frame_stb => frame_stb_vc,
 		
 		-- Pixel positions
 		xpos => xpos,
@@ -210,10 +226,11 @@ begin
 			vsstop <= TO_UNSIGNED(502-1,12);
 			clkdiv <= TO_UNSIGNED(5,4);
 		elsif rising_edge(clk_video) then
+			palette_w<='0';
 			if cpu_req_vc='1' then
 				case cpu_addr_vc is
 					when X"04" =>
-						framebuffer_pixelformat <= cpu_data_vc(7 downto 0);
+						framebuffer_pixelformat <= cpu_data_vc(3 downto 0);
 						invert_hs <= cpu_data_vc(30);
 						invert_vs <= cpu_data_vc(31);
 					when X"08" =>
@@ -234,6 +251,11 @@ begin
 						vsstart <= unsigned(cpu_data_vc(11 downto 0));
 					when X"2c" =>
 						vsstop <= unsigned(cpu_data_vc(11 downto 0));
+					when X"40" =>
+						palette_idx_w <= unsigned(cpu_data_vc(7 downto 0));
+					when X"44" =>
+						palette_data_w <= cpu_data_vc(23 downto 0);
+						palette_w<='1';
 					when X"84" =>
 						sprite0_xpos <= unsigned(cpu_data_vc(11 downto 0));
 					when X"88" =>
@@ -271,7 +293,8 @@ begin
 
 
 	framebuffer : block
-		signal pixcounter : unsigned(1 downto 0) := (others =>'0');
+		signal pixelshift : std_logic_vector(31 downto 0);
+		signal pixcounter : unsigned(5 downto 0) := (others =>'0');
 		signal pixel_r : std_logic_vector(7 downto 0);
 		signal pixel_g : std_logic_vector(7 downto 0);
 		signal pixel_b : std_logic_vector(7 downto 0);
@@ -280,35 +303,60 @@ begin
 	
 		format <= framebuffer_pixelformat & std_logic_vector(pixcounter);
 
-		demux : if dmawidth=32 generate
-			-- Demultiplex 
-			process(video_data,format) begin
-				case(format) is
-					when X"00"&"00" =>
-						pixel_r <= video_data(31 downto 27)&"000";
-						pixel_g <= video_data(26 downto 21)&"00";
-						pixel_b <= video_data(20 downto 16)&"000";
-					when X"00"&"01" =>
-						pixel_r <= video_data(15 downto 11)&"000";
-						pixel_g <= video_data(10 downto 5)&"00";
-						pixel_b <= video_data(4 downto 0)&"000";
-					when X"01"&"00" =>
-						pixel_r <= video_data(31 downto 24);
-						pixel_g <= video_data(23 downto 16);
-						pixel_b <= video_data(15 downto 8);
+		with framebuffer_pixelformat select pixdiv <=
+			"01"&X"f" when PIX_MONO,
+			"00"&X"7" when PIX_CLUT4BIT,
+			"00"&X"3" when PIX_CLUT8BIT,
+			"00"&X"1" when PIX_16BIT,
+			"00"&X"0" when others;
+			
+
+		process(framebuffer_pixelformat,pixelshift) begin
+			if rising_edge(clk_video) then
+				case framebuffer_pixelformat is
+					when PIX_CLUT4BIT =>
+						palette_idx_r<=X"0"&unsigned(pixelshift(31 downto 28));
+					when PIX_CLUT8BIT =>
+						palette_idx_r<=unsigned(pixelshift(31 downto 24));
+					when others =>
+						palette_idx_r<=X"00";
+				end case;
+			
+				case framebuffer_pixelformat is
+					when PIX_MONO =>
+						if pixelshift(31)='1' then
+							pixel_r<=(others => '1');
+							pixel_g<=(others => '1');
+							pixel_b<=(others => '1');
+						else
+							pixel_r<=(others => '0');
+							pixel_g<=(others => '0');
+							pixel_b<=(others => '0');
+						end if;
+					when PIX_CLUT4BIT =>
+						pixel_r <= palette_data_r(23 downto 16);
+						pixel_g <= palette_data_r(15 downto 8);
+						pixel_b <= palette_data_r(7 downto 0);
+					when PIX_CLUT8BIT =>
+						pixel_r <= palette_data_r(23 downto 16);
+						pixel_g <= palette_data_r(15 downto 8);
+						pixel_b <= palette_data_r(7 downto 0);
+					when PIX_16BIT =>
+						pixel_r <= pixelshift(31 downto 27)&"000";
+						pixel_g <= pixelshift(26 downto 21)&"00";
+						pixel_b <= pixelshift(20 downto 16)&"000";
+					when PIX_32BIT =>
+						pixel_r <= pixelshift(31 downto 24);
+						pixel_g <= pixelshift(23 downto 16);
+						pixel_b <= pixelshift(15 downto 8);
 					when others =>
 						pixel_r<=(others => '0');
 						pixel_g<=(others => '0');
 						pixel_b<=(others => '0');
-				end case;		
-			end process;
-		end generate;
-		
-		demux16 : if dmawidth=16 generate
-			pixel_r <= video_data(15 downto 11)&"000";
-			pixel_g <= video_data(10 downto 5)&"00";
-			pixel_b <= video_data(4 downto 0)&"000";		
-		end generate;
+						null;
+				end case;
+			end if;
+		end process;
 
 
 		process(clk_video)
@@ -327,22 +375,40 @@ begin
 						blue <= (others =>spritepixel(0));
 					end if;
 
+					case framebuffer_pixelformat is
+						when PIX_MONO =>
+							pixelshift(pixelshift'high downto 1)<=pixelshift(pixelshift'high-1 downto 0);
+						when PIX_CLUT4BIT =>
+							pixelshift(pixelshift'high downto 4)<=pixelshift(pixelshift'high-4 downto 0);
+						when PIX_CLUT8BIT =>
+							pixelshift(pixelshift'high downto 8)<=pixelshift(pixelshift'high-8 downto 0);
+						when PIX_16BIT =>
+							pixelshift(pixelshift'high downto 16)<=pixelshift(pixelshift'high-16 downto 0);
+						when PIX_32BIT =>
+							null;
+						when others =>
+							null;
+					end case;
+
 					vga_window_r<='0';
 					if hblank_r='1' and vblank_r='1' then
 						vga_window_r<='1';
 						-- Request next pixel from VGA cache
 						if pixcounter="00" then
+							pixelshift(dmawidth-1 downto 0)<=video_data;
 							nextword<='1';
-							case framebuffer_pixelformat is
-								when X"00" =>
-									pixcounter<="01";
-								when others =>
-									pixcounter<="00";
-							end case;
+							pixcounter<=pixdiv;
 						else
 							pixcounter<=pixcounter-1;
 						end if;						
 					end if;
+					
+					if frame_stb_vc='1' then
+						pixelshift(dmawidth-1 downto 0)<=video_data;
+						nextword<='1';
+						pixcounter<=(others => '0');
+					end if;
+						
 				end if;
 			end if;
 		end process;
@@ -354,7 +420,8 @@ begin
 
 	fifo : entity work.VideoFIFO
 	generic map (
-		depth => 9
+		depth => 9,
+		width => dmawidth
 	)
 	port map (
 		sys_clk => clk_sys,
@@ -534,6 +601,27 @@ begin
 			q => spritefinished_vc
 		);
 		
+	end block;
+	
+	paletteram : block
+		type palette_storage_t is array (0 to 255) of std_logic_vector(23 downto 0);
+		signal palette_storage : palette_storage_t;	
+	begin
+	
+		process(clk_video) begin
+			if rising_edge(clk_video) then
+				if palette_w = '1' then
+					palette_storage(to_integer(palette_idx_w)) <= palette_data_w;
+				end if;
+			end if;
+		end process;
+
+		process(clk_video) begin
+			if rising_edge(clk_video) then
+				palette_data_r<=palette_storage(to_integer(palette_idx_r));
+			end if;
+		end process;
+	
 	end block;
 	
 end architecture;

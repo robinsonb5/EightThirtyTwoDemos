@@ -64,7 +64,7 @@ int Screenmode_Set(enum screenmode mode)
 
 #define SWAP(x) ((x>>24)|((x>>8)&0xff00)|((x<<8)&0xff0000)|((x<<24)&0xff000000))
 
-unsigned int Screenmode_StandardSprite[]=
+unsigned int Screenmode_PointerSprite[]=
 {
 	SWAP(0xCF000000),SWAP(0x00000000),
 	SWAP(0x8CFFF000),SWAP(0x00000000),

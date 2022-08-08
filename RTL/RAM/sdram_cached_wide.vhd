@@ -201,7 +201,6 @@ generic
 		bytesel : in std_logic_vector(3 downto 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_from_sdram		:	 IN STD_LOGIC_VECTOR(dqwidth-1 downto 0);
-		sdram_addr	: out std_logic_vector(31 downto 0);
 		sdram_req		:	 OUT STD_LOGIC;
 		sdram_fill		:	 IN STD_LOGIC;
 		busy : out std_logic;

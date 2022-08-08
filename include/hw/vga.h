@@ -35,6 +35,9 @@
 
 #define PIXELFORMAT_RGB16 0
 #define PIXELFORMAT_RGB32 1
+#define PIXELFORMAT_MONO 2
+#define PIXELFORMAT_CLUT4BIT 3
+#define PIXELFORMAT_CLUT8BIT 4
 
 #define HW_VGA(x) *(volatile unsigned long *)(VGABASE+x)
 

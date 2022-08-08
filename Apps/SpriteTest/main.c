@@ -112,18 +112,18 @@ static struct InterruptHandler vblank_inthandler=
 };
 
 
-extern unsigned int Screenmode_StandardSprite[];
+extern unsigned int Screenmode_PointerSprite[];
 
 
 unsigned int *alignsprite(unsigned int *src,int words)
 {
-	unsigned int *result=(unsigned int *)malloc_aligned(sizeof(unsigned int)*words,32);
+	unsigned int *result=(unsigned int *)malloc_aligned(sizeof(unsigned int)*words,4);
 	int i;
 	if(result)
 	{
 		for(i=0;i<words;++i)
 		{
-			result[i]=Screenmode_StandardSprite[i];
+			result[i]=src[i];
 		}
 	}
 	return(result);
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 {
 	int i;
 	int bits=16;
-	unsigned int *sprite=alignsprite(Screenmode_StandardSprite,32);
+	unsigned int *sprite=alignsprite(Screenmode_PointerSprite,32);
 	enum screenmode mode=SCREENMODE_640x480_60;
 	AddInterruptHandler(&vblank_inthandler);
 	EnableInterrupts();

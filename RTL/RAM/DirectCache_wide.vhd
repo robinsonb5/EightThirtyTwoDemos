@@ -62,8 +62,6 @@ architecture behavioural of DirectMappedCache is
 
 begin
 
-	sdram_addr <= latched_cpuaddr;
-
 	-- RAM blocks
 	
 	tagblock : block

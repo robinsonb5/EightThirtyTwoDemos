@@ -39,6 +39,7 @@ entity video_timings is
 		vblank_n : out std_logic;
 		hblank_stb : out std_logic;
 		vblank_stb : out std_logic;
+		frame_stb : out std_logic;
 		
 		-- Pixel positions
 		xpos : out unsigned(hFramingBits-1 downto 0);
@@ -89,6 +90,7 @@ begin
 	elsif rising_edge(clk) then	
 		hblank_stb<='0';
 		vblank_stb<='0';
+		frame_stb<='0';
 		pixel_stb_r<='0';
 		clkdivCnt<=clkdivCnt+1;
 
@@ -136,6 +138,7 @@ begin
 			if hcounter=hsstop and vcounter=vtotal then -- New frame
 				vb_internal<='1';
 				vcounter<=(others=>'0');
+				frame_stb<='1'; -- A new frame is imminent.
 			end if;
 			
 			clkdivCnt<=(others=>'0');

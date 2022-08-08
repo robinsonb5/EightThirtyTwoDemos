@@ -54,7 +54,7 @@ port (
 	video_clk : in std_logic;
 	video_newframe : in std_logic; 
 	video_req : in std_logic;
-	video_q : out std_logic_vector(width-1 downto 0);
+	video_q : out std_logic_vector(31 downto 0);
 	video_underrun : out std_logic 
 );
 end entity;
@@ -102,21 +102,47 @@ begin
 		signal addr : unsigned(31 downto 0);
 		signal ram_req_i : std_logic :='0';
 		signal full : std_logic;
+		signal toggle : std_logic;
+		signal firstword : std_logic_vector(15 downto 0);
 	begin
 
-		-- Write incoming data from RAM
-		process(sys_clk) begin
-			if rising_edge(sys_clk) then
-				if ram_fill='1' then
-					storage(to_integer(wrptr)) <= ram_d;
-					wrptr <= wrptr+1;
-				end if;	
-				if newframe_pending='1' and ram_req_i='0' and ram_fill='0' then
-					wrptr<=(others => '0');
+		wr_32bit : if width=32 generate
+			-- Write incoming data from RAM
+			process(sys_clk) begin
+				if rising_edge(sys_clk) then
+					if ram_fill='1' then
+						storage(to_integer(wrptr)) <= ram_d;
+						wrptr <= wrptr+1;
+					end if;	
+					if newframe_pending='1' and ram_req_i='0' and ram_fill='0' then
+						wrptr<=(others => '0');
+					end if;
 				end if;
-			end if;
-		end process;
+			end process;
+		end generate;
 
+		wr_16bit : if width=16 generate
+			-- Write incoming data from RAM
+			process(sys_clk) begin
+				if rising_edge(sys_clk) then
+				
+					if ram_fill='1' and toggle='0' then
+						firstword<=ram_d(15 downto 0);
+						toggle<='1';
+					end if;
+				
+					if ram_fill='1' and toggle='1' then
+						storage(to_integer(wrptr)) <= firstword&ram_d(15 downto 0);
+						toggle<='0';
+						wrptr <= wrptr+1;
+					end if;	
+					if newframe_pending='1' and ram_req_i='0' and ram_fill='0' then
+						wrptr<=(others => '0');
+						toggle<='0';
+					end if;
+				end if;
+			end process;
+		end generate;
 
 		-- Create a pulse every eight clocks to strobe the rdptr's conversion into the RAM clock domain.
 		process (video_clk) begin

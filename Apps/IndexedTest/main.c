@@ -7,43 +7,32 @@
 #include <string.h>
 #include <stdlib.h>
 
-unsigned short *FrameBuffer;	// Frame Buffer pointer
+unsigned char *FrameBuffer;	// Frame Buffer pointer
 int screenwidth=1280;		// Initial screen width
 int screenheight=480;		// Initial screen heigth
-
-int palette[]=
-{
-	0x0,
-	0xff0000,
-	0x00ff00,
-	0x0000ff,
-	0xffff00,
-	0x00ffff,
-	0xff00ff,
-	0xffffff,
-	0x444444,
-	0xbb4444,
-	0x44bb44,
-	0x4444bb,
-	0xbbbb44,
-	0x44bbbb,
-	0xbb44bb,
-	0xbbbbbb
-};
 
 #define REG_VGA_CLUTIDX 0x40
 #define REG_VGA_CLUTDATA 0x44
 
-void setpalette()
+void setpalette(int bits)
 {
 	int i,j;
-	for(i=0;i<16;++i)
+	switch(bits)
 	{
-		for(j=0;j<16;++j)
-		{
-			HW_VGA(REG_VGA_CLUTIDX)=i+16*j;
-			HW_VGA(REG_VGA_CLUTDATA)=palette[i];
-		}
+		case 4:
+			for(i=0;i<16;++i)
+			{
+				HW_VGA(REG_VGA_CLUTIDX)=i;
+				HW_VGA(REG_VGA_CLUTDATA)=i*0x1111111;
+			}
+			break;		
+		case 8:
+			for(i=0;i<256;++i)
+			{
+				HW_VGA(REG_VGA_CLUTIDX)=i;
+				HW_VGA(REG_VGA_CLUTDATA)=i*0x010101;
+			}
+			break;
 	}
 }
 
@@ -90,6 +79,44 @@ void free_aligned(char *ptr)
 	free((char *)real);
 }
 
+void plot(unsigned char *framebuffer,int x,int y,unsigned int c,int bits)
+{
+	int bytesperrow;
+	unsigned short *hcptr;
+	unsigned int *tcptr;
+	switch(bits)
+	{
+		case 1:
+			bytesperrow=screenwidth>>3;
+			framebuffer+=y*bytesperrow;
+			framebuffer[x>>3]&=~(1<<(7-(x&7)));			
+			if(c)
+				framebuffer[x>>3]|=1<<(7-(x&7));
+			break;
+		case 4:
+			bytesperrow=screenwidth>>1;
+			framebuffer+=y*bytesperrow;
+			framebuffer[x>>1]&=(x&1) ? 0xf0 : 0x0f;
+			framebuffer[x>>1]|=(x&1) ? (c&0xf) : ((c&0xf)<<4);
+			break;
+		case 8:
+			bytesperrow=screenwidth;
+			framebuffer+=y*bytesperrow;
+			framebuffer[x]=c;
+			break;
+		case 16:
+			bytesperrow=screenwidth*2;
+			hcptr=(unsigned short *)(framebuffer+y*bytesperrow);
+			hcptr[x]=c;		
+			break;
+		case 32:
+			bytesperrow=screenwidth*4;
+			tcptr=(unsigned int *)(framebuffer+y*bytesperrow);
+			tcptr[x]=c;		
+			break;	
+	}
+}
+
 void initDisplay(enum screenmode mode,int bits)
 {
 	int w,h;
@@ -105,10 +132,27 @@ void initDisplay(enum screenmode mode,int bits)
 	{
 		screenwidth=w;
 		screenheight=h;
-		FrameBuffer=(short *)malloc_aligned((bits/8) * w*h,32);
+		FrameBuffer=(short *)malloc_aligned((bits * w*h)/8,32);
 		Screenmode_Set(mode);
 		HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
-		HW_VGA(PIXELFORMAT) = bits==32 ? PIXELFORMAT_RGB32 : PIXELFORMAT_RGB16;
+		switch(bits)
+		{
+			case 32:
+				HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB32;
+				break;
+			case 16:
+				HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB16;
+				break;
+			case 8:
+				HW_VGA(PIXELFORMAT) = PIXELFORMAT_CLUT8BIT;
+				break;
+			case 4:
+				HW_VGA(PIXELFORMAT) = PIXELFORMAT_CLUT4BIT;
+				break;
+			case 1:
+				HW_VGA(PIXELFORMAT) = PIXELFORMAT_MONO;
+				break;
+		}
 	}
 }
 
@@ -130,10 +174,10 @@ char getserial()
 int main(int argc, char **argv)
 {
 	int i;
-	int bits=16;
+	int bits=32;
 	int refresh=1;
 	enum screenmode mode=SCREENMODE_640x480_60;
-	setpalette();
+	setpalette(8);
 	while(1)
 	{
 		int c;
@@ -145,19 +189,18 @@ int main(int argc, char **argv)
 			drawRectangle(0,0,screenwidth-1,screenheight-1,SWAP(0x39e7));
 			for(i=0;i<240;++i)
 			{
-				int g=(i>>3) | ((i>>2)<<5) | ((i>>3) << 11); 
-				drawRectangle(0,i*2,sw-1,i*2+1,SWAP(g));
-				drawRectangle(sw,i*2,2*sw-1,i*2+1,SWAP((i>>3)<<11));
-				drawRectangle(2*sw,i*2,3*sw-1,i*2+1,SWAP((i>>2)<<5));
-				drawRectangle(3*sw,i*2,4*sw-1,i*2+1,SWAP(i>>3));
+				drawRectangle(0,i*2,sw-1,i*2+1,i);
+				drawRectangle(sw,i*2,2*sw-1,i*2+1,255-i);
+				drawRectangle(2*sw,i*2,3*sw-1,i*2+1,i/2);
+				drawRectangle(3*sw,i*2,4*sw-1,i*2+1,255-i/2);
 			}
 			printf("\nCurrently using %d x %d in %d bits\n",screenwidth,screenheight,bits);
-			printf("Press 1 - %d to switch screenmodes, a for 16 bit, b for 32-bit.\n",SCREENMODE_MAX);
+			printf("Press 1 - %d to switch screenmodes,\na - e to set bit depth (32, 16, 8, 4 or 1).\n",SCREENMODE_MAX);
 		}
 		c=getserial();
 		if (c)
 		{
-			refresh=1;
+			refresh=0;
 			switch(c)
 			{
 				case '1':
@@ -171,39 +214,36 @@ int main(int argc, char **argv)
 				case '9':
 				case '0':
 					mode=c-'1';
+					refresh=1;
 					break;
 				case 'a':
-					bits=16;
-					break;
-				case 'b':
+					HW_VGA(PIXELFORMAT) = 0x1;
 					bits=32;
 					break;
+				case 'b':
+					HW_VGA(PIXELFORMAT) = 0x0;
+					bits=16;
+					break;
 				case 'c':
-					HW_VGA(REG_VGA_PIXELCLOCK)=0x005;
-					HW_VGA(PIXELFORMAT) = 0x1;
-					refresh=0;
+					HW_VGA(PIXELFORMAT) = 0x4;
+					bits=8;
 					break;
 				case 'd':
-					HW_VGA(REG_VGA_PIXELCLOCK)=0x105;
-					HW_VGA(PIXELFORMAT) = 0x0;
-					refresh=0;
+					HW_VGA(PIXELFORMAT) = 0x3;
+					bits=4;
 					break;
 				case 'e':
-					HW_VGA(REG_VGA_PIXELCLOCK)=0x305;
 					HW_VGA(PIXELFORMAT) = 0x2;
-					refresh=0;
-					break;
-				case 'f':
-					HW_VGA(REG_VGA_PIXELCLOCK)=0x705;
-					HW_VGA(PIXELFORMAT) = 0x3;
-					refresh=0;
-					break;
-				case 'g':
-					HW_VGA(REG_VGA_PIXELCLOCK)=0x1f05;
-					HW_VGA(PIXELFORMAT) = 0x4;
-					refresh=0;
+					bits=1;
 					break;
 			}
+			printf("%d bits per pixel\n",bits);
+			setpalette(bits);
+			memset(FrameBuffer,0x55,(screenwidth*screenheight*bits)/8);
+			for(i=0;i<screenheight;++i)
+				plot(FrameBuffer,i,i,0xffffff,bits);
+			for(i=0;i<screenheight;++i)
+				plot(FrameBuffer,i+16,i,0x0,bits);
 			if(refresh)
 				free_aligned(FrameBuffer);
 		}				
