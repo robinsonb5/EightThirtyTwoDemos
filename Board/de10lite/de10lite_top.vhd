@@ -56,6 +56,7 @@ architecture RTL of de10lite_top is
 
 	signal slowclk : std_logic;
 	signal fastclk : std_logic;
+	signal videoclk : std_logic;
 	signal pll_locked : std_logic;
 
 -- SPI signals
@@ -173,6 +174,7 @@ U00 : entity work.pll
 		c0     => DRAM_CLK,        -- Fast clock - external
 		c1     => fastclk,         -- Fast clock - internal
 		c2     => slowclk,         -- Slow clock - internal
+		c3     => videoclk,        -- 150MHz clock for video.
 		locked => pll_locked
 	);
 
@@ -204,6 +206,7 @@ virtualtoplevel : entity work.VirtualToplevel
 	port map(
 		clk => fastclk,
 		slowclk => slowclk,
+		videoclk => videoclk,
 		reset_in => n_reset,
 
 		-- VGA
@@ -263,7 +266,7 @@ genvideo: if Toplevel_UseVGA=true generate
 			outbits => 4
 		)
 		port map(
-			clk=>fastclk,
+			clk=>videoclk,
 			hsync=>vga_hsync,
 			vsync=>vga_vsync,
 			vid_ena=>vga_window,

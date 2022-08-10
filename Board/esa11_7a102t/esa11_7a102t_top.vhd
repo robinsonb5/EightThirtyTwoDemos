@@ -34,6 +34,9 @@ use ieee.math_real.all; -- to calculate log2 bit size
 library unisim;
 use unisim.vcomponents.all;
 
+library work;
+use work.Toplevel_Config.all;
+
 entity esa11_7a102t_top is
 port (
 	i_100MHz_P, i_100MHz_N: in std_logic;
@@ -68,8 +71,8 @@ port (
 	-- PS/2 keyboard
 	PS2_A_DATA, PS2_A_CLK, PS2_B_DATA, PS2_B_CLK: inout std_logic;
 	-- HDMI
---	VID_D_P, VID_D_N: out std_logic_vector(2 downto 0);
---	VID_CLK_P, VID_CLK_N: out std_logic;
+	VID_D_P, VID_D_N: out std_logic_vector(2 downto 0);
+	VID_CLK_P, VID_CLK_N: out std_logic;
 	-- VGA
 	VGA_RED, VGA_GREEN, VGA_BLUE: out unsigned(7 downto 0);
 	VGA_SYNC_N, VGA_BLANK_N, VGA_CLOCK_P: out std_logic;
@@ -84,6 +87,8 @@ architecture Behavioral of esa11_7a102t_top is
 signal reset : std_logic;
 signal sysclk : std_logic;
 signal slowclk : std_logic;
+signal videoclk : std_logic;
+signal tmdsclk : std_logic;
 
 alias PS2_MCLK : std_logic is PS2_B_CLK;
 alias PS2_MDAT : std_logic is PS2_B_DATA;
@@ -106,23 +111,39 @@ signal vga_b : unsigned(7 downto 0);
 signal hsync_n : std_logic;
 signal vsync_n : std_logic;
 signal vga_window : std_logic;
+signal vga_pixel : std_logic;
 signal clk_locked : std_logic;
 signal pll_reset : std_logic;
 
 signal audio_l : signed(15 downto 0);
 signal audio_r : signed(15 downto 0);
 
+	component pll is
+	port (
+		clk_in1_p : in std_logic;
+		clk_in1_n : in std_logic;
+		reset : in std_logic;
+		locked : out std_logic;
+		clk_out1 : out std_logic;
+		clk_out2 : out std_logic;
+		clk_out3 : out std_logic;
+		clk_out4 : out std_logic
+	);
+	end component;
+	
 begin
 
 	pll_reset<='0';
 
-	sysclks: entity work.pll
+	sysclks: component pll
     port map(clk_in1_p => i_100MHz_P,
              clk_in1_n => i_100MHz_N,
              reset => pll_reset,
              locked => clk_locked,
              clk_out1 => sysclk,
-             clk_out2 => slowclk
+             clk_out2 => slowclk,
+             clk_out3 => videoclk,
+             clk_out4 => tmdsclk
     );
 
 	ps2m_dat_in<=PS2_MDAT;
@@ -186,6 +207,7 @@ project: entity work.VirtualToplevel
 	port map (
 		clk => sysclk,
 		slowclk => slowclk,
+		videoclk => videoclk,
 		reset_in => reset,
 	
 		-- VGA
@@ -199,6 +221,7 @@ project: entity work.VirtualToplevel
 		vga_hsync => hsync_n,
 		vga_vsync => vsync_n,
 		vga_window => vga_window,
+		vga_pixel => vga_pixel,
 
 		-- SDRAM
 --		sdr_data => DR_D,
@@ -235,6 +258,93 @@ project: entity work.VirtualToplevel
 		audio_l => audio_l,
 		audio_r => audio_r
 );
+
+	-- Instantiate DVI out:
+	genvideo: if Toplevel_UseVGA=true generate
+		constant useddr : integer := 0;
+		
+		component dvi
+		generic ( DDR_ENABLED : integer := useddr );
+		port (
+			pclk : in std_logic;
+			tmds_clk : in std_logic; -- 10 times faster of pclk
+
+			in_vga_red : in unsigned(7 downto 0);
+			in_vga_green : in unsigned(7 downto 0);
+			in_vga_blue : in unsigned(7 downto 0);
+
+			in_vga_vsync : in std_logic;
+			in_vga_hsync : in std_logic;
+			in_vga_pixel : in std_logic;
+			in_vga_window : in std_logic;
+
+			out_tmds_red : out std_logic_vector(useddr downto 0);
+			out_tmds_green : out std_logic_vector(useddr downto 0);
+			out_tmds_blue : out std_logic_vector(useddr downto 0);
+			out_tmds_clk : out std_logic_vector(useddr downto 0)
+		); end component;
+		
+		component ODDRX1F
+		port (
+			D0 : in std_logic;
+			D1 : in std_logic;
+			Q : out std_logic;
+			SCLK : in std_logic;
+			RST : in std_logic
+		); end component;
+
+		component DCSC
+		generic (
+			DCSMODE : string := "POS"
+		);
+		port (
+			CLK1, CLK0 : in std_logic;
+			SEL1, SEL0 : in std_logic;
+			MODESEL : in std_logic;
+			DCSOUT : out std_logic
+		);
+		end component;
+
+		signal pcnt : unsigned(3 downto 0);
+		signal clksel : std_logic_vector(1 downto 0);
+
+		signal dvi_r : std_logic_vector(useddr downto 0);
+		signal dvi_g : std_logic_vector(useddr downto 0);
+		signal dvi_b : std_logic_vector(useddr downto 0);
+		signal dvi_clk : std_logic_vector(useddr downto 0);
+		signal vidclks : std_logic_vector(3 downto 0);
+		
+	begin
+
+		dvi_inst : component dvi
+		generic map (
+			DDR_ENABLED => useddr
+		)
+		port map (
+			pclk => videoclk,
+			tmds_clk => tmdsclk,
+
+			in_vga_red => vga_r,
+			in_vga_green => vga_g,
+			in_vga_blue => vga_b,
+
+			in_vga_vsync => vsync_n,
+			in_vga_hsync => hsync_n,
+			in_vga_pixel => vga_pixel,
+			in_vga_window => vga_window,
+
+			out_tmds_red => dvi_r,
+			out_tmds_green => dvi_g,
+			out_tmds_blue => dvi_b,
+			out_tmds_clk => dvi_clk
+		);
+
+	    dviotu_c: obufds port map(i => dvi_clk(0), o => VID_CLK_P, ob => VID_CLK_N);
+	    dviotu_r: obufds port map(i => dvi_r(0), o => VID_D_P(2), ob => VID_D_N(2));
+	    dviotu_g: obufds port map(i => dvi_g(0), o => VID_D_P(1), ob => VID_D_N(1));
+	    dviotu_b: obufds port map(i => dvi_b(0), o => VID_D_P(0), ob => VID_D_N(0));
+		
+	end generate;
 
 VGA_SYNC_N <= '1';
 VGA_BLANK_N <= vga_window;

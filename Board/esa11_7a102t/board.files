@@ -1,2 +1,4 @@
 esa11_7a102t_top.vhd
+../../RTL/Video/dvi.v
+../../RTL/Video/tmds_encoder.v
 
