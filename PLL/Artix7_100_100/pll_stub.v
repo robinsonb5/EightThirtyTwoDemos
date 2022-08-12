@@ -1,10 +1,10 @@
 // Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2021.2.1 (lin64) Build 3414424 Sun Dec 19 10:57:14 MST 2021
-// Date        : Wed Aug 10 21:02:21 2022
+// Date        : Wed Aug 10 20:30:33 2022
 // Host        : tc2 running 64-bit Linux Mint 20.3
-// Command     : write_verilog -force -mode synth_stub
-//               /home/amr/FPGA/Projects/EightThirtyTwoDemos/PLL/Artix7_100_100/pll_stub.v
+// Command     : write_verilog -force -mode synth_stub -rename_top pll -prefix
+//               pll_ pll_stub.v
 // Design      : pll
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a100tfgg484-2

@@ -261,7 +261,7 @@ project: entity work.VirtualToplevel
 
 	-- Instantiate DVI out:
 	genvideo: if Toplevel_UseVGA=true generate
-		constant useddr : integer := 0;
+		constant useddr : integer := 1;
 		
 		component dvi
 		generic ( DDR_ENABLED : integer := useddr );
@@ -313,6 +313,11 @@ project: entity work.VirtualToplevel
 		signal dvi_b : std_logic_vector(useddr downto 0);
 		signal dvi_clk : std_logic_vector(useddr downto 0);
 		signal vidclks : std_logic_vector(3 downto 0);
+
+		signal dvi_r_i : std_logic;
+		signal dvi_g_i : std_logic;
+		signal dvi_b_i : std_logic;
+		signal dvi_c_i : std_logic;
 		
 	begin
 
@@ -339,11 +344,27 @@ project: entity work.VirtualToplevel
 			out_tmds_clk => dvi_clk
 		);
 
-	    dviotu_c: obufds port map(i => dvi_clk(0), o => VID_CLK_P, ob => VID_CLK_N);
-	    dviotu_r: obufds port map(i => dvi_r(0), o => VID_D_P(2), ob => VID_D_N(2));
-	    dviotu_g: obufds port map(i => dvi_g(0), o => VID_D_P(1), ob => VID_D_N(1));
-	    dviotu_b: obufds port map(i => dvi_b(0), o => VID_D_P(0), ob => VID_D_N(0));
+		dviddr_c : ODDR generic map (DDR_CLK_EDGE=>"SAME_EDGE")
+		port map(q => dvi_c_i,c=>tmdsclk,ce=>'1',d1=>dvi_clk(0),d2=>dvi_clk(1));
+		dviddr_r : ODDR generic map (DDR_CLK_EDGE=>"SAME_EDGE")
+		port map(q => dvi_r_i,c=>tmdsclk,ce=>'1',d1=>dvi_r(0),d2=>dvi_r(1));
+		dviddr_g : ODDR generic map (DDR_CLK_EDGE=>"SAME_EDGE")
+		port map(q => dvi_g_i,c=>tmdsclk,ce=>'1',d1=>dvi_g(0),d2=>dvi_g(1));
+		dviddr_b : ODDR generic map (DDR_CLK_EDGE=>"SAME_EDGE")
+		port map(q => dvi_b_i,c=>tmdsclk,ce=>'1',d1=>dvi_b(0),d2=>dvi_b(1));
+
+	    dviout_c: obufds port map(i => dvi_c_i, o => VID_CLK_P, ob => VID_CLK_N);
+	    dviout_r: obufds port map(i => dvi_r_i, o => VID_D_P(2), ob => VID_D_N(2));
+	    dviout_g: obufds port map(i => dvi_g_i, o => VID_D_P(1), ob => VID_D_N(1));
+	    dviout_b: obufds port map(i => dvi_b_i, o => VID_D_P(0), ob => VID_D_N(0));
 		
+	end generate;
+
+	gennovideo: if Toplevel_UseVGA=false generate
+	    dviotu_c: obuftds port map(i => '0', t=>'1', o => VID_CLK_P, ob => VID_CLK_N);
+	    dviotu_r: obuftds port map(i => '0', t=>'1', o => VID_D_P(2), ob => VID_D_N(2));
+	    dviotu_g: obuftds port map(i => '0', t=>'1', o => VID_D_P(1), ob => VID_D_N(1));
+	    dviotu_b: obuftds port map(i => '0', t=>'1', o => VID_D_P(0), ob => VID_D_N(0));
 	end generate;
 
 VGA_SYNC_N <= '1';
@@ -354,5 +375,7 @@ VGA_HSYNC <= hsync_n;
 vga_red <= vga_r;
 vga_green <= vga_g;
 vga_blue <= vga_b;
+
+M_LED<=(others => '0');
 
 end Behavioral;

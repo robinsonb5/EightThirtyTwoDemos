@@ -1,10 +1,10 @@
 // Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2021.2.1 (lin64) Build 3414424 Sun Dec 19 10:57:14 MST 2021
-// Date        : Wed Aug 10 21:02:21 2022
+// Date        : Wed Aug 10 20:30:34 2022
 // Host        : tc2 running 64-bit Linux Mint 20.3
-// Command     : write_verilog -force -mode funcsim
-//               /home/amr/FPGA/Projects/EightThirtyTwoDemos/PLL/Artix7_100_100/pll_sim_netlist.v
+// Command     : write_verilog -force -mode funcsim -rename_top pll -prefix
+//               pll_ pll_sim_netlist.v
 // Design      : pll
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -40,7 +40,7 @@ module pll
   wire locked;
   wire reset;
 
-  pll_clk_wiz inst
+  pll_pll_clk_wiz inst
        (.clk_in1_n(clk_in1_n),
         .clk_in1_p(clk_in1_p),
         .clk_out1(clk_out1),
@@ -51,7 +51,7 @@ module pll
         .reset(reset));
 endmodule
 
-module pll_clk_wiz
+module pll_pll_clk_wiz
    (clk_out1,
     clk_out2,
     clk_out3,
@@ -143,7 +143,7 @@ module pll_clk_wiz
     .CLKOUT2_DUTY_CYCLE(0.500000),
     .CLKOUT2_PHASE(0.000000),
     .CLKOUT2_USE_FINE_PS("FALSE"),
-    .CLKOUT3_DIVIDE(3),
+    .CLKOUT3_DIVIDE(6),
     .CLKOUT3_DUTY_CYCLE(0.500000),
     .CLKOUT3_PHASE(0.000000),
     .CLKOUT3_USE_FINE_PS("FALSE"),

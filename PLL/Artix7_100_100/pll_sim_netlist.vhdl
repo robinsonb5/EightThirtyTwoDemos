@@ -1,10 +1,10 @@
 -- Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2021.2.1 (lin64) Build 3414424 Sun Dec 19 10:57:14 MST 2021
--- Date        : Wed Aug 10 21:02:21 2022
+-- Date        : Wed Aug 10 20:30:34 2022
 -- Host        : tc2 running 64-bit Linux Mint 20.3
--- Command     : write_vhdl -force -mode funcsim
---               /home/amr/FPGA/Projects/EightThirtyTwoDemos/PLL/Artix7_100_100/pll_sim_netlist.vhdl
+-- Command     : write_vhdl -force -mode funcsim -rename_top pll -prefix
+--               pll_ pll_sim_netlist.vhdl
 -- Design      : pll
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -14,7 +14,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;
 use UNISIM.VCOMPONENTS.ALL;
-entity pll_clk_wiz is
+entity pll_pll_clk_wiz is
   port (
     clk_out1 : out STD_LOGIC;
     clk_out2 : out STD_LOGIC;
@@ -25,9 +25,9 @@ entity pll_clk_wiz is
     clk_in1_p : in STD_LOGIC;
     clk_in1_n : in STD_LOGIC
   );
-end pll_clk_wiz;
+end pll_pll_clk_wiz;
 
-architecture STRUCTURE of pll_clk_wiz is
+architecture STRUCTURE of pll_pll_clk_wiz is
   signal clk_in1_pll : STD_LOGIC;
   signal clk_out1_pll : STD_LOGIC;
   signal clk_out2_pll : STD_LOGIC;
@@ -110,7 +110,7 @@ mmcm_adv_inst: unisim.vcomponents.MMCME2_ADV
       CLKOUT2_DUTY_CYCLE => 0.500000,
       CLKOUT2_PHASE => 0.000000,
       CLKOUT2_USE_FINE_PS => false,
-      CLKOUT3_DIVIDE => 3,
+      CLKOUT3_DIVIDE => 6,
       CLKOUT3_DUTY_CYCLE => 0.500000,
       CLKOUT3_PHASE => 0.000000,
       CLKOUT3_USE_FINE_PS => false,
@@ -198,7 +198,7 @@ end pll;
 
 architecture STRUCTURE of pll is
 begin
-inst: entity work.pll_clk_wiz
+inst: entity work.pll_pll_clk_wiz
      port map (
       clk_in1_n => clk_in1_n,
       clk_in1_p => clk_in1_p,
