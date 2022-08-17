@@ -13,6 +13,8 @@ RTL/DMACache_config.vhd
 ../RTL/Util/risingedge_divider.vhd
 ../RTL/RAM/BurstCache.v
 ../RTL/RAM/DirectCache_wide.vhd
+../RTL/RAM/wayselect.vhd
+../RTL/RAM/fourwaycache.vhd
 ../RTL/RAM/sdram_refresh_schedule.vhd
 ../RTL/RAM/sdram_cached_wide.vhd
 ../RTL/DMA/FIFO_Counter.vhd

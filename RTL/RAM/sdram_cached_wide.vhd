@@ -184,30 +184,6 @@ signal refresh_force : std_logic;
 signal refresh_ack : std_logic;
 signal refresh_row : std_logic_vector(rows-1 downto 0);
 
-COMPONENT DirectMappedCache
-generic
-	(
-		cachemsb : integer := 11
-	);
-	PORT
-	(
-		clk		:	 IN STD_LOGIC;
-		reset	: IN std_logic;
-		ready : out std_logic;
-		cpu_addr		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-		cpu_req		:	 IN STD_LOGIC;
-		cpu_cachevalid		:	 OUT STD_LOGIC;
-		cpu_rw		:	 IN STD_LOGIC;
-		bytesel : in std_logic_vector(3 downto 0);
-		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		data_from_sdram		:	 IN STD_LOGIC_VECTOR(dqwidth-1 downto 0);
-		sdram_req		:	 OUT STD_LOGIC;
-		sdram_fill		:	 IN STD_LOGIC;
-		busy : out std_logic;
-		flush : in std_logic
-	);
-END COMPONENT;
-
 	signal slot1read : std_logic;
 	signal slot2read : std_logic;
 	signal slot1write : std_logic;
@@ -416,14 +392,35 @@ end block;
 
 GENCACHE:
 if cache=true generate
-
+	attribute noprune : boolean;
+	signal fourwaycachevalid : std_logic;
+	signal dmcachevalid : std_logic;
+	signal cacheerr : std_logic;
+	attribute noprune of cacheerr : signal is true;
+	signal fourwaycache_q : std_logic_vector(31 downto 0);
+	signal directcache_q : std_logic_vector(31 downto 0);
+	attribute noprune of directcache_q : signal is true;
+begin
 	process(sysclk) begin
 		if rising_edge(sysclk) then
 			readcache_addr<=addr1;
 		end if;
+		
+		if rising_edge(sysclk) then
+			if fourwaycachevalid='1' and dmcachevalid='1' then
+				if directcache_q /= fourwaycache_q then
+					cacheerr<='1';
+				else
+					cacheerr<='0';
+				end if;
+			end if;
+		end if;
 	end process;
 
-	cache_inst : component DirectMappedCache
+	dataout1<=fourwaycache_q;
+	cachevalid<=fourwaycachevalid and (dmcachevalid and req1);
+
+	cache_inst : entity work.FourWayCache
 		generic map
 		(
 			cachemsb => 11
@@ -435,17 +432,41 @@ if cache=true generate
 			ready => cache_ready,
 			cpu_addr => addr1,
 			cpu_req => req1,
-			cpu_cachevalid => cachevalid,
+			cpu_cachevalid => fourwaycachevalid,
 			cpu_rw => wr1,
 			bytesel => bytesel,
-			data_to_cpu => dataout1,
+			data_to_cpu => fourwaycache_q,
+			data_from_sdram => sdata_reg,
+--			sdram_req => readcache_req,
+			sdram_fill => readcache_fill,
+--			busy => readcache_busy,
+			flush => flushcaches
+		);
+
+	verifycache_inst : entity work.DirectMappedCache
+		generic map
+		(
+			cachemsb => 11
+		)
+		PORT map
+		(
+			clk => sysclk,
+			reset => reset,
+			ready => open,
+			cpu_addr => addr1,
+			cpu_req => req1,
+			cpu_cachevalid => dmcachevalid,
+			cpu_rw => wr1,
+			bytesel => bytesel,
+			data_to_cpu => directcache_q,
 			data_from_sdram => sdata_reg,
 			sdram_req => readcache_req,
 			sdram_fill => readcache_fill,
 			busy => readcache_busy,
 			flush => flushcaches
 		);
-	end generate;
+
+end generate;
 
 
 GENNODCACHE:
