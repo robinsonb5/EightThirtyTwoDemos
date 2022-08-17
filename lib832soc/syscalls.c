@@ -361,3 +361,9 @@ int fprintf(FILE *f,const char *fmt, ...)
 //	return(0);
 }
 
+
+int abs(int i)
+{
+	return(i<0 ? -i : i);
+}
+

@@ -5,6 +5,7 @@
 
 #define RAND_MAX 0xffffffffU
 
+int abs(int i);
 int rand();
 void srand(int);
 

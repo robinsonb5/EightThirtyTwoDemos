@@ -59,7 +59,6 @@ architecture rtl of sound_controller is
 	signal sampleout : signed(22 downto 0);
 	signal sampletick : std_logic; 	-- single pulse on underflow of period counter
 	signal trigger : std_logic;
-	signal valid_d : std_logic;
 	
 begin
 
@@ -154,10 +153,8 @@ begin
 				end if;
 			-- Channel fetch
 			end if;
-
-			valid_d <= channel_tohost.valid;
 			
-			if valid_d='1' then
+			if channel_tohost.valid='1' then
 				sampleword<=dma_data;
 				if dmawidth=16 then
 					if format="00" then

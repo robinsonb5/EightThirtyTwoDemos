@@ -89,7 +89,7 @@ signal cache_wren : std_logic;
 signal data_from_ram : std_logic_vector(31 downto 0);
 
 signal activechannel : integer range 0 to DMACache_MaxChannel;
-
+signal channelvalid : std_logic_vector(DMACache_MaxChannel downto 0);
 begin
 
 FIFOCounters:
@@ -170,8 +170,7 @@ begin
 		-- Request and receive data from SDRAM:
 		case inputstate is
 			-- First state: Read.  Check the channels in priority order.
-			-- VGA has absolute priority, and the others won't do anything until the VGA buffer is
-			-- full.
+			-- Lowest numbered channel has highest priority.
 			when rd1 =>
 				for I in DMACache_MaxChannel downto 0 loop
 					if internals_FIFO(I).full='0'
@@ -290,7 +289,7 @@ begin
 --	if rising_edge(clk) then
 
 	-- Handle timeslicing of output registers
-	-- We prioritise simply by testing in order of priority.
+	-- Lowest numbered channel has highest priority
 	-- req signals should always be a single pulse; need to latch all but VGA, since it may be several
 	-- cycles since they're serviced.
 
@@ -300,12 +299,13 @@ begin
 			end if;
 
 			internals_read(I).drain<='0';
-			channels_to_host(I).valid<='0';
+			channels_to_host(I).valid<=channelvalid(I); -- Delay valid signal by one cycle, giving BRAM time to catch up.
+			channelvalid(I)<='0';
 		end loop;
 		
 		serviceactive := '0';
 		for I in DMACache_MaxChannel downto 0 loop
-			if internals_read(I).pending='1' and internals_FIFO(I).empty='0' then
+			if (internals_read(I).pending='1' or channels_from_host(I).req='1') and internals_FIFO(I).empty='0' then
 				serviceactive := '1';
 				servicechannel := I;
 			end if;
@@ -314,7 +314,8 @@ begin
 		if serviceactive='1' then
 			cache_rdaddr<=std_logic_vector(to_unsigned(servicechannel,3))&std_logic_vector(internals_read(servicechannel).rdptr);
 			internals_read(servicechannel).rdptr<=internals_read(servicechannel).rdptr+1;
-			channels_to_host(servicechannel).valid<='1';
+--			channels_to_host(servicechannel).valid<='1';
+			channelvalid(servicechannel)<='1';
 			internals_read(servicechannel).drain<='1';
 			internals_read(servicechannel).pending<='0';
 		end if;

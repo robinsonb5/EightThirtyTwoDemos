@@ -48,6 +48,11 @@ void RemoveInterruptHandler(struct InterruptHandler *handler)
 {
 	struct InterruptHandler *chain=intchain;
 	int wasenabled=DisableInterrupts();
+	if(chain==handler)
+	{
+		intchain=chain->next;
+		chain=0;
+	}
 	while(chain)
 	{
 		if(chain->next==handler)

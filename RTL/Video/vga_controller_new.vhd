@@ -472,7 +472,6 @@ begin
 	
 		process(clk_sys,reset_n) begin
 			if reset_n='0' then
-				sprite0_sys.req <='0';
 				sprite0_sys.setaddr <='0';
 				sprite0_sys.reqlen <= (others => '0');
 				sprite0_sys.setreqlen <='1';
@@ -501,11 +500,6 @@ begin
 					spritedata_stb_sc<='1';
 					spritefetchctr<=spritefetchctr-1;
 				end if;
-				
-				sprite0_sys.req<='0';
-				if spritefetchctr/=0 and (vblank_stb_d='1' or spritedata_req_sc='1') then
-					sprite0_sys.req<='1';
-				end if;
 
 				spritefinished_sc_d<='0';
 				spritefinished_sc<='0';
@@ -517,6 +511,8 @@ begin
 			end if;
 		end process;
 		
+		sprite0_sys.req <='1' when spritefetchctr/=0 and spritedata_req_sc='1' else '0';
+
 		-- Display logic on video clock domain
 		
 		process(clk_video,reset_n) begin
@@ -572,6 +568,7 @@ begin
 
 		spritepixel <= spriteshift(spriteshift'high downto spriteshift'high-3) when spriteena='1' else "0000";
 		
+		-- FIXME - integrate the sprite shifter into a CDC module, to save at least one cycle.
 		cdc_spritedata: entity work.cdc_bus
 		generic map (
 			width => dmawidth
