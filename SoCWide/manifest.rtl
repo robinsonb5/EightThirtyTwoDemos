@@ -1,12 +1,14 @@
 RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
+RTL/SoC_Peripheral_config.vhd
+../RTL/Peripherals/SoC_Peripheral_pkg.vhd
 
 ../RTL/Peripherals/simple_uart.vhd
 ../RTL/Peripherals/jtag_uart.vhd
 ../RTL/Peripherals/spi.vhd
 ../RTL/Peripherals/io_ps2_com.vhd
 ../RTL/Peripherals/interrupt_controller.vhd
-../RTL/Peripherals/timer_controller.vhd
+../RTL/Peripherals/timer_controller_new.vhd
 
 ../RTL/Util/cdc_pulse.vhd
 ../RTL/Util/cdc_bus.vhd
@@ -22,8 +24,11 @@ RTL/DMACache_config.vhd
 ../RTL/DMA/DMACacheRAM.vhd
 ../RTL/DMA/DMACache_wide.vhd
 ../RTL/DMA/VideoFIFO.vhd
+
+../RTL/Peripherals/Peripheral_Standard.vhd
+
 ../RTL/Sound/sound_controller.vhd
-../RTL/Sound/sound_wrapper.vhd
+../RTL/Sound/sound_wrapper_new.vhd
 ../RTL/Video/video_vga_dither.vhd
 ../RTL/Video/video_timings.vhd
 ../RTL/Video/vga_controller_new.vhd
@@ -31,6 +36,5 @@ RTL/DMACache_config.vhd
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
 
 Firmware/SoCWide_ROM.rom
-
 RTL/SoCWide_VirtualToplevel.vhd
 

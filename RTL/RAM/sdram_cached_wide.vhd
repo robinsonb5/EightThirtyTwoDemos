@@ -406,19 +406,19 @@ begin
 			readcache_addr<=addr1;
 		end if;
 		
-		if rising_edge(sysclk) then
-			if fourwaycachevalid='1' and dmcachevalid='1' then
-				if directcache_q /= fourwaycache_q then
-					cacheerr<='1';
-				else
-					cacheerr<='0';
-				end if;
-			end if;
-		end if;
+--		if rising_edge(sysclk) then
+--			if fourwaycachevalid='1' and dmcachevalid='1' then
+--				if directcache_q /= fourwaycache_q then
+--					cacheerr<='1';
+--				else
+--					cacheerr<='0';
+--				end if;
+--			end if;
+--		end if;
 	end process;
 
 	dataout1<=fourwaycache_q;
-	cachevalid<=fourwaycachevalid and (dmcachevalid and req1);
+	cachevalid<=fourwaycachevalid and req1; -- and dmcachevalid;
 
 	cache_inst : entity work.FourWayCache
 		generic map
@@ -437,34 +437,34 @@ begin
 			bytesel => bytesel,
 			data_to_cpu => fourwaycache_q,
 			data_from_sdram => sdata_reg,
---			sdram_req => readcache_req,
-			sdram_fill => readcache_fill,
---			busy => readcache_busy,
-			flush => flushcaches
-		);
-
-	verifycache_inst : entity work.DirectMappedCache
-		generic map
-		(
-			cachemsb => 11
-		)
-		PORT map
-		(
-			clk => sysclk,
-			reset => reset,
-			ready => open,
-			cpu_addr => addr1,
-			cpu_req => req1,
-			cpu_cachevalid => dmcachevalid,
-			cpu_rw => wr1,
-			bytesel => bytesel,
-			data_to_cpu => directcache_q,
-			data_from_sdram => sdata_reg,
 			sdram_req => readcache_req,
 			sdram_fill => readcache_fill,
 			busy => readcache_busy,
 			flush => flushcaches
 		);
+
+--	verifycache_inst : entity work.DirectMappedCache
+--		generic map
+--		(
+--			cachemsb => 11
+--		)
+--		PORT map
+--		(
+--			clk => sysclk,
+--			reset => reset,
+--			ready => open,
+--			cpu_addr => addr1,
+--			cpu_req => req1,
+--			cpu_cachevalid => dmcachevalid,
+--			cpu_rw => wr1,
+--			bytesel => bytesel,
+--			data_to_cpu => directcache_q,
+--			data_from_sdram => sdata_reg,
+--			sdram_req => readcache_req,
+--			sdram_fill => readcache_fill,
+--			busy => readcache_busy,
+--			flush => flushcaches
+--		);
 
 end generate;
 

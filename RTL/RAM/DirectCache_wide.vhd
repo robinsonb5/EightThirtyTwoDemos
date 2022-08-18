@@ -119,11 +119,13 @@ begin
 		signal firstword_ready : std_logic := '0';
 		signal cpu_req_d : std_logic;
 		signal flushpending : std_logic;
+		signal newreq : std_logic;
 	begin
 		data_to_cpu <= firstword when firstword_ready='1' else data_q;
 		busy <= busy_i;
 		cpu_cachevalid <= '1' when firstword_ready='1'
-				 or (busy_i='0' and tag_hit='1' and data_valid='1' and cpu_req='1' and cpu_rw='1')
+				 or (busy_i='0' and tag_hit='1' and data_valid='1' and cpu_rw='1')
+--				 or (busy_i='0' and tag_hit='1' and data_valid='1' and cpu_req='1' and cpu_rw='1')
 				 	else '0';
 		process(clk) begin
 			if rising_edge(clk) then			
@@ -140,6 +142,10 @@ begin
 					flushpending<='1';
 				end if;
 
+				if cpu_req='0' then
+					newreq<='1';
+				end if;
+				
 				case state is
 
 					-- We use an init state here to loop through the data, clearing
@@ -180,9 +186,10 @@ begin
 						tag_w(31-(burstlog2+2) downto 0) <= cpu_addr(31 downto burstlog2+2);
 						latched_cpuaddr<=cpu_addr;
 						if firstword_ready='0' and cpu_req='1' then
+							newreq<='0';
 							if cpu_rw='1' then -- Read cycle
 								state<=S_WAITRD;
-							else	-- Write cycle
+							elsif newreq='1' then	-- Write cycle
 								readword_burst<='1';
 								if cpu_addr(30) = '0' then 	-- An upper image of the RAM with cache clear bypass.
 									state<=S_WRITE1;

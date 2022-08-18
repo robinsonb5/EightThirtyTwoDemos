@@ -5,6 +5,8 @@ use IEEE.numeric_std.ALL;
 library work;
 use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
+use work.SoC_Peripheral_config.all;
+use work.SoC_Peripheral_pkg.all;
 
 -- VGA controller
 -- a module to handle VGA output
@@ -32,17 +34,15 @@ use work.DMACache_config.ALL;
 
 entity vga_controller_new is
 	generic(
+		BlockAddress : std_logic_vector(SoC_BlockBits-1 downto 0) := X"E";
 		enable_sprite : boolean := true;
 		dmawidth : integer := 16
 	);
 	port (
 		clk_sys : in std_logic;
 		reset_n : in std_logic;
-
-		reg_addr_in : in std_logic_vector(7 downto 0); -- from host CPU
-		reg_data_in: in std_logic_vector(31 downto 0);
-		reg_rw : in std_logic;
-		reg_req : in std_logic;
+		request  : in SoC_Peripheral_Request;
+		response : out SoC_Peripheral_Response;
 
 		-- Sprite
 		sprite0_sys : out DMAChannel_FromHost;
@@ -184,7 +184,26 @@ begin
 
 	-- Handle CPU access to hardware registers
 
-	cpu_req_sc<='1' when reg_req='1' and reg_rw='0' else '0';
+	requestlogic : block
+		signal sel : std_logic;
+		signal req_d : std_logic;
+	begin
+		sel <= '1' when request.addr(SoC_Block_HighBit downto SoC_Block_LowBit)=BlockAddress else '0';
+
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+				req_d <= request.req;
+				cpu_req_sc<=sel and request.req and request.wr and not req_d;
+			end if;
+		end process;
+		
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+				response.ack<=sel and request.req and not req_d;
+				response.q<=(others => '0');	-- Maybe return a version number?
+			end if;
+		end process;
+	end block;
 
 	cdc_cpureq: entity work.cdc_bus
 	generic map (
@@ -192,7 +211,7 @@ begin
 	)
 	port map (
 		clk_d => clk_sys,
-		d => reg_data_in,
+		d => request.d,
 		d_stb => cpu_req_sc,
 		clk_q => clk_video,
 		q => cpu_data_vc,
@@ -205,7 +224,7 @@ begin
 	)
 	port map (
 		clk_d => clk_sys,
-		d => reg_addr_in,
+		d => request.addr(7 downto 0),
 		d_stb => cpu_req_sc,
 		clk_q => clk_video,
 		q => cpu_addr_vc
@@ -276,14 +295,14 @@ begin
 		if rising_edge(clk_video) then
 			framebuffer_update <= '1';
 			if cpu_req_sc='1' then
-				case reg_addr_in is
+				case request.addr(7 downto 0) is
 					when X"00" =>
-						framebuffer_pointer <= reg_data_in;
+						framebuffer_pointer <= request.d;
 						framebuffer_update <= '1';
 					when X"80" =>
-						sprite0_pointer <= reg_data_in;
+						sprite0_pointer <= request.d;
 					when X"8c" =>
-						sprite0_reqlen <= reg_data_in(DMACache_ReqLenMaxBit downto 0);
+						sprite0_reqlen <= request.d(DMACache_ReqLenMaxBit downto 0);
 					when others =>
 						null;
 				end case;
