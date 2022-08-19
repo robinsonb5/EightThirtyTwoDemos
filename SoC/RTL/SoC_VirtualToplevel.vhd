@@ -612,16 +612,16 @@ myaudio : entity work.sound_wrapper
 		audio_ints => audio_ints
 	);
 
-audio_l<=audio_l_i(23 downto 8);
-audio_r<=audio_r_i(23 downto 8);
+	audio_l<=audio_l_i(23 downto 8);
+	audio_r<=audio_r_i(23 downto 8);
 
 	
-mytimer : entity work.timer_controller
-  generic map(
+	mytimer : entity work.timer_controller
+	generic map(
 		prescale => sysclk_frequency, -- Prescale incoming clock
 		timers => 0
-  )
-  port map (
+	)
+	port map (
 		clk => clk,
 		reset => reset_n,
 
@@ -634,26 +634,26 @@ mytimer : entity work.timer_controller
 	);
 
 
--- Interrupt controller
+	-- Interrupt controller
 
-intcontroller: entity work.interrupt_controller
-generic map (
-	max_int => int_max
-)
-port map (
-	clk => clk,
-	reset_n => cpu_reset,
-	trigger => int_triggers, -- Again, thanks ISE.
-	ack => int_ack,
-	int => int_req,
-	status => int_status
-);
+	intcontroller: entity work.interrupt_controller
+	generic map (
+		max_int => int_max
+	)
+	port map (
+		clk => clk,
+		reset_n => cpu_reset,
+		trigger => int_triggers, -- Again, thanks ISE.
+		ack => int_ack,
+		int => int_req,
+		status => int_status
+	);
 
-audio_int <= '0' when audio_ints="0000" else '1';
-int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, 4=>audio_int, others => '0');
+	audio_int <= '0' when audio_ints="0000" else '1';
+	int_triggers<=(0=>ser2_rxint, 1=>ps2_int, 2=>timer_tick, 3=>vblank_int,4=>audio_int, others => '0');
 
 
--- ROM
+	-- ROM
 
 	rom : entity work.SoC_rom
 	generic map(
@@ -669,7 +669,7 @@ int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, 4=>audio
 	);
 
 
--- Main CPU
+	-- Main CPU
 
 	mem_rom <='1' when cpu_addr(31 downto 26)=X"0"&"00" else '0';
 	mem_rd<='1' when cpu_req='1' and cpu_wr='0' and mem_rom='0' else '0';

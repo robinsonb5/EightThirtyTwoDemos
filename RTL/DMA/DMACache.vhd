@@ -79,6 +79,7 @@ end record;
 type DMAChannels_Internal_FIFO is array (DMACache_MaxChannel downto 0) of DMAChannel_Internal_FIFO;
 signal internals_FIFO : DMAChannels_Internal_FIFO;
 
+signal channelvalid : std_logic_vector(DMACache_MaxChannel downto 0);
 
 -- interface to the blockram
 
@@ -299,7 +300,8 @@ begin
 			end if;
 
 			internals_read(I).drain<='0';
-			channels_to_host(I).valid<='0';
+			channels_to_host(I).valid<=channelvalid(I); -- Delay valid signal by one cycle, giving BRAM time to catch up.
+			channelvalid(I)<='0';
 		end loop;
 		
 		serviceactive := '0';
@@ -313,7 +315,7 @@ begin
 		if serviceactive='1' then
 			cache_rdaddr<=std_logic_vector(to_unsigned(servicechannel,3))&std_logic_vector(internals_read(servicechannel).rdptr);
 			internals_read(servicechannel).rdptr<=internals_read(servicechannel).rdptr+1;
-			channels_to_host(servicechannel).valid<='1';
+			channelvalid(servicechannel)<='1';
 			internals_read(servicechannel).drain<='1';
 			internals_read(servicechannel).pending<='0';
 		end if;
