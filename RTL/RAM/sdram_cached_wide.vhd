@@ -68,16 +68,16 @@ port
 	vga_ack : out std_logic;
 
 	-- Port 1
-	datawr1		: in std_logic_vector(31 downto 0);	-- Data in
-	Addr1		: in std_logic_vector(31 downto 0);	-- Address in
+	datawr1	: in std_logic_vector(31 downto 0);	-- Data in
+	addr1		: in std_logic_vector(31 downto 0);	-- Address in
 	req1		: in std_logic;
 	cachevalid : out std_logic;
 	bytesel	: in std_logic_vector(3 downto 0);
-	wr1			: in std_logic;	-- Read (1) / write (0) 
-	dataout1		: out std_logic_vector(31 downto 0);
-	dtack1	: buffer std_logic;
+	wr1		: in std_logic;	-- Read (0) / write (1) 
+	ack1	: buffer std_logic;
+	dataout1	: out std_logic_vector(31 downto 0);
 	-- Port 2 - DMA
-	Addr2		: in std_logic_vector(31 downto 0):=X"00000000";
+	addr2		: in std_logic_vector(31 downto 0):=X"00000000";
 	req2		: in std_logic:='0';
 	ack2		: out std_logic;
 	fill2		: out std_logic;
@@ -132,7 +132,7 @@ signal refreshpending : std_logic :='0';
 
 signal readcache_addr : std_logic_vector(31 downto 0);
 signal readcache_req : std_logic;
-signal readcache_dtack : std_logic;
+signal readcache_ack : std_logic;
 signal readcache_fill : std_logic;
 signal readcache_busy : std_logic;
 
@@ -227,7 +227,7 @@ begin
 	                  or (slot2_fill='1' and sdram_slot2=port0)
 	                    else '0';
 
-	dtack1 <= wback; -- and not readcache_dtack;
+	ack1 <= wback;
 
 
 arbiter : block
@@ -254,7 +254,7 @@ begin
 			end if;
 
 			readcache_req_mask<='0';
-			if bankbusy(to_integer(unsigned(Addr1(bank_high downto bank_low))))='0' then
+			if bankbusy(to_integer(unsigned(addr1(bank_high downto bank_low))))='0' then
 				readcache_req_mask<=not wbreq; -- For cache coherency reasons we don't service CPU read requests while the writebuffer contains data.
 			end if;
 
@@ -319,7 +319,7 @@ begin
 	wbptrdiff <= wbwriteptr-wbreadptr;
 	wbempty <= '1' when wbwriteptr=wbreadptr else '0';
 	wbfull <= '1' when wbptrdiff(wbptrdiff'high downto 2)=(2**(writebuffer_depth-2))-1 else '0';
-	wb_wrena<= '1' when req1='1' and wr1='0' and dtack1='1'
+	wb_wrena<= '1' when req1='1' and wr1='1' and ack1='0'
 		and wbfull='0' and readcache_busy='0' else '0';
 
 	process(sysclk,reset) begin
@@ -368,21 +368,21 @@ begin
 			wbwriteptr<=(others => '0');
 			prevaddr<=(others => '0');
 		elsif rising_edge(sysclk) then
-			wback<='1';
+			wback<='0';
 			if wb_wrena='1' then
 				flagaddr:=(others => '0');
-				if prevaddr(bank_high downto row_low)/=Addr1(bank_high downto row_low) then
+				if prevaddr(bank_high downto row_low)/=addr1(bank_high downto row_low) then
 					flagaddr(wbflag_newrow) := '1';
 				else
 					flagaddr(wbflag_newrow) := '0';
-					wback<='0';	-- Only acknowledge if the addresses match, so that a dummy entry gets inserted when the row changes.
+					wback<='1';	-- Only acknowledge if the addresses match, so that a dummy entry gets inserted when the row changes.
 				end if;
-				flagaddr(bank_high downto 0) := Addr1(bank_high downto 0);
+				flagaddr(bank_high downto 0) := addr1(bank_high downto 0);
 				flagaddr(wbflag_dqms) := not (bytesel(0) & bytesel(1) & bytesel(2) & bytesel(3));
 				wbstore_flagsaddr(to_integer(wbwriteptr))<=flagaddr;
 				wbstore_data(to_integer(wbwriteptr))<=datawr1;
 				wbwriteptr<=wbwriteptr+1;
-				prevaddr<=Addr1;
+				prevaddr<=addr1;
 			end if;
 		end if;
 	end process;
@@ -433,7 +433,7 @@ begin
 			cpu_addr => addr1,
 			cpu_req => req1,
 			cpu_cachevalid => fourwaycachevalid,
-			cpu_rw => wr1,
+			cpu_wr => wr1,
 			bytesel => bytesel,
 			data_to_cpu => fourwaycache_q,
 			data_from_sdram => sdata_reg,
@@ -456,7 +456,7 @@ begin
 --			cpu_addr => addr1,
 --			cpu_req => req1,
 --			cpu_cachevalid => dmcachevalid,
---			cpu_rw => wr1,
+--			cpu_wr => wr1,
 --			bytesel => bytesel,
 --			data_to_cpu => directcache_q,
 --			data_from_sdram => sdata_reg,
@@ -481,7 +481,7 @@ begin
 			if reset='0' then
 				readcache_req_e<='1';
 			else
-				if readcache_dtack='1' then
+				if readcache_ack='1' then
 					readcache_req_e<='0';
 				end if;
 				if req1='0' then
@@ -492,9 +492,9 @@ begin
 		end if;
 	end process;
 
-	readcache_req<=req1 and wr1 and readcache_req_e;
+	readcache_req<=req1 and not wr1 and readcache_req_e;
 	
-	readcache_dtack <= '1' when (slot1_ack='1' and sdram_slot1=port1)
+	readcache_ack <= '1' when (slot1_ack='1' and sdram_slot1=port1)
 			or (slot2_ack='1' and sdram_slot2=port1)
 				else '0';
 	dataout1<=longword;

@@ -1,4 +1,4 @@
-PROJECTS="HelloWorld Interrupts LZ4 VGA SoC Dhrystone Dhrystone_DualThread Debug QuadCore"
+PROJECTS="HelloWorld Interrupts LZ4 SoC Dhrystone Dhrystone_DualThread Debug"
 
 FPGA_SITE_MK ?= site.mk
 

@@ -33,7 +33,7 @@ module DirectMappedCache #(parameter cachebits=11)
 	input cpu_req,	// 1 to request attention
 	output cpu_ack,	// 1 to signal that data is ready.
 	output cpu_cachevalid, // 1 to indicate that data is already cached and valid
-	input cpu_rw, // 1 for read cycles, 0 for write cycles
+	input cpu_wr, // 1 for read cycles, 0 for write cycles
 	input [3:0] bytesel,
 	input [31:0] data_from_cpu,
 	output [31:0] data_to_cpu,
@@ -121,7 +121,7 @@ reg [31:0] cpu_addr_d;
 reg fill_ack;
 reg write_ack;
 
-assign cpu_cachevalid = firstword_ready | ((tag_hit && data_valid) && cpu_rw && !busy);
+assign cpu_cachevalid = firstword_ready | ((tag_hit && data_valid) && (!cpu_wr) && !busy);
 assign cpu_ack = 1'b0; // (cpu_req_d && cpu_cachevalid && cpu_rw) || fill_ack || write_ack;
 
 reg readword_burst; // Set to 1 when the lsb of the cache address should
@@ -215,7 +215,7 @@ begin
 			latched_cpuaddr<=cpu_addr;
 			if(!firstword_ready  && cpu_req)
 			begin
-				if(cpu_rw==1'b1)	// Read cycle
+				if(cpu_wr==1'b0)	// Read cycle
 					state<=WAITRD;
 				else	// Write cycle
 				begin

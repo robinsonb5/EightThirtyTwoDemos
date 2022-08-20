@@ -68,19 +68,19 @@ port
 
 	-- Port 1
 	datawr1		: in std_logic_vector(31 downto 0);	-- Data in
-	Addr1		: in std_logic_vector(31 downto 0);	-- Address in
+	addr1		: in std_logic_vector(31 downto 0);	-- Address in
 	req1		: in std_logic;
 	cachevalid : out std_logic;
 	bytesel	: in std_logic_vector(3 downto 0);
 	wr1			: in std_logic;	-- Read (1) / write (0) 
 	dataout1		: out std_logic_vector(31 downto 0);
-	dtack1	: buffer std_logic;
+	ack1	: buffer std_logic;
 	-- Port 2 - instructions only
 	Addr2		: in std_logic_vector(31 downto 0):=X"00000000";
 	req2		: in std_logic:='0';
 	cachevalid2 : out std_logic;
 	dataout2		: out std_logic_vector(31 downto 0);
-	dtack2	: buffer std_logic;
+	ack2	: buffer std_logic;
 	--
 	flushcaches : in std_logic:='0'
 	);
@@ -138,19 +138,19 @@ signal writecache_dqm : std_logic_vector(7 downto 0);
 signal writecache_req : std_logic;
 signal writecache_ack : std_logic;
 signal writecache_dirty : std_logic;
-signal writecache_dtack : std_logic;
+signal writecache_sdack : std_logic;
 
 signal readcache_addr : std_logic_vector(31 downto 0);
 signal readcache_req : std_logic;
 signal readcache_req_e : std_logic;
-signal readcache_dtack : std_logic;
+signal readcache_ack : std_logic;
 signal readcache_fill : std_logic;
 signal readcache_busy : std_logic;
 
 signal readcache2_addr : std_logic_vector(31 downto 0);
 signal readcache2_req : std_logic;
 signal readcache2_req_e : std_logic;
-signal readcache2_dtack : std_logic;
+signal readcache2_ack : std_logic;
 signal readcache2_fill : std_logic;
 signal readcache2_busy : std_logic;
 
@@ -170,7 +170,7 @@ COMPONENT TwoWayCache
 		cpu_req		:	 IN STD_LOGIC;
 		cpu_ack		:	 OUT STD_LOGIC;
 		cpu_cachevalid		:	 OUT STD_LOGIC;
-		cpu_rw		:	 IN STD_LOGIC;
+		cpu_wr		:	 IN STD_LOGIC;
 		bytesel : in std_logic_vector(3 downto 0);
 		data_from_cpu		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -200,7 +200,7 @@ generic
 		cpu_req		:	 IN STD_LOGIC;
 		cpu_ack		:	 OUT STD_LOGIC;
 		cpu_cachevalid		:	 OUT STD_LOGIC;
-		cpu_rw		:	 IN STD_LOGIC;
+		cpu_wr		:	 IN STD_LOGIC;
 		bytesel : in std_logic_vector(3 downto 0);
 		data_from_cpu		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -227,7 +227,7 @@ COMPONENT BurstCache
 		cpu_req		:	 IN STD_LOGIC;
 		cpu_ack		:	 OUT STD_LOGIC;
 		cpu_cachevalid		:	 OUT STD_LOGIC;
-		cpu_rw		:	 IN STD_LOGIC;
+		cpu_wr		:	 IN STD_LOGIC;
 		bytesel : in std_logic_vector(3 downto 0);
 		data_from_cpu		:	 IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		data_to_cpu		:	 OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -258,9 +258,9 @@ begin
 								or (slot2_fill='1' and sdram_slot2=port0)
 									else '0';
 
-	dtack1 <= writecache_dtack and not readcache_dtack;
+	ack1 <= writecache_ack or readcache_ack;
 
-	dtack2 <= not readcache2_dtack;
+	ack2 <= readcache2_ack;
 
 	process(sysclk,reset)
 	begin
@@ -269,14 +269,14 @@ begin
 
 	if reset='0' then
 		writecache_req<='0';
-		writecache_dtack<='1';
+		writecache_ack<='0';
 	elsif rising_edge(sysclk) then
 
-		writecache_dtack<='1';
+		writecache_ack<='0';
 		writecache_dqm(7 downto 4)<="1111";
 
 		-- 32-bit variant of writecache for ZPU...
-		if req1='1' and wr1='0' and writecache_req='0' and readcache_busy='0' then
+		if req1='1' and wr1='1' and writecache_req='0' and readcache_busy='0' then
 			writecache_addr(31 downto 4)<=addr1(31 downto 4);
 			writecache_addr(3 downto 1)<=addr1(3 downto 1);
 			writecache_word0<=datawr1(31 downto 16);
@@ -284,9 +284,9 @@ begin
 			writecache_word1<=datawr1(15 downto 0);
 			writecache_dqm(3 downto 2)<=not (bytesel(2) & bytesel(3)); -- Are we writing the lower word?
 			writecache_req<='1';
-			writecache_dtack<='0';
+			writecache_ack<='1';
 		end if;
-		if writecache_ack='1' then
+		if writecache_sdack='1' then
 			writecache_req<='0';
 		end if;				
 	end if;
@@ -307,9 +307,9 @@ mytwc2 : component DirectMappedCache
 		ready => cache2_ready,
 		cpu_addr => addr2,
 		cpu_req => req2,
-		cpu_ack => readcache2_dtack,
+		cpu_ack => readcache2_ack,
 		cpu_cachevalid => cachevalid2,
-		cpu_rw => '1',
+		cpu_wr => '0',
 		bytesel => "0000",
 		data_from_cpu => (others=>'X'),
 		data_to_cpu => dataout2,
@@ -337,9 +337,9 @@ mytwc : component DirectMappedCache
 		ready => cache_ready,
 		cpu_addr => addr1,
 		cpu_req => req1,
-		cpu_ack => readcache_dtack,
+		cpu_ack => readcache_ack,
 		cpu_cachevalid => cachevalid,
-		cpu_rw => wr1,
+		cpu_wr => wr1,
 		bytesel => bytesel,
 		data_from_cpu => datawr1,
 		data_to_cpu => dataout1,
@@ -365,7 +365,7 @@ if cache=false generate
 			if reset='0' then
 				readcache2_req_e<='1';
 			else
-				if readcache2_dtack='1' then
+				if readcache2_ack='1' then
 					readcache2_req_e<='0';
 				end if;
 				if req2='0' then
@@ -377,7 +377,7 @@ if cache=false generate
 
 	readcache2_req<=req2 and readcache2_req_e;
 	
-	readcache2_dtack <= '1' when (slot1_ack='1' and sdram_slot1=port2)
+	readcache2_ack <= '1' when (slot1_ack='1' and sdram_slot1=port2)
 			or (slot2_ack='1' and sdram_slot2=port2)
 				else '0';
 	dataout2<=longword2;
@@ -396,7 +396,7 @@ if dcache=false generate
 			if reset='0' then
 				readcache_req_e<='1';
 			else
-				if readcache_dtack='1' then
+				if readcache_ack='1' then
 					readcache_req_e<='0';
 				end if;
 				if req1='0' then
@@ -407,9 +407,9 @@ if dcache=false generate
 		end if;
 	end process;
 
-	readcache_req<=req1 and wr1 and readcache_req_e;
+	readcache_req<=req1 and (not wr1) and readcache_req_e;
 	
-	readcache_dtack <= '1' when (slot1_ack='1' and sdram_slot1=port1)
+	readcache_ack <= '1' when (slot1_ack='1' and sdram_slot1=port1)
 			or (slot2_ack='1' and sdram_slot2=port1)
 				else '0';
 	dataout1<=longword;
@@ -552,7 +552,7 @@ end generate;
 
 
 -- Time slot control			
-				writecache_ack<='0';
+				writecache_sdack<='0';
 				vga_nak<='0';
 				vga_ack<='0';
 				case sdram_state is
@@ -621,7 +621,7 @@ end generate;
 							sdwrite<='1';
 							datain <= writecache_word1;
 							dqm <= writecache_dqm(3 downto 2);
-							writecache_ack<='1'; -- End write burst after 32 bits.
+							writecache_sdack<='1'; -- End write burst after 32 bits.
 						end if;
 
 						-- Second word of reads if bypassing the cache
@@ -706,7 +706,7 @@ end generate;
 							sdwrite<='1';
 							datain <= writecache_word1;
 							dqm <= writecache_dqm(3 downto 2);
-							writecache_ack<='1'; -- End write burst after 32 bits.
+							writecache_sdack<='1'; -- End write burst after 32 bits.
 						end if;					
 						
 						-- Slot 2, active command

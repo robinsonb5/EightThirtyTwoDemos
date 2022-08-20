@@ -285,7 +285,7 @@ begin
 			wr1 => sdram_wr, -- active low
 			bytesel => sdram_bytesel, -- cpu_bytesel,
 			dataout1 => sdram_read,
-			dtack1 => sdram_ack,
+			ack1 => sdram_ack,
 
 			addr2 => dma_addr,
 			dataout2 => dma_data_in,
@@ -583,7 +583,7 @@ begin
 	-- SDRAM state machine
 	
 	-- Combinational to take effect one cycle sooner.
-	ram_ack <= '1' when sdram_state=waiting and (sdram_ack='0' or cache_valid='1') else '0';
+	ram_ack <= '1' when sdram_state=waiting and (sdram_ack='1' or cache_valid='1') else '0';
 	-- Endian byte mangling
 	from_ram(7 downto 0)<=sdram_read(31 downto 24);
 	from_ram(15 downto 8)<=sdram_read(23 downto 16);
@@ -599,14 +599,14 @@ begin
 				when idle =>
 					if cpu_req='1' and mem_ram='1' then
 						sdram_bytesel<=bytesel_rev;
-						sdram_wr<=not cpu_wr;
+						sdram_wr<=cpu_wr;
 						sdram_req<='1';
 						sdram_write<=from_cpu;
 						sdram_state<=waiting;
 					end if;
 
 				when waiting =>	
-					if sdram_ack='0' or cache_valid='1' then
+					if sdram_ack='1' or cache_valid='1' then
 						sdram_req<='0';
 						sdram_state<=pause;
 					end if;

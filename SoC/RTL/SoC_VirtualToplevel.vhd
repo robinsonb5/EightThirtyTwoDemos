@@ -537,10 +537,10 @@ mysdram : entity work.sdram_cached
 		addr1 => cpu_addr,
 		req1 => sdram_req,
 		cachevalid => cache_valid,
-		wr1 => sdram_wr, -- active low
+		wr1 => sdram_wr,
 		bytesel => sdram_bytesel, -- cpu_bytesel,
 		dataout1 => sdram_read,
-		dtack1 => sdram_ack,
+		ack1 => sdram_ack,
 		
 		flushcaches => flushcaches
 	);
@@ -862,7 +862,7 @@ begin
 					end case;
 				when others =>
 					sdram_bytesel<=bytesel_rev;
-					sdram_wr<='0';
+					sdram_wr<='1';
 					sdram_req<='1';
 					sdram_write<=from_cpu;
 					sdram_state<=read1;	-- read/write logic doesn't need to differ.
@@ -930,7 +930,7 @@ begin
 					end case;
 
 				when others =>
-					sdram_wr<='1';
+					sdram_wr<='0';
 					sdram_req<='1';
 					sdram_state<=read1;
 			end case;
@@ -940,7 +940,7 @@ begin
 	
 		case sdram_state is
 			when read1 => -- read first word from RAM
-				if sdram_ack='0' or cache_valid='1' then
+				if sdram_ack='1' or cache_valid='1' then
 					-- Endian mangling for SDRAM
 					from_mem(7 downto 0)<=sdram_read(31 downto 24);
 					from_mem(15 downto 8)<=sdram_read(23 downto 16);

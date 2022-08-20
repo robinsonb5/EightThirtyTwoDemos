@@ -20,7 +20,7 @@ port (
 	cpu_addr : in std_logic_vector(31 downto 0);
 	cpu_req : in std_logic;
 	cpu_cachevalid : out std_logic;
-	cpu_rw : in std_logic; -- 1 for read cycle, 0 for write cycles
+	cpu_wr : in std_logic; -- 0 for read cycle, 1 for write cycles
 	bytesel : in std_logic_vector(3 downto 0);
 	data_to_cpu : out std_logic_vector(31 downto 0);
 	-- SDRAM interface
@@ -97,7 +97,7 @@ begin
 				end if;
 				
 				if cpu_req_d='1' and cpu_req_d2='0' then -- React to a delayed rising edge of cpu_req
-					if cpu_rw='1' then -- Read cycle
+					if cpu_wr='0' then -- Read cycle
 						if cache_valid="0000" then
 							way_chosen<=wayselect_lru;
 							way_mru<=wayselect_lru;
@@ -118,8 +118,6 @@ begin
 							way_mru<=way_hit;
 							way_req<='1';
 						end if;
---					else
---						cache_cpu_req<=(others => '1'); -- Inform all ways about write accesses.					
 					end if;
 
 				end if;
@@ -136,13 +134,18 @@ begin
 		signal cache_sdram_req : std_logic_vector(ways-1 downto 0);
 		type cachedata_t is array(0 to 3) of std_logic_vector(31 downto 0);
 		signal cachedata : cachedata_t;
+
+		attribute noprune : boolean;
+		signal cacheerr : std_logic;
+		attribute noprune of cacheerr : signal is true;
+		
 	begin
 	
 		cacheloop: for i in 0 to ways-1 generate
 			signal req : std_logic;
 		begin
 		
-		req <= '1' when cache_cpu_req(i)='1' or (cpu_req='1' and cpu_rw='0') else '0';
+		req <= '1' when cache_cpu_req(i)='1' or (cpu_req='1' and cpu_wr='1') else '0';
 		cacheway: entity work.DirectMappedCache
 			generic map (
 				cachemsb => cachemsb,
@@ -155,7 +158,7 @@ begin
 				cpu_addr => cpu_addr,
 				cpu_req => req, --cache_cpu_req(i),
 				cpu_cachevalid => cache_valid(i),
-				cpu_rw => cpu_rw,
+				cpu_wr => cpu_wr,
 				bytesel => bytesel,
 				data_to_cpu => cachedata(i),
 				-- SDRAM interface
@@ -186,6 +189,26 @@ begin
 		busy <= busy_i;
 		ready <= '1' when wayselect_ready='1' and cache_ready="1111" else '0';
 
+		process(clk) begin
+			if rising_edge(clk) then
+				cacheerr<='1';
+				case cache_valid is
+					when "0000" =>
+						cacheerr<='0';
+					when "0001" =>
+						cacheerr<='0';
+					when "0010" =>
+						cacheerr<='0';
+					when "0100" =>
+						cacheerr<='0';
+					when "1000" =>
+						cacheerr<='0';
+					when others =>
+						null;
+				end case;
+			end if;
+		end process;
+		
 	end block;
 
 end architecture;

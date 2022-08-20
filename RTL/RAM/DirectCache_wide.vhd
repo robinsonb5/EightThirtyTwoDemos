@@ -20,7 +20,7 @@ port (
 	cpu_addr : in std_logic_vector(31 downto 0);
 	cpu_req : in std_logic;
 	cpu_cachevalid : out std_logic;
-	cpu_rw : in std_logic; -- 1 for read cycle, 0 for write cycles
+	cpu_wr : in std_logic; -- 0 for read cycle, 1 for write cycles
 	bytesel : in std_logic_vector(3 downto 0);
 	data_to_cpu : out std_logic_vector(31 downto 0);
 	-- SDRAM interface
@@ -124,8 +124,7 @@ begin
 		data_to_cpu <= firstword when firstword_ready='1' else data_q;
 		busy <= busy_i;
 		cpu_cachevalid <= '1' when firstword_ready='1'
-				 or (busy_i='0' and tag_hit='1' and data_valid='1' and cpu_rw='1')
---				 or (busy_i='0' and tag_hit='1' and data_valid='1' and cpu_req='1' and cpu_rw='1')
+				 or (busy_i='0' and tag_hit='1' and data_valid='1' and cpu_wr='0')
 				 	else '0';
 		process(clk) begin
 			if rising_edge(clk) then			
@@ -149,7 +148,7 @@ begin
 				case state is
 
 					-- We use an init state here to loop through the data, clearing
-					-- the valid flag - for which we'll use bit 17 of the data entry.
+					-- the valid flag - for which we'll use bit 31 of the tag entry.
 				
 					when S_INIT =>
 						ready<='0';
@@ -187,7 +186,7 @@ begin
 						latched_cpuaddr<=cpu_addr;
 						if firstword_ready='0' and cpu_req='1' then
 							newreq<='0';
-							if cpu_rw='1' then -- Read cycle
+							if cpu_wr='0' then -- Read cycle
 								state<=S_WAITRD;
 							elsif newreq='1' then	-- Write cycle
 								readword_burst<='1';
