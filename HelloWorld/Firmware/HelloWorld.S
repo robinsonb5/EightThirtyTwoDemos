@@ -29,5 +29,6 @@ message:
 	.ascii	"Hello"
 	.byte	32
 	.ascii	"world!"
+	.byte	10
 	.byte	0
 

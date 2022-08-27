@@ -83,7 +83,7 @@ port (
 	q : out std_logic_vector(31 downto 0);
 	req : in std_logic;
 	wr : in std_logic;
-	ack : buffer std_logic
+	ack : out std_logic
 );
 end component;
 
@@ -136,6 +136,7 @@ signal ser2_rxrecv : std_logic;
 signal ser2_txgo : std_logic;
 signal ser2_rxint : std_logic;
 
+signal serial_int : std_logic;
 
 -- Interrupt signals
 
@@ -650,7 +651,7 @@ myaudio : entity work.sound_wrapper
 	);
 
 	audio_int <= '0' when audio_ints="0000" else '1';
-	int_triggers<=(0=>ser2_rxint, 1=>ps2_int, 2=>timer_tick, 3=>vblank_int,4=>audio_int, others => '0');
+	int_triggers<=(0=>serial_int, 1=>ps2_int, 2=>timer_tick, 3=>vblank_int,4=>audio_int, others => '0');
 
 
 	-- ROM
@@ -981,6 +982,8 @@ begin
 			ser2_rxrecv<='1';
 			ser2_rxready<='0';
 		end if;
+
+		serial_int <= ser_rxint or ser2_rxint;
 
 		-- PS2 interrupt
 		ps2_int <= kbdrecv or kbdsenddone

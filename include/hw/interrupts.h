@@ -17,8 +17,8 @@
 #define INTERRUPT_ACKNOWLEDGE_B 0x08
 #define INTERRUPT_ACKNOWLEDGE_F 0x100
 
-#define INTERRUPT_PS2 1
 #define INTERRUPT_SERIAL 0
+#define INTERRUPT_PS2 1
 #define INTERRUPT_TIMER 2
 #define INTERRUPT_VBLANK 3
 #define INTERRUPT_AUDIO 4
@@ -36,6 +36,7 @@ struct InterruptHandler
 };
 
 void AddInterruptHandler(struct InterruptHandler *handler);
+void CallInterruptHandler(struct InterruptHandler *handler);
 void RemoveInterruptHandler(struct InterruptHandler *handler);
 void EnableInterrupts();
 int DisableInterrupts();

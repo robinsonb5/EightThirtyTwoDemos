@@ -68,7 +68,7 @@ assign ps2k_dat_in = PS2_KEYBOARD_DAT;
 assign ps2m_clk_in = PS2_MOUSE_CLK;
 assign ps2m_dat_in = PS2_MOUSE_DAT;
 
-VirtualToplevel #(.sysclk_frequency(1700),.jtag_uart(0)) vt
+VirtualToplevel #(.sysclk_frequency(1000),.jtag_uart(0)) vt
 (
 	.clk(sysclk),
 	.slowclk(slowclk),

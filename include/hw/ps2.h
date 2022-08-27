@@ -25,13 +25,15 @@ extern struct hw_ringbuffer mousebuffer;
 }
 #endif
 
+
+void PS2MouseWrite(int x);
+void PS2KeyboardWrite(int x);
+
 #define PS2KeyboardRead(x) hw_ringbuffer_read(&kbbuffer)
 #define PS2KeyboardBytesReady(x) hw_ringbuffer_count(&kbbuffer)
-#define PS2KeyboardWrite(x) hw_ringbuffer_write(&kbbuffer,x);
 
 #define PS2MouseRead(x) hw_ringbuffer_read(&mousebuffer)
 #define PS2MouseBytesReady(x) hw_ringbuffer_count(&mousebuffer)
-#define PS2MouseWrite(x) hw_ringbuffer_write(&mousebuffer,x);
 
 #define PS2_INT 4
 

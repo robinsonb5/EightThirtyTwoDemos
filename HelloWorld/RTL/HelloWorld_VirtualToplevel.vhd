@@ -75,7 +75,7 @@ constant uart_divisor : integer := sysclk_hz/1152;
 constant maxAddrBit : integer := 31;
 
 signal reset_n : std_logic := '0';
-signal reset_counter : unsigned(15 downto 0) := X"FFFF";
+signal reset_counter : unsigned(11 downto 0) := X"FFF";
 
 -- UART signals
 
@@ -136,11 +136,11 @@ spi_cs<='1';
 process(clk, reset_in)
 begin
 	if reset_in='0' then
-		reset_counter<=X"FFFF";
+		reset_counter<=X"FFF";
 		reset_n<='0';
 	elsif rising_edge(clk) then
 		reset_counter<=reset_counter-1;
-		if reset_counter=X"0000" then
+		if reset_counter=X"000" then
 			reset_n<='1';
 		end if;
 	end if;
@@ -263,6 +263,7 @@ end generate;
 		ack => cpu_ack
 	);
 
+	cpu_addr(1 downto 0) <= "00";
 
 
 process(slowclk)
@@ -296,7 +297,7 @@ begin
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
 						when X"C0" => -- UART
-							from_mem<=(others=>'X');
+							from_mem<=(others=>'0');
 							from_mem(9 downto 0)<=ser_rxrecv&ser_txready&ser_rxdata;
 							ser_rxrecv<='0';	-- Clear rx flag.
 							mem_busy<='0';
@@ -316,6 +317,11 @@ begin
 		-- Set this after the read operation has potentially cleared it.
 		if ser_rxint='1' then
 			ser_rxrecv<='1';
+		end if;
+
+		if reset_n='0' then
+			ser_rxrecv<='1';
+			from_mem<=(others => '0');
 		end if;
 
 	end if; -- rising-edge(clk)

@@ -19,11 +19,6 @@ port(
 	UART_D2_TXD : out std_logic;
 	UART_D2_RXD : in std_logic;
 
-	PS2_K_CLK : inout std_logic;
-	PS2_K_DATA : inout std_logic;
-	PS2_M_CLK : inout std_logic;
-	PS2_M_DATA : inout std_logic;
-
 	led1 : out std_logic;
 	led2 : out std_logic;
 
@@ -49,9 +44,16 @@ port(
 	AUDIO_L : out std_logic;
 	AUDIO_R : out std_logic;
 	
-	dio_p : out std_logic_vector(3 downto 0)
+	dio_p : out std_logic_vector(3 downto 0);
 --	dio_n : out std_logic_vector(3 downto 0) -- Don't declare the _n pins - the _p pins are declared as
 	                                         -- LVCMOS33D so their conjugate pairs will be used automatically.
+	-- M-BF1 ports
+	PS2_K_CLK : inout std_logic;
+	PS2_K_DATA : inout std_logic;
+	PS2_M_CLK : inout std_logic;
+	PS2_M_DATA : inout std_logic;
+	BF1_LED : out std_logic;
+	BTN : in std_logic
 );
 end entity;
 
@@ -115,6 +117,8 @@ architecture rtl of mmm_v4r0_l5sd_top is
 
 begin
 
+	BF1_LED<='0';
+
 	UART_U1_TXD <= txd;
 	UART_U2_TXD <= txd;
 	UART_D1_TXD <= txd;
@@ -140,7 +144,7 @@ end generate;
 
 	dr_clk <= clk_sdram;
 
-	reset_n <= pll_locked;
+	reset_n <= pll_locked and BTN;
 
 	vt : entity work.VirtualToplevel
 	generic map(

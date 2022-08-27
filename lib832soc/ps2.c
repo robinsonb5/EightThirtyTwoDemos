@@ -53,6 +53,21 @@ static struct InterruptHandler ps2_inthandler=
 	INTERRUPT_PS2
 };
 
+
+void PS2KeyboardWrite(int x)
+{
+	hw_ringbuffer_write(&kbbuffer,x);
+	CallInterruptHandler(&ps2_inthandler);
+}
+
+
+void PS2MouseWrite(int x)
+{
+	hw_ringbuffer_write(&mousebuffer,x);
+	CallInterruptHandler(&ps2_inthandler);
+}
+
+
 __constructor(101.ps2) void PS2Init()
 {
 	puts("In PS2 constructor\n");

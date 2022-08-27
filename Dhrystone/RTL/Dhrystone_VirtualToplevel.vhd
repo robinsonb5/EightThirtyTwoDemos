@@ -75,12 +75,15 @@ constant uart_divisor : integer := sysclk_hz/1152;
 constant maxAddrBit : integer := 31;
 
 signal reset_n : std_logic := '0';
-signal reset_counter : unsigned(15 downto 0) := X"FFFF";
+signal reset_counter : unsigned(7 downto 0) := X"FF";
 
 
 -- Millisecond counter
 signal millisecond_counter : unsigned(31 downto 0) := X"00000000";
 signal millisecond_tick : unsigned(19 downto 0);
+
+-- Cycle counter
+signal cycle_counter : unsigned(31 downto 0) := X"00000000";
 
 
 -- UART signals
@@ -91,17 +94,6 @@ signal ser_rxdata : std_logic_vector(7 downto 0);
 signal ser_rxrecv : std_logic;
 signal ser_txgo : std_logic;
 signal ser_rxint : std_logic;
-
-
--- Interrupt signals
-
-constant int_max : integer := 1;
-signal int_triggers : std_logic_vector(int_max downto 0);
-signal int_status : std_logic_vector(int_max downto 0);
-signal int_ack : std_logic;
-signal int_req : std_logic;
-signal int_enabled : std_logic :='0'; -- Disabled by default
-signal int_trigger : std_logic;
 
 
 -- Timer register block signals
@@ -131,6 +123,13 @@ signal mem_wr_d : std_logic;
 signal rom_wr : std_logic;
 
 signal peripheral_addr : std_logic_vector(3 downto 0);
+
+-- CPU Debug signals
+signal debug_req : std_logic;
+signal debug_ack : std_logic;
+signal debug_fromcpu : std_logic_vector(31 downto 0);
+signal debug_tocpu : std_logic_vector(31 downto 0);
+signal debug_wr : std_logic;
 
 begin
 
@@ -164,11 +163,11 @@ spi_cs<='1';
 process(clk)
 begin
 	if reset_in='0' then
-		reset_counter<=X"FFFF";
+		reset_counter<=X"FF";
 		reset_n<='0';
 	elsif rising_edge(clk) then
 		reset_counter<=reset_counter-1;
-		if reset_counter=X"0000" then
+		if reset_counter=X"00" then
 			reset_n<='1';
 		end if;
 	end if;
@@ -176,9 +175,14 @@ end process;
 
 
 -- Timer
-process(clk)
+process(clk,reset_n)
 begin
-	if rising_edge(clk) then
+	if reset_n='0' then
+		millisecond_tick<=X"00000";
+		millisecond_counter<=(others =>'0');
+		cycle_counter<=(others =>'0');
+	elsif rising_edge(clk) then
+		cycle_counter<=cycle_counter+1;
 		millisecond_tick<=millisecond_tick+1;
 		if millisecond_tick=sysclk_frequency*100 then
 			millisecond_counter<=millisecond_counter+1;
@@ -253,24 +257,6 @@ mytimer : entity work.timer_controller
 	);
 
 
--- Interrupt controller
-
-intcontroller: entity work.interrupt_controller
-generic map (
-	max_int => int_max
-)
-port map (
-	clk => clk,
-	reset_n => reset_n,
-	trigger => int_triggers, -- Again, thanks ISE.
-	ack => int_ack,
-	int => int_req,
-	status => int_status
-);
-
-int_triggers<=(0=>timer_tick, others => '0');
-
-
 -- ROM
 
 	rom : entity work.Dhrystone_rom
@@ -343,7 +329,29 @@ int_triggers<=(0=>timer_tick, others => '0');
 		bytesel => cpu_bytesel,
 		wr => cpu_wr,
 		req => cpu_req,
-		ack => cpu_ack
+		ack => cpu_ack,
+
+		-- Debug signals
+
+		debug_d=>debug_tocpu,
+		debug_q=>debug_fromcpu,
+		debug_req=>debug_req,
+		debug_wr=>debug_wr,
+		debug_ack=>debug_ack		
+	);
+
+	cpu_addr(1 downto 0) <= "00";
+
+	debugbridge : entity work.debug_bridge_jtag
+	port map
+	(
+		clk => slowclk,
+		reset_n => reset_n,
+		d => debug_fromcpu,
+		q => debug_tocpu,
+		req => debug_req,
+		ack => debug_ack,
+		wr => debug_wr
 	);
 
 peripheral_addr <= cpu_addr(31)&cpu_addr(10 downto 8);
@@ -353,7 +361,6 @@ begin
 	if rising_edge(clk) then
 		mem_busy<='1';
 		ser_txgo<='0';
-		int_ack<='0';
 		timer_reg_req<='0';
 
 		mem_rd_d<=mem_rd;
@@ -367,10 +374,6 @@ begin
 					mem_busy<='0';	-- Audio controller never blocks the CPU
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
-
-						when X"B0" => -- Interrupts
-							int_enabled<=from_cpu(0);
-							mem_busy<='0';
 
 						when X"C0" => -- UART
 							ser_txdata<=from_cpu(7 downto 0);
@@ -387,16 +390,10 @@ begin
 			end case;
 
 		elsif mem_rd='1' and mem_rd_d='0' and mem_busy='1' then -- Read from CPU?
-			case cpu_addr(31 downto 28) is
+			case peripheral_addr is
 
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
-
-						when X"B0" => -- Interrupt
-							from_mem<=(others=>'X');
-							from_mem(int_max downto 0)<=int_status;
-							int_ack<='1';
-							mem_busy<='0';
 
 						when X"C0" => -- UART
 							from_mem<=(others=>'X');
@@ -406,6 +403,10 @@ begin
 
 						when X"C8" => -- Millisecond counter
 							from_mem<=std_logic_vector(millisecond_counter);
+							mem_busy<='0';
+
+						when X"CC" => -- Cycle counter
+							from_mem<=std_logic_vector(cycle_counter);
 							mem_busy<='0';
 
 						when others =>
@@ -423,6 +424,11 @@ begin
 		-- Set this after the read operation has potentially cleared it.
 		if ser_rxint='1' then
 			ser_rxrecv<='1';
+		end if;
+
+		if reset_n='0' then
+			ser_rxrecv<='0';
+			from_mem<=(others => '0');
 		end if;
 
 	end if; -- rising-edge(clk)

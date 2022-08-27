@@ -44,6 +44,7 @@ begin
 	begin
 		if reset='0' then
 			prescale_counter<=(others=>'0');
+			prescaled_tick<='0';
 		elsif rising_edge(clk) then
 			prescaled_tick<='0';
 			prescale_counter<=prescale_counter-1;
@@ -60,6 +61,7 @@ begin
 		if reset='0' then
 			for I in 0 to (2**timers-1) loop
 				timer_counter(I)<=(others => '0');
+				ticks<=(others => '0');
 			end loop;
 		elsif rising_edge(clk) then
 			ticks<=(others => '0');

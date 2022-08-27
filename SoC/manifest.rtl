@@ -22,6 +22,7 @@ RTL/DMACache_config.vhd
 ../RTL/Video/video_vga_dither.vhd
 ../RTL/Video/vga_controller.vhd
 
+../EightThirtyTwo/RTL/debug_bridge_jtag.qip
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
 
 

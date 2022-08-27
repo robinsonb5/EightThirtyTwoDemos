@@ -1139,6 +1139,11 @@ int ptBuddyPlay(unsigned char *modData, char timerType)
 	puts("Enabling interrupts...\n");
 	EnableInterrupts();
 
+	REG_SOUNDCHANNEL[0].FORMAT=SOUND_FORMAT_MONO_S8;
+	REG_SOUNDCHANNEL[1].FORMAT=SOUND_FORMAT_MONO_S8;
+	REG_SOUNDCHANNEL[2].FORMAT=SOUND_FORMAT_MONO_S8;
+	REG_SOUNDCHANNEL[3].FORMAT=SOUND_FORMAT_MONO_S8;
+
 	while(1)
 	{
 //		if(tick)

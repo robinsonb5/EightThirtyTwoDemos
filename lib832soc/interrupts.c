@@ -44,6 +44,20 @@ void AddInterruptHandler(struct InterruptHandler *handler)
 }
 
 
+void CallInterruptHandler(struct InterruptHandler *handler)
+{
+	if(handler)
+	{
+		int wasenabled=DisableInterrupts();
+
+		handler->handler(handler->userdata);
+		
+		if(wasenabled)
+			EnableInterrupts();
+	}
+}
+
+
 void RemoveInterruptHandler(struct InterruptHandler *handler)
 {
 	struct InterruptHandler *chain=intchain;
@@ -86,28 +100,29 @@ volatile int GetInterrupts()
 
 void AcknowledgeInterrupts()
 {
-	HW_INTERRUPT(REG_INTERRUPT_CTRL)=INTERRUPT_ENABLE_F | INTERRUPT_ACKNOWLEDGE_F;
 	enabled=1;
+	HW_INTERRUPT(REG_INTERRUPT_CTRL)=INTERRUPT_ENABLE_F | INTERRUPT_ACKNOWLEDGE_F;
 }
 
 void EnableInterrupts()
 {
-	HW_INTERRUPT(REG_INTERRUPT_CTRL)=1;
 	enabled=1;
+	HW_INTERRUPT(REG_INTERRUPT_CTRL)=INTERRUPT_ENABLE_F;
 }
 
 void EnableInterruptsAndSleep()
 {
 	enabled=1;
-	HW_INTERRUPT(REG_INTERRUPT_CTRL)=1;
+	HW_INTERRUPT(REG_INTERRUPT_CTRL)=INTERRUPT_ENABLE_F;
 	__asm("\tcond nex\n\tmr r0\n");
 }
 
 
 int DisableInterrupts()
 {
-	int result=enabled;
+	int result;
 	HW_INTERRUPT(REG_INTERRUPT_CTRL)=0;
+	result=enabled;
 	enabled=0;
 	return(result);
 }

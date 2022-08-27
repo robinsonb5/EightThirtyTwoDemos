@@ -74,7 +74,7 @@ genrx : if enable_rx generate
 	-- start bit, and set the counter to half a bit width.  When it reaches zero, the counter is
 	-- set to a full bit width, so clock ticks should land in the centre of each bit.
 
-	process(clk,reset,rxd_sync,rxcounter,rxstate)
+	process(clk)
 	begin
 		if rising_edge(clk) then
 			rxclock<='0';
@@ -100,11 +100,12 @@ genrx : if enable_rx generate
 	-- As each bit is received we shift the register one bit to the right, and load new data
 	-- into bit 8.
 	-- When the 1 initially in bit 8 reaches bit zero we know we've received the entire word.
-	process(clk,reset,rxd_sync,rxcounter,rxstate)
+	process(clk,reset)
 	begin
 		if reset='0' then
 			rxstate<=idle;
 			rxint<='0';
+			rxdata<=(others => '0');
 		elsif rising_edge(clk) then
 			rxint<='0';
 			case rxstate is
@@ -177,7 +178,7 @@ gentx: if enable_tx generate
 	-- Similarly to the Rx routine, we use a shift register larger than the word,
 	-- which also includes a marker bit.  This time the marker bit is a zero, and when
 	-- the zero reaches bit 8, we know we've transmitted the entire word plus one stop bit.
-	process(clk,reset,txgo,txcounter,txstate)
+	process(clk,reset)
 	begin
 		if reset='0' then
 			txstate<=idle;
