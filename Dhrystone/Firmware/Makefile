@@ -13,7 +13,7 @@ DUMP=objdump
 CFLAGS = -+ -speed -unsigned-char -I../../include -I$(832DIR)/include
 COPT = -O=32767
 
-LDFLAGS=-s_STACKSIZE=512
+LDFLAGS=-s_STACKSIZE=1024
 
 all: Dhrystone_ROM_byte.vhd Dhrystone_ROM_word.vhd Dhrystone.bin
 
@@ -44,7 +44,7 @@ clean :
 	@$(DUMP) -x $< | grep __bss_end__
 
 Dhrystone.bin : $(LIBDIR)/crt0.a $(LIBDIR)/lib832.a dhry_1.o dhry_2.o
-	$(LD) $(LDFLAGS) -m $@.map -o $@ $+
+	$(LD) $(LDFLAGS) -M $@.map -o $@ $+
 
 %.o : %.c Makefile ldscript.ld
 	$(CC) $(COPT) $(CFLAGS) -I$(INCDIR) -I$(LIBDIR) $*.c
