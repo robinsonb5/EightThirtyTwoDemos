@@ -366,7 +366,7 @@ end generate;
 			-- We will see a pcnt value of 1 for 75MHz modes, 2 for 50MHz modes, 3 for 37.5MHz
 			-- 4 for 30MHz, and 5 for 25MHz.
 			-- Since we don't seem to be able to cascade DCSCs, we're stuck with just two
-			-- TDMS clocks, which will be 5*75MHz*5 and 5*50Mhz.
+			-- TDMS clocks, which will be 5*75MHz and 5*50Mhz.
 			if rising_edge(clk_video) then
 				if vga_pixel='1' then
 					pcnt <=(others => '0');

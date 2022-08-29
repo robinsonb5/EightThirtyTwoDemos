@@ -5,6 +5,7 @@ use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
 use work.SoC_Peripheral_config.all;
 use work.SoC_Peripheral_pkg.all;
+use work.sdram_controller_pkg.all;
 
 
 entity VirtualToplevel is
@@ -109,27 +110,16 @@ architecture rtl of VirtualToplevel is
 	signal timer_tick : std_logic;
 
 
-	-- Plumbing between DMA controller and SDRAM
+	-- Plumbing between DMA controllers and SDRAM
 
-	signal video_addr : std_logic_vector(31 downto 0);
-	signal video_data_in : std_logic_vector(31 downto 0);
-	signal video_req : std_logic;
-	signal video_pri : std_logic;
-	signal video_ack : std_logic;
-	signal video_fill : std_logic;
+	signal video_to_sdram : sdram_port_request;
+	signal sdram_to_video : sdram_port_response;
 
-	signal dma_addr : std_logic_vector(31 downto 0);
-	signal dma_data_in : std_logic_vector(31 downto 0);
-	signal dma_req : std_logic;
-	signal dma_ack : std_logic;
-	signal dma_fill : std_logic;
+	signal dma_to_sdram : sdram_port_request;
+	signal sdram_to_dma : sdram_port_response;
 
 	signal dma_data : std_logic_vector(31 downto 0);
 
-	-- Plumbing between VGA controller and DMA controller
-
-	signal vgachannel_fromhost : DMAChannel_FromHost;
-	signal vgachannel_tohost : DMAChannel_ToHost;
 	signal spr0channel_fromhost : DMAChannel_FromHost;
 	signal spr0channel_tohost : DMAChannel_ToHost;
 
@@ -153,30 +143,12 @@ architecture rtl of VirtualToplevel is
 
 	-- VGA register block signals
 
-	signal vga_reg_addr : std_logic_vector(11 downto 0);
-	signal vga_reg_dataout : std_logic_vector(15 downto 0);
-	signal vga_reg_datain : std_logic_vector(15 downto 0);
-	signal vga_reg_rw : std_logic;
-	signal vga_reg_req : std_logic;
-	signal vga_reg_dtack : std_logic;
-	signal vga_ack : std_logic;
 	signal vblank_int : std_logic;
 	signal vga_vsync_i : std_logic;
 
 
 	-- SDRAM signals
-
 	signal sdr_ready : std_logic;
-	signal sdram_write : std_logic_vector(31 downto 0); -- 32-bit width for ZPU
-	signal sdram_req : std_logic;
-	signal sdram_wr : std_logic;
-	signal sdram_read : std_logic_vector(31 downto 0);
-	signal sdram_ack : std_logic;
-	signal sdram_bytesel : std_logic_vector(3 downto 0);
-
-	type sdram_states is (idle, waiting, pause);
-	signal sdram_state : sdram_states;
-
 
 	-- CPU signals
 	signal cpu_reset : std_logic;
@@ -203,7 +175,6 @@ architecture rtl of VirtualToplevel is
 	signal cpu_wr : std_logic; 
 	signal cpu_bytesel : std_logic_vector(3 downto 0);
 	signal bytesel_rev : std_logic_vector(3 downto 0);
-	signal cache_valid : std_logic;
 	signal flushcaches : std_logic;
 
 	-- CPU Debug signals
@@ -235,97 +206,6 @@ begin
 	end process;
 
 	reset <= not reset_n;
-
-	
-	-- SDRAM
-	bytesel_rev <= cpu_bytesel(0)&cpu_bytesel(1)&cpu_bytesel(2)&cpu_bytesel(3);
-
-	mysdram : entity work.sdram_cached_wide
-		generic map
-		(
-			rows => sdram_rows,
-			cols => sdram_cols,
-			cache => true,
-			dqwidth => 32,
-			dqmwidth => 4
-		)
-		port map
-		(
-		-- Physical connections to the SDRAM
-			drive_sdata => sdr_drive_data,
-			sdata_in => sdr_data_in,
-			sdata_out => sdr_data_out,
-			sdaddr => sdr_addr,
-			sd_we	=> sdr_we,
-			sd_ras => sdr_ras,
-			sd_cas => sdr_cas,
-			sd_cs	=> sdr_cs,
-			dqm => sdr_dqm,
-			ba	=> sdr_ba,
-
-		-- Housekeeping
-			sysclk => clk,
-			reset => reset_in,  -- Contributes to reset, so have to use reset_in here.
-			reset_out => sdr_ready,
-
-			vga_addr => video_addr,
-			vga_data => video_data_in,
-			vga_fill => video_fill,
-			vga_req => video_req,
-			vga_pri => video_pri,
-			vga_ack => video_ack,
-
-			datawr1(31 downto 24) => sdram_write(7 downto 0),
-			datawr1(23 downto 16) => sdram_write(15 downto 8),
-			datawr1(15 downto 8) => sdram_write(23 downto 16),
-			datawr1(7 downto 0) => sdram_write(31 downto 24),
-			addr1 => cpu_addr,
-			req1 => sdram_req,
-			cachevalid => cache_valid,
-			wr1 => sdram_wr, -- active low
-			bytesel => sdram_bytesel, -- cpu_bytesel,
-			dataout1 => sdram_read,
-			ack1 => sdram_ack,
-
-			addr2 => dma_addr,
-			dataout2 => dma_data_in,
-			fill2 => dma_fill,
-			req2 => dma_req,
-			ack2 => dma_ack,
-			
-			flushcaches => flushcaches
-		);
-
--- DMA controller
-
-	mydmacache : entity work.DMACache
-		port map(
-			clk => clk,
-			reset_n => cpu_reset,
-
---			channels_from_host(0) => vgachannel_fromhost,
-			channels_from_host(0) => spr0channel_fromhost,
-			channels_from_host(1) => aud0_fromhost,
-			channels_from_host(2) => aud1_fromhost,
-			channels_from_host(3) => aud2_fromhost,
-			channels_from_host(4) => aud3_fromhost,
-
---			channels_to_host(0) => vgachannel_tohost,
-			channels_to_host(0) => spr0channel_tohost,
-			channels_to_host(1) => aud0_tohost,
-			channels_to_host(2) => aud1_tohost,
-			channels_to_host(3) => aud2_tohost,
-			channels_to_host(4) => aud3_tohost,
-
-			data_out => dma_data,
-
-			-- SDRAM interface
-			sdram_addr=> dma_addr,
-			sdram_req => dma_req,
-			sdram_ack => dma_ack,
-			sdram_fill => dma_fill,
-			sdram_data => dma_data_in
-		);
 
 
 	-- Main CPU
@@ -412,15 +292,18 @@ begin
 	end generate;
 
 
-	-- Standard peripheral block
 	peripheralblock : block
 		signal peripheral_req : SoC_Peripheral_Request;
 		type responses_t is array (0 to Peripheral_Blocks-1) of SoC_Peripheral_Response;
 		signal peripheral_responses : responses_t;
 	begin
 
+		-- Interrupts
+
 		audio_int <= '0' when audio_ints="0000" else '1';
 		int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>audio_int, others => '0');
+
+		-- Standard peripheral block
 
 		standardperipherals : entity work.Peripheral_Standard
 			generic map (
@@ -487,12 +370,9 @@ begin
 			-- Video
 			
 			clk_video => videoclk,
-			video_req => video_req,
-			video_pri => video_pri,
-			video_ack => video_ack,
-			video_fill => video_fill,
-			video_addr => video_addr,
-			video_data_in => video_data_in,		
+			
+			to_sdram => video_to_sdram,
+			from_sdram => sdram_to_video,
 
 			vblank_int => vblank_int,
 			hsync => vga_hsync,
@@ -579,48 +459,7 @@ begin
 			end if;
 		end process;
 	end block;
-	
-	-- SDRAM state machine
-	
-	-- Combinational to take effect one cycle sooner.
-	ram_ack <= '1' when sdram_state=waiting and (sdram_ack='1' or cache_valid='1') else '0';
-	-- Endian byte mangling
-	from_ram(7 downto 0)<=sdram_read(31 downto 24);
-	from_ram(15 downto 8)<=sdram_read(23 downto 16);
-	from_ram(23 downto 16)<=sdram_read(15 downto 8);
-	from_ram(31 downto 24)<=sdram_read(7 downto 0);
 
-	process(clk,reset_n) begin
-		if reset_n='0' then
-			sdram_state<=idle;
-		elsif rising_edge(clk) then
-
-			case sdram_state is
-				when idle =>
-					if cpu_req='1' and mem_ram='1' then
-						sdram_bytesel<=bytesel_rev;
-						sdram_wr<=cpu_wr;
-						sdram_req<='1';
-						sdram_write<=from_cpu;
-						sdram_state<=waiting;
-					end if;
-
-				when waiting =>	
-					if sdram_ack='1' or cache_valid='1' then
-						sdram_req<='0';
-						sdram_state<=pause;
-					end if;
-
-				when pause =>
-					sdram_state<=idle;
-
-				when others =>
-					null;
-			end case;
-
-		end if; -- rising-edge(clk)
-
-	end process;
 
 	-- ROM
 
@@ -655,4 +494,127 @@ begin
 		
 	end block;
 
+	
+	-- SDRAM block and state machine
+	sdramlogic : block
+		type sdram_states is (idle, waiting, pause);
+		signal sdram_state : sdram_states;
+		signal cpu_to_sdram : sdram_port_request;
+		signal sdram_to_cpu : sdram_port_response;
+	begin	
+	
+		-- SDRAM
+
+		mysdram : entity work.sdram_cached_wide
+			generic map
+			(
+				cache => true
+			)
+			port map
+			(
+			-- Physical connections to the SDRAM
+				drive_sdata => sdr_drive_data,
+				sdata_in => sdr_data_in,
+				sdata_out => sdr_data_out,
+				sdaddr => sdr_addr,
+				sd_we	=> sdr_we,
+				sd_ras => sdr_ras,
+				sd_cas => sdr_cas,
+				sd_cs	=> sdr_cs,
+				dqm => sdr_dqm,
+				ba	=> sdr_ba,
+
+			-- Housekeeping
+				sysclk => clk,
+				reset => reset_in,  -- Contributes to reset, so have to use reset_in here.
+				reset_out => sdr_ready,
+
+				video_req => video_to_sdram,
+				video_ack => sdram_to_video,
+
+				cpu_req => cpu_to_sdram,
+				cpu_ack => sdram_to_cpu,
+
+				dma_req => dma_to_sdram,
+				dma_ack => sdram_to_dma,
+				
+				flushcaches => flushcaches
+			);
+	
+		-- Combinational to take effect one cycle sooner.
+		ram_ack <= '1' when sdram_state=waiting and sdram_to_cpu.ack='1' else '0';
+
+		-- Endian byte mangling
+		bytesel_rev <= cpu_bytesel(0)&cpu_bytesel(1)&cpu_bytesel(2)&cpu_bytesel(3);
+
+		from_ram(7 downto 0)<=sdram_to_cpu.q(31 downto 24);
+		from_ram(15 downto 8)<=sdram_to_cpu.q(23 downto 16);
+		from_ram(23 downto 16)<=sdram_to_cpu.q(15 downto 8);
+		from_ram(31 downto 24)<=sdram_to_cpu.q(7 downto 0);
+
+		cpu_to_sdram.addr<=cpu_addr;
+
+		process(clk,reset_n) begin
+			if reset_n='0' then
+				sdram_state<=idle;
+			elsif rising_edge(clk) then
+
+				case sdram_state is
+					when idle =>
+						if cpu_req='1' and mem_ram='1' then
+							cpu_to_sdram.bytesel <= bytesel_rev;
+							cpu_to_sdram.wr<=cpu_wr;
+							cpu_to_sdram.req<='1';
+							cpu_to_sdram.d(31 downto 24) <= from_cpu(7 downto 0);
+							cpu_to_sdram.d(23 downto 16) <= from_cpu(15 downto 8);
+							cpu_to_sdram.d(15 downto 8) <= from_cpu(23 downto 16);
+							cpu_to_sdram.d(7 downto 0) <= from_cpu(31 downto 24);
+							sdram_state<=waiting;
+						end if;
+
+					when waiting =>	
+						if sdram_to_cpu.ack='1' then
+							cpu_to_sdram.req<='0';
+							sdram_state<=pause;
+						end if;
+
+					when pause =>
+						sdram_state<=idle;
+
+					when others =>
+						null;
+				end case;
+
+			end if; -- rising-edge(clk)
+
+		end process;
+	end block;
+
+	-- DMA controller
+
+	mydmacache : entity work.DMACache
+		port map(
+			clk => clk,
+			reset_n => cpu_reset,
+
+			channels_from_host(0) => spr0channel_fromhost,
+			channels_from_host(1) => aud0_fromhost,
+			channels_from_host(2) => aud1_fromhost,
+			channels_from_host(3) => aud2_fromhost,
+			channels_from_host(4) => aud3_fromhost,
+
+			channels_to_host(0) => spr0channel_tohost,
+			channels_to_host(1) => aud0_tohost,
+			channels_to_host(2) => aud1_tohost,
+			channels_to_host(3) => aud2_tohost,
+			channels_to_host(4) => aud3_tohost,
+
+			data_out => dma_data,
+
+			-- SDRAM interface
+			to_sdram => dma_to_sdram,
+			from_sdram => sdram_to_dma
+		);
+
 end architecture;
+

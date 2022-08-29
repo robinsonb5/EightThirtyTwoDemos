@@ -5,6 +5,7 @@ use IEEE.numeric_std.ALL;
 library work;
 use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
+use work.sdram_controller_pkg.all;
 
 
 entity DMACache is
@@ -27,14 +28,8 @@ entity DMACache is
 		data_out : out std_logic_vector(31 downto 0);
 
 		-- SDRAM interface
-		sdram_addr : out std_logic_vector(31 downto 0);
-		sdram_reserveaddr : out std_logic_vector(31 downto 0);
-		sdram_reserve : out std_logic;
-		sdram_req : out std_logic;
-		sdram_ack : in std_logic; -- Set when the request has been acknowledged.
-		sdram_nak : in std_logic := '0'; -- Set when bank collisions prevent the request being serviced
-		sdram_fill : in std_logic;
-		sdram_data : in std_logic_vector(31 downto 0)
+		to_sdram : out sdram_port_request;
+		from_sdram : in sdram_port_response
 	);
 end entity;
 
@@ -49,14 +44,9 @@ type DMAChannel_Internal is record
 	valid_d : std_logic; -- Used to delay the valid flag
 	wrptr : unsigned(DMACache_MaxCacheBit downto 0);
 	wrptr_next : unsigned(DMACache_MaxCacheBit downto 0);
---	rdptr : unsigned(DMACache_MaxCacheBit downto 0);
 	addr : std_logic_vector(31 downto 0); -- Current RAM address
 	count : unsigned(DMACache_ReqLenMaxBit+1 downto 0); -- Number of words to transfer.
---	pending : std_logic; -- Host has a request pending on this channel
 	fill : std_logic;	-- Add a word to the FIFO
---	full : std_logic; -- Is the FIFO full?
---	drain : std_logic; -- Drain a word from the FIFO
---	empty : std_logic; -- Is the FIFO completely empty?
 	extend : std_logic;
 end record;
 
@@ -124,8 +114,8 @@ myDMACacheRAM : entity work.DMACacheRAM
 		q => data_out
 	);
 
--- Employ bank reserve for SDRAM.
-sdram_reserve<='1' when internals(0).count(15 downto 6)/=X"00"&"00"
+-- Mark the request as high priority if the fifo is nearly empty.
+to_sdram.pri <= '1' when internals(0).count(15 downto 6)/=X"00"&"00"
 								and internals_FIFO(0).full='0' else '0';
 
 
@@ -135,8 +125,7 @@ process(clk,internals,activechannel,cache_wraddr_lsb)
 begin
 
 	-- We update these outside the clock edge
-	sdram_addr<=internals(activechannel).addr;
-	sdram_reserveaddr<=internals(0).addr;
+	to_sdram.addr<=internals(activechannel).addr;
 	cache_wraddr(2 downto 0)<=cache_wraddr_lsb;
 
 	if rising_edge(clk) then
@@ -152,8 +141,8 @@ begin
 
 		cache_wren<='0';
 		
-		if sdram_ack='1' then
-			sdram_req<='0';
+		if from_sdram.ack='1' then
+			to_sdram.req<='0';
 			internals(activechannel).addr<=std_logic_vector(unsigned(internals(activechannel).addr)+32);
 			if internals(activechannel).extend='1' then -- Read an extra word for non-aligned reads.
 				internals(activechannel).extend<='0';
@@ -177,7 +166,7 @@ begin
 						and internals(I).count(DMACache_ReqLenMaxBit downto 0)/=X"0000"
 							and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
 						activechannel <= I;
-						sdram_req<='1';
+						to_sdram.req<='1';
 						inputstate<=rcv1;
 					end if;
 				end loop;
@@ -191,55 +180,55 @@ begin
 
 			-- Wait for SDRAM, fill first word.
 			when rcv1 =>
-				if sdram_nak='1' then -- Back out of a read request if the cycle's not serviced
-					sdram_req<='0';	-- (Allows priorities to be reconsidered.)
-					inputstate<=rd1;
-				end if;
-				if sdram_fill='1' then
-					data_from_ram<=sdram_data;
+--				if sdram_nak='1' then -- Back out of a read request if the cycle's not serviced
+--					to_sdram.req<='0';	-- (Allows priorities to be reconsidered.)
+--					inputstate<=rd1;
+--				end if;
+				if from_sdram.burst='1' then
+					data_from_ram<=from_sdram.q;
 					cache_wren<='1';
 					inputstate<=rcv2;
 					cache_wraddr_lsb<="000";
 					internals(activechannel).fill<='1';
 				end if;
 			when rcv2 =>
-				data_from_ram<=sdram_data;
+				data_from_ram<=from_sdram.q;
 				cache_wren<='1';
 				cache_wraddr_lsb<="001";
 				internals(activechannel).fill<='1';
 				inputstate<=rcv3;
 			when rcv3 =>
-				data_from_ram<=sdram_data;
+				data_from_ram<=from_sdram.q;
 				cache_wren<='1';
 				cache_wraddr_lsb<="010";
 				internals(activechannel).fill<='1';
 				inputstate<=rcv4;
 			when rcv4 =>
-				data_from_ram<=sdram_data;
+				data_from_ram<=from_sdram.q;
 				cache_wren<='1';
 				cache_wraddr_lsb<="011";
 				internals(activechannel).fill<='1';
 				inputstate<=rcv5;
 			when rcv5 =>
-				data_from_ram<=sdram_data;
+				data_from_ram<=from_sdram.q;
 				cache_wren<='1';
 				cache_wraddr_lsb<="100";
 				internals(activechannel).fill<='1';
 				inputstate<=rcv6;
 			when rcv6 =>
-				data_from_ram<=sdram_data;
+				data_from_ram<=from_sdram.q;
 				cache_wren<='1';
 				cache_wraddr_lsb<="101";
 				internals(activechannel).fill<='1';
 				inputstate<=rcv7;
 			when rcv7 =>
-				data_from_ram<=sdram_data;
+				data_from_ram<=from_sdram.q;
 				cache_wren<='1';
 				cache_wraddr_lsb<="110";
 				internals(activechannel).fill<='1';
 				inputstate<=rcv8;
 			when rcv8 =>
-				data_from_ram<=sdram_data;
+				data_from_ram<=from_sdram.q;
 				cache_wren<='1';
 				cache_wraddr_lsb<="111";
 				internals(activechannel).fill<='1';
@@ -253,7 +242,7 @@ begin
 						and internals(I).count(DMACache_ReqLenMaxBit downto 0)/=X"0000"
 							and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
 						activechannel <= I;
-						sdram_req<='1';
+						to_sdram.req<='1';
 						inputstate<=rcv1;
 					end if;
 				end loop;
@@ -280,13 +269,6 @@ begin
 			end if;
 		end loop;
 
---	end if;
---end process;
-
-
---process(clk)
---begin
---	if rising_edge(clk) then
 
 	-- Handle timeslicing of output registers
 	-- Lowest numbered channel has highest priority

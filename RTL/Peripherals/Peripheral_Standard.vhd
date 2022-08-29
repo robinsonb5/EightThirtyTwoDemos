@@ -51,7 +51,7 @@ end entity;
 architecture rtl of Peripheral_Standard is
 
 	constant internal_interrupts : integer := 2;
-	constant interrupt_max : integer := internal_interrupts + external_interrupts;
+	constant interrupt_max : integer := internal_interrupts + external_interrupts-1;
 	constant sysclk_hz : integer := sysclk_frequency*1000;
 	constant uart_divisor : integer := sysclk_hz/1152;
 	constant uart2_divisor : integer := sysclk_hz/576;
@@ -303,7 +303,6 @@ begin
 
 	end block;
 
---	int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>ps2_int, 3=>ser2_rxint, 4=>audio_int, others => '0');
 
 	-- Derive read and write signals from incoming address, wr and req signals.
 

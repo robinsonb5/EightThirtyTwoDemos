@@ -27,28 +27,27 @@ library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
 
+library work;
+use work.sdram_controller_pkg.all;
+
 entity sdram_cached_wide is
 generic
 	(
-		rows : integer := 12;
-		cols : integer := 8;
-		cache : boolean := false;
-		dqwidth : integer := 32;
-		dqmwidth : integer :=4;
+		cache : boolean := true;
 		tCK : integer := 10000
 	);
 port
 	(
 -- Physical connections to the SDRAM
 	drive_sdata	: out std_logic;
-	sdata_in		: in std_logic_vector(dqwidth-1 downto 0);
-	sdata_out		: inout std_logic_vector(dqwidth-1 downto 0);
-	sdaddr		: out std_logic_vector((rows-1) downto 0);
+	sdata_in		: in std_logic_vector(sdram_width-1 downto 0);
+	sdata_out		: out std_logic_vector(sdram_width-1 downto 0);
+	sdaddr		: out std_logic_vector((sdram_rowbits-1) downto 0);
 	sd_we		: out std_logic;	-- Write enable, active low
 	sd_ras		: out std_logic;	-- Row Address Strobe, active low
 	sd_cas		: out std_logic;	-- Column Address Strobe, active low
 	sd_cs		: out std_logic;	-- Chip select - only the lsb does anything.
-	dqm			: out std_logic_vector(dqmwidth-1 downto 0);	-- Data mask, upper and lower byte
+	dqm			: out std_logic_vector(sdram_dqmwidth-1 downto 0);	-- Data mask, upper and lower byte
 	ba			: out std_logic_vector(1 downto 0); -- Bank?
 
 -- Housekeeping
@@ -59,29 +58,18 @@ port
 
 -- FIXME - add a lower-priority read DMA port and a write DMA port too.
 
--- Port 0 - VGA
-	vga_addr : in std_logic_vector(31 downto 0) := X"00000000";
-	vga_data	: out std_logic_vector(dqwidth-1 downto 0);
-	vga_req : in std_logic := '0';
-	vga_pri : in std_logic := '0';
-	vga_fill : out std_logic;
-	vga_ack : out std_logic;
+	-- Port 0 - Video
+	video_req : in sdram_port_request;
+	video_ack : out sdram_port_response;
 
 	-- Port 1
-	datawr1	: in std_logic_vector(31 downto 0);	-- Data in
-	addr1		: in std_logic_vector(31 downto 0);	-- Address in
-	req1		: in std_logic;
-	cachevalid : out std_logic;
-	bytesel	: in std_logic_vector(3 downto 0);
-	wr1		: in std_logic;	-- Read (0) / write (1) 
-	ack1	: buffer std_logic;
-	dataout1	: out std_logic_vector(31 downto 0);
+	cpu_req : in sdram_port_request;
+	cpu_ack : out sdram_port_response;
+	
 	-- Port 2 - DMA
-	addr2		: in std_logic_vector(31 downto 0):=X"00000000";
-	req2		: in std_logic:='0';
-	ack2		: out std_logic;
-	fill2		: out std_logic;
-	dataout2		: out std_logic_vector(dqwidth-1 downto 0);
+	dma_req : in sdram_port_request;
+	dma_ack : out sdram_port_response;
+
 	--
 	flushcaches : in std_logic:='0'
 	);
@@ -89,124 +77,94 @@ end;
 
 architecture rtl of sdram_cached_wide is
 
-constant col_low : integer := 2;
-constant col_high : integer := cols+col_low-1;
+	constant col_low : integer := 2;
+	constant col_high : integer := sdram_colbits+col_low-1;
 
-constant row_low : integer := col_high+1;
-constant row_high : integer := row_low+rows-1;
+	constant row_low : integer := col_high+1;
+	constant row_high : integer := row_low+sdram_rowbits-1;
 
-constant bank_low : integer := row_high+1;
-constant bank_high : integer := bank_low+1;
+	constant bank_low : integer := row_high+1;
+	constant bank_high : integer := bank_low+1;
 
 
-signal initstate	:unsigned(3 downto 0) := (others => '0');	-- Counter used to initialise the RAM
-signal cas_dqm		:std_logic_vector(dqmwidth-1 downto 0);	-- ...mask register for entire burst
-signal init_done	:std_logic :='0';
-signal datain		:std_logic_vector(dqwidth-1 downto 0);
-signal casaddr		:std_logic_vector(31 downto 0);
-signal sdwrite 		:std_logic;
-signal sdata_reg	:std_logic_vector(dqwidth-1 downto 0);
+	signal initstate	:unsigned(3 downto 0) := (others => '0');	-- Counter used to initialise the RAM
+	signal cas_dqm		:std_logic_vector(sdram_dqmwidth-1 downto 0);	-- ...mask register for entire burst
+	signal init_done	:std_logic :='0';
+	signal datain		:std_logic_vector(sdram_width-1 downto 0);
+	signal casaddr		:std_logic_vector(31 downto 0);
+	signal sdwrite 		:std_logic;
+	signal sdata_reg	:std_logic_vector(sdram_width-1 downto 0);
 
-type sdram_states is (ph0,ph1,ph2,ph3,ph4,ph5,ph6,ph7,ph8,ph9,ph10,ph11,ph12,ph13,ph14,ph15);
-signal sdram_state		: sdram_states;
+	type sdram_states is (ph0,ph1,ph2,ph3,ph4,ph5,ph6,ph7,ph8,ph9,ph10,ph11,ph12,ph13,ph14,ph15);
+	signal sdram_state		: sdram_states;
 
-type sdram_ports is (idle,port0,port1,port2,writecache);
+	type sdram_ports is (idle,port0,port1,port2,writecache);
 
-signal sdram_slot1 : sdram_ports := idle;
-signal sdram_slot2 : sdram_ports := idle;
+	signal sdram_slot1 : sdram_ports := idle;
+	signal sdram_slot2 : sdram_ports := idle;
 
--- Since VGA has absolute priority, we keep track of the next bank and disallow accesses
--- to either the current or next bank in the interleaved access slots.
-signal slot1_bank : std_logic_vector(1 downto 0) := "00";
-signal slot2_bank : std_logic_vector(1 downto 0) := "11";
-signal wb_bank : std_logic_vector(1 downto 0) := "00";
+	-- Since VGA has absolute priority, we keep track of the next bank and disallow accesses
+	-- to either the current or next bank in the interleaved access slots.
+	signal slot1_bank : std_logic_vector(1 downto 0) := "00";
+	signal slot2_bank : std_logic_vector(1 downto 0) := "11";
+	signal wb_bank : std_logic_vector(1 downto 0) := "00";
 
-signal slot1_fill : std_logic;
-signal slot2_fill : std_logic;
+	signal slot1_fill : std_logic;
+	signal slot2_fill : std_logic;
 
-signal slot1_ack : std_logic;
-signal slot2_ack : std_logic;
+	signal slot1_ack : std_logic;
+	signal slot2_ack : std_logic;
 
-signal refreshcounter : unsigned(12 downto 0);
-signal refreshpending : std_logic :='0';
+	signal refreshcounter : unsigned(12 downto 0);
+	signal refreshpending : std_logic :='0';
 
-signal readcache_addr : std_logic_vector(31 downto 0);
-signal readcache_req : std_logic;
-signal readcache_ack : std_logic;
-signal readcache_fill : std_logic;
-signal readcache_busy : std_logic;
+	signal readcache_addr : std_logic_vector(31 downto 0);
+	signal readcache_req : std_logic;
+	signal readcache_ack : std_logic;
+	signal readcache_fill : std_logic;
+	signal readcache_busy : std_logic;
 
-signal longword : std_logic_vector(31 downto 0);
+	signal longword : std_logic_vector(31 downto 0);
 
-signal cache_ready : std_logic;
+	signal cache_ready : std_logic;
 
-signal bankbusy : std_logic_vector(3 downto 0);
+	signal bankbusy : std_logic_vector(3 downto 0);
 
--- Rework port priority encoding:
---
--- Each port asserts req when it requires attention
--- Writes are always diverted to the writebuffer
--- We need to prioritise writes to the writebuffer and reads to the two access slots
--- along with the writebuffer
+	signal video_req_masked : std_logic;
+	signal wb_req_masked : std_logic;
+	signal port1_req_masked : std_logic;
+	signal port2_req_masked : std_logic;
+	signal port0_extend : std_logic;
 
--- Priorities are: VGA, Writebuffer, CPU1, CPU2
--- The CPU port's req comes from the cache, and will thus lag behind the address somewhat.
--- We want to handle refresh separately.
+	signal slot1_precharge : std_logic;
+	signal slot1_autoprecharge : std_logic;
+	signal slot1_precharge_bank : std_logic_vector(1 downto 0);
+	signal slot2_precharge : std_logic;
+	signal slot2_autoprecharge : std_logic;
+	signal slot2_precharge_bank : std_logic_vector(1 downto 0);
 
--- New signals:
--- bankbusy(3 downto 0)
--- For each port:
--- addr
--- slot1ok
--- slot2ok
-
--- Each active command (be it access or manual refresh) will set a bankbusy bit.
--- The end of each access slot will clear the bankbusy bit.
-
--- Masked versions of the req signal, masked by whether or not the appropriate bank is busy.
--- (Registered, so one cycle behind.)
-signal vga_req_masked : std_logic;
-signal wb_req_masked : std_logic;
-signal port1_req_masked : std_logic;
-signal port2_req_masked : std_logic;
-signal port0_extend : std_logic;
-
-signal slot1_precharge : std_logic;
-signal slot1_autoprecharge : std_logic;
-signal slot1_precharge_bank : std_logic_vector(1 downto 0);
-signal slot2_precharge : std_logic;
-signal slot2_autoprecharge : std_logic;
-signal slot2_precharge_bank : std_logic_vector(1 downto 0);
-
-signal refresh_bank : std_logic_vector(1 downto 0);
-signal refresh_req : std_logic;
-signal refresh_force : std_logic;
-signal refresh_ack : std_logic;
-signal refresh_row : std_logic_vector(rows-1 downto 0);
+	signal refresh_bank : std_logic_vector(1 downto 0);
+	signal refresh_req : std_logic;
+	signal refresh_force : std_logic;
+	signal refresh_ack : std_logic;
+	signal refresh_row : std_logic_vector(sdram_rowbits-1 downto 0);
 
 	signal slot1read : std_logic;
 	signal slot2read : std_logic;
-	signal slot1write : std_logic;
-	signal slot2write : std_logic;
-	signal slot1writeextra : std_logic;
-	signal slot2writeextra : std_logic;
-	signal wbslot : std_logic;
+	signal wbfirstword : std_logic;
 	signal wbnextword : std_logic;
 	signal wblastword : std_logic;
 	signal wbwrite : std_logic;
-	signal wbend : std_logic;
 
 	-- wbflagsaddr will contain the following data:
 	-- bit 31 - new row flag
 	-- bits 30 downto 27 - DQMs
 	-- bits 26 downto 0 - Address
-	signal wbflagsaddr : std_logic_vector(31 downto 0);
-
 	constant wbflag_newrow : integer := 31;
 	subtype wbflag_dqms is natural range 30 downto 27;
+	signal wbflagsaddr : std_logic_vector(31 downto 0);
 
 	signal wbdata : std_logic_vector(31 downto 0);
-	signal wbempty : std_logic;
 	signal wbreq : std_logic;
 	signal wback : std_logic;
 
@@ -219,33 +177,23 @@ begin
 	                        or (slot2_fill='1' and sdram_slot2=port1)
 	                          else '0';
 
-	fill2 <= '1' when (slot1_fill='1' and sdram_slot1=port2)
+	dma_ack.burst <= '1' when (slot1_fill='1' and sdram_slot1=port2)
 	               or (slot2_fill='1' and sdram_slot2=port2)
 	                 else '0';
 
-	vga_fill <= '1' when (slot1_fill='1' and sdram_slot1=port0)
+	video_ack.burst <= '1' when (slot1_fill='1' and sdram_slot1=port0)
 	                  or (slot2_fill='1' and sdram_slot2=port0)
 	                    else '0';
-
-	ack1 <= wback;
-
 
 arbiter : block
 	signal readcache_req_mask : std_logic;
 begin
 
---	process(wbflagsaddr,bankbusy) begin
---		wb_req_masked<='0';
---		if bankbusy(to_integer(unsigned(wbflagsaddr(bank_high downto bank_low))))='0' then
---			wb_req_masked<=wbreq;
---		end if;
---	end process;
-
 	process(sysclk) begin
 		if rising_edge(sysclk) then
-			vga_req_masked<='0';
-			if bankbusy(to_integer(unsigned(vga_addr(bank_high downto bank_low))))='0' then
-				vga_req_masked<=vga_req;
+			video_req_masked<='0';
+			if bankbusy(to_integer(unsigned(video_req.addr(bank_high downto bank_low))))='0' then
+				video_req_masked<=video_req.req;
 			end if;
 
 			wb_req_masked<='0';
@@ -254,24 +202,24 @@ begin
 			end if;
 
 			readcache_req_mask<='0';
-			if bankbusy(to_integer(unsigned(addr1(bank_high downto bank_low))))='0' then
+			if bankbusy(to_integer(unsigned(cpu_req.addr(bank_high downto bank_low))))='0' then
 				readcache_req_mask<=not wbreq; -- For cache coherency reasons we don't service CPU read requests while the writebuffer contains data.
 			end if;
 
 			port2_req_masked <='0';
-			if bankbusy(to_integer(unsigned(Addr2(bank_high downto bank_low))))='0' then
-				port2_req_masked<=req2;
+			if bankbusy(to_integer(unsigned(dma_req.addr(bank_high downto bank_low))))='0' then
+				port2_req_masked<=dma_req.req;
 			end if;
 		end if;	
 	end process;
 	
 	port1_req_masked <= readcache_req and readcache_req_mask;
 
-	process(sysclk,port1_req_masked,port2_req_masked,vga_req_masked,wb_req_masked) begin
+	process(sysclk,port1_req_masked,port2_req_masked,video_req_masked,wb_req_masked) begin
 		if rising_edge(sysclk) then
-			if port0_extend='1' or vga_req_masked='1' then
+			if port0_extend='1' or video_req_masked='1' then
 				nextport <= port0;
-				nextaddr <= vga_addr(31 downto 5) & "00000";
+				nextaddr <= video_req.addr(31 downto 5) & "00000";
 			elsif refresh_force='1' then
 				nextport<=idle;
 				nextaddr <= (others => 'X');
@@ -283,7 +231,7 @@ begin
 				nextaddr <= readcache_addr(31 downto 2) & "00";
 			elsif port2_req_masked='1' then
 				nextport <= port2;
-				nextaddr <= Addr2(31 downto 5) & "00000";
+				nextaddr <= dma_req.addr(31 downto 5) & "00000";
 			else
 				nextport <= idle;
 			end if;
@@ -293,234 +241,46 @@ begin
 end block;
 
 
-newwritebuffer : block
-	constant writebuffer_depth : integer := 8;
-	constant writebuffer_mask : integer := (2**writebuffer_depth)-1;
+-- Write buffer
+writebuffer : block
+	signal cpu_to_wb : sdram_port_request;
+	signal slot1write : std_logic;
+	signal slot2write : std_logic;
+	signal slot1writeextra : std_logic;
+	signal slot2writeextra : std_logic;	
 
-	type writebuffer_storage_t is array(0 to (2**writebuffer_depth-1)) of std_logic_vector(31 downto 0);
-	attribute ramstyle : string;
-	signal wbstore_flagsaddr : writebuffer_storage_t;
-	signal wbstore_data : writebuffer_storage_t;
---	attribute ramstyle of wbstore_flagsaddr : signal is "no-rw-check";
---	attribute ramstyle of wbstore_data : signal is "no-rw_check";
-
-	signal wbwriteptr : unsigned(writebuffer_depth-1 downto 0);
-	signal wbreadptr : unsigned(writebuffer_depth-1 downto 0);
-	signal wbptrdiff : unsigned(writebuffer_depth-1 downto 0);
-	signal wbfull : std_logic;
-
-	signal prevaddr : std_logic_vector(31 downto 0);
-	signal burstend : std_logic;
-	signal wbend_d : std_logic;
-	signal wbactive : std_logic;
-	signal wb_wrena : std_logic;
 begin
 
-	wbptrdiff <= wbwriteptr-wbreadptr;
-	wbempty <= '1' when wbwriteptr=wbreadptr else '0';
-	wbfull <= '1' when wbptrdiff(wbptrdiff'high downto 2)=(2**(writebuffer_depth-2))-1 else '0';
-	wb_wrena<= '1' when req1='1' and wr1='1' and ack1='0'
-		and wbfull='0' and readcache_busy='0' else '0';
+	cpu_to_wb.addr<=cpu_req.addr;
+	cpu_to_wb.req<=cpu_req.req and init_done and not readcache_busy;
+	cpu_to_wb.wr<=cpu_req.wr;
+	cpu_to_wb.bytesel<=cpu_req.bytesel;
+	cpu_to_wb.d<=cpu_req.d;
 
-	process(sysclk,reset) begin
-		if reset='0' then
-			wbreadptr<=(others => '0');
-			burstend<='0';
-			wbflagsaddr<=(others => '0');
-			wbactive <= '0';
-		elsif rising_edge(sysclk) then
-			wbwrite <= '0';
-			wbend <= wblastword;	-- lag by 1 clock
-			wbend_d <= wbend;
-			wbreq <= not wbempty; -- Lag by 1 clock
-			wbflagsaddr <= wbstore_flagsaddr(to_integer(wbreadptr));
-			wbdata <= wbstore_data(to_integer(wbreadptr));
-			
-			if init_done='1' and wbempty='0' and burstend='0' and wbnextword='1' then
-				wbactive<='1';
-				wbwrite<=not wbflagsaddr(wbflag_newrow);
-				if wbflagsaddr(wbflag_newrow)='0' then
-					wbreadptr<=wbreadptr+1;
-				end if;
-			end if;
-			
-			if (wbactive='1' or wbnextword='1') and wbflagsaddr(wbflag_newrow)='1' then
-				burstend<='1';
-			end if;
-
-			if init_done='1' and wbreq='1' and wbflagsaddr(wbflag_newrow)='1' and wbslot='1' then
-				wbreadptr<=wbreadptr+1;
-			end if;
-
-			if wbend='1' then
-				wbactive<='0';
-				burstend<='0';
-			end if;			
-		end if;
-	end process;
-
-	-- write side
-
-	process(sysclk,reset)
-		variable flagaddr : std_logic_vector(31 downto 0);
-	begin
-		if reset='0' then
-			wbwriteptr<=(others => '0');
-			prevaddr<=(others => '0');
-		elsif rising_edge(sysclk) then
-			wback<='0';
-			if wb_wrena='1' then
-				flagaddr:=(others => '0');
-				if prevaddr(bank_high downto row_low)/=addr1(bank_high downto row_low) then
-					flagaddr(wbflag_newrow) := '1';
-				else
-					flagaddr(wbflag_newrow) := '0';
-					wback<='1';	-- Only acknowledge if the addresses match, so that a dummy entry gets inserted when the row changes.
-				end if;
-				flagaddr(bank_high downto 0) := addr1(bank_high downto 0);
-				flagaddr(wbflag_dqms) := not (bytesel(0) & bytesel(1) & bytesel(2) & bytesel(3));
-				wbstore_flagsaddr(to_integer(wbwriteptr))<=flagaddr;
-				wbstore_data(to_integer(wbwriteptr))<=datawr1;
-				wbwriteptr<=wbwriteptr+1;
-				prevaddr<=addr1;
-			end if;
-		end if;
-	end process;
-
-end block;
-
-
-GENCACHE:
-if cache=true generate
-	attribute noprune : boolean;
-	signal fourwaycachevalid : std_logic;
-	signal dmcachevalid : std_logic;
-	signal cacheerr : std_logic;
-	attribute noprune of cacheerr : signal is true;
-	signal fourwaycache_q : std_logic_vector(31 downto 0);
-	signal directcache_q : std_logic_vector(31 downto 0);
-	attribute noprune of directcache_q : signal is true;
-begin
-	process(sysclk) begin
-		if rising_edge(sysclk) then
-			readcache_addr<=addr1;
-		end if;
-		
---		if rising_edge(sysclk) then
---			if fourwaycachevalid='1' and dmcachevalid='1' then
---				if directcache_q /= fourwaycache_q then
---					cacheerr<='1';
---				else
---					cacheerr<='0';
---				end if;
---			end if;
---		end if;
-	end process;
-
-	dataout1<=fourwaycache_q;
-	cachevalid<=fourwaycachevalid and req1; -- and dmcachevalid;
-
-	cache_inst : entity work.FourWayCache
-		generic map
-		(
-			cachemsb => 11
-		)
-		PORT map
-		(
-			clk => sysclk,
-			reset => reset,
-			ready => cache_ready,
-			cpu_addr => addr1,
-			cpu_req => req1,
-			cpu_cachevalid => fourwaycachevalid,
-			cpu_wr => wr1,
-			bytesel => bytesel,
-			data_to_cpu => fourwaycache_q,
-			data_from_sdram => sdata_reg,
-			sdram_req => readcache_req,
-			sdram_fill => readcache_fill,
-			busy => readcache_busy,
-			flush => flushcaches
-		);
-
---	verifycache_inst : entity work.DirectMappedCache
---		generic map
---		(
---			cachemsb => 11
---		)
---		PORT map
---		(
---			clk => sysclk,
---			reset => reset,
---			ready => open,
---			cpu_addr => addr1,
---			cpu_req => req1,
---			cpu_cachevalid => dmcachevalid,
---			cpu_wr => wr1,
---			bytesel => bytesel,
---			data_to_cpu => directcache_q,
---			data_from_sdram => sdata_reg,
---			sdram_req => readcache_req,
---			sdram_fill => readcache_fill,
---			busy => readcache_busy,
---			flush => flushcaches
---		);
-
-end generate;
-
-
-GENNODCACHE:
-if cache=false generate
-	signal readcache_req_e : std_logic;
-begin
-	cachevalid<='0';
-	readcache_addr<=addr1;
-	process(sysclk)
-	begin
-		if rising_edge(sysclk) then
-			if reset='0' then
-				readcache_req_e<='1';
-			else
-				if readcache_ack='1' then
-					readcache_req_e<='0';
-				end if;
-				if req1='0' then
-					readcache_req_e<='1';
-				end if;
-
-			end if;
-		end if;
-	end process;
-
-	readcache_req<=req1 and not wr1 and readcache_req_e;
-	
-	readcache_ack <= '1' when (slot1_ack='1' and sdram_slot1=port1)
-			or (slot2_ack='1' and sdram_slot2=port1)
-				else '0';
-	dataout1<=longword;
-	cache_ready<='1';
-	readcache_busy<='0';
-end generate;
-
+	wb : entity work.sdram_writebuffer
+	port map (
+		sysclk => sysclk,
+		reset_n => reset,
+		cpu_req => cpu_to_wb,
+		cpu_ack => wback,
+		ram_req => wbreq,
+		ram_stb => wbwrite,
+		ram_flagsaddr => wbflagsaddr,
+		ram_q => wbdata,
+		ram_firstword => wbfirstword,
+		ram_nextword => wbnextword,
+		ram_lastword => wblastword
+	);
 
 	slot1write <= '1' when sdram_slot1=writecache else '0';
 	slot2write <= '1' when sdram_slot2=writecache else '0';
 	slot1writeextra <= '1' when sdram_slot1=writecache and (sdram_slot2=idle or sdram_slot2=writecache) else '0';
 	slot2writeextra <= '1' when sdram_slot2=writecache and (sdram_slot1=idle or sdram_slot1=writecache) else '0';
 
--------------------------------------------------------------------------
--- SDRAM Basic
--------------------------------------------------------------------------
-	reset_out <= init_done and cache_ready;
-
-	vga_data <= sdata_reg;
-	dataout2 <= sdata_reg;
-
-	process (sdram_state,slot1write,slot2write,slot1writeextra,slot2writeextra) begin
-	
+	process (sdram_state,slot1write,slot2write,slot1writeextra,slot2writeextra) begin	
 		wbnextword<='0';
 		wblastword<='0';
-		wbslot<='0';
+		wbfirstword<='0';
 		case sdram_state is	--LATENCY=3
 			when ph4 =>
 				wbnextword<=slot1writeextra;
@@ -535,7 +295,7 @@ end generate;
 			when ph9 => null;
 				-- No write word here since it would clash with slot 2's RAS.
 			when ph10 =>
-				wbslot<=not slot1write;
+				wbfirstword<=not slot1write;
 				wbnextword<=slot1write;
 			when ph11 =>
 				wbnextword<=slot1write;
@@ -553,7 +313,7 @@ end generate;
 			when ph1 => null;
 				-- No write word here since it would clash with slot 2's RAS.
 			when ph2 =>
-				wbslot<=not slot2write;
+				wbfirstword<=not slot2write;
 				wbnextword<=slot2write;
 			when ph3 =>
 				wbnextword<=slot2write;
@@ -562,14 +322,99 @@ end generate;
 		end case;	
 	end process;		
 
+end block;
+
+
+GENCACHE:
+if cache=true generate
+	attribute noprune : boolean;
+	signal fourwaycachevalid : std_logic;
+	signal dmcachevalid : std_logic;
+	signal cacheerr : std_logic;
+	attribute noprune of cacheerr : signal is true;
+	signal fourwaycache_q : std_logic_vector(31 downto 0);
+	signal directcache_q : std_logic_vector(31 downto 0);
+	attribute noprune of directcache_q : signal is true;
+begin
+	process(sysclk) begin
+		if rising_edge(sysclk) then
+			readcache_addr<=cpu_req.addr;
+		end if;
+	end process;
+
+	cpu_ack.q<=fourwaycache_q;
+	cpu_ack.ack <= (wback or fourwaycachevalid) and cpu_req.req; -- and dmcachevalid;
+
+	cache_inst : entity work.FourWayCache
+		generic map
+		(
+			cachemsb => 11
+		)
+		PORT map
+		(
+			clk => sysclk,
+			reset => reset,
+			ready => cache_ready,
+			cpu_addr => cpu_req.addr,
+			cpu_req => cpu_req.req,
+			cpu_cachevalid => fourwaycachevalid,
+			cpu_wr => cpu_req.wr,
+			bytesel => cpu_req.bytesel,
+			data_to_cpu => fourwaycache_q,
+			data_from_sdram => sdata_reg,
+			sdram_req => readcache_req,
+			sdram_fill => readcache_fill,
+			busy => readcache_busy,
+			flush => flushcaches
+		);
+
+end generate;
+
+
+GENNODCACHE:
+if cache=false generate
+	signal readcache_req_e : std_logic;
+begin
+	readcache_addr<=cpu_req.addr;
+	process(sysclk)
+	begin
+		if rising_edge(sysclk) then
+			if reset='0' then
+				readcache_req_e<='1';
+			else
+				if readcache_ack='1' then
+					readcache_req_e<='0';
+				end if;
+				if cpu_req.req='0' then
+					readcache_req_e<='1';
+				end if;
+
+			end if;
+		end if;
+	end process;
+
+	readcache_req<=cpu_req.req and not cpu_req.wr and readcache_req_e;
+	
+	readcache_ack <= '1' when (slot1_ack='1' and sdram_slot1=port1)
+			or (slot2_ack='1' and sdram_slot2=port1)
+				else '0';
+	cpu_ack.q<=longword;
+	cache_ready<='1';
+	readcache_busy<='0';
+end generate;
+
+
+-------------------------------------------------------------------------
+-- SDRAM Basic
+-------------------------------------------------------------------------
+	reset_out <= init_done and cache_ready;
+
+	video_ack.q <= sdata_reg;
+	dma_ack.q <= sdata_reg;
 
 	process (sysclk, reset, sdwrite, datain) begin
 		drive_sdata<=sdwrite;
-		IF sdwrite='1' THEN	-- Keep sdram data high impedence if not writing to it.
-			sdata_out <= datain;
-		ELSE
-			sdata_out <= (others => 'Z');
-		END IF;
+		sdata_out <= datain;
 		
 		if reset = '0' then
 			initstate <= (others => '0');
@@ -626,10 +471,8 @@ end generate;
 		END IF;	
 	end process;		
 
-
 	
 	process (sysclk, reset) begin
-
 
 		if reset='0' then
 			sdram_slot1<=idle;
@@ -675,23 +518,16 @@ end generate;
 							sd_ras <= '0';
 							sd_cas <= '0';
 							sd_we <= '0';
---							ba <= "00";
-	--						sdaddr <= "001000100010"; --BURST=4 LATENCY=2
---							sdaddr <= "001000110010"; --BURST=4 LATENCY=3
---							sdaddr <= "001000110000"; --noBURST LATENCY=3
 							sdaddr <= (others => '0');
 							sdaddr(9) <= '1'; -- SINGLE WORD WRITES
 							sdaddr(5 downto 0) <= "110011";  --BURST=8, LATENCY=3
---							sdaddr <= "000000110010"; --BURST=4 LATENCY=3, BURST WRITES
 						when others =>	null;	--NOP
 					end case;
 				END IF;
-			else		
-
-
--- Time slot control			
-				vga_ack<='0';
-				ack2<='0';
+			else
+				-- Time slot control			
+				video_ack.ack<='0';
+				dma_ack.ack<='0';
 				case sdram_state is
 
 					when ph2 => -- ACTIVE for first access slot
@@ -716,70 +552,22 @@ end generate;
 							end if;
 						end if;
 						
---						if port0_extend='1' then
---								sdram_slot1<=port0;
---								slot1_bank <= vga_addr(bank_high downto bank_low);
---								bankbusy(to_integer(unsigned(vga_addr(bank_high downto bank_low))))<='1';
---								casaddr <= vga_addr(31 downto 5) & "00000"; -- read whole cache line in burst mode.
---								if unsigned(vga_addr(col_high downto 5)) /= (2**(col_high-4)-1) then
---									slot1_autoprecharge<=not vga_pri;
---									port0_extend<=vga_pri;
---								end if;
---								vga_ack<='1'; -- Signal to VGA controller that it can bump bankreserve						
---						elsif refresh_force='1' then
---							sdram_slot1<=idle;
 						if nextport=port0 then
 							slot1read<='1';
---								sdram_slot1<=nextport;
---								sdaddr <= vga_addr(row_high downto row_low);
---								ba <= vga_addr(bank_high downto bank_low);
---								slot1_bank <= vga_addr(bank_high downto bank_low);
---								bankbusy(to_integer(unsigned(vga_addr(bank_high downto bank_low))))<='1';
---								casaddr <= vga_addr(31 downto 5) & "00000"; -- read whole cache line in burst mode.
---								sd_cs <= '0'; --ACTIVE
---								sd_ras <= '0';
-								if unsigned(nextaddr(col_high downto 5)) /= (2**(col_high-4)-1) then
-									slot1_autoprecharge<=not vga_pri;
-									port0_extend<=vga_pri;
-								end if;
-								vga_ack<='1'; -- Signal to VGA controller that it can bump bankreserve
---							end if;
+							if unsigned(nextaddr(col_high downto 5)) /= (2**(col_high-4)-1) then
+								slot1_autoprecharge<=not video_req.pri;
+								port0_extend<=video_req.pri;
+							end if;
+							video_ack.ack<='1'; -- Signal to VGA controller that it can bump bankreserve
 						elsif nextport=writecache then
---							sdram_slot1<=writecache;
---							sdaddr <= wbflagsaddr(row_high downto row_low);
---							ba <= wbflagsaddr(bank_high downto bank_low);
---							slot1_bank <= wbflagsaddr(bank_high downto bank_low);
---							slot1_precharge_bank <= wbflagsaddr(bank_high downto bank_low);
 							slot1_precharge<='1';
---							bankbusy(to_integer(unsigned(wbflagsaddr(bank_high downto bank_low))))<='1';
 							wb_bank <= wbflagsaddr(bank_high downto bank_low);
 							cas_dqm <= wbflagsaddr(wbflag_dqms);
---							casaddr <= writecache_addr;
---							sd_cs <= '0'; --ACTIVE
---							sd_ras <= '0';
 						elsif nextport=port1 then
 							slot1read<='1';
---							sdram_slot1<=port1;
---							sdaddr <= readcache_addr(row_high downto row_low);
---							ba <= readcache_addr(bank_high downto bank_low);
---							slot1_bank <= readcache_addr(bank_high downto bank_low); -- slot1 bank
---							bankbusy(to_integer(unsigned(readcache_addr(bank_high downto bank_low))))<='1';
---							cas_dqm <= (others => '0');
---							casaddr <= readcache_addr(31 downto 2) & "00";
---							sd_cs <= '0'; --ACTIVE
---							sd_ras <= '0';
 						elsif nextport=port2 then
 							slot1read<='1';
---							sdram_slot1<=port2;
---							sdaddr <= Addr2(row_high downto row_low);
---							ba <= Addr2(bank_high downto bank_low);
---							slot1_bank <= Addr2(bank_high downto bank_low); -- slot1 bank
---							bankbusy(to_integer(unsigned(Addr2(bank_high downto bank_low))))<='1';
---							cas_dqm <= (others => '0');
---							casaddr <= Addr2(31 downto 5) & "00000"; -- read whole cache line in burst mode.
---							sd_cs <= '0'; --ACTIVE
---							sd_ras <= '0';
-							ack2<='1'; -- Signal to DMA controller that it can bump bankreserve
+							dma_ack.ack<='1'; -- Signal to DMA controller that it can bump bankreserve
 						end if;
 
 					when ph3 =>
@@ -790,7 +578,7 @@ end generate;
 						dqm <= cas_dqm;
 						if slot1read='1' then
 							sdaddr <= (others=>'0');
-							sdaddr((cols-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
+							sdaddr((sdram_colbits-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
 							sdaddr(10) <= slot1_autoprecharge; -- Auto precharge.
 							ba <= slot1_bank;
 							sd_cs <= '0';
@@ -851,6 +639,7 @@ end generate;
 						slot2_bank <= nextaddr(bank_high downto bank_low);
 						slot2_precharge_bank <= nextaddr(bank_high downto bank_low);
 						casaddr <= nextaddr; -- read whole cache line in burst mode.
+
 						if nextport/=idle then
 							bankbusy(to_integer(unsigned(nextaddr(bank_high downto bank_low))))<='1';
 							if port0_extend='0' then
@@ -859,54 +648,21 @@ end generate;
 							end if;
 						end if;
 
---						if port0_extend='1' then
---							sdram_slot2<=port0;
---							slot2_bank <= vga_addr(bank_high downto bank_low);
---							bankbusy(to_integer(unsigned(vga_addr(bank_high downto bank_low))))<='1';
---							casaddr <= vga_addr(31 downto 5) & "00000"; -- read whole cache line in burst mode.
---							if unsigned(vga_addr(col_high downto 5)) /= (2**(col_high-4)-1) then
---								slot2_autoprecharge<=not vga_pri;
---								port0_extend<=vga_pri;
---							end if;
 						if nextport=port0 then
 							slot2read<='1';
 							if unsigned(nextaddr(col_high downto 5)) /= (2**(col_high-4)-1) then
-								slot2_autoprecharge<=not vga_pri;
-								port0_extend<=vga_pri;
+								slot2_autoprecharge<=not video_req.pri;
+								port0_extend<=video_req.pri;
 							end if;
-							vga_ack<='1'; -- Signal to VGA controller that it can bump bankreserve
+							video_ack.ack<='1'; -- Signal to VGA controller that it can bump bankreserve
 						elsif nextport=writecache then
---							sdram_slot2<=writecache;
---							sdaddr <= wbflagsaddr(row_high downto row_low);
---							ba <= wbflagsaddr(bank_high downto bank_low);
---							slot2_bank <= wbflagsaddr(bank_high downto bank_low);
 							slot2_precharge<='1';
---							bankbusy(to_integer(unsigned(wbflagsaddr(bank_high downto bank_low))))<='1';
 							wb_bank <= wbflagsaddr(bank_high downto bank_low);
---							sd_cs <= '0'; --ACTIVE
---							sd_ras <= '0';
 						elsif nextport=port1 then 
 							slot2read<='1';
---							sdram_slot2<=port1;
---							sdaddr <= readcache_addr(row_high downto row_low);
---							ba <= readcache_addr(bank_high downto bank_low);
---							slot2_bank <= readcache_addr(bank_high downto bank_low);
---							bankbusy(to_integer(unsigned(readcache_addr(bank_high downto bank_low))))<='1';
---							casaddr <= readcache_addr(31 downto 2) & "00"; -- We no longer mask off LSBs for burst read
---							sd_cs <= '0'; --ACTIVE
---							sd_ras <= '0';
 						elsif nextport=port2 then
 							slot2read<='1';
---							sdram_slot2<=port2;
---							sdaddr <= Addr2(row_high downto row_low);
---							ba <= Addr2(bank_high downto bank_low);
---							slot1_bank <= Addr2(bank_high downto bank_low); -- slot1 bank
---							bankbusy(to_integer(unsigned(Addr2(bank_high downto bank_low))))<='1';
---							cas_dqm <= (others => '0');
---							casaddr <= Addr2(31 downto 5) & "00000"; -- read whole cache line in burst mode.
---							sd_cs <= '0'; --ACTIVE
---							sd_ras <= '0';
-							ack2<='1'; -- Signal to DMA controller that it can bump bankreserve
+							dma_ack.ack<='1'; -- Signal to DMA controller that it can bump bankreserve
 						end if;
 						
 				
@@ -921,7 +677,7 @@ end generate;
 						dqm <= cas_dqm;
 						if slot2read='1' then
 							sdaddr <= (others=>'0');
-							sdaddr((cols-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
+							sdaddr((sdram_colbits-1) downto 0) <= casaddr(col_high downto col_low) ;--auto precharge
 							sdaddr(10) <= slot2_autoprecharge; -- Auto precharge.
 							ba <= slot2_bank;
 							sd_cs <= '0';
@@ -975,7 +731,7 @@ end generate;
 
 				if wbwrite='1' and wbflagsaddr(wbflag_newrow)='0' then -- Write one word from the writebuffer
 					sdaddr <= (others=>'0');
-					sdaddr((cols-1) downto 0) <= wbflagsaddr(col_high downto col_low) ;--auto precharge
+					sdaddr((sdram_colbits-1) downto 0) <= wbflagsaddr(col_high downto col_low) ;--auto precharge
 					sdaddr(10) <= '0';  -- Don't use auto-precharge for writes unless this is the last word.
 					ba <= wb_bank;
 					sd_cs <= '0';
@@ -1000,7 +756,7 @@ end generate;
 		signal bank_refresh_req : std_logic_vector(3 downto 0);
 		signal bank_refresh_req_masked : std_logic_vector(3 downto 0);
 		signal bank_refresh_pri : std_logic_vector(3 downto 0);
-		type brr is array (0 to 3) of std_logic_vector(rows-1 downto 0);
+		type brr is array (0 to 3) of std_logic_vector(sdram_rowbits-1 downto 0);
 		signal bank_refresh_row : brr;
 	begin
 	
@@ -1008,7 +764,7 @@ end generate;
 			bank1_refresh : entity work.sdram_refresh_schedule
 			generic map (
 				tCK => tCK,
-				rowbits => rows
+				rowbits => sdram_rowbits
 			)
 			port map (
 				clk => sysclk,

@@ -7,6 +7,7 @@ use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
 use work.SoC_Peripheral_config.all;
 use work.SoC_Peripheral_pkg.all;
+use work.sdram_controller_pkg.all;
 
 -- VGA controller
 -- a module to handle VGA output
@@ -50,12 +51,9 @@ entity vga_controller_new is
 		spritedata : in std_logic_vector(dmawidth-1 downto 0);
 		
 		clk_video : in std_logic;
-		video_req : out std_logic;
-		video_pri : out std_logic;
-		video_ack : in std_logic;
-		video_fill : in std_logic;
-		video_addr : out std_logic_vector(31 downto 0);
-		video_data_in : in std_logic_vector(dmawidth-1 downto 0);
+		
+		to_sdram : out sdram_port_request;
+		from_sdram : in sdram_port_response;
 
 		vblank_int : out std_logic;
 		hsync : out std_logic; -- to monitor
@@ -450,12 +448,8 @@ begin
 		sys_newframe => vblank_stb,
 
 		-- RAM Ports:
-		ram_req => video_req,
-		ram_pri => video_pri,
-		ram_addr => video_addr,
-		ram_ack => video_ack,
-		ram_fill => video_fill,
-		ram_d => video_data_in,
+		from_sdram => from_sdram,
+		to_sdram => to_sdram,
 
 		-- Video ports: (can be on a different clock domain)
 		video_clk => clk_video,

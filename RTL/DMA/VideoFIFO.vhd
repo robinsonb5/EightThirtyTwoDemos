@@ -10,16 +10,16 @@
 --    sys_req - 1 to indicate the fifo should latch the base address.
 
 -- RAM Ports:
---   ram_req  -  1 to indicate the FIFO wants data
---   ram_pri -  1 to indicate the FIFO is less than half full
---   ram_addr - address of the burst currently being requested
---   ram_ack - 1 to indicate that the current request has been acknowledge and addr can be bumped
---   ram_fill - 1 to indicate that a word is on the bus
---   ram_d - data from memory
+--   to_sdram.req  -  1 to indicate the FIFO wants data
+--   to_sdram.pri -  1 to indicate the FIFO is less than half full
+--   to_sdram.addr - address of the burst currently being requested
+--   from_sdram.ack - 1 to indicate that the current request has been acknowledge and addr can be bumped
+--   from_sdram.burst - 1 to indicate that a word is on the bus
+--   from_sdram.q - data from memory
 
 -- Video ports: (can be on a different clock domain)
 --   video_clk - clock for read side of FIFO
---   video_newframe - causes the FIFO to be emptied and the base address to be copied to ram_addr
+--   video_newframe - causes the FIFO to be emptied and the base address to be copied to to_sdram.addr
 --   video_req - advance the read side of the FIFO by one word
 --   video_q - output data
 --   video_underrun - 1 if the FIFO ran dry.
@@ -27,6 +27,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
+library work;
+use work.sdram_controller_pkg.all;
+
 
 entity VideoFIFO is
 generic (
@@ -43,12 +47,8 @@ port (
 	sys_newframe : out std_logic;
 
 	-- RAM Ports:
-	ram_req : out std_logic;
-	ram_pri : out std_logic;
-	ram_addr : out std_logic_vector(31 downto 0);
-	ram_ack : in std_logic; 
-	ram_fill : in std_logic;
-	ram_d : in std_logic_vector(width-1 downto 0);
+	to_sdram : out sdram_port_request;
+	from_sdram : in sdram_port_response;
 
 	-- Video ports: (can be on a different clock domain)
 	video_clk : in std_logic;
@@ -100,7 +100,7 @@ begin
 		signal newframe_pending : std_logic:='0';
 		signal newframe_ram : std_logic; 
 		signal addr : unsigned(31 downto 0);
-		signal ram_req_i : std_logic :='0';
+		signal req_i : std_logic :='0';
 		signal full : std_logic;
 		signal toggle : std_logic;
 		signal firstword : std_logic_vector(15 downto 0);
@@ -110,11 +110,11 @@ begin
 			-- Write incoming data from RAM
 			process(sys_clk) begin
 				if rising_edge(sys_clk) then
-					if ram_fill='1' then
-						storage(to_integer(wrptr)) <= ram_d;
+					if from_sdram.burst='1' then
+						storage(to_integer(wrptr)) <= from_sdram.q;
 						wrptr <= wrptr+1;
 					end if;	
-					if newframe_pending='1' and ram_req_i='0' and ram_fill='0' then
+					if newframe_pending='1' and req_i='0' and from_sdram.burst='0' then
 						wrptr<=(others => '0');
 					end if;
 				end if;
@@ -126,17 +126,17 @@ begin
 			process(sys_clk) begin
 				if rising_edge(sys_clk) then
 				
-					if ram_fill='1' and toggle='0' then
-						firstword<=ram_d(15 downto 0);
+					if from_sdram.burst='1' and toggle='0' then
+						firstword<=from_sdram.q(15 downto 0);
 						toggle<='1';
 					end if;
 				
-					if ram_fill='1' and toggle='1' then
-						storage(to_integer(wrptr)) <= firstword&ram_d(15 downto 0);
+					if from_sdram.burst='1' and toggle='1' then
+						storage(to_integer(wrptr)) <= firstword&from_sdram.q(15 downto 0);
 						toggle<='0';
 						wrptr <= wrptr+1;
 					end if;	
-					if newframe_pending='1' and ram_req_i='0' and ram_fill='0' then
+					if newframe_pending='1' and req_i='0' and from_sdram.burst='0' then
 						wrptr<=(others => '0');
 						toggle<='0';
 					end if;
@@ -191,31 +191,32 @@ begin
 		process(sys_clk) begin
 			if rising_edge(sys_clk) then
 				
-				if ram_ack='1' then
+				if from_sdram.ack='1' then
 					addr <= addr + (width/8) * burstlength;
 				end if;
 
-				if ram_fill='1' or ram_req_i='0' then
-					ram_req_i <= not full and not newframe_pending; -- FIXME - count down the number of words in a frame?
-					ram_pri <= not (ptrcmp(ptrcmp'high) and ptrcmp(ptrcmp'high-1)); -- If the read pointer is in danger of catching up, increase the priority.
+				if from_sdram.burst='1' or req_i='0' then
+					req_i <= not full and not newframe_pending; -- FIXME - count down the number of words in a frame?
+					-- If the read pointer is in danger of catching up, increase the priority.
+					to_sdram.pri <= not (ptrcmp(ptrcmp'high) and ptrcmp(ptrcmp'high-1));
 				end if;
 				
 				if newframe_ram='1' then
 					newframe_pending <= '1';
 				end if;
 
-				if newframe_pending='1' and ram_req_i='0' and ram_fill='0' then
+				if newframe_pending='1' and req_i='0' and from_sdram.burst='0' then
 					addr <= unsigned(sys_baseaddr);
-					ram_req_i <= '1'; -- New request - high priority.
-					ram_pri <= '1';
+					req_i <= '1'; -- New request - high priority.
+					to_sdram.pri <= '1';
 					newframe_pending<='0';
 				end if;
 				
 			end if;
 		end process;
 
-		ram_addr <= std_logic_vector(addr);
-		ram_req <= ram_req_i;
+		to_sdram.addr <= std_logic_vector(addr);
+		to_sdram.req <= req_i;
 
 		video_underrun <= '1' when ptrcmp=0 else '0';
 		
