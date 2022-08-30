@@ -12,6 +12,17 @@
 #define BIT_PS2_RECV 11
 #define BIT_PS2_CTS 10
 
+#define PS2_BAT 0xaa
+#define PS2_ACK 0xfa
+#define PS2_ERROR 0xfc
+#define PS2_RESEND 0xfe
+
+#define PS2_FLAG_BAT 0x1
+#define PS2_FLAG_ACK 0x2
+#define PS2_FLAG_ERROR 0x4
+#define PS2_FLAG_RESEND 0x8
+#define PS2_FLAG_WAITACK 0x100 /* Bit 8 so it can be combined with a byte */
+
 // Private
 
 #ifdef __cplusplus
@@ -25,9 +36,13 @@ extern struct hw_ringbuffer mousebuffer;
 }
 #endif
 
+// void PS2KeyboardWrite(int x);
+void PS2KeyboardWrite(char *msg,int len);
+void PS2KeyboardWriteChar(char x);
+int PS2Keyboard_TestFlags(int flags);
 
-void PS2MouseWrite(int x);
-void PS2KeyboardWrite(int x);
+void PS2MouseWriteChar(int x);
+int PS2Mouse_TestFlags(int flags);
 
 #define PS2KeyboardRead(x) hw_ringbuffer_read(&kbbuffer)
 #define PS2KeyboardBytesReady(x) hw_ringbuffer_count(&kbbuffer)

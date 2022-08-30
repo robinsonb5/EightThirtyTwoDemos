@@ -54,7 +54,7 @@ unsigned char kblookup[2][128] =
 unsigned int keytable[16]={0};
 
 #define QUAL_SHIFT 0
-
+static int keystatus;
 static int qualifiers=0;
 static int leds=0;
 static int fkeys=0;
@@ -69,74 +69,81 @@ int HandlePS2RawCodes()
 
 	while((key=PS2KeyboardRead())>-1)
 	{
-		if(key==KEY_KEYUP)
-			keyup=1;
-		else if(key==KEY_EXT)
-			extkey=1;
-		else if(key==KEY_ACK)
-			// response from keyboard to LED message
+		int keyidx;
+		switch(key)
 		{
-		}
-		else
-		{
-//			if(key<128)
-//			{
-				int keyidx=extkey ? 128+key : key;
+			case KEY_KEYUP:
+				keyup=1;
+				break;
+			case KEY_EXT:
+				extkey=1;
+				break;
+			case PS2_ACK:
+				keystatus|=PS2_FLAG_ACK;
+				break;
+			case PS2_ERROR:
+				keystatus|=PS2_FLAG_ERROR;
+				break;
+			case PS2_RESEND:
+				keystatus|=PS2_FLAG_RESEND;
+				break;
+			default:
+				keyidx=extkey ? 128+key : key;
 				if(keyup)
 					keytable[keyidx>>4]&=~(1<<((keyidx&15)*2));  // Mask off the "currently pressed" bit.
 				else
 					keytable[keyidx>>4]|=3<<((keyidx&15)*2);	// Currently pressed and pressed since last test.
-//			}
-			if(keyup==0)
-			{
-				int a=0;
-//				printf("key %d, qual %d\n",key,qualifiers);
-				if(!extkey)
+				if(keyup==0)
 				{
-					a=kblookup[ (leds & 4) ? qualifiers | 1 : qualifiers][key];
-//					printf("code %d\n",a);
-					if(a)
-						return(a);
+					int a=0;
+	//				printf("key %d, qual %d\n",key,qualifiers);
+					if(!extkey)
+					{
+						a=kblookup[ (leds & 4) ? qualifiers | 1 : qualifiers][key];
+	//					printf("code %d\n",a);
+						if(a)
+							return(a);
+					}
+					switch(key)
+					{
+						case 0x58:	// Caps lock
+							leds^=0x04;
+							updateleds=1;
+							break;
+						case 0x7e:	// Scroll lock
+							leds^=0x01;
+							updateleds=1;
+							break;
+						case 0x77:	// Num lock
+							leds^=0x02;
+							updateleds=1;
+							break;
+						case 0x12:
+						case 0x59:
+							qualifiers|=(1<<QUAL_SHIFT);
+							break;
+					}
 				}
-				switch(key)
+				else
 				{
-					case 0x58:	// Caps lock
-						leds^=0x04;
-						updateleds=1;
-						break;
-					case 0x7e:	// Scroll lock
-						leds^=0x01;
-						updateleds=1;
-						break;
-					case 0x77:	// Num lock
-						leds^=0x02;
-						updateleds=1;
-						break;
-					case 0x12:
-					case 0x59:
-						qualifiers|=(1<<QUAL_SHIFT);
-						break;
+					switch(key)
+					{
+						case 0x12:
+						case 0x59:
+							qualifiers&=~(1<<QUAL_SHIFT);
+							break;
+					}
 				}
-			}
-			else
-			{
-				switch(key)
-				{
-					case 0x12:
-					case 0x59:
-						qualifiers&=~(1<<QUAL_SHIFT);
-						break;
-				}
-			}
-			extkey=0;
-			keyup=0;
+				extkey=0;
+				keyup=0;
+				break;
 		}
 	}
 	if(updateleds)
 	{
 		printf("LEDs: %x\n",leds&0xff);
-		PS2KeyboardWrite(0xed);
-		PS2KeyboardWrite(leds&0xff);
+		PS2KeyboardWriteChar(0xed);
+		PS2KeyboardWriteChar(leds&0xff);
 	}
 	return(result);
 }
@@ -149,13 +156,24 @@ void ClearKeyboard()
 		keytable[i]=0;
 }
 
+int KeyStatus()
+{
+	return(PS2Keyboard_TestFlags(PS2_FLAG_ACK|PS2_FLAG_ERROR|PS2_FLAG_RESEND));
+}
+
 int TestKey(int rawcode)
 {
 	int result;
-	DisableInterrupts();	// Make sure a new character doesn't arrive halfway through the read
+//	DisableInterrupts();	// No need to disable interrupts since we don't decode the keys in an interrupt any more
 	result=3&(keytable[rawcode>>4]>>((rawcode&15)*2));
 	keytable[rawcode>>4]&=~(2<<((rawcode&15)*2));	// Mask off the "pressed since last test" bit.
-	EnableInterrupts();
+//	EnableInterrupts();
 	return(result);
+}
+
+__constructor(100.keyboard) void KBInit()
+{
+	puts("In Keyboard constructor\n");
+	ClearKeyboard();
 }
 

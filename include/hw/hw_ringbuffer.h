@@ -12,6 +12,7 @@ struct hw_ringbuffer
 	unsigned int outbuf[HW_RINGBUFFER_SIZE];
 	void (*action)(void *userdata);
 	void *userdata;
+	int flags;
 	int overruns;
 };
 
@@ -20,6 +21,7 @@ extern "C" {
 #endif
 
 void hw_ringbuffer_init(struct hw_ringbuffer *r);
+void hw_ringbuffer_clear(struct hw_ringbuffer *r);
 void hw_ringbuffer_write(struct hw_ringbuffer *r,int in);
 int hw_ringbuffer_read(struct hw_ringbuffer *r);
 int hw_ringbuffer_count(struct hw_ringbuffer *r);

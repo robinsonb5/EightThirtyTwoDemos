@@ -39,6 +39,7 @@ int HandlePS2RawCodes();
 void ClearKeyboard();
 
 int TestKey(int rawcode);
+int KeyAck(); /* Have we received an ack for a byte sent to the keyboard? */
 
 // Each keytable entry has two bits: bit 0 - currently pressed, bit 1 - pressed since last test
 extern unsigned int keytable[16];

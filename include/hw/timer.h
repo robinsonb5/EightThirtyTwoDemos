@@ -15,5 +15,8 @@
 
 #define REG_MILLISECONDS (0xFFFFFFC8-TIMERBASE)
 
+unsigned int GetTimer(unsigned int offset);
+unsigned int CheckTimer(unsigned int time);
+
 #endif
 

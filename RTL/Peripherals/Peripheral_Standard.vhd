@@ -501,7 +501,6 @@ begin
 			-- PS2 interrupt
 			ps2_int <= kbdrecv or kbdsenddone
 				or mouserecv or mousesenddone;
-				-- mouserecv or kbdsenddone or mousesenddone ; -- Momentary high pulses to indicate retrieved data.
 			if kbdrecv='1' then
 				kbdrecvreg <= '1'; -- remains high until cleared by a read
 			end if;
