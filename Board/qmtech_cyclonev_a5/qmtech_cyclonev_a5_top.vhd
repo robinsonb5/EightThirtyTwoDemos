@@ -112,6 +112,10 @@ architecture RTL of qmtech_cyclonev_a5_top is
 			locked   : out std_logic         -- export
 		);
 	end component pll;
+	
+	signal sdram_dq : std_logic_vector(31 downto 0);
+	signal drive_dq : std_logic;
+	
 begin
 
 U00 : component pll
@@ -126,6 +130,7 @@ U00 : component pll
 
 n_reset<=RESET_N and pll_locked;
 
+DRAM_DQ<=sdram_dq when drive_dq='1' else (others => 'Z');
 
 virtualtoplevel : entity work.VirtualToplevel
 	generic map(
@@ -149,8 +154,9 @@ virtualtoplevel : entity work.VirtualToplevel
 		vga_window => vga_window,
 
 		-- SDRAM
+		sdr_drive_data => drive_dq,
 		sdr_data_in => DRAM_DQ(Toplevel_SDRAMWidth-1 downto 0),
-		sdr_data_out => DRAM_DQ(Toplevel_SDRAMWidth-1 downto 0),
+		sdr_data_out => sdram_dq(Toplevel_SDRAMWidth-1 downto 0),
 		sdr_addr	=> DRAM_ADDR,
 		sdr_dqm => DRAM_DQM(Toplevel_SDRAMWidth/8-1 downto 0),
 		sdr_we => DRAM_WE_N,

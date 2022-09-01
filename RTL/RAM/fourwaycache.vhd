@@ -7,6 +7,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.sdram_controller_pkg.all;
+
 entity FourWayCache is
 generic (
 	addrmsb : integer := 25;
@@ -16,19 +19,13 @@ generic (
 port (
 	clk : in std_logic;
 	reset : in std_logic;
-	ready : out std_logic;
-	cpu_addr : in std_logic_vector(31 downto 0);
-	cpu_req : in std_logic;
-	cpu_cachevalid : out std_logic;
-	cpu_wr : in std_logic; -- 0 for read cycle, 1 for write cycles
-	bytesel : in std_logic_vector(3 downto 0);
-	data_to_cpu : out std_logic_vector(31 downto 0);
-	-- SDRAM interface
-	data_from_sdram : in std_logic_vector(31 downto 0);
-	sdram_req : out std_logic;
-	sdram_fill : in std_logic;
 	busy : out std_logic;
-	flush : in std_logic
+	flush : in std_logic;
+
+	from_cpu : in sdram_port_request;
+	to_cpu : out sdram_port_response;
+	from_sdram : in sdram_port_response;
+	to_sdram : out sdram_port_request
 );
 end entity;
 
@@ -47,6 +44,9 @@ architecture behavioural of FourWayCache is
 	signal busy_i : std_logic;
 begin
 
+	to_sdram.addr <= from_cpu.addr;
+	to_sdram.wr <= '0';
+
 	waylogic : block
 		signal way_req : std_logic;
 		signal way_mru : std_logic_vector(1 downto 0);
@@ -62,7 +62,7 @@ begin
 			clk => clk,
 			reset_n => reset,
 			ready => wayselect_ready,
-			addr_in => cpu_addr,
+			addr_in => from_cpu.addr,
 			way_lru => wayselect_lru,
 			req => way_req,
 			way_mru => way_mru
@@ -75,11 +75,11 @@ begin
 				cpu_req_d2<='0';
 			elsif rising_edge(clk) then
 				cpu_req_d2<=cpu_req_d;
-				if cpu_req='1' and busy_i='0' then
+				if from_cpu.req='1' and busy_i='0' then
 					cpu_req_d<='1';
 				end if;
 				
-				if cpu_req='0' then
+				if from_cpu.req='0' then
 					cpu_req_d<='0';
 					cpu_req_d2<='0';
 				end if;
@@ -92,12 +92,12 @@ begin
 
 				way_req <= '0';
 
-				if cpu_req='0' then
+				if from_cpu.req='0' then
 					cache_cpu_req<=(others =>'0');
 				end if;
 				
 				if cpu_req_d='1' and cpu_req_d2='0' then -- React to a delayed rising edge of cpu_req
-					if cpu_wr='0' then -- Read cycle
+					if from_cpu.wr='0' then -- Read cycle
 						if cache_valid="0000" then
 							way_chosen<=wayselect_lru;
 							way_mru<=wayselect_lru;
@@ -144,32 +144,33 @@ begin
 		cacheloop: for i in 0 to ways-1 generate
 			signal req : std_logic;
 		begin
-		
-		req <= '1' when cache_cpu_req(i)='1' or (cpu_req='1' and cpu_wr='1') else '0';
-		cacheway: entity work.DirectMappedCache
-			generic map (
-				cachemsb => cachemsb,
-				burstlog2 => burstlog2
-			)
-			port map (
-				clk => clk,
-				reset => reset,
-				ready => cache_ready(i),
-				cpu_addr => cpu_addr,
-				cpu_req => req, --cache_cpu_req(i),
-				cpu_cachevalid => cache_valid(i),
-				cpu_wr => cpu_wr,
-				bytesel => bytesel,
-				data_to_cpu => cachedata(i),
-				-- SDRAM interface
-				data_from_sdram => data_from_sdram,
-				sdram_req => cache_sdram_req(i),
-				sdram_fill => cache_sdram_fill(i),
-				busy => cache_busy(i),
-				flush => flush
-			);
+
+			req <= '1' when cache_cpu_req(i)='1' or (from_cpu.req='1' and from_cpu.wr='1') else '0';
+
+			cacheway: entity work.DirectMappedCache
+				generic map (
+					cachemsb => cachemsb,
+					burstlog2 => burstlog2
+				)
+				port map (
+					clk => clk,
+					reset => reset,
+					ready => cache_ready(i),
+					cpu_addr => from_cpu.addr,
+					cpu_req => req,
+					cpu_cachevalid => cache_valid(i),
+					cpu_wr => from_cpu.wr,
+					bytesel => from_cpu.bytesel,
+					data_to_cpu => cachedata(i),
+					-- SDRAM interface
+					data_from_sdram => from_sdram.q,
+					sdram_req => cache_sdram_req(i),
+					sdram_fill => cache_sdram_fill(i),
+					busy => cache_busy(i),
+					flush => flush
+				);
 			
-			cache_sdram_fill(i) <= sdram_fill when way_chosen=std_logic_vector(to_unsigned(i,2)) else '0';
+			cache_sdram_fill(i) <= from_sdram.burst when way_chosen=std_logic_vector(to_unsigned(i,2)) else '0';
 		end generate;
 
 		way_hit <= "00" when cache_valid(0)='1' else
@@ -177,17 +178,16 @@ begin
 			"10" when cache_valid(2)='1' else
 			"11";
 
-		data_to_cpu<=cachedata(0) when cache_valid(0)='1' else
+		to_cpu.q<=cachedata(0) when cache_valid(0)='1' else
 			cachedata(1) when cache_valid(1)='1' else
 			cachedata(2) when cache_valid(2)='1' else
 			cachedata(3);
 			
-		cpu_cachevalid<='0' when cache_valid="0000" or cpu_req='0' else '1';
-		sdram_req<='0' when cache_sdram_req="0000" else '1';
+		to_cpu.ack<='0' when cache_valid="0000" or (from_cpu.req='0' or from_cpu.wr='1') else '1';
+		to_sdram.req<='0' when cache_sdram_req="0000" else '1';
 		
 		busy_i <= '0' when cache_busy="0000" else '1';
-		busy <= busy_i;
-		ready <= '1' when wayselect_ready='1' and cache_ready="1111" else '0';
+		busy <= busy_i when wayselect_ready='1' and cache_ready="1111" else '1';
 
 		process(clk) begin
 			if rising_edge(clk) then

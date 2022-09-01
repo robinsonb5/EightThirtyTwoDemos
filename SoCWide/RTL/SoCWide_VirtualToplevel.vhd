@@ -174,7 +174,6 @@ architecture rtl of VirtualToplevel is
 	signal cpu_ack : std_logic; 
 	signal cpu_wr : std_logic; 
 	signal cpu_bytesel : std_logic_vector(3 downto 0);
-	signal bytesel_rev : std_logic_vector(3 downto 0);
 	signal flushcaches : std_logic;
 
 	-- CPU Debug signals
@@ -499,17 +498,21 @@ begin
 	sdramlogic : block
 		type sdram_states is (idle, waiting, pause);
 		signal sdram_state : sdram_states;
+
 		signal cpu_to_sdram : sdram_port_request;
+		signal cpu_to_cache : sdram_port_request;
+		signal cache_to_sdram : sdram_port_request;
+
 		signal sdram_to_cpu : sdram_port_response;
+		signal cache_to_cpu : sdram_port_response;
+		signal sdram_to_cache : sdram_port_response;
+		
+		signal cache_busy : std_logic;
 	begin	
 	
 		-- SDRAM
 
-		mysdram : entity work.sdram_cached_wide
-			generic map
-			(
-				cache => true
-			)
+		mysdram : entity work.sdram_controller
 			port map
 			(
 			-- Physical connections to the SDRAM
@@ -532,6 +535,9 @@ begin
 				video_req => video_to_sdram,
 				video_ack => sdram_to_video,
 
+				cache_req => cache_to_sdram,
+				cache_ack => sdram_to_cache,
+
 				cpu_req => cpu_to_sdram,
 				cpu_ack => sdram_to_cpu,
 
@@ -542,39 +548,45 @@ begin
 			);
 	
 		-- Combinational to take effect one cycle sooner.
-		ram_ack <= '1' when sdram_state=waiting and sdram_to_cpu.ack='1' else '0';
+		ram_ack <= '1' when sdram_state=waiting and (sdram_to_cpu.ack='1' or cache_to_cpu.ack='1') else '0';
+		from_ram(7 downto 0)<=cache_to_cpu.q(31 downto 24);
+		from_ram(15 downto 8)<=cache_to_cpu.q(23 downto 16);
+		from_ram(23 downto 16)<=cache_to_cpu.q(15 downto 8);
+		from_ram(31 downto 24)<=cache_to_cpu.q(7 downto 0);
 
 		-- Endian byte mangling
-		bytesel_rev <= cpu_bytesel(0)&cpu_bytesel(1)&cpu_bytesel(2)&cpu_bytesel(3);
-
-		from_ram(7 downto 0)<=sdram_to_cpu.q(31 downto 24);
-		from_ram(15 downto 8)<=sdram_to_cpu.q(23 downto 16);
-		from_ram(23 downto 16)<=sdram_to_cpu.q(15 downto 8);
-		from_ram(31 downto 24)<=sdram_to_cpu.q(7 downto 0);
 
 		cpu_to_sdram.addr<=cpu_addr;
+		cpu_to_cache.addr<=cpu_addr;
 
 		process(clk,reset_n) begin
 			if reset_n='0' then
 				sdram_state<=idle;
 			elsif rising_edge(clk) then
 
+				-- Endian byte mangling
+				cpu_to_sdram.bytesel <= cpu_bytesel(0)&cpu_bytesel(1)&cpu_bytesel(2)&cpu_bytesel(3);
+				cpu_to_sdram.d(31 downto 24) <= from_cpu(7 downto 0);
+				cpu_to_sdram.d(23 downto 16) <= from_cpu(15 downto 8);
+				cpu_to_sdram.d(15 downto 8) <= from_cpu(23 downto 16);
+				cpu_to_sdram.d(7 downto 0) <= from_cpu(31 downto 24);
+
 				case sdram_state is
 					when idle =>
-						if cpu_req='1' and mem_ram='1' then
-							cpu_to_sdram.bytesel <= bytesel_rev;
+						if cpu_req='1' and mem_ram='1' and cache_busy='0' then
 							cpu_to_sdram.wr<=cpu_wr;
-							cpu_to_sdram.req<='1';
-							cpu_to_sdram.d(31 downto 24) <= from_cpu(7 downto 0);
-							cpu_to_sdram.d(23 downto 16) <= from_cpu(15 downto 8);
-							cpu_to_sdram.d(15 downto 8) <= from_cpu(23 downto 16);
-							cpu_to_sdram.d(7 downto 0) <= from_cpu(31 downto 24);
+							cpu_to_sdram.req<=cpu_wr;
+							cpu_to_cache.wr<=cpu_wr;
+							cpu_to_cache.req<='1'; -- The cache needs to know about writes, too.
 							sdram_state<=waiting;
 						end if;
 
 					when waiting =>	
-						if sdram_to_cpu.ack='1' then
+						if sdram_to_cpu.ack='1' or cache_to_cpu.ack='1' then
+							cpu_to_sdram.wr<='0';
 							cpu_to_sdram.req<='0';
+							cpu_to_cache.wr<='0';
+							cpu_to_cache.req<='0';
 							sdram_state<=pause;
 						end if;
 
@@ -588,7 +600,26 @@ begin
 			end if; -- rising-edge(clk)
 
 		end process;
+
+		cpucache : entity work.FourWayCache
+			generic map
+			(
+				cachemsb => 11
+			)
+			PORT map
+			(
+				clk => clk,
+				reset => reset_n,
+				busy => cache_busy,
+				flush => flushcaches,
+				to_cpu => cache_to_cpu,
+				from_cpu => cpu_to_cache,
+				to_sdram => cache_to_sdram,
+				from_sdram => sdram_to_cache
+			);
+
 	end block;
+
 
 	-- DMA controller
 
