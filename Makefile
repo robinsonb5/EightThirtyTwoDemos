@@ -64,7 +64,7 @@ EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd:
 lib832soc/lib832soc.a:
 	make -f firmware.mk PROJECTS=
 
-firmware:
+firmware: EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd lib832soc/lib832soc.a
 	make -f firmware.mk PROJECTS=$(PROJECTS)
 
 .phony firmware_clean:
@@ -77,7 +77,7 @@ site.mk:
 	$(info for the target boards you want to use.)
 	$(error site.mk not found.)
 
-init:
+init: firmware
 ifdef BOARD
 	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=init
 else
@@ -86,7 +86,7 @@ else
 	done
 endif
 
-compile:
+compile: firmware
 ifdef BOARD
 	@make -f firmware.mk PROJECTS=$(PROJECTS)
 	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=compile
@@ -97,7 +97,7 @@ else
 	done
 endif
 
-config:
+config: firmware
 ifdef BOARD
 	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=config
 else

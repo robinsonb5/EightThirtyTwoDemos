@@ -8,7 +8,8 @@ entity VirtualToplevel is
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
 		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10
-		jtag_uart : boolean := false
+		jtag_uart : boolean := false;
+		debug : boolean := true
 	);
 	port (
 		clk 			: in std_logic;
@@ -301,7 +302,8 @@ int_triggers<=(0=>timer_tick, others => '0');
 	generic map
 	(
 		littleendian => true,
-		dualthread => false
+		dualthread => false,
+		debug => debug
 	)
 	port map
 	(
