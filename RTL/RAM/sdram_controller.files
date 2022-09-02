@@ -1,0 +1,8 @@
+sdram_controller_pkg.vhd
+cacheway.vhd
+wayselect.vhd
+fourwaycache.vhd
+sdram_writebuffer.vhd
+sdram_refresh_schedule.vhd
+sdram_controller.vhd
+

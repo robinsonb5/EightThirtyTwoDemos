@@ -1,0 +1,11 @@
+SoC_Peripheral_pkg.vhd
+
+simple_uart.vhd
+jtag_uart.vhd
+spi.vhd
+io_ps2_com.vhd
+interrupt_controller.vhd
+timer_controller_new.vhd
+
+Peripheral_Standard.vhd
+

@@ -1,33 +1,20 @@
 RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
 RTL/SoC_Peripheral_config.vhd
-../RTL/Peripherals/SoC_Peripheral_pkg.vhd
 
-../RTL/Peripherals/simple_uart.vhd
-../RTL/Peripherals/jtag_uart.vhd
-../RTL/Peripherals/spi.vhd
-../RTL/Peripherals/io_ps2_com.vhd
-../RTL/Peripherals/interrupt_controller.vhd
-../RTL/Peripherals/timer_controller_new.vhd
+../RTL/Peripherals/peripheral_standard.qip
+
+../RTL/RAM/sdram_controller.qip
 
 ../RTL/Util/cdc_pulse.vhd
 ../RTL/Util/cdc_bus.vhd
 ../RTL/Util/risingedge_divider.vhd
 
-../RTL/RAM/sdram_controller_pkg.vhd
-../RTL/RAM/cacheway.vhd
-../RTL/RAM/wayselect.vhd
-../RTL/RAM/fourwaycache.vhd
-../RTL/RAM/sdram_writebuffer.vhd
-../RTL/RAM/sdram_refresh_schedule.vhd
-../RTL/RAM/sdram_controller.vhd
 ../RTL/DMA/FIFO_Counter.vhd
 ../RTL/DMA/DMACache_pkg.vhd
 ../RTL/DMA/DMACacheRAM.vhd
 ../RTL/DMA/DMACache_wide.vhd
 ../RTL/DMA/VideoFIFO.vhd
-
-../RTL/Peripherals/Peripheral_Standard.vhd
 
 ../RTL/Sound/sound_controller.vhd
 ../RTL/Sound/sound_wrapper_new.vhd

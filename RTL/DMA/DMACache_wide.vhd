@@ -22,7 +22,7 @@ entity DMACache is
 						reqlen => (others =>'X'),
 						setreqlen => '0',
 						req => '0'
-					)); -- Yes, I know - ick.
+					));
 		channels_to_host : out DMAChannels_ToHost;
 
 		data_out : out std_logic_vector(31 downto 0);

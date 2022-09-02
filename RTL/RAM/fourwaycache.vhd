@@ -139,15 +139,34 @@ begin
 		signal cacheerr : std_logic;
 		attribute noprune of cacheerr : signal is true;
 		
+		signal burst_d : std_logic;
+		signal firstword : std_logic_vector(31 downto 0);
+		signal firstword_advance : std_logic;
+		signal firstword_valid : std_logic;
 	begin
+
+		firstword_advance <= from_sdram.burst and not burst_d;
 	
+		process(clk) begin
+			if rising_edge(clk) then
+				burst_d <= from_sdram.burst;
+				if burst_d='0' and from_sdram.burst='1' then
+					firstword_valid<='1';
+					firstword<=from_sdram.q;
+				end if;
+				if from_cpu.req='0' then
+					firstword_valid<='0';
+				end if;
+			end if;
+		end process;
+
 		cacheloop: for i in 0 to ways-1 generate
 			signal req : std_logic;
 		begin
 
 			req <= '1' when cache_cpu_req(i)='1' or (from_cpu.req='1' and from_cpu.wr='1') else '0';
 
-			cacheway: entity work.DirectMappedCache
+			cacheway: entity work.cacheway
 				generic map (
 					cachemsb => cachemsb,
 					burstlog2 => burstlog2
@@ -178,12 +197,15 @@ begin
 			"10" when cache_valid(2)='1' else
 			"11";
 
-		to_cpu.q<=cachedata(0) when cache_valid(0)='1' else
+		to_cpu.q<=
+			from_sdram.q when firstword_advance='1' else
+			firstword when firstword_valid='1' else
+			cachedata(0) when cache_valid(0)='1' else
 			cachedata(1) when cache_valid(1)='1' else
 			cachedata(2) when cache_valid(2)='1' else
 			cachedata(3);
-			
-		to_cpu.ack<='0' when cache_valid="0000" or (from_cpu.req='0' or from_cpu.wr='1') else '1';
+
+		to_cpu.ack<='0' when (firstword_advance='0' and cache_valid="0000") or (from_cpu.req='0' or from_cpu.wr='1') else '1';
 		to_sdram.req<='0' when cache_sdram_req="0000" else '1';
 		
 		busy_i <= '0' when cache_busy="0000" else '1';

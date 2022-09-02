@@ -6,7 +6,7 @@ use work.DMACache_config.ALL;
 use work.SoC_Peripheral_config.all;
 use work.SoC_Peripheral_pkg.all;
 use work.sdram_controller_pkg.all;
-
+use work.sound_wrapper_pkg.all;
 
 entity VirtualToplevel is
 	generic (
@@ -17,13 +17,13 @@ entity VirtualToplevel is
 		debug : boolean := false
 	);
 	port (
-		clk 			: in std_logic;
+		clk 		: in std_logic;
 		slowclk		: in std_logic;
 		videoclk	: in std_logic;
 		reset_in 	: in std_logic;
 
 		-- VGA
-		vga_red 		: out unsigned(7 downto 0);
+		vga_red 	: out unsigned(7 downto 0);
 		vga_green 	: out unsigned(7 downto 0);
 		vga_blue 	: out unsigned(7 downto 0);
 		vga_hsync 	: out std_logic;
@@ -120,19 +120,13 @@ architecture rtl of VirtualToplevel is
 
 	signal dma_data : std_logic_vector(31 downto 0);
 
-	signal spr0channel_fromhost : DMAChannel_FromHost;
-	signal spr0channel_tohost : DMAChannel_ToHost;
+	signal dmachannel_requests : DMAChannels_FromHost;
+	signal dmachannel_responses : DMAChannels_ToHost;
+
+	constant dmachannel_sprite : integer := 0;
+	constant dmachannel_audio_low : integer := 1;
 
 	-- Audio channel plumbing
-
-	signal aud0_fromhost : DMAChannel_FromHost;
-	signal aud0_tohost : DMAChannel_ToHost;
-	signal aud1_fromhost : DMAChannel_FromHost;
-	signal aud1_tohost : DMAChannel_ToHost;
-	signal aud2_fromhost : DMAChannel_FromHost;
-	signal aud2_tohost : DMAChannel_ToHost;
-	signal aud3_fromhost : DMAChannel_FromHost;
-	signal aud3_tohost : DMAChannel_ToHost;
 
 	signal audio_reg_req : std_logic;
 	signal audio_ints : std_logic_vector(3 downto 0);
@@ -362,8 +356,8 @@ begin
 			response => peripheral_responses(1),
 
 			-- Sprite
-			sprite0_sys => spr0channel_fromhost,
-			sprite0_status => spr0channel_tohost,
+			sprite0_sys => dmachannel_requests(dmachannel_sprite),
+			sprite0_status => dmachannel_responses(dmachannel_sprite),
 			spritedata => dma_data,
 
 			-- Video
@@ -402,14 +396,14 @@ begin
 			response => peripheral_responses(2),
 
 			dma_data => dma_data,
-			channel0_fromhost => aud0_fromhost,
-			channel0_tohost => aud0_tohost,
-			channel1_fromhost => aud1_fromhost,
-			channel1_tohost => aud1_tohost,
-			channel2_fromhost => aud2_fromhost,
-			channel2_tohost => aud2_tohost,
-			channel3_fromhost => aud3_fromhost,
-			channel3_tohost => aud3_tohost,
+			dma_requests(0) => dmachannel_requests(dmachannel_audio_low),
+			dma_requests(1) => dmachannel_requests(dmachannel_audio_low+1),
+			dma_requests(2) => dmachannel_requests(dmachannel_audio_low+2),
+			dma_requests(3) => dmachannel_requests(dmachannel_audio_low+3),
+			dma_responses(0) => dmachannel_responses(dmachannel_audio_low),
+			dma_responses(1) => dmachannel_responses(dmachannel_audio_low+1),
+			dma_responses(2) => dmachannel_responses(dmachannel_audio_low+2),
+			dma_responses(3) => dmachannel_responses(dmachannel_audio_low+3),
 
 			audio_l => audio_l_i,
 			audio_r => audio_r_i,
@@ -549,12 +543,12 @@ begin
 	
 		-- Combinational to take effect one cycle sooner.
 		ram_ack <= '1' when sdram_state=waiting and (sdram_to_cpu.ack='1' or cache_to_cpu.ack='1') else '0';
+
+		-- Endian byte mangling
 		from_ram(7 downto 0)<=cache_to_cpu.q(31 downto 24);
 		from_ram(15 downto 8)<=cache_to_cpu.q(23 downto 16);
 		from_ram(23 downto 16)<=cache_to_cpu.q(15 downto 8);
 		from_ram(31 downto 24)<=cache_to_cpu.q(7 downto 0);
-
-		-- Endian byte mangling
 
 		cpu_to_sdram.addr<=cpu_addr;
 		cpu_to_cache.addr<=cpu_addr;
@@ -628,17 +622,8 @@ begin
 			clk => clk,
 			reset_n => cpu_reset,
 
-			channels_from_host(0) => spr0channel_fromhost,
-			channels_from_host(1) => aud0_fromhost,
-			channels_from_host(2) => aud1_fromhost,
-			channels_from_host(3) => aud2_fromhost,
-			channels_from_host(4) => aud3_fromhost,
-
-			channels_to_host(0) => spr0channel_tohost,
-			channels_to_host(1) => aud0_tohost,
-			channels_to_host(2) => aud1_tohost,
-			channels_to_host(3) => aud2_tohost,
-			channels_to_host(4) => aud3_tohost,
+			channels_from_host => dmachannel_requests,
+			channels_to_host => dmachannel_responses,
 
 			data_out => dma_data,
 
