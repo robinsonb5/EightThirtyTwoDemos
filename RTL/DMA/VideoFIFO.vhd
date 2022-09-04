@@ -14,7 +14,8 @@
 --   to_sdram.pri -  1 to indicate the FIFO is less than half full
 --   to_sdram.addr - address of the burst currently being requested
 --   from_sdram.ack - 1 to indicate that the current request has been acknowledge and addr can be bumped
---   from_sdram.burst - 1 to indicate that a word is on the bus
+--   from_sdram.burst - 1 to indicate that a burst is in progress
+--   from_sdram.strobe - 1 to indicate that a valid word is on the bus
 --   from_sdram.q - data from memory
 
 -- Video ports: (can be on a different clock domain)
@@ -34,7 +35,7 @@ use work.sdram_controller_pkg.all;
 
 entity VideoFIFO is
 generic (
-	width : integer := 32;
+	dmawidth : integer := 32;
 	depth : integer := 8; -- Log 2
 	burstlength : integer := 8
 );
@@ -68,9 +69,9 @@ end entity;
 architecture rtl of VideoFIFO is
 	signal rdptr : unsigned(depth-1 downto 0) :=(others => '0');
 	signal wrptr : unsigned(depth-1 downto 0) :=(others => '0');
-	type storage_t is array (0 to 2**depth-1) of std_logic_vector(width-1 downto 0);
+	type storage_t is array (0 to 2**depth-1) of std_logic_vector(dmawidth-1 downto 0);
 	signal storage : storage_t;
-	signal video_q_i : std_logic_vector(width-1 downto 0);
+	signal video_q_i : std_logic_vector(dmawidth-1 downto 0);
 begin
 
 	readlogic : block
@@ -102,15 +103,13 @@ begin
 		signal addr : unsigned(31 downto 0);
 		signal req_i : std_logic :='0';
 		signal full : std_logic;
-		signal toggle : std_logic;
-		signal firstword : std_logic_vector(15 downto 0);
 	begin
 
-		wr_32bit : if width=32 generate
+		wr_32bit : if dmawidth=32 generate
 			-- Write incoming data from RAM
 			process(sys_clk) begin
 				if rising_edge(sys_clk) then
-					if from_sdram.burst='1' then
+					if from_sdram.strobe='1' then
 						storage(to_integer(wrptr)) <= from_sdram.q;
 						wrptr <= wrptr+1;
 					end if;	
@@ -121,17 +120,22 @@ begin
 			end process;
 		end generate;
 
-		wr_16bit : if width=16 generate
+		-- Probably best to do this in the SDRAM controller...
+
+		wr_16bit : if dmawidth=16 generate
+			signal toggle : std_logic;
+			signal firstword : std_logic_vector(15 downto 0);
+		begin
 			-- Write incoming data from RAM
 			process(sys_clk) begin
 				if rising_edge(sys_clk) then
 				
-					if from_sdram.burst='1' and toggle='0' then
+					if from_sdram.strobe='1' and toggle='0' then
 						firstword<=from_sdram.q(15 downto 0);
 						toggle<='1';
 					end if;
 				
-					if from_sdram.burst='1' and toggle='1' then
+					if from_sdram.strobe='1' and toggle='1' then
 						storage(to_integer(wrptr)) <= firstword&from_sdram.q(15 downto 0);
 						toggle<='0';
 						wrptr <= wrptr+1;
@@ -192,10 +196,10 @@ begin
 			if rising_edge(sys_clk) then
 				
 				if from_sdram.ack='1' then
-					addr <= addr + (width/8) * burstlength;
+					addr <= addr + (sdram_width/8) * burstlength;
 				end if;
 
-				if from_sdram.burst='1' or req_i='0' then
+				if from_sdram.strobe='1' or req_i='0' then
 					req_i <= not full and not newframe_pending; -- FIXME - count down the number of words in a frame?
 					-- If the read pointer is in danger of catching up, increase the priority.
 					to_sdram.pri <= not (ptrcmp(ptrcmp'high) and ptrcmp(ptrcmp'high-1));

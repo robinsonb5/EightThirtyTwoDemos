@@ -1,18 +1,19 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
+use ieee.math_real.all;
 
 library work;
 use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
 use work.sdram_controller_pkg.all;
 
+-- Currently supports up to 8 DMA channels.
 
 entity DMACache is
 	port(
 		clk : in std_logic;
 		reset_n : in std_logic;
-		-- DMA channel address strobes
 
 		channels_from_host : in DMAChannels_FromHost
 			:= (others =>
@@ -28,6 +29,7 @@ entity DMACache is
 		data_out : out std_logic_vector(31 downto 0);
 
 		-- SDRAM interface
+
 		to_sdram : out sdram_port_request;
 		from_sdram : in sdram_port_response
 	);
@@ -35,7 +37,9 @@ end entity;
 
 architecture rtl of dmacache is
 
-type inputstate_t is (rd1,rcv1,rcv2,rcv3,rcv4,rcv5,rcv6,rcv7,rcv8);
+constant burstlog2 : integer := integer(log2(real(sdram_width/4))); -- Four words if RAM is 16-bit, eight if 32-bit.
+constant cachemsb : integer := DMACache_MaxCacheBit + DMACache_MaxChannelsLog2;
+type inputstate_t is (rd1,waitrcv,rcv);
 signal inputstate : inputstate_t := rd1;
 
 
@@ -72,9 +76,9 @@ signal internals_FIFO : DMAChannels_Internal_FIFO;
 
 -- interface to the blockram
 
-signal cache_wraddr : std_logic_vector(8 downto 0);
-signal cache_wraddr_lsb : std_logic_vector(2 downto 0);
-signal cache_rdaddr : std_logic_vector(8 downto 0);
+signal cache_wraddr : std_logic_vector(cachemsb downto 0);
+signal cache_wraddr_lsb : unsigned(burstlog2-1 downto 0);
+signal cache_rdaddr : std_logic_vector(cachemsb downto 0);
 signal cache_wren : std_logic;
 signal data_from_ram : std_logic_vector(31 downto 0);
 
@@ -119,14 +123,14 @@ to_sdram.pri <= '1' when internals(0).count(15 downto 6)/=X"00"&"00"
 								and internals_FIFO(0).full='0' else '0';
 
 
-process(clk,internals,activechannel,cache_wraddr_lsb)
+-- We update these outside the clock edge
+to_sdram.addr<=internals(activechannel).addr;
+cache_wraddr(burstlog2-1 downto 0)<=std_logic_vector(cache_wraddr_lsb);
+
+process(clk)
 	variable servicechannel : integer range 0 to DMACache_MaxChannel;
 	variable serviceactive : std_logic;
 begin
-
-	-- We update these outside the clock edge
-	to_sdram.addr<=internals(activechannel).addr;
-	cache_wraddr(2 downto 0)<=cache_wraddr_lsb;
 
 	if rising_edge(clk) then
 		if reset_n='0' then
@@ -137,17 +141,19 @@ begin
 		end if;
 
 		-- We do this inside the clock edge otherwise last word of the burst is lost due to the write pointer being updated.
-		cache_wraddr(8 downto 3)<=std_logic_vector(to_unsigned(activechannel,3))&std_logic_vector(internals(activechannel).wrptr(5 downto 3));
+		cache_wraddr(cachemsb downto burstlog2)
+			<= std_logic_vector(to_unsigned(activechannel,3))
+				&std_logic_vector(internals(activechannel).wrptr(DMACache_MaxCacheBit downto burstlog2));
 
 		cache_wren<='0';
 		
 		if from_sdram.ack='1' then
 			to_sdram.req<='0';
-			internals(activechannel).addr<=std_logic_vector(unsigned(internals(activechannel).addr)+32);
+			internals(activechannel).addr<=std_logic_vector(unsigned(internals(activechannel).addr)+(sdram_width/8)*8);
 			if internals(activechannel).extend='1' then -- Read an extra word for non-aligned reads.
 				internals(activechannel).extend<='0';
 			else
-				internals(activechannel).count<=internals(activechannel).count-8;
+				internals(activechannel).count<=internals(activechannel).count-(2**burstlog2);
 			end if;
 		end if;
 		
@@ -167,7 +173,7 @@ begin
 							and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
 						activechannel <= I;
 						to_sdram.req<='1';
-						inputstate<=rcv1;
+						inputstate<=waitrcv;
 					end if;
 				end loop;
 
@@ -179,73 +185,31 @@ begin
 
 
 			-- Wait for SDRAM, fill first word.
-			when rcv1 =>
+			when waitrcv =>
 --				if sdram_nak='1' then -- Back out of a read request if the cycle's not serviced
 --					to_sdram.req<='0';	-- (Allows priorities to be reconsidered.)
 --					inputstate<=rd1;
 --				end if;
-				if from_sdram.burst='1' then
+				if from_sdram.strobe='1' then
 					data_from_ram<=from_sdram.q;
 					cache_wren<='1';
-					inputstate<=rcv2;
-					cache_wraddr_lsb<="000";
+					inputstate<=rcv;
+					cache_wraddr_lsb<=(others => '0');
 					internals(activechannel).fill<='1';
 				end if;
-			when rcv2 =>
-				data_from_ram<=from_sdram.q;
-				cache_wren<='1';
-				cache_wraddr_lsb<="001";
-				internals(activechannel).fill<='1';
-				inputstate<=rcv3;
-			when rcv3 =>
-				data_from_ram<=from_sdram.q;
-				cache_wren<='1';
-				cache_wraddr_lsb<="010";
-				internals(activechannel).fill<='1';
-				inputstate<=rcv4;
-			when rcv4 =>
-				data_from_ram<=from_sdram.q;
-				cache_wren<='1';
-				cache_wraddr_lsb<="011";
-				internals(activechannel).fill<='1';
-				inputstate<=rcv5;
-			when rcv5 =>
-				data_from_ram<=from_sdram.q;
-				cache_wren<='1';
-				cache_wraddr_lsb<="100";
-				internals(activechannel).fill<='1';
-				inputstate<=rcv6;
-			when rcv6 =>
-				data_from_ram<=from_sdram.q;
-				cache_wren<='1';
-				cache_wraddr_lsb<="101";
-				internals(activechannel).fill<='1';
-				inputstate<=rcv7;
-			when rcv7 =>
-				data_from_ram<=from_sdram.q;
-				cache_wren<='1';
-				cache_wraddr_lsb<="110";
-				internals(activechannel).fill<='1';
-				inputstate<=rcv8;
-			when rcv8 =>
-				data_from_ram<=from_sdram.q;
-				cache_wren<='1';
-				cache_wraddr_lsb<="111";
-				internals(activechannel).fill<='1';
-				inputstate<=rd1;
+			when rcv =>
+				if from_sdram.strobe='1' then
+					data_from_ram<=from_sdram.q;
+					cache_wren<='1';
+					cache_wraddr_lsb<=cache_wraddr_lsb+1;
+					internals(activechannel).fill<='1';
+				end if;
 
-				internals(activechannel).wrptr<=internals(activechannel).wrptr_next;
-				internals(activechannel).wrptr_next<=internals(activechannel).wrptr_next+8;
-
-				for I in DMACache_MaxChannel downto 0 loop
-					if internals_FIFO(I).full='0'
-						and internals(I).count(DMACache_ReqLenMaxBit downto 0)/=X"0000"
-							and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
-						activechannel <= I;
-						to_sdram.req<='1';
-						inputstate<=rcv1;
-					end if;
-				end loop;
+				if from_sdram.burst='0' then
+					internals(activechannel).wrptr<=internals(activechannel).wrptr_next;
+					internals(activechannel).wrptr_next<=internals(activechannel).wrptr_next+(2**burstlog2);
+					inputstate<=rd1;
+				end if;
 	
 			when others =>
 				null;
@@ -255,14 +219,15 @@ begin
 			if channels_from_host(I).setaddr='1' then
 				internals(I).addr<=channels_from_host(I).addr;
 				internals(I).wrptr<=(others =>'0');
-				internals(I).wrptr_next<=(3=>'1', others =>'0');
+				internals(I).wrptr_next<=(others =>'0');
+				internals(I).wrptr_next(burstlog2) <= '1';
 				internals(I).count<=(others=>'0');
 			end if;
 			if channels_from_host(I).setreqlen='1' then
 				internals(I).count(DMACache_ReqLenMaxBit downto 0)<=channels_from_host(I).reqlen;
 				internals(I).count(DMACache_ReqLenMaxBit+1)<='0';
 				internals(I).extend<='1'; -- If the data isn't burst-aligned we need to read an extra burst.
-				if internals(I).addr(4 downto 0)="00000" then
+				if internals(I).addr(burstlog2+1 downto 0)=std_logic_vector(to_unsigned(0,burstlog2+2)) then
 					internals(I).extend<='0';
 				end if;
 				channels_to_host(I).done<='0';
@@ -272,10 +237,10 @@ begin
 
 	-- Handle timeslicing of output registers
 	-- Lowest numbered channel has highest priority
-	-- req signals should always be a single pulse; need to latch all but VGA, since it may be several
-	-- cycles since they're serviced.
+	-- req signals should always be a single pulse - must be latched 
+	-- since it may be several cycles before they're serviced.
 
-		for I in 0 to DMACache_MaxChannel loop -- Channel 0 has priority, so is never held pending.
+		for I in 0 to DMACache_MaxChannel loop
 			if channels_from_host(I).req='1' then
 				internals_read(I).pending<='1';
 			end if;
@@ -296,7 +261,6 @@ begin
 		if serviceactive='1' then
 			cache_rdaddr<=std_logic_vector(to_unsigned(servicechannel,3))&std_logic_vector(internals_read(servicechannel).rdptr);
 			internals_read(servicechannel).rdptr<=internals_read(servicechannel).rdptr+1;
---			channels_to_host(servicechannel).valid<='1';
 			channelvalid(servicechannel)<='1';
 			internals_read(servicechannel).drain<='1';
 			internals_read(servicechannel).pending<='0';
@@ -306,8 +270,8 @@ begin
 		for I in 0 to DMACache_MaxChannel loop
 			if channels_from_host(I).setaddr='1' then
 				internals_read(I).rdptr<=(others => '0');
-				internals_read(I).rdptr(2 downto 0)<=
-					unsigned(channels_from_host(I).addr(4 downto 2));	-- Offset to allow non-aligned accesses.
+				internals_read(I).rdptr(sdram_width/16 downto 0)<=
+					unsigned(channels_from_host(I).addr(2+sdram_width/16 downto 2));	-- Offset to allow non-aligned accesses.
 				internals_read(I).pending<='0';
 			end if;
 		end loop;

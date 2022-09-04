@@ -12,7 +12,7 @@ package sdram_controller_pkg is
 	constant sdram_rowbits : integer := board_sdram_rowbits;
 	constant sdram_colbits : integer := board_sdram_colbits;
 
-	constant sdram_col_low : integer := 2;
+	constant sdram_col_low : integer := sdram_width/16; -- Correct only for 16 or 32 bit wide RAM
 	constant sdram_col_high : integer := sdram_colbits+sdram_col_low-1;
 
 	constant sdram_row_low : integer := sdram_col_high+1;
@@ -23,7 +23,7 @@ package sdram_controller_pkg is
 
 	type sdram_port_request is record
 		addr : std_logic_vector(31 downto 0);
-		d : std_logic_vector(sdram_width-1 downto 0);
+		d : std_logic_vector(31 downto 0);
 		wr : std_logic;
 		bytesel : std_logic_vector(3 downto 0);
 		req : std_logic;
@@ -31,9 +31,10 @@ package sdram_controller_pkg is
 	end record;
 	
 	type sdram_port_response is record
-		ack : std_logic;	-- For DMA ports, acknowledge the read request, for CPU port indicates valid data
-		burst : std_logic;	-- For DMA ports, high while a burst is in progress
-		q : std_logic_vector(sdram_width-1 downto 0); -- Data from SDRAM.
+		ack : std_logic;	-- For DMA ports, acknowledge the read request, for CPU port indicates a write was accepted
+		burst : std_logic;	-- High while a burst is in progress
+		strobe : std_logic; -- A high pulse for each 32-bit word of the transfer.
+		q : std_logic_vector(31 downto 0); -- Data from SDRAM.
 	end record;
 
 	type sdram_phy_out is record

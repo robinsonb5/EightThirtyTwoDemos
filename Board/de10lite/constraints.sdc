@@ -17,16 +17,16 @@ set_output_delay -clock { sdram_clock } -max -1.5 [get_ports DRAM_*]
 set_multicycle_path -from [get_clocks {sdram_clock}] -to [get_clocks {U00|altpll_component|auto_generated|pll1|clk[1]}] -setup -end 2
 
 set_false_path -to DRAM_CLK
+set_false_path -from [get_ports {KEY[*]}]
+set_false_path -to [get_ports {VGA_*}]
 
 # I/O delays for non-critical ports
 
 set_input_delay -clock { sysclk } .5 [get_ports {GPIO[*]}]
 set_input_delay -clock { sysclk } .5 [get_ports {ARDUINO_IO[*]}]
-set_input_delay -clock { sysclk } .5 [get_ports {KEY[*]}]
 
 set_output_delay -clock { sysclk } .5 [get_ports {GPIO[*]}]
 set_output_delay -clock { sysclk } .5 [get_ports {ARDUINO_IO[*]}]
-set_output_delay -clock { sysclk } .5 [get_ports {VGA_*}]
 
 
 # Multicycles for multiplier - is this valid?

@@ -37,7 +37,7 @@ entity vga_controller_new is
 	generic(
 		BlockAddress : std_logic_vector(SoC_BlockBits-1 downto 0) := X"E";
 		enable_sprite : boolean := true;
-		dmawidth : integer := 16
+		dmawidth : integer := 32
 	);
 	port (
 		clk_sys : in std_logic;
@@ -438,7 +438,7 @@ begin
 	fifo : entity work.VideoFIFO
 	generic map (
 		depth => 9,
-		width => dmawidth
+		dmawidth => dmawidth
 	)
 	port map (
 		sys_clk => clk_sys,

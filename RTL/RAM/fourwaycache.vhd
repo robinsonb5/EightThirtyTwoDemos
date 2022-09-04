@@ -130,7 +130,7 @@ begin
 	cachelogic : block
 		signal cache_ready : std_logic_vector(ways-1 downto 0);
 		signal cache_busy : std_logic_vector(ways-1 downto 0);
-		signal cache_sdram_fill : std_logic_vector(ways-1 downto 0);
+--		signal cache_sdram_fill : std_logic_vector(ways-1 downto 0);
 		signal cache_sdram_req : std_logic_vector(ways-1 downto 0);
 		type cachedata_t is array(0 to 3) of std_logic_vector(31 downto 0);
 		signal cachedata : cachedata_t;
@@ -145,21 +145,22 @@ begin
 		signal firstword_valid : std_logic;
 	begin
 
-		firstword_advance <= from_sdram.burst and not burst_d;
-	
+		firstword_advance <= from_sdram.strobe and not burst_d;
 		process(clk) begin
 			if rising_edge(clk) then
-				burst_d <= from_sdram.burst;
-				if burst_d='0' and from_sdram.burst='1' then
+				if burst_d='0' and from_sdram.strobe='1' then
+					burst_d<='1';
 					firstword_valid<='1';
 					firstword<=from_sdram.q;
 				end if;
 				if from_cpu.req='0' then
+					burst_d<='0';
 					firstword_valid<='0';
 				end if;
 			end if;
 		end process;
 
+		
 		cacheloop: for i in 0 to ways-1 generate
 			signal req : std_logic;
 		begin
@@ -179,17 +180,17 @@ begin
 					cpu_req => req,
 					cpu_cachevalid => cache_valid(i),
 					cpu_wr => from_cpu.wr,
-					bytesel => from_cpu.bytesel,
 					data_to_cpu => cachedata(i),
 					-- SDRAM interface
 					data_from_sdram => from_sdram.q,
 					sdram_req => cache_sdram_req(i),
-					sdram_fill => cache_sdram_fill(i),
+					sdram_burst => from_sdram.burst,
+					sdram_strobe => from_sdram.strobe,
 					busy => cache_busy(i),
 					flush => flush
 				);
-			
-			cache_sdram_fill(i) <= from_sdram.burst when way_chosen=std_logic_vector(to_unsigned(i,2)) else '0';
+
+--			cache_sdram_fill(i) <= from_sdram.burst when way_chosen=std_logic_vector(to_unsigned(i,2)) else '0';
 		end generate;
 
 		way_hit <= "00" when cache_valid(0)='1' else

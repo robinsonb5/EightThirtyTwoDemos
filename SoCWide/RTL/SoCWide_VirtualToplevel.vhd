@@ -33,10 +33,10 @@ entity VirtualToplevel is
 
 		-- SDRAM
 		sdr_drive_data  : out std_logic;
-		sdr_data_in		: in std_logic_vector(31 downto 0) := (others => '0');
-		sdr_data_out	: inout std_logic_vector(31 downto 0);
-		sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
-		sdr_dqm 		: out std_logic_vector(3 downto 0);
+		sdr_data_in		: in std_logic_vector(sdram_width-1 downto 0) := (others => '0');
+		sdr_data_out	: inout std_logic_vector(sdram_width-1 downto 0);
+		sdr_addr		: out std_logic_vector(sdram_rows-1 downto 0);
+		sdr_dqm 		: out std_logic_vector(sdram_dqmwidth-1 downto 0);
 		sdr_we 		: out std_logic;
 		sdr_cas 		: out std_logic;
 		sdr_ras 		: out std_logic;
@@ -536,9 +536,7 @@ begin
 				cpu_ack => sdram_to_cpu,
 
 				dma_req => dma_to_sdram,
-				dma_ack => sdram_to_dma,
-				
-				flushcaches => flushcaches
+				dma_ack => sdram_to_dma
 			);
 	
 		-- Combinational to take effect one cycle sooner.
@@ -598,7 +596,8 @@ begin
 		cpucache : entity work.FourWayCache
 			generic map
 			(
-				cachemsb => 11
+				cachemsb => 11,
+				burstlog2 => 1+sdram_width/16 -- Correct only for 16- or 32-bit wide RAM
 			)
 			PORT map
 			(
