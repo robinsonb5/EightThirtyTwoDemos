@@ -168,7 +168,7 @@ begin
 	generic map(
 		sdram_rows => 13,
 		sdram_cols => 9,
-		sysclk_frequency => 1000,
+		sysclk_frequency => Toplevel_Frequency*10,
 		debug => false
 	)
 	port map(

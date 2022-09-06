@@ -132,7 +132,7 @@ void initDisplay(enum screenmode mode,int bits)
 	{
 		screenwidth=w;
 		screenheight=h;
-		FrameBuffer=(short *)malloc_aligned((bits * w*h)/8,32);
+		FrameBuffer=(char *)malloc_aligned((bits * w*h)/8,32);
 		Screenmode_Set(mode);
 		HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
 		switch(bits)
@@ -239,11 +239,16 @@ int main(int argc, char **argv)
 			}
 			printf("%d bits per pixel\n",bits);
 			setpalette(bits);
-			memset(FrameBuffer,0x55,(screenwidth*screenheight*bits)/8);
+			for(i=0;i<screenheight;++i)
+			{
+				memset(FrameBuffer+(i*screenwidth*bits)/8,0x55,(screenwidth*bits)/8);
+				++i;
+				memset(FrameBuffer+(i*screenwidth*bits)/8,0xaa,(screenwidth*bits)/8);
+			}
 			for(i=0;i<screenheight;++i)
 				plot(FrameBuffer,i,i,0xffffff,bits);
 			for(i=0;i<screenheight;++i)
-				plot(FrameBuffer,i+16,i,0x0,bits);
+				plot(FrameBuffer,i+15,i,0x0,bits);
 			if(refresh)
 				free_aligned(FrameBuffer);
 		}				

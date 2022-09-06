@@ -48,9 +48,13 @@ END entity;
 
 architecture rtl of mist_top is
 
+signal sdram_dq_out : std_logic_vector(15 downto 0);
+signal sdram_drive_dq : std_logic;
+
 signal reset : std_logic;
 signal sysclk : std_logic;
 signal slowclk : std_logic;
+signal videoclk : std_logic;
 signal pll_locked : std_logic;
 
 signal audiol : signed(15 downto 0);
@@ -234,6 +238,7 @@ port map
 	c0 => SDRAM_CLK,
 	c1 => sysclk,
 	c2 => slowclk,
+	c3 => videoclk,
 	locked => pll_locked
 );
 
@@ -242,6 +247,8 @@ port map
 -- status bit 2 is driven by the "T2,Reset" entry in the config string
 -- button 1 is the core specfic button in the mists front
 reset <= '0' when status(0)='1' or status(2)='1' or buttons(1)='1' or sd_allow_sdhc_changed='1' else '1';
+
+SDRAM_DQ <= sdram_dq_out when sdram_drive_dq='1' else (others => 'Z');
 
 myVirtualToplevel : entity work.VirtualToplevel
 generic map
@@ -254,6 +261,7 @@ port map
 (	
 	clk => sysclk,
 	slowclk => slowclk,
+	videoclk => videoclk,
 	reset_in => reset,
 
 	-- video
@@ -265,8 +273,9 @@ port map
 	vga_window => vga_window,
 	
 	-- sdram
+	sdr_drive_data => sdram_drive_dq,
 	sdr_data_in => SDRAM_DQ,
-	sdr_data_out => SDRAM_DQ,
+	sdr_data_out => SDRAM_DQ_out,
 	sdr_addr => SDRAM_A,
 	sdr_dqm(1) => SDRAM_DQMH,
 	sdr_dqm(0) => SDRAM_DQML,

@@ -54,7 +54,7 @@ void handlemouse(int reset)
 			int q=PS2MouseRead();
 			if(q>-1)
 			{
-//				printf("Received %x\n",q);
+				printf("Received %x\n",q);
 				--rxcount;
 			}
 			else if(CheckTimer(timeout))

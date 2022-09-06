@@ -72,6 +72,7 @@ architecture rtl of vga_controller_new is
 	constant PIX_MONO : std_logic_vector(3 downto 0) := X"2";
 	constant PIX_CLUT4BIT : std_logic_vector(3 downto 0) := X"3";
 	constant PIX_CLUT8BIT : std_logic_vector(3 downto 0) := X"4";
+	signal framebuffer_pixelformat_l : std_logic_vector(3 downto 0) := PIX_16BIT;
 	signal framebuffer_pixelformat : std_logic_vector(3 downto 0) := PIX_16BIT;
 	
 	signal framebuffer_pointer : std_logic_vector(31 downto 0) := X"00000000";
@@ -99,6 +100,8 @@ architecture rtl of vga_controller_new is
 
 	signal vsync_r : std_logic;
 	signal hsync_r : std_logic;
+	signal vsync_d : std_logic;
+	signal hsync_d : std_logic;
 	signal vblank_r : std_logic;
 	signal vblank_stb_vc : std_logic; -- In video clock domain
 	signal vblank_stb : std_logic; -- In sys clock domain
@@ -135,8 +138,11 @@ begin
 		if rising_edge(clk_video) then
 			vga_pixel <= end_of_pixel;
 			if end_of_pixel = '1' then
-				vsync<=vsync_r xor invert_vs;
-				hsync<=hsync_r xor invert_hs;
+				vsync<=vsync_d;
+				vsync_d<=vsync_r xor invert_vs;
+				hsync<=hsync_d;
+				hsync_d<=hsync_r xor invert_hs;
+				vga_window<=vga_window_r;
 			end if;
 		end if;
 	end process;
@@ -247,7 +253,7 @@ begin
 			if cpu_req_vc='1' then
 				case cpu_addr_vc is
 					when X"04" =>
-						framebuffer_pixelformat <= cpu_data_vc(3 downto 0);
+						framebuffer_pixelformat_l <= cpu_data_vc(3 downto 0);
 						invert_hs <= cpu_data_vc(30);
 						invert_vs <= cpu_data_vc(31);
 					when X"08" =>
@@ -320,7 +326,7 @@ begin
 	
 		format <= framebuffer_pixelformat & std_logic_vector(pixcounter);
 
-		with framebuffer_pixelformat select pixdiv <=
+		with framebuffer_pixelformat_l select pixdiv <=
 			"01"&X"f" when PIX_MONO,
 			"00"&X"7" when PIX_CLUT4BIT,
 			"00"&X"3" when PIX_CLUT8BIT,
@@ -411,10 +417,12 @@ begin
 					if hblank_r='1' and vblank_r='1' then
 						vga_window_r<='1';
 						-- Request next pixel from VGA cache
+						-- Update pixelformat when a new fetch starts
 						if pixcounter="00" then
 							pixelshift(dmawidth-1 downto 0)<=video_data;
 							nextword<='1';
 							pixcounter<=pixdiv;
+							framebuffer_pixelformat<=framebuffer_pixelformat_l;
 						else
 							pixcounter<=pixcounter-1;
 						end if;						
@@ -430,8 +438,6 @@ begin
 			end if;
 		end process;
 	end block;
-
-	vga_window<=vga_window_r;
 
 -- FIFO
 
