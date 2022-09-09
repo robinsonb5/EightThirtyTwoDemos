@@ -185,7 +185,8 @@ begin
 		
 		process(sysclk,port1_req_masked,port2_req_masked,video_req_masked,wb_req_masked) begin
 			if rising_edge(sysclk) then
-				if port0_extend='1' or video_req_masked='1' then
+				-- Video port is highest priority when video_req.pri is '1', lowest priority otherwise.
+				if port0_extend='1' or (video_req_masked='1' and video_req.pri='1') then
 					nextport <= port0;
 					nextaddr <= video_req.addr(31 downto 3 + sdram_width/16) & std_logic_vector(to_unsigned(0,3+sdram_width/16));
 				elsif refresh_force='1' then
@@ -200,6 +201,9 @@ begin
 				elsif port2_req_masked='1' then
 					nextport <= port2;
 					nextaddr <= dma_req.addr(31 downto 3 + sdram_width/16) & std_logic_vector(to_unsigned(0,3+sdram_width/16));
+				elsif video_req_masked='1' then
+					nextport <= port0;
+					nextaddr <= video_req.addr(31 downto 3 + sdram_width/16) & std_logic_vector(to_unsigned(0,3+sdram_width/16));
 				else
 					nextport <= idle;
 				end if;
