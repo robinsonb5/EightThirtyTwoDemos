@@ -7,12 +7,106 @@
 #include <string.h>
 #include <stdlib.h>
 
-unsigned char *FrameBuffer;	// Frame Buffer pointer
+#include "eightpixelfont.h"
+
+unsigned char *FrameBuffer=0;	// Frame Buffer pointer
 int screenwidth=1280;		// Initial screen width
 int screenheight=480;		// Initial screen heigth
 
 #define REG_VGA_CLUTIDX 0x40
 #define REG_VGA_CLUTDATA 0x44
+
+
+struct terminal
+{
+	int cursx,cursy;
+	int w,h;
+	int depth;
+};
+
+struct terminal term;
+
+void update_term(int screenwidth,int screenheight,int bits)
+{
+	term.cursx=0;
+	term.cursy=0;
+	term.w=screenwidth/8;
+	term.h=screenheight/8;
+	term.depth=bits;
+}
+
+void term_scroll()
+{
+	char *p=FrameBuffer+8*term.w;
+	if(!FrameBuffer)
+		return;
+	memcpy(FrameBuffer,p,term.w*(term.h-1)*8);
+	memset(FrameBuffer+term.w*(term.h-1)*8,0,8*term.w);
+}
+
+void term_newline()
+{
+	++term.cursy;
+	term.cursx=0;
+	if(term.cursy>=term.h)
+	{
+		term_scroll();
+		term.cursy=term.h-1;
+	}
+}
+
+
+int putchar(int c)
+{
+	char *p;
+	char *f;
+	if(FrameBuffer)
+	{
+		switch(c)
+		{
+			case 10:
+				term_newline();
+				break;
+			case 13:
+				term.cursx=0;
+				break;
+			default:
+				p=FrameBuffer+8*term.cursy*term.w+term.cursx;
+				f=eightpixelfont_getchar(c);
+				if(f)
+				{
+					int i;
+					for(i=0;i<8;++i)
+					{
+						*p=*f++;
+						p+=term.w;
+					}
+				}
+				if(++term.cursx>=term.w)
+					term_newline();
+				break;
+		}
+	}
+	return(c);
+}
+
+
+void drawcharacter(int x,int y,char c)
+{
+	int sw=screenwidth/8;
+	char *p=FrameBuffer+8*y*sw+x;
+	char *f=eightpixelfont_getchar(c);
+	if(f)
+	{
+		int i;
+		for(i=0;i<8;++i)
+		{
+			*p=*f++;
+			p+=sw;
+		}
+	}
+}
+
 
 void setpalette(int bits)
 {
@@ -50,34 +144,49 @@ void drawRectangle(unsigned int xS, unsigned int yS, unsigned int xE, unsigned i
 	}
 }
 
+#define ALIGNGUARD1 0x5432abcd
+#define ALIGNGUARD2 0xa9875432
+struct alignguard
+{
+	int guard1;
+	void *mem;
+	int guard2;
+};
 
-void *malloc_aligned(size_t size,int alignment)
+void *malloc_aligned(size_t size,int alignment,int high)
 {
 	char *result,*real;
-	int *tmp;
+	struct alignguard *tmp;
 	--alignment;
-//	real=(char *)malloc_high(size+4+alignment);
-	real=(char *)malloc(size+4+alignment);
+	if(high)
+		real=(char *)malloc_high(size+sizeof(struct alignguard)+alignment);
+	else
+		real=(char *)malloc(size+sizeof(struct alignguard)+alignment);
 	printf("Real address is %x\n",(int)real);
-	result=(char *)(((int)real+4+alignment)&~alignment);
-	tmp=(int *)result;
+	result=(char *)(((int)real+sizeof(struct alignguard)+alignment)&~alignment);
+	tmp=(struct alignguard *)result;
 	printf("Aligned to %x\n",(int)tmp);
 	--tmp;
 	printf("Wrote to %x\n",(int)tmp);
-	*tmp=(int)real;
+	tmp->guard1=ALIGNGUARD1;
+	tmp->mem=real;
+	tmp->guard2=ALIGNGUARD2;
 	return(result);
 }
 
 void free_aligned(char *ptr)
 {
-	int *tmp;
-	int real;
-	tmp=(int *)ptr;
+	struct alignguard *tmp;
+	tmp=(struct alignguard *)ptr;
 	printf("Free pointer %x\n",(int)tmp);
 	--tmp;
-	real=*tmp;
-	printf("Freeing real pointer %x fetched from %x\n",real,(int)tmp);
-	free((char *)real);
+	if(tmp->guard1!=ALIGNGUARD1 || tmp->guard2!=ALIGNGUARD2)
+	{
+		printf("WARNING: memory corruption\n");
+		return;
+	}
+	printf("Freeing real pointer %x fetched from %x\n",tmp->mem,(int)tmp);
+	free((char *)tmp->mem);
 }
 
 void plot(unsigned char *framebuffer,int x,int y,unsigned int c,int bits)
@@ -133,7 +242,7 @@ void initDisplay(enum screenmode mode,int bits)
 	{
 		screenwidth=w;
 		screenheight=h;
-		FrameBuffer=(char *)malloc_aligned((32 * w*h)/8,32); /* Make sure the framebuffer's big enough for all display depths */
+		FrameBuffer=(char *)malloc_aligned((32 * w*h)/8,32,1);
 		Screenmode_Set(mode);
 		HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
 		switch(bits)
@@ -172,10 +281,30 @@ char getserial()
 	}
 }
 
+void draw(bits)
+{
+	int i;
+	update_term(screenwidth,screenheight,bits);
+	for(i=0;i<screenheight;++i)
+	{
+		memset(FrameBuffer+(i*screenwidth*bits)/8,0x55,(screenwidth*bits)/8);
+		++i;
+		memset(FrameBuffer+(i*screenwidth*bits)/8,0xaa,(screenwidth*bits)/8);
+	}
+	for(i=0;i<screenheight;++i)
+		plot(FrameBuffer,i,i,0xffffff,bits);
+	for(i=0;i<screenheight;++i)
+		plot(FrameBuffer,i+15,i,0x0,bits);
+	puts("Hello, World! - ");
+	puts("Some more text with a newline\n");
+	puts("And some more text following the newline...\n");
+}
+
+
 int main(int argc, char **argv)
 {
 	int i;
-	int bits=32;
+	int bits=1;
 	int refresh=1;
 	enum screenmode mode=SCREENMODE_640x480_60;
 	setpalette(8);
@@ -186,24 +315,22 @@ int main(int argc, char **argv)
 		if(refresh)
 		{
 			initDisplay(mode,bits);
-			sw=(screenwidth-32)/4;
-			drawRectangle(0,0,screenwidth-1,screenheight-1,SWAP(0x39e7));
-			for(i=0;i<240;++i)
-			{
-				drawRectangle(0,i*2,sw-1,i*2+1,i);
-				drawRectangle(sw,i*2,2*sw-1,i*2+1,255-i);
-				drawRectangle(2*sw,i*2,3*sw-1,i*2+1,i/2);
-				drawRectangle(3*sw,i*2,4*sw-1,i*2+1,255-i/2);
-			}
+			draw(bits);
 			printf("\nCurrently using %d x %d in %d bits\n",screenwidth,screenheight,bits);
 			printf("Press 1 - %d to switch screenmodes,\na - e to set bit depth (32, 16, 8, 4 or 1).\n",SCREENMODE_MAX);
 		}
 		c=getserial();
 		if (c)
 		{
+			int oldbits=bits;
 			refresh=0;
 			switch(c)
 			{
+				case 't':
+					puts("Lorem ipsum dolor sit amet.... \n");
+					puts("Yes, just a bunch of random text to test\n");
+					puts("newline handling and scrolling on full screen...\n\n");
+					break;
 				case '1':
 				case '2':
 				case '3':
@@ -238,18 +365,12 @@ int main(int argc, char **argv)
 					bits=1;
 					break;
 			}
-			printf("%d bits per pixel\n",bits);
-			setpalette(bits);
-			for(i=0;i<screenheight;++i)
+			if(bits!=oldbits)
 			{
-				memset(FrameBuffer+(i*screenwidth*bits)/8,0x55,(screenwidth*bits)/8);
-				++i;
-				memset(FrameBuffer+(i*screenwidth*bits)/8,0xaa,(screenwidth*bits)/8);
+				printf("%d bits per pixel\n",bits);
+				setpalette(bits);
+				draw(bits);
 			}
-			for(i=0;i<screenheight;++i)
-				plot(FrameBuffer,i,i,0xffffff,bits);
-			for(i=0;i<screenheight;++i)
-				plot(FrameBuffer,i+15,i,0x0,bits);
 			if(refresh)
 				free_aligned(FrameBuffer);
 		}				

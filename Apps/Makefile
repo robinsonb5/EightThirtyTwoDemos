@@ -1,5 +1,5 @@
 APPS_TEXT = HelloWorld Dhrystone Dhrystone_Dual Malloc PS2Keyboard Filesystem AppHost UBasic Interrupts
-APPS_GRAPHICS = Conway RandTest VGA
+APPS_GRAPHICS = Conway RandTest VGA Terminal
 APPS_SOUND = Modplayer WAVPlayer
 APPS_32BIT = RandTest32 TrueColour SpriteTest IndexedTest
 
