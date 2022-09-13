@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
+use ieee.math_real.all;
 
 library work;
 use work.board_config.all;
@@ -31,6 +32,7 @@ package sdram_controller_pkg is
 	end record;
 	
 	type sdram_port_response is record
+		busy : std_logic;	-- Indicate that the port is able to accept a write
 		ack : std_logic;	-- For DMA ports, acknowledge the read request, for CPU port indicates a write was accepted
 		burst : std_logic;	-- High while a burst is in progress
 		strobe : std_logic; -- A high pulse for each 32-bit word of the transfer.

@@ -226,7 +226,7 @@ begin
 			sysclk => sysclk,
 			reset_n => reset,
 			cpu_req => cpu_req,
-			cpu_ack => cpu_ack.ack,
+			cpu_ack => cpu_ack,
 			ram_req => wbreq,
 			ram_stb => wbwrite,
 			ram_flagsaddr => wbflagsaddr,

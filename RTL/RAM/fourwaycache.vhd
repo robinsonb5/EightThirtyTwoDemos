@@ -19,7 +19,6 @@ generic (
 port (
 	clk : in std_logic;
 	reset : in std_logic;
-	busy : out std_logic;
 	flush : in std_logic;
 
 	from_cpu : in sdram_port_request;
@@ -210,7 +209,7 @@ begin
 		to_sdram.req<='0' when cache_sdram_req="0000" else '1';
 		
 		busy_i <= '0' when cache_busy="0000" else '1';
-		busy <= busy_i when wayselect_ready='1' and cache_ready="1111" else '1';
+		to_cpu.busy <= busy_i when wayselect_ready='1' and cache_ready="1111" else '1';
 
 		process(clk) begin
 			if rising_edge(clk) then

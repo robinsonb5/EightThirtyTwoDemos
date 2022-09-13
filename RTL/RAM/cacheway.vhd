@@ -83,7 +83,7 @@ begin
 			end if;
 		end process;
 
-		tag_hit <= '1' when tag_q(26 downto cachemsb-4) = cpu_addr(31 downto cachemsb+1) else '0';
+		tag_hit <= '1' when tag_q(31-taglsb downto 0) = cpu_addr(31 downto taglsb) else '0';
 		data_valid <= tag_q(31);
 		
 	end block;
@@ -127,11 +127,15 @@ begin
 		process(clk) begin
 			if rising_edge(clk) then			
 				-- Defaults
-				tag_wren<='0';
 				data_wren<='0';
 				readword_burst<='0';
-				
+
 				busy_i <= '1';
+
+				-- Setting tag_wren to '1' will invalidate the cacheline unless tag_w(31) is also set to '1'
+				tag_wren<='0';
+				tag_w(31 downto 32-taglsb)<=(others => '0');
+				tag_w(31-taglsb downto 0) <= latched_cpuaddr(31 downto taglsb);
 				
 				cpu_req_d<=cpu_req;
 				
@@ -156,8 +160,7 @@ begin
 					when S_FLUSH1 =>
 						latched_cpuaddr<=std_logic_vector(to_unsigned(2**taglsb,32));
 						readword<=(0=>'1',others =>'0');
-						tag_w <= (others => '0');
-						tag_wren<='1';
+						tag_wren<='1';	-- Invalidate the cacheline
 						readword_burst<='1';
 						state<=S_FLUSH2;
 
@@ -167,7 +170,7 @@ begin
 							latched_cpuaddr<=std_logic_vector(unsigned(latched_cpuaddr)+2**taglsb);
 						end if;
 						readword<=readword+1;
-						tag_wren<='1';
+						tag_wren<='1';	-- Invalidate the cacheline
 						if unsigned(latched_cpuaddr(cachemsb+1 downto taglsb))=0 and readword=0 then
 							state<=S_WAITING;
 							flushpending<='0';
@@ -177,9 +180,6 @@ begin
 						state<=S_WAITING;
 						ready<='1';
 						busy_i <= '0';
-						tag_w(31)<='1';
-						tag_w(30 downto 32-taglsb)<=(others => '0');
-						tag_w(26 downto 0) <= cpu_addr(31 downto 5);
 						latched_cpuaddr<=cpu_addr;
 						if cpu_req='1' then
 							newreq<='0';
@@ -197,10 +197,9 @@ begin
 						end if;
 
 					when S_WRITE1 =>
+						readword_burst<='1';
 						if tag_hit='1' then 
-							tag_w(31 downto 32-taglsb)<=(others => '0');
-							tag_w(31-taglsb downto 0) <= cpu_addr(31 downto taglsb);
-							tag_wren<='1';
+							tag_wren<='1';	-- Invalidate the cacheline
 						end if;
 						state<=S_WAITING;
 
@@ -213,6 +212,7 @@ begin
 						
 						-- Check for a match...
 						if tag_hit='0' or data_valid='0' then -- No hit, set the tag, start a request.
+							tag_w(31)<='1';	-- Mark the cacheline as valid.
 							tag_wren<='1';
 
 							sdram_req<='1';

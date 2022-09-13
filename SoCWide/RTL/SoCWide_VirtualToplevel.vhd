@@ -501,7 +501,6 @@ begin
 		signal cache_to_cpu : sdram_port_response;
 		signal sdram_to_cache : sdram_port_response;
 		
-		signal cache_busy : std_logic;
 	begin	
 	
 		-- SDRAM
@@ -565,7 +564,7 @@ begin
 
 				case sdram_state is
 					when idle =>
-						if cpu_req='1' and mem_ram='1' and cache_busy='0' then
+						if cpu_req='1' and mem_ram='1' and sdram_to_cpu.busy='0' and cache_to_cpu.busy='0' then
 							cpu_to_sdram.wr<=cpu_wr;
 							cpu_to_sdram.req<=cpu_wr;
 							cpu_to_cache.wr<=cpu_wr;
@@ -603,7 +602,6 @@ begin
 			(
 				clk => clk,
 				reset => reset_n,
-				busy => cache_busy,
 				flush => flushcaches,
 				to_cpu => cache_to_cpu,
 				from_cpu => cpu_to_cache,

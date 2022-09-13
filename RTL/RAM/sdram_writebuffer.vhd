@@ -10,7 +10,7 @@ port (
 	sysclk : in std_logic;
 	reset_n : in std_logic;
 	cpu_req : in sdram_port_request;
-	cpu_ack : out std_logic;
+	cpu_ack : out sdram_port_response;
 	ram_req : out std_logic;
 	ram_stb : out std_logic;
 	ram_flagsaddr : out std_logic_vector(31 downto 0);
@@ -53,7 +53,8 @@ architecture behavioural of sdram_writebuffer is
 	signal wb_req : std_logic;
 begin
 
-	cpu_ack <= wback;
+	cpu_ack.busy <= wbfull;
+	cpu_ack.ack <= wback;
 
 	ram_req <= wb_req;
 	ram_flagsaddr <= wbflagsaddr;
