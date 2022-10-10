@@ -6,6 +6,7 @@
 #include <hw/screenmode.h>
 
 enum screenmode {
+	SCREENMODE_CURRENT,
 	SCREENMODE_640x480_60,
 	SCREENMODE_768x576_60,
 	SCREENMODE_800x600_56,
@@ -22,6 +23,8 @@ int Screenmode_GetHeight(enum screenmode mode);
 
 /* returns 1 on successful completion, 0 on error. */
 int Screenmode_Set(enum screenmode mode);
+
+enum screenmode Screenmode_Get();
 
 #endif
 

@@ -18,6 +18,7 @@ struct screenmode_timings {
 
 static struct screenmode_timings timings[SCREENMODE_MAX]=
 {
+	{ 640, 656, 752, 800, 480, 500, 502, 525, VGA_HSYNC_NEG|VGA_VSYNC_NEG|5}, /* Current entry, updated when the screenmode changes */
 	{ 640, 656, 752, 800, 480, 500, 502, 525, VGA_HSYNC_NEG|VGA_VSYNC_NEG|5},
 	{ 768, 792, 872, 976, 576, 577, 580, 597, VGA_HSYNC_NEG|VGA_VSYNC_POS|3},
 	{ 800, 824, 896,1024, 600, 601, 603, 625, VGA_HSYNC_POS|VGA_VSYNC_POS|3},
@@ -45,7 +46,7 @@ int Screenmode_GetHeight(enum screenmode mode)
 
 int Screenmode_Set(enum screenmode mode)
 {
-	if(mode>=0 && mode<SCREENMODE_MAX)
+	if(mode>=1 && mode<SCREENMODE_MAX)
 	{
 		HW_VGA(REG_VGA_HTOTAL)=timings[mode].htotal-1;
 		HW_VGA(REG_VGA_HSIZE)=timings[mode].hsize-1;
@@ -56,6 +57,7 @@ int Screenmode_Set(enum screenmode mode)
 		HW_VGA(REG_VGA_VSSTART)=timings[mode].vsstart-1;
 		HW_VGA(REG_VGA_VSSTOP)=timings[mode].vsstop-1;
 		HW_VGA(REG_VGA_PIXELCLOCK)=timings[mode].pixelclock;
+		timings[0]=timings[mode];
 		return(1);
 	}
 	else

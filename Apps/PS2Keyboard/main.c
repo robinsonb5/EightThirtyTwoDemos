@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 #endif
 				MouseY=nx;
 
-				printf("%d %d %x\n",MouseX,MouseY,MouseButtons,w1,w2,w3);
+				printf("%d %d %x\n",MouseX,MouseY,MouseButtons);
 			}
 		}
 		else if(PS2MouseRead()==0xfa)

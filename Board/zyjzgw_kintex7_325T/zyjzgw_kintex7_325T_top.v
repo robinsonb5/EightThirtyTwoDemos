@@ -15,7 +15,7 @@
 
 module zyjzgw_kintex7_325T_top(
 	input  CLK50,
-	output [4:0] LED,
+	output [4:0] LED, // (1:0 not populated)
 	input  [7:0] SW,
 	input  [4:0] KEY,
 	output sd_cs,
@@ -36,9 +36,11 @@ wire [15:0] audio_l,audio_r;
 wire serial_rx;
 wire serial_tx;
 
-assign IO_A[7] = serial_tx;
-assign IO_A[6:0] = 7'bzzzzzzz;
-assign serial_rx = IO_A[6];
+// Adjusted to match the pin mapping in SaxonSoC
+assign IO_A[7] = 1'bz;
+assign serial_rx = IO_A[7];
+assign IO_A[6] = serial_tx;
+assign IO_A[5:0] = 6'bzzzzzzz;
 
 wire sysclk,slowclk,pll_locked;
 
@@ -77,11 +79,13 @@ wire vga_vsync;
 wire vga_window;
 wire vga_pixel;
 
+wire reset_n = KEY[2] & pll_locked;
+
 VirtualToplevel #(.sysclk_frequency(1700),.jtag_uart(0)) vt
 (
 	.clk(sysclk),
 	.slowclk(slowclk),
-	.reset_in(KEY[0] & pll_locked),
+	.reset_in(reset_n),
 
 	.vga_red(vga_red),
 	.vga_green(vga_green),

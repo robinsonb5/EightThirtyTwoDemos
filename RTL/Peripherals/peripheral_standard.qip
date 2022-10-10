@@ -5,7 +5,7 @@ set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) jtag_uart.
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) spi.vhd ]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) io_ps2_com.vhd ]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) interrupt_controller.vhd ]
-set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) timer_controller_new.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) timer_controller.vhd ]
 
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) Peripheral_Standard.vhd ]
 

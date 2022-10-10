@@ -22,7 +22,7 @@ source ../../project_defs.tcl
 source ${boardpath}/${board}/${board}_defs.tcl
 if { [info exists target_frequency_xilinx] == 0 } {set target_frequency_xilinx $target_frequency}
 
-create_project ${_xil_proj_name_} . -part $device -force
+create_project ${_xil_proj_name_} . -part $device_full -force
 
 puts $corename
 
@@ -38,7 +38,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 set obj [get_filesets sources_1]
 source ${corename}_files.tcl
 add_files -norecurse -fileset $obj $files
-add_files -norecurse -scan_for_includes -fileset $obj ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency_xilinx}/pll.xci
+add_files -norecurse -scan_for_includes -fileset $obj ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency_xilinx}/pll.v
 
 # Set the type of each file
 foreach ifile $files {
@@ -53,6 +53,7 @@ foreach ifile $files {
 }
 
 # Bring in any standard files required by the board.
+set fpgatoolchain "vivado"
 source ${boardpath}/${board}/${board}_support.tcl
 
 set_property top -value $topmodule -objects [get_filesets sources_1]
@@ -79,7 +80,7 @@ if {[info exists sim_topmodule]} {
 	}
 	set_property top -value $sim_topmodule -objects [get_filesets sim_1]
 
-	add_files -norecurse -scan_for_includes -fileset $obj ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency_xilinx}/pll.xci
+	add_files -norecurse -scan_for_includes -fileset $obj ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency_xilinx}/pll.v
 }
 
 if {[file exists "../../overrides_vivado.tcl"]} {

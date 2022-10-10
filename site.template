@@ -4,7 +4,10 @@
 # If you just want to build for a single board then supply BOARD=boardname
 # as part of the make command.
 
-BOARDS=neptuno de10lite chameleon64 chameleon64v2 mist deca de1 de2 bemicro_cv ems11_bb37 icesugarpro
+BOARDS=neptuno de10lite chameleon64 chameleon64v2 mist deca de1 de2 bemicro_cv ems11_bb37
+
+# Toolchain paths for various vendors / devices
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # If you're building for multiple boards you might need to have multiple versions
 # of Quartus installed.  Since you can't have more than one version in your
@@ -13,7 +16,7 @@ BOARDS=neptuno de10lite chameleon64 chameleon64v2 mist deca de1 de2 bemicro_cv e
 # Q13 for older devices.  13.0sp1 supports Cyclone II
 # while 13.1 is the last version to support Cyclone III
 
-Q13 = /opt/altera/13.0sp1/quartus/bin/
+Q13 = /opt/altera/13.1/quartus/bin/
 
 
 # Q18 for newer devices - I believe anything from version 15 upwards
@@ -26,28 +29,55 @@ Q18 = /opt/intelFPGA_lite/18.1/quartus/bin/
 
 ISE14 = /opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/
 
-# Vivado for newer Xilinx devices
+
+# Vivado for newer Xilinx devices (see later)
 
 VIVADO21 = /opt/Xilinx/Vivado/2021.2/bin/
 
-# Yosys for ECP5 devices (and others in future)
 
-YOSYS = /path/to/oss-cad-suite/bin/
+# Yosys for Lattice ECP5 devices
 
-
-# The appropriate version of the tools for each class of device
-
-QUARTUS_CYCLONEII = $(Q13)
-QUARTUS_CYCLONEIII = $(Q13)
-QUARTUS_CYCLONEIV = $(Q18)
-QUARTUS_CYCLONEV = $(Q18)
-QUARTUS_CYCLONE10LP = $(Q18)
-QUARTUS_MAX10 = $(Q18)
-
-ISE_KINTEX7 = $(ISE14)
-ISE_SPARTAN6 = $(ISE14)
-ISE_SPARTAN3 = $(ISE14)
+YOSYS = /home/amr/FPGA/oss-cad-suite/bin/
 
 
-VIVADO_ARTIX7 = $(VIVADO21)
+# XILINX series 7 devices are supported by both ISE and Vivado (and to a certain extent, Project XRay.)
+# Set your preferred tool here:
+
+XILINX_SERIES7_TOOL = $(ISE14)
+XILINX_SERIES7_MAKEFILE = ise.mk
+# XILINX_SERIES7_TOOL = $(VIVADO21)
+# XILINX_SERIES7_MAKEFILE = vivado.mk
+
+TOOL_KINTEX7 = $(XILINX_SERIES7_TOOL)
+TOOL_ARTIX7 = $(XILINX_SERIES7_TOOL)
+MAKEFILE_KINTEX7 = $(XILINX_SERIES7_MAKEFILE)
+MAKEFILE_ARTIX7 = $(XILINX_SERIES7_MAKEFILE)
+
+
+# Yosys is currently required for Lattice ECP5 devices, but Diamond support would be a possible addition.
+
+TOOL_ECP5 = $(YOSYS)
+MAKEFILE_ECP5 = yosys.mk
+
+
+# Paths for a version of Quartus supporting each class of device
+
+TOOL_CYCLONEII = $(Q13)
+TOOL_CYCLONEIII = $(Q13)
+TOOL_CYCLONEIV = $(Q18)
+TOOL_CYCLONEV = $(Q18)
+TOOL_CYCLONE10LP = $(Q18)
+TOOL_MAX10 = $(Q18)
+MAKEFILE_CYCLONEII = quartus.mk
+MAKEFILE_CYCLONEIII = quartus.mk
+MAKEFILE_CYCLONEIV = quartus.mk
+MAKEFILE_CYCLONEV = quartus.mk
+MAKEFILE_CYCLONE10LP = quartus.mk
+MAKEFILE_MAX10 = quartus.mk
+
+TOOL_SPARTAN6 = $(ISE14)
+TOOL_SPARTAN3 = $(ISE14)
+MAKEFILE_SPARTAN6 = ise.mk
+MAKEFILE_SPARTAN3 = ise.mk
+
 

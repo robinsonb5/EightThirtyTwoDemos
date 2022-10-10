@@ -5,7 +5,7 @@ jtag_uart.vhd
 spi.vhd
 io_ps2_com.vhd
 interrupt_controller.vhd
-timer_controller_new.vhd
+timer_controller.vhd
 
 Peripheral_Standard.vhd
 

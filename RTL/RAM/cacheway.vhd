@@ -61,6 +61,7 @@ architecture behavioural of cacheway is
 	
 	signal busy_i : std_logic;
 
+	attribute no_rw_check : boolean;
 begin
 
 	-- RAM blocks
@@ -68,18 +69,24 @@ begin
 	tagblock : block
 		type tagmem_t is array (0 to (2**tagbits)-1) of std_logic_vector(31 downto 0);
 		signal tagmem : tagmem_t;
-		signal tag_a : std_logic_vector(tagbits-1 downto 0);
+		attribute no_rw_check of tagmem : signal is true;
+		signal tag_ra : std_logic_vector(tagbits-1 downto 0);
+		signal tag_wa : std_logic_vector(tagbits-1 downto 0);
 	begin
-		tag_a <= latched_cpuaddr(tagmsb downto taglsb) when readword_burst='1'
-			else cpu_addr(tagmsb downto taglsb);
+		tag_wa <= latched_cpuaddr(tagmsb downto taglsb);
+		tag_ra <= cpu_addr(tagmsb downto taglsb);
 	
 		process(clk) begin
 			if rising_edge(clk) then
 				if tag_wren='1' then
-					tagmem(to_integer(unsigned(tag_a)))<=tag_w;
+					tagmem(to_integer(unsigned(tag_wa)))<=tag_w;
 				end if;
+			end if;
+		end process;
 
-				tag_q<=tagmem(to_integer(unsigned(tag_a)));
+		process(clk) begin
+			if rising_edge(clk) then
+				tag_q<=tagmem(to_integer(unsigned(tag_ra)));
 			end if;
 		end process;
 
@@ -92,7 +99,9 @@ begin
 	datablock : block
 		type datamem_t is array (0 to (2**cachebits)-1) of std_logic_vector(31 downto 0);
 		signal datamem : datamem_t;
-		signal data_a : std_logic_vector(cachebits-1 downto 0);
+		attribute no_rw_check of datamem : signal is true;
+		signal data_ra : std_logic_vector(cachebits-1 downto 0);
+		signal data_wa : std_logic_vector(cachebits-1 downto 0);
 	begin
 		
 		-- In the data blockram the lower burstlog2 bits of the address determine
@@ -100,16 +109,20 @@ begin
 		-- from the CPU address; when writing to the cache it's determined by the state
 		-- machine.
 
-		data_a <= latched_cpuaddr(cachemsb downto taglsb)&std_logic_vector(readword) when readword_burst='1'
-			else cpu_addr(cachemsb downto 2);
+		data_wa <= latched_cpuaddr(cachemsb downto taglsb)&std_logic_vector(readword);
+		data_ra <= cpu_addr(cachemsb downto 2);
 
 		process(clk) begin
 			if rising_edge(clk) then
 				if data_wren='1' then
-					datamem(to_integer(unsigned(data_a)))<=data_w;
+					datamem(to_integer(unsigned(data_wa)))<=data_w;
 				end if;
-
-				data_q<=datamem(to_integer(unsigned(data_a)));
+			end if;
+		end process;
+		
+		process(clk) begin
+			if rising_edge(clk) then
+				data_q<=datamem(to_integer(unsigned(data_ra)));
 			end if;
 		end process;
 	end block;
@@ -188,7 +201,7 @@ begin
 							elsif newreq='1' then	-- Write cycle
 								readword_burst<='1';
 								if cpu_addr(30) = '0' then 	-- An upper image of the RAM with cache clear bypass.
-									state<=S_WRITE1;
+									tag_wren<='1';	-- Invalidate the cacheline
 								end if;
 							end if;
 						end if;
@@ -199,7 +212,6 @@ begin
 					when S_WRITE1 =>
 						readword_burst<='1';
 						if tag_hit='1' then 
-							tag_wren<='1';	-- Invalidate the cacheline
 						end if;
 						state<=S_WAITING;
 
@@ -212,8 +224,7 @@ begin
 						
 						-- Check for a match...
 						if tag_hit='0' or data_valid='0' then -- No hit, set the tag, start a request.
-							tag_w(31)<='1';	-- Mark the cacheline as valid.
-							tag_wren<='1';
+							tag_wren<='1';	-- Mark the cacheline temporarily invalid
 
 							sdram_req<='1';
 							state<=S_WAITFILL;
@@ -246,6 +257,8 @@ begin
 							data_wren<='1';
 						end if;
 						if sdram_burst='0' then
+							tag_w(31)<='1';	-- Mark the cacheline as valid.
+							tag_wren<='1';
 							readword<=unsigned(latched_cpuaddr(burstlog2+1 downto 2));
 							state<=S_WAITING;
 						end if;

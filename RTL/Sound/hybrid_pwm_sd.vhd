@@ -4,6 +4,10 @@
 --// increasing the pulse width, since narrower pulses seem to equate to more
 --// noise on the Minimig
 
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
 entity hybrid_pwm_sd is
 port (
 	clk : in std_logic;
@@ -31,25 +35,25 @@ begin
 		pwmcounter<=pwmcounter+1;
 
 		if pwmcounter=pwmthreshold then
-			out<='0';
+			dout<='0';
 		end if;
 
-		if pwmcounter=="11111" then -- Update threshold when pwmcounter reaches zero
+		if pwmcounter="11111" then -- Update threshold when pwmcounter reaches zero
 			-- Pick a new PWM threshold using a Sigma Delta
 			scaledin<=134217728 -- (1<<(16-5))<<16, offset to keep centre aligned.
-				+(('0'&din}*61440); -- 30<<(16-5)-1;
+				+(('0'&din)*61440); -- 30<<(16-5)-1;
 			sigma<=scaledin[31:16]+{5'b000000,sigma[10:0]};	// Will use previous iteration's scaledin value
 			pwmthreshold<=sigma[15:11]; // Will lag 2 cycles behind, but shouldn't matter.
-			out<=1'b1;
+			dout<=1'b1;
 		end
 
 		if(dump)
 		begin
 			sigma[10:0]<=10'b10_0000_0000; // Clear the accumulator to avoid standing tones.
-//			sigma[10:0]<={(lfsr_reg[8] ? 4'b10_0 : 4'b011),lfsr_reg[7:0]}; // fill the accumulator with a random value to avoid standing tones.
+--//			sigma[10:0]<={(lfsr_reg[8] ? 4'b10_0 : 4'b011),lfsr_reg[7:0]}; // fill the accumulator with a random value to avoid standing tones.
 
 			// x^25 + x^22 + 1
-//			lfsr_reg<={lfsr_reg[23:0],lfsr_reg[24] ^ lfsr_reg[21]};
+--//			lfsr_reg<={lfsr_reg[23:0],lfsr_reg[24] ^ lfsr_reg[21]};
 		end
 	end
 end

@@ -129,7 +129,10 @@ module deca_top(
 	output VGA_VS,
 	output [2:0] VGA_R,
 	output [2:0] VGA_G,
-	output [2:0] VGA_B
+	output [2:0] VGA_B,
+	
+	output UART_TXD,
+	input UART_RXD
 );
 
 assign LED = 8'hff;
@@ -142,6 +145,7 @@ wire pll_locked;
 wire ramclk;
 wire sysclk;
 wire slowclk;
+wire videoclk;
 
 
 pll sysclks
@@ -150,6 +154,7 @@ pll sysclks
 	.c0(ramclk),
 	.c1(sysclk),
 	.c2(slowclk),
+	.c3(videoclk),
 	.locked(pll_locked)
 );
 
@@ -168,10 +173,11 @@ assign VGA_B=vga_window ? vga_blue[7:5] : 3'b000;
 assign VGA_HS=vga_hsync;
 assign VGA_VS=vga_vsync;
 
-VirtualToplevel #(.sdram_rows(13),.sdram_cols(9),.sysclk_frequency(1000),.jtag_uart("true")) virtualtoplevel
+VirtualToplevel #(.sdram_rows(13),.sdram_cols(9),.sysclk_frequency(1000),.jtag_uart("false")) virtualtoplevel
 (
 	.clk(sysclk),
 	.slowclk(slowclk),
+	.videoclk(videoclk),
 	.reset_in(KEY[0] & pll_locked),
 
 	// VGA
@@ -211,8 +217,8 @@ VirtualToplevel #(.sdram_rows(13),.sdram_cols(9),.sysclk_frequency(1000),.jtag_u
 //	ps2m_dat_out : out std_logic;
 
 //	-- UART
-	.rxd(1'b1)
-//	txd	: out std_logic;
+	.rxd(UART_RXD),
+	.txd(UART_TXD)
 	
 //	-- Audio
 //	audio_l : out signed(15 downto 0);

@@ -43,13 +43,9 @@ project_help:
 	$(info )
 	$(info LZ4 - decompresses a small chunk of LZ4 compressed text to the UART.)
 	$(info )
-	$(info VGA - displays a framebuffer from SDRAM on the VGA port.)
-	$(info )
 	$(info VGA_NoRAM - displays a test pattern generated on the fly.)
 	$(info )
 	$(info SoC - a system-on-chip with SDRAM, video and sound.)
-	$(info )
-	$(info SoCWide - a version of SoC which makes use of 32-bit wide SDRAM.)
 	$(info )
 
 board_help:

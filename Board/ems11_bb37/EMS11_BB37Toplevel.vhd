@@ -88,6 +88,8 @@ signal sysclk : std_logic;
 signal sysclk_inv : std_logic;
 signal clklocked : std_logic;
 signal sysclk_slow : std_logic;
+signal videoclk : std_logic;
+signal videoclk_inv : std_logic;
 signal reset : std_logic;
 
 signal vga_red : unsigned(7 downto 0);
@@ -172,6 +174,7 @@ port map(
 	LOCKED => clklocked
 );
 
+videoclk_inv <= not videoclk;
 sysclk_inv <= not sysclk;
 sdram_clk_inv <= not sdram_clk;
 
@@ -200,8 +203,8 @@ generic map(
 	SRTYPE => "SYNC")
 port map (
 	Q => vga_clock,
-	C0 => sysclk,
-	C1 => sysclk_inv,
+	C0 => videoclk,
+	C1 => videoclk_inv,
 	CE => '1',
 	D0 => '0',
 	D1 => '1',
@@ -276,6 +279,7 @@ project: entity work.VirtualToplevel
 	port map (
 		clk => sysclk,
 		slowclk => sysclk_slow,
+		videoclk => videoclk,
 		reset_in => reset,
 	
 		-- VGA

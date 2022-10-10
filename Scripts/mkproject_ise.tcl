@@ -26,7 +26,17 @@ source ${boardpath}/${board}/${board}_defs.tcl
 if { [info exists target_frequency_xilinx] == 0 } {set target_frequency_xilinx $target_frequency}
 
 if { ${requires_sdram}==0 || ${have_sdram}==1 } {
-	project open ${corename}.xise
+	project new ${corename}.xise
+	project set family "${fpga}"
+	project set device "${device}"
+	project set package "${device_package}"
+	project set speed "${device_speed}"
+	project set top_level_module_type "HDL"
+	project set synthesis_tool "XST (VHDL/Verilog)"
+	project set simulator "ISim (VHDL/Verilog)"
+	project set "Preferred Language" "VHDL"
+	project set "Enable Message Filtering" "false"
+
 	source ${boardpath}/${board}/${board}_support.tcl
 	source ${corename}_files.tcl
 	xfile add ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency_xilinx}/pll.${pll_extension}

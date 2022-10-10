@@ -23,12 +23,17 @@ package sdram_controller_pkg is
 	constant sdram_bank_high : integer := sdram_bank_low+1;
 
 	type sdram_port_request is record
+		-- Signals for both read and write accesses
 		addr : std_logic_vector(31 downto 0);
-		d : std_logic_vector(31 downto 0);
-		wr : std_logic;
-		bytesel : std_logic_vector(3 downto 0);
 		req : std_logic;
-		pri : std_logic;
+		burst : std_logic;	-- Request a burst transfer. For writes, hold the arbiter to avoid inefficiency from interleaving writes to two rows.
+		-- Signals for read accesses
+		pri : std_logic;	-- Request access stretching, to fill a video FIFO as quickly as possible.
+		-- Signals for write accesses
+		wr : std_logic;
+		d : std_logic_vector(31 downto 0);
+		bytesel : std_logic_vector(3 downto 0);
+		strobe : std_logic; -- A high pulse for each 32-bit word of the transfer.
 	end record;
 	
 	type sdram_port_response is record
@@ -37,17 +42,19 @@ package sdram_controller_pkg is
 		burst : std_logic;	-- High while a burst is in progress
 		strobe : std_logic; -- A high pulse for each 32-bit word of the transfer.
 		q : std_logic_vector(31 downto 0); -- Data from SDRAM.
+		err : std_logic; -- High if a write is seen on a read-only port, or vice-versa.
 	end record;
 
 	type sdram_phy_out is record
-		drive : std_logic;
-		d : std_logic_vector(sdram_width-1 downto 0);
 		a : std_logic_vector(sdram_rowbits-1 downto 0);
-		cas : std_logic;
-		ras : std_logic;
-		we : std_logic;
-		cs : std_logic;
+		d : std_logic_vector(sdram_width-1 downto 0);
 		cke : std_logic;
+		cs : std_logic;
+		ras : std_logic;
+		cas : std_logic;
+		dqm : std_logic_vector(sdram_width/8-1 downto 0);
+		we : std_logic;
+		drive : std_logic;
 	end record;
 
 	type sdram_phy_in is record

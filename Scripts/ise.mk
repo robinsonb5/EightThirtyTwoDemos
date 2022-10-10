@@ -19,11 +19,11 @@ clean:
 	-rm Working/$(TARGET).bit
 
 $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
-	$(SCRIPTSDIR)/expandtemplate_ise.sh $+ ../.. >$@
+	$(SCRIPTSDIR)/expandtemplate_ise.sh $(BOARDDIR)/board.files $(BOARDDIR) >>$@
+	$(SCRIPTSDIR)/expandtemplate_ise.sh $+ ../.. >>$@
 
-$(TARGET).xise: $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/template.xise
+$(TARGET).xise: $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl
 	mkdir -p Working
-	cp $(BOARDDIR)/template.xise $(TARGET).xise
 	@command -v $(TOOLPATH)/xtclsh && $(TOOLPATH)/xtclsh $(SCRIPTSDIR)/mkproject_ise.tcl -project $(PROJECT) -board $(BOARD) || echo "xtclsh not found - skipping Xilinx project generation."
 
 Working/$(TARGET).bit: $(TARGET).xise

@@ -28,8 +28,10 @@ END DualPortRAM;
 
 architecture arch of DualPortRAM is
 
+attribute no_rw_check : boolean:
 type ram_type is array(natural range ((2**addrbits)-1) downto 0) of std_logic_vector(databits-1 downto 0);
 shared variable ram : ram_type;
+attribute no_rw_check of ram : variable is true;
 
 begin
 

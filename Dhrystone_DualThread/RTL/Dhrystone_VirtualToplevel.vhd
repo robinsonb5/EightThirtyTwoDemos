@@ -93,20 +93,8 @@ signal ser_txgo : std_logic;
 signal ser_rxint : std_logic;
 
 
--- Interrupt signals
-
-constant int_max : integer := 1;
-signal int_triggers : std_logic_vector(int_max downto 0);
-signal int_status : std_logic_vector(int_max downto 0);
-signal int_ack : std_logic;
-signal int_req : std_logic;
-signal int_enabled : std_logic :='0'; -- Disabled by default
-signal int_trigger : std_logic;
-
-
 -- Timer register block signals
 
-signal timer_reg_req : std_logic;
 signal timer_tick : std_logic;
 
 
@@ -234,41 +222,6 @@ myuart : entity work.simple_uart
 	);
 end generate;
 	
-mytimer : entity work.timer_controller
-  generic map(
-		prescale => sysclk_frequency, -- Prescale incoming clock
-		timers => 0
-  )
-  port map (
-		clk => clk,
-		reset => reset_n,
-
-		reg_addr_in => cpu_addr(7 downto 0),
-		reg_data_in => from_cpu,
-		reg_rw => '0', -- we never read from the timers
-		reg_req => timer_reg_req,
-
-		ticks(0) => timer_tick -- Tick signal is used to trigger an interrupt
-	);
-
-
--- Interrupt controller
-
-intcontroller: entity work.interrupt_controller
-generic map (
-	max_int => int_max
-)
-port map (
-	clk => clk,
-	reset_n => reset_n,
-	trigger => int_triggers, -- Again, thanks ISE.
-	ack => int_ack,
-	int => int_req,
-	status => int_status
-);
-
-int_triggers<=(0=>timer_tick, others => '0');
-
 
 -- ROM
 
@@ -350,8 +303,6 @@ begin
 	if rising_edge(clk) then
 		mem_busy<='1';
 		ser_txgo<='0';
-		int_ack<='0';
-		timer_reg_req<='0';
 
 		mem_rd_d<=mem_rd;
 		mem_wr_d<=mem_wr;
@@ -359,15 +310,8 @@ begin
 		-- Write from CPU?
 		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
 			case peripheral_addr is
-				when X"C" =>	-- Timer controller at 0xFFFFFC00
-					timer_reg_req<='1';
-					mem_busy<='0';	-- Audio controller never blocks the CPU
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
-
-						when X"B0" => -- Interrupts
-							int_enabled<=from_cpu(0);
-							mem_busy<='0';
 
 						when X"C0" => -- UART
 							ser_txdata<=from_cpu(7 downto 0);
@@ -388,12 +332,6 @@ begin
 
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
-
-						when X"B0" => -- Interrupt
-							from_mem<=(others=>'X');
-							from_mem(int_max downto 0)<=int_status;
-							int_ack<='1';
-							mem_busy<='0';
 
 						when X"C0" => -- UART
 							from_mem<=(others=>'X');

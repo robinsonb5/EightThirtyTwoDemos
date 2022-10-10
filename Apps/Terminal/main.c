@@ -162,12 +162,12 @@ void *malloc_aligned(size_t size,int alignment,int high)
 		real=(char *)malloc_high(size+sizeof(struct alignguard)+alignment);
 	else
 		real=(char *)malloc(size+sizeof(struct alignguard)+alignment);
-	printf("Real address is %x\n",(int)real);
+//	printf("Real address is %x\n",(int)real);
 	result=(char *)(((int)real+sizeof(struct alignguard)+alignment)&~alignment);
 	tmp=(struct alignguard *)result;
-	printf("Aligned to %x\n",(int)tmp);
+//	printf("Aligned to %x\n",(int)tmp);
 	--tmp;
-	printf("Wrote to %x\n",(int)tmp);
+//	printf("Wrote to %x\n",(int)tmp);
 	tmp->guard1=ALIGNGUARD1;
 	tmp->mem=real;
 	tmp->guard2=ALIGNGUARD2;
@@ -178,14 +178,14 @@ void free_aligned(char *ptr)
 {
 	struct alignguard *tmp;
 	tmp=(struct alignguard *)ptr;
-	printf("Free pointer %x\n",(int)tmp);
+//	printf("Free pointer %x\n",(int)tmp);
 	--tmp;
 	if(tmp->guard1!=ALIGNGUARD1 || tmp->guard2!=ALIGNGUARD2)
 	{
 		printf("WARNING: memory corruption\n");
 		return;
 	}
-	printf("Freeing real pointer %x fetched from %x\n",tmp->mem,(int)tmp);
+//	printf("Freeing real pointer %x fetched from %x\n",tmp->mem,(int)tmp);
 	free((char *)tmp->mem);
 }
 
@@ -341,7 +341,7 @@ int main(int argc, char **argv)
 				case '8':
 				case '9':
 				case '0':
-					mode=c-'1';
+					mode=c-'0';
 					refresh=1;
 					break;
 				case 'a':

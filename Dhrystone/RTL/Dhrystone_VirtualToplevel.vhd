@@ -97,8 +97,6 @@ signal ser_rxint : std_logic;
 
 
 -- Timer register block signals
-
-signal timer_reg_req : std_logic;
 signal timer_tick : std_logic;
 
 
@@ -238,24 +236,6 @@ myuart : entity work.simple_uart
 	);
 end generate;
 
-	
-mytimer : entity work.timer_controller
-  generic map(
-		prescale => sysclk_frequency, -- Prescale incoming clock
-		timers => 0
-  )
-  port map (
-		clk => clk,
-		reset => reset_n,
-
-		reg_addr_in => cpu_addr(7 downto 0),
-		reg_data_in => from_cpu,
-		reg_rw => '0', -- we never read from the timers
-		reg_req => timer_reg_req,
-
-		ticks(0) => timer_tick -- Tick signal is used to trigger an interrupt
-	);
-
 
 -- ROM
 
@@ -361,7 +341,6 @@ begin
 	if rising_edge(clk) then
 		mem_busy<='1';
 		ser_txgo<='0';
-		timer_reg_req<='0';
 
 		mem_rd_d<=mem_rd;
 		mem_wr_d<=mem_wr;
@@ -369,9 +348,6 @@ begin
 		-- Write from CPU?
 		if mem_wr='1' and mem_wr_d='0' and mem_busy='1' then
 			case peripheral_addr is
-				when X"C" =>	-- Timer controller at 0xFFFFFC00
-					timer_reg_req<='1';
-					mem_busy<='0';	-- Audio controller never blocks the CPU
 				when X"F" =>	-- Peripherals
 					case cpu_addr(7 downto 0) is
 

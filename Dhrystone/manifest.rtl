@@ -1,7 +1,5 @@
 ../RTL/Peripherals/simple_uart.vhd
 ../RTL/Peripherals/jtag_uart.vhd
-../RTL/Peripherals/interrupt_controller.vhd
-../RTL/Peripherals/timer_controller.vhd
 ../EightThirtyTwo/RTL/debug_bridge_jtag.qip
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
 Firmware/Dhrystone_ROM.rom

@@ -2,17 +2,22 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
 
+library work;
+use work.board_config.all;
+use work.Toplevel_Config.all;
 
 entity VirtualToplevel is
 	generic (
 		sdram_rows : integer := 12;
 		sdram_cols : integer := 8;
 		sysclk_frequency : integer := 1000; -- Sysclk frequency * 10 MHz
+		debug : boolean := false;
 		jtag_uart : boolean := false
 	);
 	port (
 		clk 			: in std_logic;
 		slowclk		: in std_logic;
+		videoclk 	: in std_logic;
 		reset_in 	: in std_logic;
 
 		-- VGA
@@ -26,10 +31,10 @@ entity VirtualToplevel is
 
 		-- SDRAM
 		sdr_drive_data	: out std_logic;
-		sdr_data_in		: in std_logic_vector(15 downto 0);
-		sdr_data_out	: inout std_logic_vector(15 downto 0);
+		sdr_data_in		: in std_logic_vector(board_sdram_width-1 downto 0);
+		sdr_data_out	: inout std_logic_vector(board_sdram_width-1 downto 0);
 		sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
-		sdr_dqm 		: out std_logic_vector(1 downto 0);
+		sdr_dqm 		: out std_logic_vector(board_sdram_width/8-1 downto 0);
 		sdr_we 		: out std_logic;
 		sdr_cas 		: out std_logic;
 		sdr_ras 		: out std_logic;
@@ -103,7 +108,6 @@ signal int_trigger : std_logic;
 
 -- Timer register block signals
 
-signal timer_reg_req : std_logic;
 signal timer_tick : std_logic;
 
 -- Mutex signals
@@ -255,23 +259,6 @@ myuart : entity work.simple_uart
 	);
 end generate;
 	
-mytimer : entity work.timer_controller
-  generic map(
-		prescale => sysclk_frequency, -- Prescale incoming clock
-		timers => 0
-  )
-  port map (
-		clk => clk,
-		reset => reset_n,
-
-		reg_addr_in => cpu_addr(7 downto 0),
-		reg_data_in => from_cpu,
-		reg_rw => '0', -- we never read from the timers
-		reg_req => timer_reg_req,
-
-		ticks(0) => timer_tick -- Tick signal is used to trigger an interrupt
-	);
-
 
 -- Interrupt controller
 
@@ -288,6 +275,7 @@ port map (
 	status => int_status
 );
 
+timer_tick<='0';
 int_triggers<=(0=>timer_tick, 1=>mutex_trigger, others => '0');
 
 
@@ -463,7 +451,6 @@ begin
 		mem_busy<='1';
 		ser_txgo<='0';
 		int_ack<='0';
-		timer_reg_req<='0';
 		mutex_trigger<='0';
 
 		mem_req_d<=mem_req;
@@ -471,9 +458,6 @@ begin
 		-- Write from CPU?
 		if mem_wr='1' and mem_req='1' and mem_req_d='0' and mem_busy='1' then
 			case peripheral_addr is
-				when X"C" =>	-- Timer controller at 0xFFFFFC00
-					timer_reg_req<='1';
-					mem_busy<='0';	-- Timer controller never blocks the CPU
 
 				when X"F" =>	-- Peripherals
 					case mem_addr(7 downto 0) is
