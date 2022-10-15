@@ -10,326 +10,40 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <memorypool.h>
 #include "malloc.h"
 #include "hexdump.h"
 
+#define MEMPOOL_BANK0 1
+#define MEMPOOL_BANK1 2
+#define MEMPOOL_BANK2 4
+#define MEMPOOL_BANK3 8
 
-/* Both the arena list and the free memory list are double linked
-   list with head node.  This the head node. Note that the arena list
-   is sorted in order of address. */
-static struct free_arena_header __malloc_head = {
-	{
-		ARENA_TYPE_HEAD,
-		0,
-		&__malloc_head,
-		&__malloc_head,
-	},
-	&__malloc_head,
-	&__malloc_head
-};
-
-static inline void remove_from_main_chain(struct free_arena_header *ah)
-{
-	struct free_arena_header *ap, *an;
-	ap = ah->a.prev;
-	an = ah->a.next;
-	ap->a.next = an;
-	an->a.prev = ap;
-}
-
-static inline void remove_from_free_chain(struct free_arena_header *ah)
-{
-	struct free_arena_header *ap, *an;
-	ap = ah->prev_free;
-	an = ah->next_free;
-	ap->next_free = an;
-	an->prev_free = ap;
-}
-
-static inline void remove_from_chains(struct free_arena_header *ah)
-{
-	remove_from_free_chain(ah);
-	remove_from_main_chain(ah);
-}
-
-static void *__malloc_from_block(struct free_arena_header *fp, size_t size, int end)
-{
-	size_t fsize;
-	struct free_arena_header *nfp, *na, *fpn, *fpp;
-
-	fsize = fp->a.size;
-	/* We need the 2* to account for the larger requirements of a
-	   free block */
-	if (fsize >= (size + 2 * sizeof(struct arena_header))) {
-		/* Bigger block than required -- split block */
-		na = fp->a.next;
-
-		if(end)
-		{
-			nfp = (struct free_arena_header *)((char *)fp + fsize - size);
-		}
-		else
-		{
-			nfp = (struct free_arena_header *)((char *)fp + size);
-		}
-
-		/* Insert into all-block chain */
-		nfp->a.prev = fp;
-		nfp->a.next = na;
-		na->a.prev = nfp;
-		fp->a.next = nfp;
-
-		/* Replace current block on free chain */
-		nfp->next_free = fpn = fp->next_free;
-		nfp->prev_free = fpp = fp->prev_free;
-
-		/* Swap the current and next free pointers if we're allocating from the end of memory */
-		if(end)
-		{
-			na=nfp;
-			nfp=fp;
-			fp=na;
-		}
-		else
-		{
-			/* Replace current block on free chain */
-			fpn->prev_free = nfp;
-			fpp->next_free = nfp;
-		}
-		
-		nfp->a.type = ARENA_TYPE_FREE;
-		nfp->a.size = fsize - size;
-		fp->a.type = ARENA_TYPE_USED;
-		fp->a.size = size;		
-
-	} else {
-		fp->a.type = ARENA_TYPE_USED; /* Allocate the whole block */
-		remove_from_free_chain(fp);
-	}
-
-	return (void *)(&fp->a + 1);
-}
-
-static struct free_arena_header *__free_block(struct free_arena_header *ah)
-{
-	struct free_arena_header *pah, *nah;
-
-	printf("Free block: %x\n",(int)ah);
-
-	pah = ah->a.prev;
-	nah = ah->a.next;
-
-#if 0
-	hexdump(ah,sizeof(struct free_arena_header));
-	printf("Prev: %x\n",(int)pah);
-	hexdump(pah,sizeof(struct free_arena_header));
-	printf("Next: %x\n",(int)nah);
-	hexdump(nah,sizeof(struct free_arena_header));
-
-	printf("end of prev: %x\n",(int)((char *)pah + pah->a.size));
-#endif
-
-	if (pah->a.type == ARENA_TYPE_FREE &&
-	    (char *)pah + pah->a.size == (char *)ah) {
-		/* Coalesce into the previous block */
-		printf("Coalescing...\n");
-		pah->a.size += ah->a.size;
-		pah->a.next = nah;
-		nah->a.prev = pah;
-
-		ah = pah;
-		pah = ah->a.prev;
-	} else {
-		/* Need to add this block to the free chain */
-		ah->a.type = ARENA_TYPE_FREE;
-
-//		hexdump(&__malloc_head,sizeof(struct free_arena_header));
-//		printf("Add to free chain: %x\n",(int)ah);
-
-		ah->next_free = __malloc_head.next_free;
-		ah->prev_free = &__malloc_head;
-		__malloc_head.next_free = ah;
-		ah->next_free->prev_free = ah;
-//		hexdump(&__malloc_head,sizeof(struct free_arena_header));
-//		hexdump(ah,sizeof(struct free_arena_header));
-//		hexdump(ah->next_free,sizeof(struct free_arena_header));
-	}
-
-	/* In either of the previous cases, we might be able to merge
-	   with the subsequent block... */
-	if (nah->a.type == ARENA_TYPE_FREE &&
-	    (char *)ah + ah->a.size == (char *)nah) {
-		ah->a.size += nah->a.size;
-		printf("Merging with subsequent block: %x\n",(int)nah);
-
-		/* Remove the old block from the chains */
-		remove_from_chains(nah);
-	}
-
-	/* Return the block that contains the called block */
-	return ah;
-}
+static struct MemoryPool rootmemorypool;
 
 
-void malloc_add(void *p,size_t size)
-{
-	struct free_arena_header *fp;
-	struct free_arena_header *pah;
-	fp=(struct free_arena_header *)p;
-	fp->a.type = ARENA_TYPE_FREE;
-	fp->a.size = size & ~MALLOC_CHUNK_MASK; // Round down size to fit chunk mask
-
-
-	printf("Adding %x bytes at %x to the memory pool\n",size,p);
-
-	printf("Malloc head: %x\n",(int)&__malloc_head);
-
-	/* We need to insert this into the main block list in the proper
-	   place -- this list is required to be sorted.  Since we most likely
-	   get memory assignments in ascending order, search backwards for
-	   the proper place. */
-	for (pah = __malloc_head.a.prev; pah->a.type != ARENA_TYPE_HEAD;
-	     pah = pah->a.prev) {
-		if (pah < fp)
-			break;
-	}
-
-	/* Now pah points to the node that should be the predecessor of
-	   the new node */
-	fp->a.next = pah->a.next;
-	fp->a.prev = pah;
-	pah->a.next = fp;
-	fp->a.next->a.prev = fp;
-
-	/* Insert into the free chain and coalesce with adjacent blocks */
-	fp = __free_block(fp);
-}
-
-
+/* Return memory from a bank other than 0 */
 void *malloc_high(size_t size)
 {
-	struct free_arena_header *fp;
-	struct free_arena_header *pah;
-	size_t fsize;
-
-	printf("Custom malloc asking for 0x%x bytes\n",size);
-
-	if (size == 0)
-		return NULL;
-
-	/* Add the obligatory arena header, and round up */
-	size = (size + 2 * sizeof(struct arena_header) - 1) & ARENA_SIZE_MASK;
-	for (fp = __malloc_head.prev_free; fp->a.type != ARENA_TYPE_HEAD;
-	     fp = fp->prev_free) {
-
-		if (fp->a.size >= size) {
-			/* Found fit -- allocate out of this block */
-			return __malloc_from_block(fp, size,1);
-		}
-	}
-
-	/* Nothing found... need to request a block from the kernel */
-
-	fsize = (size + MALLOC_CHUNK_MASK) & ~MALLOC_CHUNK_MASK;
-
-	return NULL;
+	return(rootmemorypool.Alloc(&rootmemorypool,size,0,MEMPOOL_BANK0));
 }
 
+/* Return memory from any bank */
 void *malloc(size_t size)
 {
-	struct free_arena_header *fp;
-	struct free_arena_header *pah;
-	size_t fsize;
-
-	printf("Custom malloc asking for 0x%x bytes\n",size);
-
-	if (size == 0)
-		return NULL;
-
-	/* Add the obligatory arena header, and round up */
-	size = (size + 2 * sizeof(struct arena_header) - 1) & ARENA_SIZE_MASK;
-	for (fp = __malloc_head.next_free; fp->a.type != ARENA_TYPE_HEAD;
-	     fp = fp->next_free) {
-
-		if (fp->a.size >= size) {
-			/* Found fit -- allocate out of this block */
-			return __malloc_from_block(fp, size,0);
-		}
-	}
-
-	/* Nothing found... need to request a block from the kernel */
-
-	fsize = (size + MALLOC_CHUNK_MASK) & ~MALLOC_CHUNK_MASK;
-
-	return NULL;
+	return(rootmemorypool.Alloc(&rootmemorypool,size,0,0));
 }
 
 void free(void *ptr)
 {
-	struct free_arena_header *ah;
-
-	if (!ptr)
-		return;
-
-	ah = (struct free_arena_header *)
-	    ((struct arena_header *)ptr - 1);
-	/* Merge into adjacent free blocks */
-	ah = __free_block(ah);
-}
-
-
-// Initialise memory for malloc.
-
-static const char *arenatypes[]=
-{
-	"Used",
-	"Free",
-	"Head"
-};
-
-void malloc_dump(int count)
-{
-	struct free_arena_header *h=&__malloc_head;
-	struct arena_header *a=&h->a;
-	int c=count;
-	printf("All chunks\n");
-	do
-	{
-		printf("Arena header at %x, type %s, size %x\n",a,arenatypes[a->type % (sizeof(arenatypes)/sizeof(char *))],a->size);
-//		hexdump(a,sizeof(struct free_arena_header));
-		h=a->next;
-		a=&h->a;
-		--c;
-	} while(c && a && a->type!=ARENA_TYPE_HEAD);
-
-	printf("Free chunks\n");
-	a=&__malloc_head.a;
-	c=count;
-	do
-	{
-		printf("Arena header at %x, type %s, size %x\n",a,arenatypes[a->type % (sizeof(arenatypes)/sizeof(char *))],a->size);
-//		hexdump(a,sizeof(struct arena_header));
-		h=h->next_free;
-		printf("-> Next: %x\n",(int)h);
-		a=&h->a;
-		--c;
-	} while(c && a && a->type!=ARENA_TYPE_HEAD);
+	rootmemorypool.Free(&rootmemorypool,ptr);
 }
 
 int availmem()
 {
-	int result=0;
-	struct free_arena_header *h=__malloc_head.next_free;
-	while(h && h->a.type==ARENA_TYPE_FREE)
-	{
-		result+=h->a.size;
-//		hexdump(h,sizeof(struct free_arena_header));
-//		printf("Free: %d\n",result);
-		h=h->next_free;
-	}
-	return(result);
+	/* FIXME - calculate how much memory is availble */
+	return(0);
 }
-
 
 extern char _bss_end__; // Defined by the linker script
 extern char STACKSIZE;
@@ -340,27 +54,32 @@ static char *stacksize=&STACKSIZE;
 #define ADDRCHECKWORD 0x55aa44bb
 #define ADDRCHECKWORD2 0xf0e1d2c3
 
+
+#define MAXMEMBIT 27
+
 __constructor(100.malloc) void _initMem()
 {
 	int ss=(int)stacksize;
-	volatile int *base=(int*)&_bss_end__;
+	volatile int *freebase=(int*)&_bss_end__;
+	char *rambase;
 	char *ramtop;
-	int i,j,k;
-	int a1,a2;
+	int i;
+	int a1;
 	int aliases=0;
-	unsigned int size=64;
+	int banksize;
+	unsigned int size=1<<(MAXMEMBIT-19);
 
-	base+=(int)stacksize;
+	freebase+=(int)stacksize;
 
 	printf("__bss_end__ is %x\n",(int)&_bss_end__);
 	printf("STACKSIZE is %x\n",(int)stacksize);
 
 	// Seed the RAM;
 	a1=19;
-	*base=ADDRCHECKWORD;
-	for(j=18;j<25;++j)
+	*freebase=ADDRCHECKWORD;
+	for(i=18;i<MAXMEMBIT;++i)
 	{
-		base[a1]=ADDRCHECKWORD;
+		freebase[a1]=ADDRCHECKWORD;
 		a1<<=1;
 	}	
 
@@ -368,10 +87,10 @@ __constructor(100.malloc) void _initMem()
 
 	// Now check for aliases
 	a1=1;
-	*base=ADDRCHECKWORD2;
-	for(j=1;j<25;++j)
+	*freebase=ADDRCHECKWORD2;
+	for(i=1;i<MAXMEMBIT;++i)
 	{
-		if(base[a1]==ADDRCHECKWORD2)
+		if(freebase[a1]==ADDRCHECKWORD2)
 			aliases|=a1;
 		a1<<=1;
 	}
@@ -380,14 +99,20 @@ __constructor(100.malloc) void _initMem()
 
 	while(aliases)
 	{
-		aliases=(aliases<<1)&0x3ffffff;	// Test currently supports up to 16m longwords = 64 megabytes.
+		aliases=(aliases<<1)&0xfffffff;	// Test currently supports up to 64m longwords = 256 megabytes.
 		size>>=1;
 	}
 	printf("RAM size (assuming no address faults) is 0x%x megabytes\n",size);
 	
-	ramtop=(char*)base+(size*(1<<20));
-	ramtop=(char*)((int)ramtop & 0xffff0000);
-	malloc_add(base,ramtop-base);	// Add the entire RAM to the free memory pool
+	banksize=(size/4)<<20;;	
+	rambase=(char*)freebase;
+	rambase=(char *)(((int)rambase)&0xfff00000);	/* Round down to the nearest megabyte */
+
+	MemoryPool_InitRootPool(&rootmemorypool);
+	MemoryPool_SeedMemory(&rootmemorypool,rambase+3*banksize,banksize,MEMPOOL_BANK3);
+	MemoryPool_SeedMemory(&rootmemorypool,rambase+2*banksize,banksize,MEMPOOL_BANK2);
+	MemoryPool_SeedMemory(&rootmemorypool,rambase+banksize,banksize,MEMPOOL_BANK1);
+	MemoryPool_SeedMemory(&rootmemorypool,(char *)freebase,banksize-((char *)freebase-rambase),MEMPOOL_BANK0);
 }
 
 void *calloc(int nmemb,size_t size)
