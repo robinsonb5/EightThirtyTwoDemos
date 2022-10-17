@@ -2,6 +2,7 @@
 #include <hw/timer.h>
 #include <hw/vga.h>
 #include <hw/screenmode.h>
+#include <framebuffer.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -153,41 +154,6 @@ struct alignguard
 	int guard2;
 };
 
-void *malloc_aligned(size_t size,int alignment,int high)
-{
-	char *result,*real;
-	struct alignguard *tmp;
-	--alignment;
-	if(high)
-		real=(char *)malloc_high(size+sizeof(struct alignguard)+alignment);
-	else
-		real=(char *)malloc(size+sizeof(struct alignguard)+alignment);
-//	printf("Real address is %x\n",(int)real);
-	result=(char *)(((int)real+sizeof(struct alignguard)+alignment)&~alignment);
-	tmp=(struct alignguard *)result;
-//	printf("Aligned to %x\n",(int)tmp);
-	--tmp;
-//	printf("Wrote to %x\n",(int)tmp);
-	tmp->guard1=ALIGNGUARD1;
-	tmp->mem=real;
-	tmp->guard2=ALIGNGUARD2;
-	return(result);
-}
-
-void free_aligned(char *ptr)
-{
-	struct alignguard *tmp;
-	tmp=(struct alignguard *)ptr;
-//	printf("Free pointer %x\n",(int)tmp);
-	--tmp;
-	if(tmp->guard1!=ALIGNGUARD1 || tmp->guard2!=ALIGNGUARD2)
-	{
-		printf("WARNING: memory corruption\n");
-		return;
-	}
-//	printf("Freeing real pointer %x fetched from %x\n",tmp->mem,(int)tmp);
-	free((char *)tmp->mem);
-}
 
 void plot(unsigned char *framebuffer,int x,int y,unsigned int c,int bits)
 {
@@ -227,46 +193,20 @@ void plot(unsigned char *framebuffer,int x,int y,unsigned int c,int bits)
 	}
 }
 
-void initDisplay(enum screenmode mode,int bits)
+char *initdisplay(enum Screenmode mode,int bits)
 {
+	char *result;
 	int w,h;
-	w=Screenmode_GetWidth(mode);
-	h=Screenmode_GetHeight(mode);
-	if((!w) || (!h))
-	{
-		mode=SCREENMODE_640x480_60;
-		w=640;
-		h=480;
-	}	
-	if(w && h)
-	{
-		screenwidth=w;
-		screenheight=h;
-		FrameBuffer=(char *)malloc_aligned((32 * w*h)/8,32,1);
-		Screenmode_Set(mode);
-		HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
-		switch(bits)
-		{
-			case 32:
-				HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB32;
-				break;
-			case 16:
-				HW_VGA(PIXELFORMAT) = PIXELFORMAT_RGB16;
-				break;
-			case 8:
-				HW_VGA(PIXELFORMAT) = PIXELFORMAT_CLUT8BIT;
-				break;
-			case 4:
-				HW_VGA(PIXELFORMAT) = PIXELFORMAT_CLUT4BIT;
-				break;
-			case 1:
-				HW_VGA(PIXELFORMAT) = PIXELFORMAT_MONO;
-				break;
-		}
-	}
+	Screenmode_Set(mode);
+	w=Screenmode_GetWidth(SCREENMODE_CURRENT);
+	h=Screenmode_GetHeight(SCREENMODE_CURRENT);
+	result=Framebuffer_Allocate(w,h,bits);
+	Framebuffer_Set(result,bits);
+	screenwidth=w;
+	screenheight=h;
+	return(result);	
 }
 
-#define SWAP(x) ((x<<8) | (x>>8))
 
 char getserial()
 {
@@ -308,21 +248,15 @@ int main(int argc, char **argv)
 	int refresh=1;
 	enum screenmode mode=SCREENMODE_640x480_60;
 	setpalette(8);
+	FrameBuffer=initdisplay(mode,bits);
+	draw(bits);
 	while(1)
 	{
 		int c;
 		int sw;
-		if(refresh)
-		{
-			initDisplay(mode,bits);
-			draw(bits);
-			printf("\nCurrently using %d x %d in %d bits\n",screenwidth,screenheight,bits);
-			printf("Press 1 - %d to switch screenmodes,\na - e to set bit depth (32, 16, 8, 4 or 1).\n",SCREENMODE_MAX);
-		}
 		c=getserial();
 		if (c)
 		{
-			int oldbits=bits;
 			refresh=0;
 			switch(c)
 			{
@@ -341,38 +275,31 @@ int main(int argc, char **argv)
 				case '8':
 				case '9':
 				case '0':
-					mode=c-'0';
+					mode=c-'1';
+					printf("Switching to mode %d\n",mode);
 					refresh=1;
 					break;
 				case 'a':
-					HW_VGA(PIXELFORMAT) = 0x1;
-					bits=32;
-					break;
 				case 'b':
-					HW_VGA(PIXELFORMAT) = 0x0;
-					bits=16;
-					break;
 				case 'c':
-					HW_VGA(PIXELFORMAT) = 0x4;
-					bits=8;
-					break;
 				case 'd':
-					HW_VGA(PIXELFORMAT) = 0x3;
-					bits=4;
-					break;
 				case 'e':
-					HW_VGA(PIXELFORMAT) = 0x2;
-					bits=1;
+					refresh=1;
+					bits=32>>(c-'a');
+					if(c=='e')
+						bits>>=1;
 					break;
-			}
-			if(bits!=oldbits)
-			{
-				printf("%d bits per pixel\n",bits);
-				setpalette(bits);
-				draw(bits);
 			}
 			if(refresh)
-				free_aligned(FrameBuffer);
+			{
+				char *old=FrameBuffer;
+				FrameBuffer=0; /* Inhibit text output during framebuffer swap */
+				Framebuffer_Free(old);
+				FrameBuffer=initdisplay(mode,bits);
+				setpalette(bits);
+				draw(bits);
+				printf("%d bits per pixel\n",bits);
+			}
 		}				
 	}
 	

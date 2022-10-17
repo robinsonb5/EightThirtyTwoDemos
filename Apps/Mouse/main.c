@@ -8,7 +8,6 @@
 #include <hw/vga.h>
 #include <hw/screenmode.h>
 #include <framebuffer.h>
-#include <util.h>
 
 #include <hw/mousedriver.h>
 
@@ -150,10 +149,14 @@ int main(int argc, char **argv)
 					framebuffer=initdisplay(mode,bits);
 					break;
 				case 'a':
-					bits=32;
-					break;
 				case 'b':
-					bits=16;
+				case 'c':
+				case 'd':
+				case 'e':
+					bits=32>>(c-'a');
+					if(c=='e')
+						bits>>=1;
+					Framebuffer_Set(framebuffer,bits);
 					break;
 			}
 		}				

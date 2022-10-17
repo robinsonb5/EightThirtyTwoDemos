@@ -2,7 +2,7 @@
 
 #include "memorypool.h"
 
-void DumpFragments(struct MemoryPool *pool);
+void MemoryPool_DumpFragments(struct MemoryPool *pool);
 
 struct MemoryPool_AllocFragment
 {
@@ -133,11 +133,11 @@ static void mergefragments(struct MemoryPool *pool)
 		else
 			fragment1=pool->fragmentlist; // Start over since Fragments were merged
 	}
-	DumpFragments(pool);
+	MemoryPool_DumpFragments(pool);
 }
 
 
-void DumpFragments(struct MemoryPool *pool)
+void MemoryPool_DumpFragments(struct MemoryPool *pool)
 {
 	struct MemoryPool_AllocFragment *Fragment=pool->fragmentlist;
 	while(Fragment)
@@ -172,6 +172,20 @@ static void *checkalign(int size, void *v,int chunksize,int alignment)
 
 	return((void *)boundary);
 }
+
+
+/* Horribly hacky function to return the flags from a newly-provisioned memory block.
+   Only applicable to chunks allocated from a parent pool, not to the root pool. */
+static int provision_getflags(void *p)
+{
+	char *p2=(char *)p;
+	struct AllocTag *at;
+	p2-=sizeof(struct MemoryPool_AllocRecord);
+	p2-=sizeof(struct AllocTag);
+	at=(struct AllocTag *)p2;
+	return(at->flags);
+}
+
 
 
 static void *checkmask(int size,void *v,int chunksize,int alignment)
@@ -230,6 +244,7 @@ static void AddAllocTag(void *p,int size,int flags)
 		at->size=size;
 		at->flags=flags;
 		at->guard2=GUARDWORD2;
+		printf("Setting alloctag flags at %x to %x\n",(int)at,flags);
 	}
 }
 
@@ -265,11 +280,14 @@ static void *AllocAligned(struct MemoryPool *pool,int size,int alignment,int fla
 
 	if(!result)
 	{
+		struct AllocTag *at;
 		int allocsize=chunksize+2*sizeof(struct AllocTag)+sizeof(struct MemoryPool_AllocRecord);
-		if(pool->parent)
-			p=pool->parent->Provision(pool,allocsize,flags,flagmask);
-		if(p)
-			result=checkmask(size,p+sizeof(struct AllocTag),chunksize-sizeof(struct AllocTag),alignment);
+		if(pool && (p=pool->Provision(pool,allocsize,flags,flagmask)))
+		{
+			fragflags=provision_getflags(p);
+			printf("Fragment flags %d\n",fragflags);
+			result=checkalign(size,((char *)p)+sizeof(struct AllocTag),allocsize,alignment);
+		}
 	}
 
 	if(result)
@@ -277,7 +295,7 @@ static void *AllocAligned(struct MemoryPool *pool,int size,int alignment,int fla
 		size+=sizeof(struct AllocTag);
 		// Prepend the result with a tag;
 		result-=sizeof(struct AllocTag);
-		AddAllocTag(result,size,flags);
+		AddAllocTag(result,size,fragflags);
 
 		if(result==p)
 			addfragment(pool,p+size,chunksize-size,fragflags);
@@ -330,17 +348,18 @@ static void *AllocMasked(struct MemoryPool *pool,int size,int alignment,int flag
 	if(!result)
 	{
 		int allocsize=chunksize+2*sizeof(struct AllocTag)+sizeof(struct MemoryPool_AllocRecord);
-		if(pool->parent)
-			p=pool->parent->Provision(pool,allocsize,flags,flagmask);
-		if(p)
+		if(pool && (p=pool->Provision(pool,allocsize,flags,flagmask)))
+		{
+			fragflags=provision_getflags(p);
 			result=checkmask(size,p+sizeof(struct AllocTag),chunksize-sizeof(struct AllocTag),alignment);
+		}
 	}
 	if(result)
 	{
 		size+=sizeof(struct AllocTag);
 		// Prepend the result with a tag;
 		result-=sizeof(struct AllocTag);
-		AddAllocTag(result,size,flags);
+		AddAllocTag(result,size,fragflags);
 
 		if(result==p)
 			addfragment(pool,p+size,chunksize-size,fragflags);
@@ -378,9 +397,9 @@ static void *AllocUnmasked(struct MemoryPool *pool,int size, int flags, int flag
 			fragment=fragment->next;
 	}
 	/* No Fragments found?  Allocate a fresh chunk. */
-	if(!p && pool->parent && (p=pool->parent->Provision(pool,size,flags,flagmask)))
+	if(!p && pool && (p=pool->Provision(pool,size,flags,flagmask)))
 	{
-		addfreerecord(pool,(void*)p,size+sizeof(struct MemoryPool_AllocRecord));
+		fragflags=provision_getflags(p);
 		p+=sizeof(struct MemoryPool_AllocRecord);
 	}
 	if(p)
@@ -432,13 +451,14 @@ static void *Provision(struct MemoryPool *pool,int size,int flags,int flagmask)
 	char *p=0;
 	if(pool && pool->parent)
 	{
-		char *p=pool->parent->Alloc(pool->parent,size,flags,flagmask);
+		p=pool->parent->Alloc(pool->parent,size,flags,flagmask);
 		if(p)
 		{
 			addfreerecord(pool,(struct MemoryPool_AllocRecord *)p,size);
 			p+=sizeof(struct MemoryPool_AllocRecord);
 		}
 	}
+
 	return(p);
 }
 

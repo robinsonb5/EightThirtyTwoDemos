@@ -2,6 +2,7 @@
 #include <hw/timer.h>
 #include <hw/vga.h>
 #include <hw/screenmode.h>
+#include <socmemory.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -13,6 +14,8 @@ int screenheight=480;		// Initial screen heigth
 
 #define REG_VGA_CLUTIDX 0x40
 #define REG_VGA_CLUTDATA 0x44
+
+struct MemoryPool *pool;
 
 void setpalette(int bits)
 {
@@ -133,7 +136,9 @@ void initDisplay(enum screenmode mode,int bits)
 	{
 		screenwidth=w;
 		screenheight=h;
-		FrameBuffer=(char *)malloc_aligned((32 * w*h)/8,32); /* Make sure the framebuffer's big enough for all display depths */
+		/* Allocate a framebuffer big enough for all display depths, from any bank other than 0 */
+		FrameBuffer=(char *)pool->AllocAligned(pool,(32 * w*h)/8,32,~SOCMEMORY_BANK0,SOCMEMORY_BANK0);
+		printf("Allocated memory at %x\n",(int)FrameBuffer);
 		Screenmode_Set(mode);
 		HW_VGA(FRAMEBUFFERPTR) = (int)FrameBuffer;
 		switch(bits)
@@ -177,6 +182,10 @@ int main(int argc, char **argv)
 	int i;
 	int bits=32;
 	int refresh=1;
+	pool=SoCMemory_GetPool();
+	if(pool)
+		pool=NewMemoryPool(pool);	/* Create a new memory pool just for this app */
+
 	enum screenmode mode=SCREENMODE_640x480_60;
 	setpalette(8);
 	while(1)
@@ -218,24 +227,23 @@ int main(int argc, char **argv)
 					refresh=1;
 					break;
 				case 'a':
-					HW_VGA(PIXELFORMAT) = 0x1;
 					bits=32;
 					break;
 				case 'b':
-					HW_VGA(PIXELFORMAT) = 0x0;
 					bits=16;
 					break;
 				case 'c':
-					HW_VGA(PIXELFORMAT) = 0x4;
 					bits=8;
 					break;
 				case 'd':
-					HW_VGA(PIXELFORMAT) = 0x3;
 					bits=4;
 					break;
 				case 'e':
-					HW_VGA(PIXELFORMAT) = 0x2;
 					bits=1;
+					break;
+				case 'q':
+					pool->Delete(pool); /* Free all memory and quit */
+					return(0);
 					break;
 			}
 			printf("%d bits per pixel\n",bits);
@@ -251,7 +259,10 @@ int main(int argc, char **argv)
 			for(i=0;i<screenheight;++i)
 				plot(FrameBuffer,i+15,i,0x0,bits);
 			if(refresh)
-				free_aligned(FrameBuffer);
+			{
+				pool->Free(pool,FrameBuffer);
+				MemoryPool_DumpFragments(pool);
+			}
 		}				
 	}
 	

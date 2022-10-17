@@ -39,7 +39,7 @@ struct MemoryPool
 
 struct MemoryPool *NewMemoryPool(struct MemoryPool *parent);
 
-void MemoryPool_DumpRemnants(struct MemoryPool *pool);
+void MemoryPool_DumpFragments(struct MemoryPool *pool);
 
 void MemoryPool_InitRootPool(struct MemoryPool *pool);
 void MemoryPool_SeedMemory(struct MemoryPool *pool, void *p,int size,int flags);
