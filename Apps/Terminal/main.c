@@ -23,6 +23,8 @@ struct terminal
 	int cursx,cursy;
 	int w,h;
 	int depth;
+	int fgpen;
+	int bgpen;
 };
 
 struct terminal term;
@@ -34,15 +36,17 @@ void update_term(int screenwidth,int screenheight,int bits)
 	term.w=screenwidth/8;
 	term.h=screenheight/8;
 	term.depth=bits;
+	term.fgpen=0xffffffff;
+	term.bgpen=0;
 }
 
 void term_scroll()
 {
-	char *p=FrameBuffer+8*term.w;
+	char *p=FrameBuffer+(8*term.w*term.depth);
 	if(!FrameBuffer)
 		return;
-	memcpy(FrameBuffer,p,term.w*(term.h-1)*8);
-	memset(FrameBuffer+term.w*(term.h-1)*8,0,8*term.w);
+	memcpy(FrameBuffer,p,(term.depth*term.w*(term.h-1)*8));
+	memset(FrameBuffer+(term.depth*term.w*(term.h-1)*8),0,(term.depth*8*term.w));
 }
 
 void term_newline()
@@ -72,15 +76,93 @@ int putchar(int c)
 				term.cursx=0;
 				break;
 			default:
-				p=FrameBuffer+8*term.cursy*term.w+term.cursx;
+				p=FrameBuffer+(term.depth*(8*term.cursy*term.w+term.cursx));
 				f=eightpixelfont_getchar(c);
 				if(f)
 				{
-					int i;
+					int i,j,t,t2;
 					for(i=0;i<8;++i)
 					{
-						*p=*f++;
-						p+=term.w;
+						char *p2=p;
+						switch(term.depth)
+						{
+							case 1:
+								t2=*f++;
+								if(term.fgpen&1)
+								{
+									if(term.bgpen&1)
+										*p2++=0xff;
+									else
+										*p2++=t2;
+								}
+								else if(term.bgpen&1)
+									*p2++=~t2;
+								else
+									*p2++=0;
+								break;
+							case 4:
+								t=*f++;
+								for(j=0;j<4;++j)
+								{
+									t2=0;
+									if(t&0x80)
+										t2|=term.fgpen<<4;
+									else
+										t2|=term.bgpen<<4;
+									if(t&0x40)
+										t2|=term.fgpen&0xf;
+									else
+										t2|=term.bgpen&0xf;
+									t<<=2;
+									*p2++=t2;
+								}
+								break;
+							
+							case 8:
+								t=*f++;
+								for(j=0;j<8;++j)
+								{
+									if(t&0x80)
+										t2=term.fgpen;
+									else
+										t2=term.bgpen;
+									t<<=1;
+									*p2++=t2;
+								}
+								break;
+
+							case 16:
+								t=*f++;
+								for(j=0;j<8;++j)
+								{
+									if(t&0x80)
+										t2=term.fgpen;
+									else
+										t2=term.bgpen;
+									t<<=1;
+									*(short *)p2=t2;
+									p2+=2;
+								}
+								break;
+
+							case 32:
+								t=*f++;
+								for(j=0;j<8;++j)
+								{
+									if(t&0x80)
+										t2=term.fgpen;
+									else
+										t2=term.bgpen;
+									t<<=1;
+									*(int *)p2=t2;
+									p2+=4;
+								}
+								break;
+							
+							default:
+								break;
+						}
+						p+=term.depth*term.w;
 					}
 				}
 				if(++term.cursx>=term.w)
@@ -108,24 +190,52 @@ void drawcharacter(int x,int y,char c)
 	}
 }
 
+/* Dawnbringer's 16 colour palette */
+int palette[]=
+{
+	0x140C1C,
+	0x442434,
+	0x30346D,
+	0x4E4A4F,
+	0x854C30,
+	0x346524,
+	0xD04648,
+	0x757161,
+	0x597DCE,
+	0xD27D2C,
+	0x8595A1,
+	0x6DAA2C,
+	0xD2AA99,
+	0x6DC2CA,
+	0xDAD45E,
+	0xDEEED6
+}
 
 void setpalette(int bits)
 {
 	int i,j;
+	int r,g,b;
 	switch(bits)
 	{
 		case 4:
 			for(i=0;i<16;++i)
 			{
 				HW_VGA(REG_VGA_CLUTIDX)=i;
-				HW_VGA(REG_VGA_CLUTDATA)=i*0x1111111;
+				HW_VGA(REG_VGA_CLUTDATA)=palette[i];
 			}
 			break;		
 		case 8:
+			r=g=b=0;
 			for(i=0;i<256;++i)
 			{
 				HW_VGA(REG_VGA_CLUTIDX)=i;
-				HW_VGA(REG_VGA_CLUTDATA)=i*0x010101;
+				HW_VGA(REG_VGA_CLUTDATA)=(r<<16)|(g<<8)|b;
+				r+=7;
+				r&=255;
+				g+=31;
+				g&=255;
+				b+=41;
+				b&=255;
 			}
 			break;
 	}
@@ -238,6 +348,8 @@ void draw(bits)
 	puts("Hello, World! - ");
 	puts("Some more text with a newline\n");
 	puts("And some more text following the newline...\n");
+	puts("Press 1-9 to choose screenmode, a-e to choose bit depth...\n");
+	puts("Press t to print some text, press p to cycle colours...\n");
 }
 
 
@@ -274,7 +386,6 @@ int main(int argc, char **argv)
 				case '7':
 				case '8':
 				case '9':
-				case '0':
 					mode=c-'1';
 					printf("Switching to mode %d\n",mode);
 					refresh=1;
@@ -288,6 +399,10 @@ int main(int argc, char **argv)
 					bits=32>>(c-'a');
 					if(c=='e')
 						bits>>=1;
+					break;
+				case 'p':
+					term.fgpen+=13073;
+					term.bgpen+=367;
 					break;
 			}
 			if(refresh)

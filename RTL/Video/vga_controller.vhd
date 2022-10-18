@@ -296,7 +296,7 @@ begin
 	
 	process(clk_sys,reset_n)
 	begin
-		if rising_edge(clk_video) then
+		if rising_edge(clk_sys) then
 			framebuffer_update <= '1';
 			if cpu_req_sc='1' then
 				case request.addr(7 downto 0) is

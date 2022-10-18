@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <hw/interrupts.h>
 #include <hw/ps2.h>
@@ -141,7 +142,7 @@ int main(int argc, char **argv)
 				case '8':
 				case '9':
 				case '0':
-					mode=c-'0';
+					mode=c-'1';
 					printf("Switching to mode %d\n",mode);
 					if(framebuffer)
 						Framebuffer_Free(framebuffer);
