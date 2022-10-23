@@ -4,7 +4,8 @@
 -- Copyright (c) 2009 Tobias Gubener                                        -- 
 -- Subdesign fAMpIGA by TobiFlex                                            --
 --                                                                          --
--- Second access slot, cache and 8-word burst added by AMR                  --
+-- New port arbitration, write buffering and refresh logic                  --
+-- Copyright 2022 by Alastair M. Robinson                                   --
 --                                                                          --
 -- This source file is free software: you can redistribute it and/or modify --
 -- it under the terms of the GNU General Public License as published        --
@@ -166,7 +167,7 @@ begin
 
 				wb_req_masked<='0';
 				if bankbusy(to_integer(unsigned(wbflagsaddr(sdram_bank_high downto sdram_bank_low))))='0' then
-					wb_req_masked<=wbreq;
+					wb_req_masked<=wbreq and not video_req.pri; -- Delay writes if video is desperate for RAM access */
 				end if;
 
 				 -- For cache coherency reasons we don't service CPU read requests while the writebuffer contains data.
@@ -244,7 +245,7 @@ begin
 
 		-- scheduling of write commands and FIFO advancement
 
-		process (sdram_state,slot1write,slot2write,slot1writeextra,slot2writeextra) begin	
+		process (sdram_state,slot1write,slot2write,slot1writeextra,slot2writeextra,slot1_precharge,slot2_precharge) begin	
 			wbnextword<='0';
 			wblastword<='0';
 			wbfirstword<='0';

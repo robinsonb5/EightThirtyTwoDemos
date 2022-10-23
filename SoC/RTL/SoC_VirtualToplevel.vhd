@@ -75,8 +75,8 @@ end entity;
 
 architecture rtl of VirtualToplevel is
 
-	constant Peripheral_Blocks : integer := 4;
-	constant interrupt_max : integer := 2;
+	constant Peripheral_Blocks : integer := 5;
+	constant interrupt_max : integer := 3;
 	constant sysclk_hz : integer := sysclk_frequency*1000;
 
 
@@ -90,6 +90,9 @@ architecture rtl of VirtualToplevel is
 	signal video_to_sdram : sdram_port_request;
 	signal sdram_to_video : sdram_port_response;
 
+	signal blitter_to_sdram : sdram_port_request;
+	signal sdram_to_blitter : sdram_port_response;
+
 	signal dma_to_sdram : sdram_port_request;
 	signal sdram_to_dma : sdram_port_response;
 
@@ -100,6 +103,7 @@ architecture rtl of VirtualToplevel is
 
 	constant dmachannel_sprite : integer := 0;
 	constant dmachannel_audio_low : integer := 1;
+	constant dmachannel_blitter : integer := dmachannel_audio_low+4;
 
 	-- CPU signals
 	signal cpu_addr : std_logic_vector(31 downto 0);
@@ -309,6 +313,8 @@ begin
 		signal audio_r_i : signed(23 downto 0);
 		-- Timer register block signals
 		signal timer_tick : std_logic;
+		-- Blitter register block signals;
+		signal blitter_int : std_logic;
 		-- Interrupts
 		signal int_triggers : std_logic_vector(interrupt_max downto 0);
 	begin
@@ -316,7 +322,7 @@ begin
 		-- Interrupts
 
 		audio_int <= '0' when audio_ints="0000" else '1';
-		int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>audio_int, others => '0');
+		int_triggers<=(0=>timer_tick, 1=>vblank_int, 2=>audio_int, 3=>blitter_int, others => '0');
 
 		-- Standard peripheral block
 
@@ -324,7 +330,7 @@ begin
 		generic map (
 			BlockAddress => X"F",
 			sysclk_frequency => sysclk_frequency,
-			external_interrupts => 3
+			external_interrupts => 4
 		)
 		port map (
 			clk => clk,
@@ -402,8 +408,32 @@ begin
 		vga_vsync<=vga_vsync_i;
 
 
-		-- Audio controller
+		-- Blitter
+
+		blitter : entity work.blitter
+		generic map (
+			BlockAddress => X"B",
+			dmawidth => 32
+		)
+		port map (
+			clk_sys => clk,
+			reset_n => cpu_reset,
 			
+			request => peripheral_req,
+			response => peripheral_responses(4),
+			
+			dma_data => dma_data,
+			dma_request => dmachannel_requests(dmachannel_blitter),
+			dma_response => dmachannel_responses(dmachannel_blitter),
+			
+			to_sdram => blitter_to_sdram,
+			from_sdram => sdram_to_blitter,
+			
+			interrupt => blitter_int
+		);
+
+		-- Audio controller
+	
 		audio : entity work.sound_wrapper
 		generic map(
 			BlockAddress => X"D",
@@ -489,9 +519,27 @@ begin
 		signal sdram_to_cpu : sdram_port_response;
 		signal cache_to_cpu : sdram_port_response;
 		signal sdram_to_cache : sdram_port_response;
-		
-	begin	
+
+		constant writeports : integer := 2;
+		signal write_to_sdram : sdram_port_request;
+		signal sdram_to_write : sdram_port_response;
 	
+	begin	
+
+		-- Write arbitration
+		
+		writearbiter : entity work.sdram_writearbiter
+		port map (
+			clk => clk,
+			reset_n => reset_n,
+			requests(0) => cpu_to_sdram,
+			requests(1) => blitter_to_sdram,
+			responses(0) => sdram_to_cpu,
+			responses(1) => sdram_to_blitter,
+			
+			request => write_to_sdram,
+			response => sdram_to_write		
+		);
 		-- SDRAM
 
 		mysdram : entity work.sdram_controller
@@ -520,8 +568,8 @@ begin
 			cache_req => cache_to_sdram,
 			cache_ack => sdram_to_cache,
 
-			cpu_req => cpu_to_sdram,
-			cpu_ack => sdram_to_cpu,
+			cpu_req => write_to_sdram,
+			cpu_ack => sdram_to_write,
 
 			dma_req => dma_to_sdram,
 			dma_ack => sdram_to_dma

@@ -334,7 +334,7 @@ begin
 			"00"&X"0" when others;
 			
 
-		process(framebuffer_pixelformat,pixelshift) begin
+		process(clk_video) begin
 			if rising_edge(clk_video) then
 				case framebuffer_pixelformat is
 					when PIX_CLUT4BIT =>

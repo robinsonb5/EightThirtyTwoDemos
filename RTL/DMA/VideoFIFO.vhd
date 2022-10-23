@@ -200,7 +200,7 @@ begin
 				end if;
 
 				-- If the read pointer is in danger of catching up, increase the priority.
-				to_sdram.pri <= not ptrcmp(ptrcmp'high);
+				to_sdram.pri <= newframe_pending or not ptrcmp(ptrcmp'high);
 
 				if from_sdram.strobe='1' or req_i='0' then
 					req_i <= not full and not newframe_pending; -- FIXME - count down the number of words in a frame?

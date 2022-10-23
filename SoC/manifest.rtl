@@ -21,6 +21,7 @@ RTL/SoC_Peripheral_config.vhd
 ../RTL/Video/video_vga_dither.vhd
 ../RTL/Video/video_timings.vhd
 ../RTL/Video/vga_controller.vhd
+../RTL/Video/blitter.vhd
 
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
 
