@@ -2,6 +2,7 @@
 #include <hw/timer.h>
 #include <hw/vga.h>
 #include <hw/screenmode.h>
+#include <hw/blitter.h>
 #include <framebuffer.h>
 
 #include <stdio.h>
@@ -25,6 +26,7 @@ struct terminal
 	int depth;
 	int fgpen;
 	int bgpen;
+	int mode;
 };
 
 struct terminal term;
@@ -40,7 +42,7 @@ void update_term(int screenwidth,int screenheight,int bits)
 	term.bgpen=0;
 }
 
-void term_scroll()
+void term_scroll_cpu()
 {
 	char *p=FrameBuffer+(8*term.w*term.depth);
 	if(!FrameBuffer)
@@ -48,6 +50,51 @@ void term_scroll()
 	memcpy(FrameBuffer,p,(term.depth*term.w*(term.h-1)*8));
 	memset(FrameBuffer+(term.depth*term.w*(term.h-1)*8),0,(term.depth*8*term.w));
 }
+
+void term_scroll_blitter()
+{
+	char *p=FrameBuffer+(8*term.w*term.depth);
+	int t;
+	if(!FrameBuffer)
+		return;
+	while(t=REG_BLITTER[BLITTER_DEST].ROWS)	/* Wait for any previous operation to finish - FIXME use an interrupt */
+		;
+//	putchar('a');
+	REG_BLITTER[BLITTER_SRC1].ADDRESS=p;
+	REG_BLITTER[BLITTER_SRC1].SPAN=(term.w*term.depth)/4;
+	REG_BLITTER[BLITTER_SRC1].MODULO=0;
+//	REG_BLITTER[BLITTER_SRC1].DATA=color;
+
+	REG_BLITTER[BLITTER_DEST].ADDRESS=FrameBuffer;
+	REG_BLITTER[BLITTER_DEST].SPAN=(term.w*term.depth/4);
+	REG_BLITTER[BLITTER_DEST].MODULO=0;
+	REG_BLITTER[BLITTER_DEST].ACTIVE=2;
+	REG_BLITTER[BLITTER_DEST].ROWS=(term.h-1)*8; /* Trigger blitter */
+//	putchar('b');
+
+	while(t=REG_BLITTER[BLITTER_DEST].ROWS)	/* Wait for any previous operation to finish - FIXME use an interrupt */
+		;
+	p=FrameBuffer+(term.h-8)*term.w*term.depth;
+	REG_BLITTER[BLITTER_SRC1].ADDRESS=p;
+	REG_BLITTER[BLITTER_SRC1].SPAN=(term.w*term.depth)/4;
+	REG_BLITTER[BLITTER_SRC1].MODULO=0;
+
+	REG_BLITTER[BLITTER_SRC1].DATA=0;
+//	REG_BLITTER[BLITTER_DEST].ADDRESS=FrameBuffer;
+//	REG_BLITTER[BLITTER_DEST].SPAN=(term.w*term.depth/4);
+//	REG_BLITTER[BLITTER_DEST].MODULO=0;
+	REG_BLITTER[BLITTER_DEST].ACTIVE=0;
+	REG_BLITTER[BLITTER_DEST].ROWS=8; /* Trigger blitter */
+}
+
+void term_scroll()
+{
+	if(term.mode)
+		term_scroll_blitter();
+	else
+		term_scroll_cpu();
+}
+
 
 void term_newline()
 {
@@ -307,6 +354,7 @@ char *initdisplay(enum Screenmode mode,int bits)
 {
 	char *result;
 	int w,h;
+	int t,t2;
 	Screenmode_Set(mode);
 	w=Screenmode_GetWidth(SCREENMODE_CURRENT);
 	h=Screenmode_GetHeight(SCREENMODE_CURRENT);
@@ -314,6 +362,7 @@ char *initdisplay(enum Screenmode mode,int bits)
 	Framebuffer_Set(result,bits);
 	screenwidth=w;
 	screenheight=h;
+	
 	return(result);	
 }
 
@@ -333,8 +382,16 @@ char getserial()
 
 void draw(bits)
 {
-	int i;
+	int i,t,t2;
 	update_term(screenwidth,screenheight,bits);
+	t=HW_TIMER(REG_MILLISECONDS);
+	term.mode^=1;
+	term_scroll();
+	t=HW_TIMER(REG_MILLISECONDS)-t;
+	t2=HW_TIMER(REG_MILLISECONDS);
+	term.mode^=1;
+	term_scroll();	
+	t2=HW_TIMER(REG_MILLISECONDS)-t2;
 	for(i=0;i<screenheight;++i)
 	{
 		memset(FrameBuffer+(i*screenwidth*bits)/8,0x55,(screenwidth*bits)/8);
@@ -348,6 +405,8 @@ void draw(bits)
 	puts("Hello, World! - ");
 	puts("Some more text with a newline\n");
 	puts("And some more text following the newline...\n");
+	printf("Scroll method: %s, time %d ms.\n",term.mode ? "cpu" : "blitter",t);
+	printf("Scroll method: %s, time %d ms.\n",term.mode ? "blitter" : "cpu",t2);
 	puts("Press 1-9 to choose screenmode, a-e to choose bit depth...\n");
 	puts("Press t to print some text, press p to cycle colours...\n");
 }
@@ -362,6 +421,7 @@ int main(int argc, char **argv)
 	setpalette(8);
 	FrameBuffer=initdisplay(mode,bits);
 	draw(bits);
+	term.mode=0;
 	while(1)
 	{
 		int c;
@@ -372,6 +432,10 @@ int main(int argc, char **argv)
 			refresh=0;
 			switch(c)
 			{
+				case 's':
+					term.mode^=1;
+					printf("Scroll mode: %s\n",term.mode ? "Blitter" : "CPU");
+					break;
 				case 't':
 					puts("Lorem ipsum dolor sit amet.... \n");
 					puts("Yes, just a bunch of random text to test\n");

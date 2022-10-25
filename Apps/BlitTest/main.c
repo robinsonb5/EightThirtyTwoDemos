@@ -37,11 +37,16 @@ void makeRectBlitter(unsigned int xS, unsigned int yS, unsigned int xE, unsigned
 	while(t=REG_BLITTER[BLITTER_DEST].ROWS)	/* Wait for any previous operation to finish - FIXME use an interrupt */
 		;
 //	putchar('a');
+	w&=~3; /* Make sure the width is a multiple of 4 */
+	REG_BLITTER[BLITTER_SRC1].ADDRESS=FrameBuffer;
+	REG_BLITTER[BLITTER_SRC1].SPAN=w;
+	REG_BLITTER[BLITTER_SRC1].MODULO=4*(screenwidth-w);
+//	REG_BLITTER[BLITTER_SRC1].DATA=color;
+
 	REG_BLITTER[BLITTER_DEST].ADDRESS=(FrameBuffer+screenwidth*yS+xS);
 	REG_BLITTER[BLITTER_DEST].SPAN=w;
 	REG_BLITTER[BLITTER_DEST].MODULO=4*(screenwidth-w);
-	REG_BLITTER[BLITTER_SRC1].DATA=color;
-	REG_BLITTER[BLITTER_DEST].ACTIVE=0;
+	REG_BLITTER[BLITTER_DEST].ACTIVE=2;
 	REG_BLITTER[BLITTER_DEST].ROWS=yE-yS; /* Trigger blitter */
 //	putchar('b');
 }
@@ -82,7 +87,7 @@ void timetest(char *description,void (*drawfunc)(unsigned int,unsigned int,unsig
 		h=screenheight-y;
 		w=rand()%w;
 		h=rand()%h;
-		if(w>0 && h>0)
+		if(w>4 && h>4)
 			drawfunc(x,y,x+w,y+h,c);
 	}
 	t=HW_TIMER(REG_MILLISECONDS)-t;
@@ -118,12 +123,24 @@ int main(int argc, char **argv)
 			initDisplay(mode,32);
 			printf("\nTesting %d x %d\n",screenwidth,screenheight);
 			timetest("C",makeRect);
-			FrameBuffer=(int *)(((int)FrameBuffer)|0x40000000); /* Evil hack - upper image of memory which doesn't clear cachelines on write */
-			timetest("C (cache bypass)",makeRect);
+//			FrameBuffer=(int *)(((int)FrameBuffer)|0x40000000); /* Evil hack - upper image of memory which doesn't clear cachelines on write */
+//			timetest("C (cache bypass)",makeRect);
 			timetest("Blitter",makeRectBlitter);
 
-			printf("Press 1 - %d to switch screenmodes.\n",SCREENMODE_MAX);
+//			printf("Press 1 - %d to switch screenmodes.\n",SCREENMODE_MAX);
 		}
+
+#if 0
+		makeRect(0,0,639,479,0x7f7f7f7f);
+		makeRect(0,0,63,63,0x00ff0000);
+		makeRect(64,64,127,127,0x30303030);
+		makeRect(128,128,191,191,0xc0c0c0c0);
+		makeRect(192,192,255,255,0x00000000);
+		makeRect(256,256,319,319,0xffffffff);
+		makeRectBlitter(320,240,640,480,0x7f7f7f7f);
+		while(1)
+			;
+#endif
 
 		c=rand();
 		x=rand()%screenwidth;
@@ -132,7 +149,7 @@ int main(int argc, char **argv)
 		h=screenheight-y;
 		w=rand()%w;
 		h=rand()%h;
-		if(w>1 && h>1)
+		if(w>4 && h>4)
 			makeRectBlitter(x,y,x+w,y+h,c);
 
 		c=getserial();

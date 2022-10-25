@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_misc.all;
 use ieee.numeric_std.all;
 
 library work;
@@ -36,15 +37,18 @@ architecture rtl of blitter is
 	constant blitterchannels : integer := 2;
 	constant bltdest : integer := 0;
 	constant bltsrc1 : integer := 1;
-
+	
 	type blitterchannel is record
 		address  : unsigned(31 downto 0);
-		modulo   : unsigned(15 downto 0);
+		modulo   : signed(15 downto 0);
 		span     : unsigned(15 downto 0);
 		data     : std_logic_vector(dmawidth-1 downto 0);
-		selected : std_logic;
 	end record;
 
+	signal channels_active : std_logic_vector(blitterchannels-1 downto 0);
+	signal channels_fetch : std_logic_vector(blitterchannels-1 downto 1);
+	signal channels_valid_n : std_logic_vector(blitterchannels-1 downto 1);
+	
 	type channels_t is array(blitterchannels-1 downto 0) of blitterchannel;
 	signal channels : channels_t;
 
@@ -55,11 +59,15 @@ architecture rtl of blitter is
 	signal write_newrow : std_logic;
 	signal write_newword : std_logic;
 
+	signal read_newrow : std_logic;
+	signal read_ready : std_logic;
+
+	signal src_ready : std_logic;
+	
 begin
 
-	dma_request.req<='0';
-
 	running <= '0' when rows=X"0000" else '1';
+
 
 	-- Handle CPU access to hardware registers
 
@@ -98,9 +106,9 @@ begin
 				end if;
 
 				-- Raise an interrupt when a blit completes.
-				if channels(0).selected='1' and rows=0 then
+				if channels_active(0)='1' and rows=0 then
 					interrupt<='1';
-					channels(0).selected<='0';
+					channels_active(0)<='0';
 				end if;
 	
 				if cpu_req='1' and running='0' then
@@ -109,19 +117,17 @@ begin
 						-- Writing to the Rows register activates the blitter
 						when "00"&X"0" =>
 							rows <= unsigned(request.d(15 downto 0));
-							channels(0).selected<='1';
+							channels_active(0)<='1';
 
 						-- The Active register
 						when "00"&X"4" =>
-							for i in 1 to blitterchannels-1 loop -- The dest channel's bit is set on writing the row count
-								channels(i).selected<=request.d(i);
-							end loop;
+							channels_active<=request.d(blitterchannels-1 downto 0);
 
 						-- Per-channel registers for address, modulo, span and data, channels addressed via bits 7,6
 						when "11"&X"0" =>
 							channels(cpuchannel).address<=unsigned(request.d);
 						when "11"&X"4" =>
-							channels(cpuchannel).modulo<=unsigned(request.d(15 downto 0));
+							channels(cpuchannel).modulo<=signed(request.d(15 downto 0));
 						when "11"&X"8" =>
 							channels(cpuchannel).span<=unsigned(request.d(15 downto 0));
 						when "11"&X"C" =>
@@ -138,9 +144,23 @@ begin
 					end if;
 
 					if write_newrow='1' then
-						channels(0).address<=channels(0).address+channels(0).modulo;
+						channels(0).address<=unsigned(signed(channels(0).address)+channels(0).modulo);
 						rows<=rows-1;
 					end if;
+					
+					if read_newrow='1' then
+						for i in 1 to blitterchannels-1 loop
+							channels(i).address<=unsigned(signed(channels(i).address)+channels(i).modulo+signed(channels(i).span&"00"));
+						end loop;
+					end if;
+
+					-- Capture incoming DMA data.
+					for i in 1 to blitterchannels-1 loop
+						if dma_response.valid='1' then
+							channels(i).data<=dma_data;
+						end if;
+					end loop;
+					
 				end if;
 
 			end if;
@@ -152,11 +172,13 @@ begin
 		signal rowcounter : unsigned(15 downto 0);
 		type writestate_t is (IDLE,WAITSRC,WAITACK);
 		signal writestate : writestate_t;
-		signal src_ready : std_logic;
 		signal sdram_req : std_logic;
 	begin
-	
-		src_ready <= '1' when channels(1).selected='0' else '0'; -- FIXME wait for a fetch here
+
+		process(channels) begin
+		
+		end process;
+
 		write_newword<='1' when writestate=WAITSRC and src_ready='1' else '0';
 		write_newrow <= '1' when from_sdram.ack='1' and rowcounter=0 else '0';
 
@@ -205,5 +227,65 @@ begin
 		end process;
 		
 	end block;
+	
+	
+	readblock : block		
+		signal running_d : std_logic;
+	begin
+	
+		-- If any source channels are selected we must wait for data to be read.
+		src_ready <= '1' when and_reduce(
+				(channels_active(blitterchannels-1 downto 1)
+					and channels_valid_n(blitterchannels-1 downto 1))) = '0'
+						else '0';
+
+--		read_newrow<='1' when running='1' and or_reduce(channels_fetch)='0' else '0';
+
+		read_newrow<=write_newrow or (running and not running_d);
+		
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+
+				for i in 1 to blitterchannels-1 loop
+					if dma_response.valid='1' then
+						channels_valid_n(i)<='0';
+					end if;
+					if dma_response.done='1' then
+						channels_fetch(i)<='0';
+					end if;
+				end loop;
+
+				if running='0' then
+					for i in 1 to blitterchannels-1 loop
+						channels_fetch(i)<='0';
+						channels_valid_n(i)<='1';
+					end loop;
+				end if;
+
+				running_d <= running;
+				
+				for i in 1 to blitterchannels-1 loop
+					if read_newrow='1' then
+						channels_fetch(i)<=channels_active(i);
+					end if;
+					dma_request.req<='0';
+					if write_newword='1' or read_newrow='1' then
+						dma_request.req<=channels_active(i);
+						channels_valid_n(i)<='1';
+					end if;
+				end loop;
+	
+			end if;
+		end process;
+		
+		requestloop: for i in 1 to blitterchannels-1 generate
+			dma_request.setaddr<=channels_active(i) and read_newrow;
+			dma_request.setreqlen<=channels_active(i) and read_newrow;
+			dma_request.addr<=std_logic_vector(channels(i).address);
+			dma_request.reqlen<=channels(i).span;
+		end generate;
+
+	end block;
+
 end architecture;
 

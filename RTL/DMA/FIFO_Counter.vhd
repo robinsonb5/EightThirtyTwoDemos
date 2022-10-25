@@ -39,7 +39,7 @@ begin
 	if rising_edge(clk) then
 		if reset='1' then
 			counter<=(others=>'0');
-			counter(0)<='1';
+--			counter(0)<='1';
 		else
 			if fill='1' and drain='0' then
 				counter<=counter+to_unsigned(increment,maxbit+2);
