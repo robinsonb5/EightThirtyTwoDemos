@@ -3,6 +3,7 @@
 #include <hw/vga.h>
 #include <hw/screenmode.h>
 #include <hw/blitter.h>
+#include <socmemory.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -38,15 +39,12 @@ void makeRectBlitter(unsigned int xS, unsigned int yS, unsigned int xE, unsigned
 		;
 //	putchar('a');
 	w&=~3; /* Make sure the width is a multiple of 4 */
-	REG_BLITTER[BLITTER_SRC1].ADDRESS=FrameBuffer;
-	REG_BLITTER[BLITTER_SRC1].SPAN=w;
-	REG_BLITTER[BLITTER_SRC1].MODULO=4*(screenwidth-w);
-//	REG_BLITTER[BLITTER_SRC1].DATA=color;
+	REG_BLITTER[BLITTER_SRC1].DATA=color;
 
 	REG_BLITTER[BLITTER_DEST].ADDRESS=(FrameBuffer+screenwidth*yS+xS);
 	REG_BLITTER[BLITTER_DEST].SPAN=w;
 	REG_BLITTER[BLITTER_DEST].MODULO=4*(screenwidth-w);
-	REG_BLITTER[BLITTER_DEST].ACTIVE=2;
+	REG_BLITTER[BLITTER_DEST].ACTIVE=0;
 	REG_BLITTER[BLITTER_DEST].ROWS=yE-yS; /* Trigger blitter */
 //	putchar('b');
 }
@@ -107,13 +105,82 @@ char getserial()
 }
 
 
+memcpy_blit(char *buf0,char *buf1,int span,int rows)
+{
+	int t;
+	while(t=REG_BLITTER[BLITTER_DEST].ROWS)	/* Wait for any previous operation to finish - FIXME use an interrupt */
+		;
+	REG_BLITTER[BLITTER_SRC1].ADDRESS=buf0;
+	REG_BLITTER[BLITTER_SRC1].SPAN=span;
+	REG_BLITTER[BLITTER_SRC1].MODULO=0;
+//	REG_BLITTER[BLITTER_SRC1].DATA=color;
+
+	REG_BLITTER[BLITTER_DEST].ADDRESS=buf1;
+	REG_BLITTER[BLITTER_DEST].SPAN=span;
+	REG_BLITTER[BLITTER_DEST].MODULO=0;
+	REG_BLITTER[BLITTER_DEST].ACTIVE=2;
+	REG_BLITTER[BLITTER_DEST].ROWS=rows; /* Trigger blitter */
+	while(t=REG_BLITTER[BLITTER_DEST].ROWS)	/* Wait for any previous operation to finish - FIXME use an interrupt */
+		;
+
+}
+
+void innertest(char *buf1, char *buf2, int w, int h)
+{
+	int size=w*h*4;
+	int t;
+	t=HW_TIMER(REG_MILLISECONDS);
+	memcpy(buf1,buf2,size);
+	t=HW_TIMER(REG_MILLISECONDS)-t;
+	printf("Memcpy: %d ms\n",t);
+	t=HW_TIMER(REG_MILLISECONDS);
+	memcpy_blit(buf1,buf2,w,h);
+	t=HW_TIMER(REG_MILLISECONDS)-t;
+	printf("Blitter: %d ms\n",t);
+}
+
+void blitcompare()
+{
+	struct MemoryPool *pool;
+	char *buf0;
+	char *buf1;
+	char *buf2;
+	char *buf3;
+	int size=1280*720*4;
+	pool=SoCMemory_GetPool();
+	pool=NewMemoryPool(pool);
+	if(pool)
+	{
+		buf0=pool->AllocAligned(pool,size,32,SOCMEMORY_BANK0,15);
+		buf1=pool->AllocAligned(pool,size,32,SOCMEMORY_BANK1,15);
+		buf2=pool->AllocAligned(pool,size,32,SOCMEMORY_BANK2,15);
+		buf3=pool->AllocAligned(pool,size,32,SOCMEMORY_BANK0,15);
+		if(buf0 && buf1 && buf2 && buf3)
+		{
+			printf("Testing bank 0 to bank 0\n");
+			innertest(buf0,buf3,1280,720);
+			printf("Testing bank 0 to bank 1\n");
+			innertest(buf0,buf1,1280,720);
+			printf("Testing bank 1 to bank 2\n");
+			innertest(buf1,buf2,1280,720);
+		}
+		else
+			printf("Memory allocation failed\n");
+		pool->Delete(pool);
+	}
+}
+
+
 int main(int argc, char **argv)
 {
     int i;
 	int t;
 	unsigned int c,x,y,w,h;
 	int update=1;
-	int mode=SCREENMODE_640x480_60;
+	int mode=SCREENMODE_1280x720_60;
+
+	initDisplay(mode,32);
+	blitcompare();
 
 	while(1)
 	{	

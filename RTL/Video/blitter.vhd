@@ -95,11 +95,10 @@ begin
 			end if;
 		end process;
 
-
-		cpuchannel <= to_integer(unsigned(request.addr(7 downto 6)));
-
-		process(clk_sys) begin
-			if rising_edge(clk_sys) then
+		process(clk_sys,reset_n) begin
+			if reset_n='0' then
+				interrupt<='0';
+			elsif rising_edge(clk_sys) then
 				-- Clear the interrupt on any register read.
 				if sel='1' and request.req='1' and request.wr='0' then
 					interrupt<='0';
@@ -108,6 +107,16 @@ begin
 				-- Raise an interrupt when a blit completes.
 				if channels_active(0)='1' and rows=0 then
 					interrupt<='1';
+				end if;
+			end if;
+		end process;
+
+		cpuchannel <= to_integer(unsigned(request.addr(7 downto 6)));
+
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+
+				if channels_active(0)='1' and rows=0 then
 					channels_active(0)<='0';
 				end if;
 	

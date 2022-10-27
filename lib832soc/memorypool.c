@@ -133,7 +133,7 @@ static void mergefragments(struct MemoryPool *pool)
 		else
 			fragment1=pool->fragmentlist; // Start over since Fragments were merged
 	}
-	MemoryPool_DumpFragments(pool);
+//	MemoryPool_DumpFragments(pool);
 }
 
 
