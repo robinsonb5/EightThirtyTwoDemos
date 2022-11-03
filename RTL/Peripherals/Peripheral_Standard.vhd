@@ -17,7 +17,7 @@ entity Peripheral_Standard is
 		response : out SoC_Peripheral_Response;
 
 		-- CPU / system signals		
-		soft_reset_n : out std_logic;
+		soft_reset_n : out std_logic; -- Ctrl-D over UART will cause a low pulse. Do not fold this into reset_n!
 		flush_caches : out std_logic;
 
 		-- Interupt signals
@@ -121,15 +121,20 @@ architecture rtl of Peripheral_Standard is
 	signal mousesendbyte : std_logic_vector(7 downto 0);
 	signal mouserecvbyte : std_logic_vector(10 downto 0);
 
-	signal reset : std_logic;
 	signal busy : std_logic;
 	signal req_d : std_logic;
 	signal mem_rd : std_logic;
 	signal mem_wr : std_logic;
 
+	signal soft_reset_n_i : std_logic;
+	signal reset_i : std_logic;
+	signal reset_n_i : std_logic;
 begin
 
-	reset<=not reset_n;
+	soft_reset_n <= soft_reset_n_i;
+
+	reset_n_i <= soft_reset_n_i and reset_n;
+	reset_i<=not reset_n_i;
 
 	-- Timer
 	process(clk)
@@ -153,7 +158,7 @@ begin
 		)
 		port map(
 			clk => clk,
-			reset => reset_n, -- active low
+			reset => reset_n_i, -- active low
 			txdata => ser_txdata,
 			txready => ser_txready,
 			txgo => ser_txgo,
@@ -172,7 +177,7 @@ begin
 		)
 		port map(
 			clk => clk,
-			reset => reset_n, -- active low
+			reset => reset_n_i, -- active low
 			txdata => ser2_txdata,
 			txready => ser2_txready,
 			txgo => ser2_txgo,
@@ -195,7 +200,7 @@ begin
 		)
 		port map (
 			clk => clk,
-			reset => reset, -- active high!
+			reset => reset_i, -- active high!
 			ps2_clk_in => ps2k_clk_in,
 			ps2_dat_in => ps2k_dat_in,
 			ps2_clk_out => ps2k_clk_out,
@@ -218,7 +223,7 @@ begin
 		)
 		port map (
 			clk => clk,
-			reset => reset, -- active high!
+			reset => reset_i, -- active high!
 			ps2_clk_in => ps2m_clk_in,
 			ps2_dat_in => ps2m_dat_in,
 			ps2_clk_out => ps2m_clk_out,
@@ -252,7 +257,7 @@ begin
 	spi : entity work.spi_interface
 		port map(
 			sysclk => clk,
-			reset => reset_n,
+			reset => reset_n_i,
 
 			-- Host interface
 			spiclk_in => spiclk_in,
@@ -292,7 +297,7 @@ begin
 		)
 		port map (
 			clk => clk,
-			reset_n => reset_n,
+			reset_n => reset_n_i,
 			trigger => triggers,
 			ack => int_ack,
 			int => int_req,
@@ -332,10 +337,23 @@ begin
 		end process;
 	end block;
 
-
-	process(clk,reset_n)
-	begin
+	-- soft reset handling, must exclude its own generated reset!
+	process(clk,reset_n) begin
 		if reset_n='0' then
+			soft_reset_n_i<='1';
+		elsif rising_edge(clk) then
+			soft_reset_n_i<='1';
+			if ser_rxint='1' then
+				if ser_rxdata=X"04" then -- Allow soft-reset on Ctrl-D over serial
+					soft_reset_n_i<='0';
+				end if;
+			end if;
+		end if;
+	end process;
+
+	process(clk,reset_n_i)
+	begin
+		if reset_n_i='0' then
 			spi_cs<='1';
 			spi_active<='0';
 			int_enabled<='0';
@@ -345,7 +363,6 @@ begin
 			ser_rxrecv<='0';
 			ser2_rxready<='1';
 			ser2_rxrecv<='0';
-			soft_reset_n<='1';
 		elsif rising_edge(clk) then
 			busy<='1';
 			ser_txgo<='0';
@@ -355,7 +372,6 @@ begin
 			kbdsendtrigger<='0';
 			mousesendtrigger<='0';
 			flush_caches<='0';
-			soft_reset_n<='1';
 
 			-- Write from CPU?
 			if mem_wr='1' and busy='1' then
@@ -485,11 +501,6 @@ begin
 			if ser_rxint='1' then
 				ser_rxrecv<='1';
 				ser_rxready<='0';
-				if ser_rxdata=X"04" then -- Allow soft-reset on Ctrl-D over serial
-					soft_reset_n<='0';
-					ser_rxrecv<='0';
-					int_enabled<='0';
-				end if;
 			end if;
 
 			-- Set this after the read operation has potentially cleared it.

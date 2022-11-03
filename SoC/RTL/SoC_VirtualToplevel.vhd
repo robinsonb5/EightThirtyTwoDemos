@@ -80,8 +80,12 @@ architecture rtl of VirtualToplevel is
 	constant sysclk_hz : integer := sysclk_frequency*1000;
 
 
-	signal reset_n : std_logic := '0';
-	signal reset : std_logic := '0';
+	-- Reset signals
+
+	signal reset_n : std_logic := '0'; -- Active low reset derived from incoming signal and sdr_ready;
+	signal reset : std_logic; -- Inverted from reset_n
+	signal soft_reset_n : std_logic; -- Supplied by the peripheral block on Ctrl-D
+	signal cpu_reset_n : std_logic; -- Derived from reset_n and soft_reset_n
 	signal reset_counter : unsigned(15 downto 0) := X"FFFF";
 
 
@@ -113,9 +117,7 @@ architecture rtl of VirtualToplevel is
 	signal cpu_wr : std_logic; 
 	signal cpu_bytesel : std_logic_vector(3 downto 0);
 	signal cpu_ack : std_logic; 
-	signal cpu_reset : std_logic;
 	signal cpu_int : std_logic;
-	signal soft_reset_n : std_logic;
 
 	-- Address decoding
 	signal sel_rom : std_logic;
@@ -185,7 +187,7 @@ begin
 	
 		-- CPU
 		
-		cpu_reset<=reset_n and soft_reset_n;
+		cpu_reset_n<=reset_n and soft_reset_n;
 		
 		cpu : entity work.eightthirtytwo_cpu
 		generic map
@@ -200,7 +202,7 @@ begin
 		port map
 		(
 			clk => clk,
-			reset_n => cpu_reset,
+			reset_n => cpu_reset_n,
 			interrupt => cpu_int,
 
 			-- cpu fetch interface
@@ -334,7 +336,7 @@ begin
 		)
 		port map (
 			clk => clk,
-			reset_n => cpu_reset,
+			reset_n => reset_n,
 			request => peripheral_req,
 			response => peripheral_responses(0),
 
@@ -417,14 +419,16 @@ begin
 		)
 		port map (
 			clk_sys => clk,
-			reset_n => cpu_reset,
+			reset_n => cpu_reset_n,
 			
 			request => peripheral_req,
 			response => peripheral_responses(4),
 			
 			dma_data => dma_data,
-			dma_request => dmachannel_requests(dmachannel_blitter),
-			dma_response => dmachannel_responses(dmachannel_blitter),
+			dma_requests(0) => dmachannel_requests(dmachannel_blitter),
+			dma_requests(1) => dmachannel_requests(dmachannel_blitter+1),
+			dma_responses(0) => dmachannel_responses(dmachannel_blitter),
+			dma_responses(1) => dmachannel_responses(dmachannel_blitter+1),
 			
 			to_sdram => blitter_to_sdram,
 			from_sdram => sdram_to_blitter,
@@ -442,7 +446,7 @@ begin
 		)
 		port map (
 			clk => clk,
-			reset => cpu_reset,
+			reset => cpu_reset_n,
 
 			request => peripheral_req,
 			response => peripheral_responses(2),
@@ -654,7 +658,7 @@ begin
 	mydmacache : entity work.DMACache
 	port map(
 		clk => clk,
-		reset_n => cpu_reset,
+		reset_n => cpu_reset_n,
 
 		channels_from_host => dmachannel_requests,
 		channels_to_host => dmachannel_responses,

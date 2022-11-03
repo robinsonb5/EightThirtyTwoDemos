@@ -100,7 +100,8 @@ int main(int argc, char **argv)
 	struct mousedriver driver;
 	struct mousepointer pointer;
 	int mode=0,bits=16;
-	unsigned int *sprite=alignsprite(Screenmode_PointerSprite,32);
+//	unsigned int *sprite=alignsprite(Screenmode_PointerSprite,32);
+	unsigned int *sprite=Screenmode_PointerSprite;
 	char *framebuffer=initdisplay(SCREENMODE_640x480_60,bits);
 
 	HW_VGA(REG_VGA_SP0PTR)=(int)sprite;

@@ -22,6 +22,7 @@
 #define INTERRUPT_TIMER 2
 #define INTERRUPT_VBLANK 3
 #define INTERRUPT_AUDIO 4
+#define INTERRUPT_BLITTER 5
 
 #ifdef __cplusplus
 extern "C" {

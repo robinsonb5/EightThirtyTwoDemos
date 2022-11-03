@@ -2,6 +2,7 @@ set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) sdram_cont
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) cacheway.vhd ]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) wayselect.vhd ]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) fourwaycache.vhd ]
+set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) sdram_writearbiter_pkg.vhd ]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) sdram_writearbiter.vhd ]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) sdram_writebuffer.vhd ]
 set_global_assignment -name VHDL_FILE [file join $::quartus(qip_path) sdram_refresh_schedule.vhd ]

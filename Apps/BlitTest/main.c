@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 	int t;
 	unsigned int c,x,y,w,h;
 	int update=1;
-	int mode=SCREENMODE_1280x720_60;
+	int mode=SCREENMODE_800x600_72;
 
 	initDisplay(mode,32);
 	blitcompare();

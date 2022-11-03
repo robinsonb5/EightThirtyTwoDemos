@@ -80,7 +80,7 @@ end entity;
 
 architecture rtl of sdram_controller is
 	signal initstate	:unsigned(3 downto 0) := (others => '0');	-- Counter used to initialise the RAM
-	signal cas_dqm		:std_logic_vector(sdram_dqmwidth-1 downto 0);	-- ...mask register for entire burst
+--	signal cas_dqm		:std_logic_vector(sdram_dqmwidth-1 downto 0);	-- ...mask register for entire burst
 	signal init_done	:std_logic :='0';
 	signal datain		:std_logic_vector(sdram_width-1 downto 0);
 	signal casaddr		:std_logic_vector(31 downto 0);
@@ -495,7 +495,7 @@ begin
 
 						slot1read<='0';
 
-						cas_dqm <= (others => '0');
+--						cas_dqm <= (others => '0');
 						slot1_autoprecharge<='1';
 						port0_extend<='0';
 
@@ -523,7 +523,7 @@ begin
 						elsif nextport=writecache then
 							slot1_precharge<='1';
 							wb_bank <= wbflagsaddr(sdram_bank_high downto sdram_bank_low);
-							cas_dqm <= wbflagsaddr(wbflag_dqms);
+--							cas_dqm <= wbflagsaddr(wbflag_dqms);
 						elsif nextport=port1 then
 							slot1read<='1';
 							cache_ack.ack<='1'; -- Signal to the cache that we're servicing its request.
@@ -539,7 +539,7 @@ begin
 						null;
 
 					when ph5 => -- Read command
-						dqm <= cas_dqm;
+--						dqm <= cas_dqm;
 						if slot1read='1' then
 							sdaddr <= (others=>'0');
 							sdaddr((sdram_colbits-1) downto 0) <= casaddr(sdram_col_high downto sdram_col_low) ;--auto precharge
@@ -589,7 +589,7 @@ begin
 						slot2read<='0';
 						-- Slot 2, active command
 						
-						cas_dqm <= (others => '0');
+--						cas_dqm <= (others => '0');
 						sdram_slot2<=idle;
 						port0_extend<='0';
 						slot2_autoprecharge<='1';
@@ -637,7 +637,7 @@ begin
 					
 					-- Phase 13 - CAS for second window...
 					when ph13 =>
-						dqm <= cas_dqm;
+--						dqm <= cas_dqm;
 						if slot2read='1' then
 							sdaddr <= (others=>'0');
 							sdaddr((sdram_colbits-1) downto 0) <= casaddr(sdram_col_high downto sdram_col_low) ;--auto precharge
@@ -689,8 +689,8 @@ begin
 
 					sdwrite<='1';
 					datain <= wbdata;
-					dqm <= wbflagsaddr(wbflag_dqms);					
-				end if;			
+					dqm <= wbflagsaddr(wbflag_dqms);
+				end if;
 
 			END IF;	
 		END IF;	

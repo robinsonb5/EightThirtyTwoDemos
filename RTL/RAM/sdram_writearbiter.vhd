@@ -28,6 +28,7 @@ architecture rtl of sdram_writearbiter is
 	signal arbiterstate : arbiterstate_t;
 begin
 
+	-- Priority encode incoming ports, with port 0 having highest priority.
 	process(requests) begin
 		req<='0';
 		nextport <= 0;
@@ -42,12 +43,19 @@ begin
 	process(clk) begin
 		if rising_edge(clk) then
 			case arbiterstate is
+
+				-- When a request arrives, we latch the highest priority port.
+				-- While we're idle port 0 is the current port, so port 0 doesn't
+				-- suffer any added latency. Also solves any problems with changing
+				-- ports after the request has been forwarded.
 				when IDLE =>
 					if req='1' then
 						currentport<=nextport;
 						arbiterstate<=WAITING;
 					end if;
 					
+				-- We return to the idle state when a request is completed, but only if
+				-- burst is 0, so multi-word writes to the same row can be efficiently handled.
 				when WAITING =>
 					if requests(currentport).req='0' and requests(currentport).burst='0' then
 						currentport<=0;
