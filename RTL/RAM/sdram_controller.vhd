@@ -23,7 +23,7 @@
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
--- FIXME - currently only works with 32-bit RAM.  Adjust to work with 16-bit wide RAM.
+-- Currently works with 16-bit and 32-bit wide SDRAM.
  
 library ieee;
 use ieee.std_logic_1164.all;
@@ -80,7 +80,6 @@ end entity;
 
 architecture rtl of sdram_controller is
 	signal initstate	:unsigned(3 downto 0) := (others => '0');	-- Counter used to initialise the RAM
---	signal cas_dqm		:std_logic_vector(sdram_dqmwidth-1 downto 0);	-- ...mask register for entire burst
 	signal init_done	:std_logic :='0';
 	signal datain		:std_logic_vector(sdram_width-1 downto 0);
 	signal casaddr		:std_logic_vector(31 downto 0);
@@ -495,7 +494,6 @@ begin
 
 						slot1read<='0';
 
---						cas_dqm <= (others => '0');
 						slot1_autoprecharge<='1';
 						port0_extend<='0';
 
@@ -523,7 +521,6 @@ begin
 						elsif nextport=writecache then
 							slot1_precharge<='1';
 							wb_bank <= wbflagsaddr(sdram_bank_high downto sdram_bank_low);
---							cas_dqm <= wbflagsaddr(wbflag_dqms);
 						elsif nextport=port1 then
 							slot1read<='1';
 							cache_ack.ack<='1'; -- Signal to the cache that we're servicing its request.
@@ -539,7 +536,6 @@ begin
 						null;
 
 					when ph5 => -- Read command
---						dqm <= cas_dqm;
 						if slot1read='1' then
 							sdaddr <= (others=>'0');
 							sdaddr((sdram_colbits-1) downto 0) <= casaddr(sdram_col_high downto sdram_col_low) ;--auto precharge
@@ -589,7 +585,6 @@ begin
 						slot2read<='0';
 						-- Slot 2, active command
 						
---						cas_dqm <= (others => '0');
 						sdram_slot2<=idle;
 						port0_extend<='0';
 						slot2_autoprecharge<='1';
@@ -637,7 +632,6 @@ begin
 					
 					-- Phase 13 - CAS for second window...
 					when ph13 =>
---						dqm <= cas_dqm;
 						if slot2read='1' then
 							sdaddr <= (others=>'0');
 							sdaddr((sdram_colbits-1) downto 0) <= casaddr(sdram_col_high downto sdram_col_low) ;--auto precharge
@@ -778,23 +772,22 @@ END architecture;
 -- ph14                             d    r 6th word                      (read)
 -- ph15                             d    r 7th word
 
--- (If Slot2 is unused or is writing, slot1 could write at ph5 through 8 as well.
--- Likewise slot 2 could write during ph15 through 0 if slot 1 is idle.)
-
--- Can also refresh idle banks by performing an ACT at ph6 or 7 (or both!) followed by
--- a precharge at ph14/15
--- Maybe ACT at ph7, PRE at ph14, then ACT at ph15, PRE at ph6 to reduce the chances
--- of blocking a cycle completely?
-
--- Alternatively, ACT at ph4/ph12 (as long as neither slot is writing), then PRE at ph9/ph1?
-
--- Better yet, since we're already precharging at ph6 and ph14 when the write buffer is active
--- do the precharge there, and ACT at ph7 and ph15?  Will block that bank for the next slot,
--- but it's going to be hard to avoid that anyway.
-
--- For "hungry" VGA (i.e. FIFO less than half full), Read commands could omit the Autoprecharge,
+-- For "hungry" VGA (i.e. FIFO less than half full), Read commands omit the Autoprecharge,
 -- and simply transfer to the other slot to continue the read.  Once the channel is no longer
 -- hungry (or the row address wraps around) the last command to be issued will use autoprecharge
 -- and return to the normal state.
+
+-- A best-case of 9 words can be written in a single 16-cycle round of the state machine.
+-- If Slot2 is unused or is writing, slot1 can write at ph5 through 8 as well (with one
+-- cycle lost if the other slot is precharging due to write or refresh.)
+-- Likewise slot 2 can write during ph15 through 0 if slot 1 is idle.
+
+-- Autorefresh is avoided by manually refreshing idle banks.
+-- ACT happens at ph7, PRE at ph14 if slot 1 isn't writing.
+-- ACT happens at ph15, PRE at ph6 if slot 2 isn't writing.
+-- Refresh of idle banks can coincide with reads.
+-- The write logic already precharges at ph6 and ph14, so this
+-- precharge is used for the refresh logic, too, which is why
+-- it can't coincide with writes.
 
 

@@ -234,7 +234,7 @@ int main(int argc, char **argv)
 				case '8':
 				case '9':
 				case '0':
-					mode=c-'1';
+					mode=c-'0';
 					break;
 				default:
 					break;

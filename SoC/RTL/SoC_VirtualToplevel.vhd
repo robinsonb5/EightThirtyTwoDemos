@@ -267,11 +267,11 @@ begin
 
 		rom : entity work.SoC_rom
 		generic map(
-			ADDR_WIDTH => 13
+			ADDR_WIDTH => 12
 		)
 		port map(
 			clk => clk,		
-			addr => cpu_addr(14 downto 2),
+			addr => cpu_addr(13 downto 2),
 			d => from_cpu,
 			q => from_rom,
 			we => rom_wr,

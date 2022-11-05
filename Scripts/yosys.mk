@@ -34,6 +34,7 @@ $(DEPFILE): $(MANIFEST)
 clean:
 	-rm $(TARGET)
 	-rm $(PROJECT)_$(BOARD)_files.tcl
+	-rm work-obj*.cf
 	-rm $(BITIFLE)
 
 include $(PROJECT)_$(BOARD)_deps.mk

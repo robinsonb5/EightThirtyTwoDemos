@@ -338,7 +338,6 @@ begin
 		to_sdram.req<=sdram_req;
 		to_sdram.burst<='0';
 		to_sdram.pri<='0';
-		to_sdram.strobe<='0';
 
 		process(clk_sys,reset_n) begin
 			if reset_n='0' then
@@ -383,7 +382,6 @@ begin
 	
 	
 	readblock : block		
-		signal channels_fetch : std_logic_vector(blitterchannels-1 downto 1);
 		signal running_d : std_logic;
 		signal newrow_d : std_logic;
 		signal lastrow : std_logic;
@@ -407,14 +405,10 @@ begin
 					if dma_responses(i-1).valid='1' then
 						channels_valid_n(i)<='0';
 					end if;
-					if dma_responses(i-1).done='1' then
-						channels_fetch(i)<='0';
-					end if;
 				end loop;
 
 				if running='0' then
 					for i in 1 to blitterchannels-1 loop
-						channels_fetch(i)<='0';
 						channels_valid_n(i)<='1';
 					end loop;
 				end if;
@@ -422,9 +416,6 @@ begin
 				running_d <= running;
 				
 				for i in 1 to blitterchannels-1 loop
-					if read_newrow='1' then
-						channels_fetch(i)<=channels_active(i);
-					end if;
 					dma_requests(i-1).req<='0';
 					if write_newword='1' or read_newrow='1' then
 						dma_requests(i-1).req<=channels_active(i);

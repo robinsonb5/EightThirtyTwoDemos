@@ -4,6 +4,8 @@
 #include <hw/screenmode.h>
 #include <hw/blitter.h>
 #include <framebuffer.h>
+#include <hw/interrupts.h>
+#include <signals.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +19,35 @@ int screenheight=480;		// Initial screen heigth
 
 #define REG_VGA_CLUTIDX 0x40
 #define REG_VGA_CLUTDATA 0x44
+
+
+struct InterruptHandler inthandler;
+
+static void blitter_handler(void *ud)
+{
+	int t=REG_BLITTER[BLITTER_CTRL].ROWS;
+	SetSignal(0);
+}
+
+
+/* Waits for the blitter to become available, using signals. */
+void WaitBlitter()
+{
+	int t;
+	while(t=REG_BLITTER[BLITTER_CTRL].ROWS)
+		WaitSignal(1<<0);
+}
+
+
+/* Returns 1 if the blitter is available */
+int PollBlitter()
+{
+	int t=REG_BLITTER[BLITTER_CTRL].ROWS;
+	if(t)
+		return(0);
+	else
+		return(1);
+}
 
 
 struct terminal
@@ -53,38 +84,40 @@ void term_scroll_cpu()
 
 void term_scroll_blitter()
 {
-	char *p=FrameBuffer+(8*term.w*term.depth);
+	char *p;
 	int t;
 	if(!FrameBuffer)
 		return;
-	while(t=REG_BLITTER[BLITTER_DEST].ROWS)	/* Wait for any previous operation to finish - FIXME use an interrupt */
-		;
-//	putchar('a');
+	WaitBlitter();
+
+	p=FrameBuffer+(8*term.w*term.depth);
+
 	REG_BLITTER[BLITTER_SRC1].ADDRESS=p;
 	REG_BLITTER[BLITTER_SRC1].SPAN=(term.w*term.depth)/4;
 	REG_BLITTER[BLITTER_SRC1].MODULO=0;
-//	REG_BLITTER[BLITTER_SRC1].DATA=color;
 
 	REG_BLITTER[BLITTER_DEST].ADDRESS=FrameBuffer;
 	REG_BLITTER[BLITTER_DEST].SPAN=(term.w*term.depth/4);
 	REG_BLITTER[BLITTER_DEST].MODULO=0;
-	REG_BLITTER[BLITTER_DEST].ACTIVE=2;
-	REG_BLITTER[BLITTER_DEST].ROWS=(term.h-1)*8; /* Trigger blitter */
-//	putchar('b');
 
-	while(t=REG_BLITTER[BLITTER_DEST].ROWS)	/* Wait for any previous operation to finish - FIXME use an interrupt */
-		;
-	p=FrameBuffer+(term.h-8)*term.w*term.depth;
-	REG_BLITTER[BLITTER_SRC1].ADDRESS=p;
-	REG_BLITTER[BLITTER_SRC1].SPAN=(term.w*term.depth)/4;
-	REG_BLITTER[BLITTER_SRC1].MODULO=0;
+	REG_BLITTER[BLITTER_CTRL].FUNCTION=BLITTER_FUNC_A;
+	REG_BLITTER[BLITTER_CTRL].ACTIVE=BLITTER_ACTIVE_SRC1;
+	REG_BLITTER[BLITTER_CTRL].ROWS=(term.h-1)*8; /* Trigger blitter */
+
+	WaitBlitter();
+
+	p=FrameBuffer+(term.h-1)*8*term.w*term.depth;
 
 	REG_BLITTER[BLITTER_SRC1].DATA=0;
-//	REG_BLITTER[BLITTER_DEST].ADDRESS=FrameBuffer;
-//	REG_BLITTER[BLITTER_DEST].SPAN=(term.w*term.depth/4);
-//	REG_BLITTER[BLITTER_DEST].MODULO=0;
-	REG_BLITTER[BLITTER_DEST].ACTIVE=0;
-	REG_BLITTER[BLITTER_DEST].ROWS=8; /* Trigger blitter */
+
+	REG_BLITTER[BLITTER_DEST].ADDRESS=p;
+	REG_BLITTER[BLITTER_DEST].SPAN=(term.w*term.depth)/4;
+	REG_BLITTER[BLITTER_DEST].MODULO=0;
+
+	REG_BLITTER[BLITTER_CTRL].ACTIVE=BLITTER_ACTIVE_NONE; /* Constant value */
+	REG_BLITTER[BLITTER_CTRL].ROWS=8; /* Trigger blitter */
+
+	WaitBlitter();
 }
 
 void term_scroll()
@@ -418,10 +451,18 @@ int main(int argc, char **argv)
 	int bits=1;
 	int refresh=1;
 	enum screenmode mode=SCREENMODE_640x480_60;
+
+	inthandler.next=0;
+	inthandler.handler=blitter_handler;
+	inthandler.bit=INTERRUPT_BLITTER;
+	AddInterruptHandler(&inthandler);
+	EnableInterrupts();
+
 	setpalette(8);
 	FrameBuffer=initdisplay(mode,bits);
 	draw(bits);
-	term.mode=0;
+	term.mode=1; /* Blitter scrolling by default */
+
 	while(1)
 	{
 		int c;
@@ -450,7 +491,7 @@ int main(int argc, char **argv)
 				case '7':
 				case '8':
 				case '9':
-					mode=c-'1';
+					mode=c-'0';
 					printf("Switching to mode %d\n",mode);
 					refresh=1;
 					break;

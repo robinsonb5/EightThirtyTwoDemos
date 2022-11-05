@@ -33,7 +33,6 @@ package sdram_controller_pkg is
 		wr : std_logic;
 		d : std_logic_vector(31 downto 0);
 		bytesel : std_logic_vector(3 downto 0);
-		strobe : std_logic; -- A high pulse for each 32-bit word of the transfer.
 	end record;
 	
 	type sdram_port_response is record
