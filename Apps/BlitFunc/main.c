@@ -46,11 +46,6 @@ int PollBlitter()
 }
 
 
-void makeRectFast(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE, unsigned int color);
-void makeRectFastUnrolled(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE, unsigned int color);
-
-// makeRect(xS,yS,xE,yE,color) - Draw a rectangle
-
 void makeRect(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE, unsigned int color)
 {
 	unsigned int x,y,yoff;
@@ -83,31 +78,40 @@ void memset_blit(char *buf,int span,int rows,int fill)
 }
 
 
-void makeRectBlitter(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE, unsigned int color)
+void makeRectBlitter(unsigned int xS, unsigned int yS, unsigned int xE, unsigned int yE, unsigned int color, int func)
 {
 	int w=xE-xS;
 	int t;
 	WaitBlitter();
 
-	/* Channel 1 - DMA from memory */
+	if(func)
+	{
+		/* Channel 1 - DMA from memory */
 
-	REG_BLITTER[BLITTER_CTRL].ACTIVE=BLITTER_ACTIVE_SRC1;
+		REG_BLITTER[BLITTER_CTRL].ACTIVE=BLITTER_ACTIVE_SRC1;
 
-	REG_BLITTER[BLITTER_SRC1].ADDRESS=(FrameBuffer+screenwidth*yS+xS);
-	REG_BLITTER[BLITTER_SRC1].SPAN=w;
-	REG_BLITTER[BLITTER_SRC1].MODULO=4*(screenwidth-w);
+		REG_BLITTER[BLITTER_SRC1].ADDRESS=(FrameBuffer+screenwidth*yS+xS);
+		REG_BLITTER[BLITTER_SRC1].SPAN=w;
+		REG_BLITTER[BLITTER_SRC1].MODULO=4*(screenwidth-w);
 
-	/* Channel 2 - DMA disabled, so a constant value */
+		/* Channel 2 - DMA disabled, so a constant value */
 
-	REG_BLITTER[BLITTER_SRC2].DATA=0x01020300;
-
+		REG_BLITTER[BLITTER_SRC2].DATA=color;
+	}
+	else /* Straight A mode */
+	{
+		/* Channel 1 - No DMA, so a constant value */
+		REG_BLITTER[BLITTER_CTRL].ACTIVE=0;
+		REG_BLITTER[BLITTER_SRC1].DATA=color;
+	}
+	
 	/* Output parameters */
 
 	REG_BLITTER[BLITTER_DEST].ADDRESS=(FrameBuffer+screenwidth*yS+xS);
 	REG_BLITTER[BLITTER_DEST].SPAN=w; /* Width, specified in 32-bit words */
 	REG_BLITTER[BLITTER_DEST].MODULO=4*(screenwidth-w); /* Line modulo, specified in bytes, but must be a multiple of 4! */
 
-	REG_BLITTER[BLITTER_CTRL].FUNCTION=BLITTER_FUNC_A_PLUS_B;
+	REG_BLITTER[BLITTER_CTRL].FUNCTION=func;
 
 	REG_BLITTER[BLITTER_CTRL].ROWS=yE-yS; /* Trigger blitter */
 }
@@ -143,6 +147,37 @@ char getserial()
 	return(0);
 }
 
+#define BLITFUNCS 6
+int blitfuncs[]=
+{
+	BLITTER_FUNC_A,
+	BLITTER_FUNC_A_XOR_B,
+	BLITTER_FUNC_A_PLUS_B,
+	BLITTER_FUNC_A_PLUS_B_CLAMPED,
+	BLITTER_FUNC_A_PLUS_B_CLAMPED,
+	BLITTER_FUNC_A_PLUS_B | BLITTER_FUNC_SHIFTRIGHT	
+};
+
+int blitconstants[]=
+{
+	0,
+	0,
+	0x01020300,
+	0x01020300,
+	0xfffefd00,
+	0
+};
+
+char *blitfuncnames[]=
+{
+	"A",
+	"A xor B",
+	"A plus B overflow",
+	"A plus B clamped (increment)",
+	"A plus B clamped (decrement)",
+	"A plus B shifted right"
+};
+
 
 int main(int argc, char **argv)
 {
@@ -151,6 +186,7 @@ int main(int argc, char **argv)
 	int colour;
 	unsigned int c,x,y,w,h;
 	int update=0;
+	int blitterfunction=0;
 	int mode=SCREENMODE_800x600_72;
 	struct MemoryPool *pool=SoCMemory_GetPool();
 
@@ -161,15 +197,16 @@ int main(int argc, char **argv)
 	EnableInterrupts();
 
 	initDisplay(mode,32);
-	makeRectBlitter(271,40,320,280,0xaa551fe2);
 
 	printf("Press 1 - 9 to change screenmode\n");
+	printf("Press F to cycle between blitter functions\n");
 
 	colour=0;
 	while(1)
 	{	
 		int i;
 
+		colour=blitconstants[blitterfunction] ? blitconstants[blitterfunction] : rand();
 		x=rand()%screenwidth;
 		y=rand()%screenheight;
 		w=rand()%screenwidth;
@@ -186,7 +223,7 @@ int main(int argc, char **argv)
 		h-=y;
 
 		if(w>8 && h>8)
-			makeRectBlitter(x,y,x+w,y+h,colour);
+			makeRectBlitter(x,y,x+w,y+h,colour,blitfuncs[blitterfunction]);
 
 		update=0;
 
@@ -195,6 +232,11 @@ int main(int argc, char **argv)
 		{
 			switch(c)
 			{
+				case 'f':
+					++blitterfunction;
+					blitterfunction %= BLITFUNCS;
+					printf("Blitter function: %s\n",blitfuncnames[blitterfunction]);
+					break;
 				case '1':
 				case '2':
 				case '3':

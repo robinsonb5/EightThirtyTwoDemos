@@ -269,8 +269,11 @@ begin
 		-- Incoming data with some extra bits between the bytes
 		signal a : std_logic_vector((dmawidth/8+dmawidth)-1 downto 0);
 		signal b : std_logic_vector((dmawidth/8+dmawidth)-1 downto 0);
+		signal sum : std_logic_vector((dmawidth/8+dmawidth)-1 downto 0);
 		signal q_t : std_logic_vector((dmawidth/8+dmawidth)-1 downto 0);
 		signal q : std_logic_vector((dmawidth/8+dmawidth)-1 downto 0);
+		signal bsign : std_logic_vector(dmawidth/8-1 downto 0);
+		signal overflow : std_logic_vector(dmawidth/8-1 downto 0);
 	begin
 
 		-- Unpack source data with a guard bit between each byte
@@ -296,6 +299,27 @@ begin
 			end loop;
 		end process;
 
+		-- Compute the sum and detect overflow / underflow
+		process(a,b) begin
+			sum <= std_logic_vector(unsigned(a) + unsigned(b));
+			if function_select(function_wordwise)='1' then
+				-- Wordwise mode, gang pairs of bytes together
+				for i in dmawidth/16-1 downto 0 loop
+					overflow(i*2) <= sum(i*18+17);
+					overflow(i*2+1) <= sum(i*18+17);
+					bsign(i*2) <= b(i*16+17);
+					bsign(i*2+1) <= b(i*16+17);
+				end loop;
+			else
+				-- Bytewise, handle each byte individually
+				for i in dmawidth/8-1 downto 0 loop
+					overflow(i) <= sum(i*9+8);
+					bsign(i) <= b(i*9+7);
+				end loop;			
+			end if;
+			
+		end process;
+		
 		-- Compute the function
 		process(function_select,a,b)
 			variable f : integer;
@@ -303,10 +327,18 @@ begin
 			f := to_integer(unsigned(function_select(3 downto 0)));
 			case f is
 				when function_a_plus_b =>
-					q_t <= std_logic_vector(unsigned(a) + unsigned(b));
+					q_t <= sum;
 
 				when function_a_plus_b_clamped =>
-					q_t <= std_logic_vector(unsigned(a) + unsigned(b));
+					q_t <= sum;
+					for i in dmawidth/8-1 downto 0 loop
+						if overflow(i)/=bsign(i) then
+							q_t(i*9+7 downto i*9) <= (others => not bsign(i));
+						end if;
+					end loop;
+
+				when function_a_xor_b =>
+					q_t <= a xor b;
 
 				when others =>
 					q_t<=a;
@@ -426,7 +458,7 @@ begin
 			end if;
 		end process;
 		
-		requestloop: for i in 1 to blitterchannels-1 generate
+		reqloop : for i in 1 to blitterchannels-1 generate
 			dma_requests(i-1).setaddr<=channels_active(i) and read_newrow;
 			dma_requests(i-1).setreqlen<=channels_active(i) and read_newrow;
 			dma_requests(i-1).addr<=std_logic_vector(channels(i).address);
