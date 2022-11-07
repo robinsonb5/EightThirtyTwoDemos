@@ -600,7 +600,24 @@ void ChangeDirectory(DIRENTRY *p)
 }
 
 
-DIRENTRY *NextDirEntry(int init,int (*matchfunc)(const char *fn))
+int MatchDirEntry(DIRENTRY *dir,int (*matchfunc)(const char *fn, int len))
+{
+	const char *fn=&dir->Name[0];
+	int ll=11;
+	if(!matchfunc)
+		return(1);
+#ifndef DISABLE_LONG_FILENAMES
+	if(longfilename[0])
+	{
+		fn=longfilename;
+		ll=65535;
+	}
+#endif
+	return(matchfunc(fn,ll));
+}
+
+
+DIRENTRY *NextDirEntry(int init,int (*matchfunc)(const char *fn,int len))
 {
 	static DIRENTRY      *pEntry = NULL;        // pointer to current entry in sector buffer
 	static unsigned long  iDirectorySector;     // current sector of directory entries table
@@ -664,8 +681,7 @@ DIRENTRY *NextDirEntry(int init,int (*matchfunc)(const char *fn))
 
 				}
 				#endif
-				else if ((!(pEntry->Attributes & ATTR_VOLUME)) &&
-					 ( (pEntry->Attributes & ATTR_DIRECTORY) || (!matchfunc) || matchfunc(&pEntry->Name[0])))
+				else if (!(pEntry->Attributes & ATTR_VOLUME))
 				{
 #ifndef DISABLE_LONG_FILENAMES
 					if(!prevlfn)
@@ -673,7 +689,8 @@ DIRENTRY *NextDirEntry(int init,int (*matchfunc)(const char *fn))
 #endif
 					prevlfn=0;
 					// FIXME - should check the lfn checksum here.
-					return(pEntry);
+					if((pEntry->Attributes & ATTR_DIRECTORY) || MatchDirEntry(pEntry,matchfunc))
+						return(pEntry);
 				}
 				else
 				{

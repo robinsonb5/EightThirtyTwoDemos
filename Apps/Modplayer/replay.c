@@ -1097,6 +1097,11 @@ void mt_init(unsigned char *mt_data)
     mt_PosJumpFlag = 0;
     mt_PBreakFlag = 0;
     mt_LowMask = 0xFF;
+
+	REG_SOUNDCHANNEL[0].FORMAT=SOUND_FORMAT_MONO_S8;
+	REG_SOUNDCHANNEL[1].FORMAT=SOUND_FORMAT_MONO_S8;
+	REG_SOUNDCHANNEL[2].FORMAT=SOUND_FORMAT_MONO_S8;
+	REG_SOUNDCHANNEL[3].FORMAT=SOUND_FORMAT_MONO_S8;
 }
 
 
@@ -1131,28 +1136,10 @@ int ptBuddyPlay(unsigned char *modData, char timerType)
 	DisableInterrupts();
 	puts("Setting tempo...\n");
 	SetTempo(125);	// Default tempo
-	puts("Setting interrupt handler...\n");
-	AddInterruptHandler(&handler);
-//	HW_TIMER(REG_TIMER_CONTROL)=1<<BIT_TIMER_EN1; // Enable timer 1
 	puts("Enabling timer...\n");
     mt_Enable = 1;
 	puts("Enabling interrupts...\n");
 	EnableInterrupts();
-
-	REG_SOUNDCHANNEL[0].FORMAT=SOUND_FORMAT_MONO_S8;
-	REG_SOUNDCHANNEL[1].FORMAT=SOUND_FORMAT_MONO_S8;
-	REG_SOUNDCHANNEL[2].FORMAT=SOUND_FORMAT_MONO_S8;
-	REG_SOUNDCHANNEL[3].FORMAT=SOUND_FORMAT_MONO_S8;
-
-	while(1)
-	{
-//		if(tick)
-//		{
-//			tick=0;
-//			mt_music();
-//		}
-	}
-//		mt_music();
 
     return (1);
 }
@@ -1160,8 +1147,24 @@ int ptBuddyPlay(unsigned char *modData, char timerType)
 
 void ptBuddyClose(void)
 {
+	int reenable=DisableInterrupts();
+	int i;
     mt_Enable = 0;
+    for(i=0;i<4;++i)
+    {
+		mt_paulaSetVol(i,0);
+		mt_paulaSetLen(i,0);
+	}
+	if(reenable)
+		EnableInterrupts();
 }
+
+__constructor(500.modplayer) void modplayerinit()
+{
+	puts("Setting interrupt handler...\n");
+	AddInterruptHandler(&handler);
+}
+
 
 /* END OF FILE */
 

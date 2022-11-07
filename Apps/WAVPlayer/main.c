@@ -37,7 +37,6 @@ int main(int argc,char **argv)
 					WaitSignal(1);
 				} while(ac->Handle(ac));
 				ac->Disable(ac);
-
 				ac->Dispose(ac);			
 			}
 			
@@ -46,7 +45,7 @@ int main(int argc,char **argv)
 	}
 	else
 		printf("Chdir failed\n",);
-
+	printf("Done\n");
 	return(0);
 }
 

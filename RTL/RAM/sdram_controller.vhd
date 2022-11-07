@@ -55,15 +55,13 @@ port (
 	reset_out	: out std_logic;
 	reinit : in std_logic :='0';
 
--- FIXME - add a lower-priority read DMA port and a write DMA port too.
-
 	-- Read only ports:
 
 	-- Port 0 - Video
 	video_req : in sdram_port_request;
 	video_ack : out sdram_port_response;
 
-	-- Port 1
+	-- Port 1 - CPU cache
 	cache_req : in sdram_port_request;
 	cache_ack : out sdram_port_response;
 	
@@ -166,7 +164,7 @@ begin
 
 				wb_req_masked<='0';
 				if bankbusy(to_integer(unsigned(wbflagsaddr(sdram_bank_high downto sdram_bank_low))))='0' then
-					wb_req_masked<=wbreq and not video_req.pri; -- Delay writes if video is desperate for RAM access */
+					wb_req_masked<=wbreq and not video_req.pri and not dma_req.pri; -- Delay writes if video is desperate for RAM access */
 				end if;
 
 				 -- For cache coherency reasons we don't service CPU read requests while the writebuffer contains data.
@@ -178,7 +176,7 @@ begin
 				 -- For cache coherency reasons we don't service DMA read requests while the writebuffer contains data.
 				port2_req_masked <='0';
 				if bankbusy(to_integer(unsigned(dma_req.addr(sdram_bank_high downto sdram_bank_low))))='0' then
-					port2_req_masked<=dma_req.req and not wbreq;
+					port2_req_masked<=dma_req.req and not (wbreq and not dma_req.pri);
 				end if;
 			end if;	
 		end process;

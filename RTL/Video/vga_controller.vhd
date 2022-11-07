@@ -56,11 +56,12 @@ entity vga_controller is
 		from_sdram : in sdram_port_response;
 
 		vblank_int : out std_logic;
-		hsync : out std_logic; -- to monitor
-		vsync : out std_logic; -- to monitor
-		red : out unsigned(7 downto 0);		-- Allow for 8bpp even if we
-		green : out unsigned(7 downto 0);	-- only currently support 16-bit
-		blue : out unsigned(7 downto 0);		-- 5-6-5 output
+
+		hsync : out std_logic;
+		vsync : out std_logic;
+		red : out unsigned(7 downto 0);
+		green : out unsigned(7 downto 0);
+		blue : out unsigned(7 downto 0);
 		vga_window : out std_logic;	-- '1' during the display window
 		vga_pixel : out std_logic
 	);
@@ -120,6 +121,7 @@ architecture rtl of vga_controller is
 	signal sprite0_width : unsigned(11 downto 0);
 	signal sprite0_control : std_logic_vector(7 downto 0);
 	signal spritepixel : std_logic_vector(3 downto 0);
+	signal sprite0_div : unsigned(3 downto 0);
 
 	signal cpu_req_sc : std_logic;
 	signal cpu_req_vc : std_logic;
@@ -285,6 +287,8 @@ begin
 						sprite0_ypos <= unsigned(cpu_data_vc(11 downto 0));
 					when X"90" =>
 						sprite0_width <= unsigned(cpu_data_vc(11 downto 0));
+					when X"94" =>
+						sprite0_div <= unsigned(cpu_data_vc(3 downto 0));
 					when others =>
 						null;
 				end case;
@@ -485,9 +489,12 @@ begin
 		signal spritefinished_vc : std_logic;
 		signal spritefinished_sc : std_logic;
 		signal spritefinished_sc_d : std_logic;
+		signal spritepixctr : unsigned(3 downto 0);
 	begin
 
 		-- Fetch logic on system clock domain.
+
+		sprite0_sys.pri<='1';
 	
 		process(clk_sys,reset_n) begin
 			if reset_n='0' then
@@ -560,9 +567,18 @@ begin
 				end if;
 				
 				if end_of_pixel='1' then
+					spritepixctr<=spritepixctr-1;
+					if spritepixctr=0 then
+						spritepixctr<=sprite0_div;
+					end if;
+
+					spriteena<='0';
 					if spritectr/=0 then
-						spritectr<=spritectr-1;
 						spriteena<='1';
+					end if;
+				
+					if spritepixctr=0 and spritectr/=0 then
+						spritectr<=spritectr-1;
 						spriteshift<=spriteshift(spriteshift'high-4 downto 0) & "0000";
 
 						spriteshiftcnt<=spriteshiftcnt-1;
@@ -572,9 +588,8 @@ begin
 							spriteshiftcnt<=to_unsigned(dmawidth/4-1,4);
 						end if;
 
-					else
-						spriteena<='0';
 					end if;
+
 				end if;
 				
 				if spritefinished_vc='1' then

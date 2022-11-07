@@ -22,7 +22,8 @@ entity DMACache is
 						setaddr => '0',
 						reqlen => (others =>'X'),
 						setreqlen => '0',
-						req => '0'
+						req => '0',
+						pri => '0'
 					));
 		channels_to_host : out DMAChannels_ToHost;
 
@@ -156,8 +157,6 @@ myDMACacheRAM : entity work.DMACacheRAM
 		q => data_out
 	);
 
-	to_sdram.pri <= '0';
-
 	-- We update these outside the clock edge
 	-- (Limit the fetch address to begin on a burst boundary)
 	to_sdram.addr(31 downto burstlog2+2)<=internals(activechannel).addr(31 downto burstlog2+2);
@@ -189,6 +188,7 @@ myDMACacheRAM : entity work.DMACacheRAM
 						
 			if from_sdram.ack='1' then
 				to_sdram.req<='0';
+				to_sdram.pri <= '0';
 				internals(activechannel).addr<=std_logic_vector(unsigned(internals(activechannel).addr)+(sdram_width/8)*8);
 			end if;
 			
@@ -204,10 +204,11 @@ myDMACacheRAM : entity work.DMACacheRAM
 					for I in DMACache_MaxChannel downto 0 loop
 						if internals_FIFO(I).full='0'
 							and internals(I).count(DMACache_ReqLenMaxBit downto 0)/=X"0000"
-								and internals(I).count(DMACache_ReqLenMaxBit+1)='0'
-									and channels_from_host(I).setaddr='0' then
+								and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
+--									and channels_from_host(I).setaddr='0' then
 							activechannel <= I;
 							to_sdram.req<='1';
+							to_sdram.pri <= channels_from_host(I).pri;
 							sdram_abort<='0';
 							inputstate<=waitrcv;
 						end if;
@@ -292,7 +293,7 @@ myDMACacheRAM : entity work.DMACacheRAM
 			serviceactive := '0';
 			for I in DMACache_MaxChannel downto 0 loop
 				if (internals_read(I).pending='1' or channels_from_host(I).req='1')
-						and internals_FIFO(I).empty='0' and channels_from_host(I).setaddr='0' then
+						and internals_FIFO(I).empty='0' then -- and channels_from_host(I).setaddr='0' then
 					serviceactive := '1';
 					servicechannel := I;
 				end if;

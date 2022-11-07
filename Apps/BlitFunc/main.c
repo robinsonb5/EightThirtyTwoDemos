@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
  
-unsigned int *FrameBuffer;	// Frame Buffer pointer
+unsigned int *FrameBuffer=0;	// Frame Buffer pointer
 unsigned int screenwidth=640;		// Initial screen width
 unsigned int screenheight=480;		// Initial screen heigth
 
@@ -120,11 +120,16 @@ void makeRectBlitter(unsigned int xS, unsigned int yS, unsigned int xE, unsigned
 void initDisplay(enum screenmode mode,int bits)
 {
 	int w,h;
+	struct MemoryPool *pool=SoCMemory_GetPool();
+	if(FrameBuffer && pool)
+	{
+		pool->Free(pool,(char *)FrameBuffer);
+		FrameBuffer=0;
+	}
 	w=Screenmode_GetWidth(mode);
 	h=Screenmode_GetHeight(mode);
 	if(w && h)
 	{
-		struct MemoryPool *pool=SoCMemory_GetPool();
 		screenwidth=w;
 		screenheight=h;
 		FrameBuffer=(unsigned int *)pool->AllocAligned(pool,(bits/8) * w*h,32,0,SOCMEMORY_BANK0); /* Any bank but zero */
@@ -185,10 +190,9 @@ int main(int argc, char **argv)
 	int t;
 	int colour;
 	unsigned int c,x,y,w,h;
-	int update=0;
+	int update=1;
 	int blitterfunction=0;
 	int mode=SCREENMODE_800x600_72;
-	struct MemoryPool *pool=SoCMemory_GetPool();
 
 	inthandler.next=0;
 	inthandler.handler=blitter_handler;
@@ -196,15 +200,20 @@ int main(int argc, char **argv)
 	AddInterruptHandler(&inthandler);
 	EnableInterrupts();
 
-	initDisplay(mode,32);
-
 	printf("Press 1 - 9 to change screenmode\n");
-	printf("Press F to cycle between blitter functions\n");
+	printf("Press F and G to cycle between blitter functions\n");
 
 	colour=0;
 	while(1)
 	{	
 		int i;
+
+		if(update)
+		{
+			update=0;
+			initDisplay(mode,32);
+			printf("Current screenmode: %u x %u\n",screenwidth,screenheight);
+		}
 
 		colour=blitconstants[blitterfunction] ? blitconstants[blitterfunction] : rand();
 		x=rand()%screenwidth;
@@ -232,6 +241,8 @@ int main(int argc, char **argv)
 		{
 			switch(c)
 			{
+				case 'g':
+					blitterfunction+=BLITFUNCS-2; // Fall through
 				case 'f':
 					++blitterfunction;
 					blitterfunction %= BLITFUNCS;
@@ -252,14 +263,6 @@ int main(int argc, char **argv)
 				default:
 					break;
 			}
-			if(update)
-			{
-				update=0;
-				FrameBuffer=(int *)(((int)FrameBuffer)&0x3fffffff); /* Evil hack - upper image of memory which doesn't clear cachelines on write */
-				pool->Free(pool,(char *)FrameBuffer);
-				initDisplay(mode,32);
-			}
-
 		}				
 	}
 

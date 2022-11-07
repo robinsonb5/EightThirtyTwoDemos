@@ -8,11 +8,12 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <minfat.h>
 
+#include <hw/uart.h>
 #include <hw/soundhw.h>
 
 #include "replay.h"
-
 fileTYPE *file;
 
 static struct stat statbuf;
@@ -42,29 +43,118 @@ char *LoadFile(const char *filename)
 	return(result);
 }
 
+int filename_matchwildcard(const char *str1, const char *str2,int maxlen,int casesensitive)
+{
+	int idx1=0,idx2=0,idxw=0;
+	int c1,c2;
+	c1=str1[idx1++];
+	c2=str2[idx2++];
+	while(c2)
+	{
+		if(c1=='*')
+		{
+			idxw=idx1;
+			c1=str1[idx1++];
+		}
+		if(!casesensitive)
+		{
+			c1&=~32;
+			c2&=~32;
+		}
+		if((c1&~32)!=(c2&~32))
+			idx1=idxw;
+		c1=str1[idx1++];
+		c2=str2[idx2++];
+		if(idx2>maxlen)
+			c2=0;
+		if(c1==0 && c2==0)
+			return(1);
+	}
+	return(0);
+}
+
+int matchfunc(const char *str,int len)
+{
+	return(filename_matchwildcard("*mod",str,len,0));
+}
+
+
+char getserial()
+{
+	int c=HW_UART(REG_UART);
+	if(c&(1<<REG_UART_RXINT))
+	{
+		c&=0xff;
+		return(c);
+	}
+	return(0);
+}
+
+char filename[12];
+char *ModMenu()
+{
+	DIRENTRY *de;
+	int idx=0;
+	int c;
+
+	ChangeDirectoryByCluster(0);
+	de=0;	
+	while(de=NextDirEntry(de ? 0 : 1,matchfunc))
+	{
+		if(!(de->Attributes & ATTR_DIRECTORY))
+		{
+			printf("%d: %s (%s)\n",idx,de->Name,longfilename);
+			++idx;
+		}
+	}
+
+	printf("%d mod files found, please choose.\n");
+	
+	while(1)
+	{
+		c=getserial();
+		if((c>='0') && (c<('0'+idx)))
+		{
+			de=0;
+			idx=1+c-'0';
+			ChangeDirectoryByCluster(0);
+			while(idx)
+			{
+				de=NextDirEntry(de ? 0 : 1,matchfunc);
+				if(!(de->Attributes & ATTR_DIRECTORY))
+					--idx;
+			}
+			if(de)
+				strncpy(filename,&de->Name[0],11);
+			filename[11]=0;
+			printf("Selected %s\n",filename);
+			return(filename);
+		}
+	}
+}
+
+
 
 int main(int argc, char **argv)
 {
 	char *ptr;
-	if((ptr=LoadFile("GROOVESTMOD")))
-//	if((ptr=LoadFile("INTERSPCMOD")))
-//	if((ptr=LoadFile("DEEPHOUSMOD")))
-//	if((ptr=LoadFile("DAWN    MOD")))
-//	if((ptr=LoadFile("SCARPTCHMOD")))
-//	if((ptr=LoadFile("JOYRIDE MOD")))
-//	if((ptr=LoadFile("ENIGMA     ")))
-//	if((ptr=LoadFile("GUITAR~1   ")))
+	char *fn;
+	while(1)
 	{
-		printf("File successfully loaded to %x\n",ptr);
-		ptBuddyPlay(ptr,0);
-//		REG_SOUNDCHANNEL[0].VOL=63;
-//		REG_SOUNDCHANNEL[0].PERIOD=200;
-//		REG_SOUNDCHANNEL[0].DAT=ptr;
-//		REG_SOUNDCHANNEL[0].LEN=statbuf.st_size/2;
-//		REG_SOUNDCHANNEL[0].TRIGGER=0;
+		fn=ModMenu();
+		if((ptr=LoadFile(fn)))
+		{
+			printf("File successfully loaded to %x\n",ptr);
+			ptBuddyPlay(ptr,0);
+			printf("Playing - press Esc to stop\n");
+			while(getserial()!=27)
+				;
+			ptBuddyClose();
+			free(ptr);
+		}
+		else
+			printf("Loading failedn\n");
 	}
-	else
-		printf("Loading failedn\n");
 	return(0);
 }
 

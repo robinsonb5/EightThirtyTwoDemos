@@ -119,15 +119,10 @@ __weak ssize_t read(int fd, void *buf, size_t nbytes)
 		if(FILEHANDLE(fd))
 		{
 			int result;
-			if((result=FileRead(FILEHANDLE(fd),b,nbytes)))
-			{
-				return(result);
-			}
-			else
-			{
+			result=FileRead(FILEHANDLE(fd),b,nbytes);
+			if(result<0)
 				__errno=EIO;
-				return(-1);
-			}
+			return(result);
 		}
 		else
 #endif

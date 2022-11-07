@@ -13,6 +13,7 @@ fileTYPE *file;
 
 char string[]="Hello world!\n";
 
+
 char *LoadFile(const char *filename)
 {
 	char *result=0;
@@ -37,6 +38,41 @@ char *LoadFile(const char *filename)
 	return(result);
 }
 
+
+int filename_matchwildcard(const char *str1, const char *str2,int maxlen,int casesensitive)
+{
+	int idx1=0,idx2=0,idxw=0;
+	int c1,c2;
+	c1=str1[idx1++];
+	c2=str2[idx2++];
+	while(c2)
+	{
+		if(c1=='*')
+		{
+			idxw=idx1;
+			c1=str1[idx1++];
+		}
+		if(!casesensitive)
+		{
+			c1&=~32;
+			c2&=~32;
+		}
+		if((c1&~32)!=(c2&~32))
+			idx1=idxw;
+		c1=str1[idx1++];
+		c2=str2[idx2++];
+		if(idx2>maxlen)
+			c2=0;
+		if(c1==0 && c2==0)
+			return(1);
+	}
+	return(0);
+}
+
+int matchfunc(const char *str,int len)
+{
+	return(filename_matchwildcard("*mod",str,len,0));
+}
 
 int main(int argc, char **argv)
 {
@@ -106,6 +142,14 @@ int main(int argc, char **argv)
 		}
 	}
 	printf("Scanned %d directory entries in total\n",count);
+
+	ChangeDirectoryByCluster(0);
+	dir=0;
+	while(dir=NextDirEntry(dir ? 0 : 1,matchfunc))
+	{
+		if(!(dir->Attributes & ATTR_DIRECTORY))
+			printf("Mod file found: %s (%s)\n",dir->Name,longfilename);
+	}
 
 	return(0);
 }

@@ -92,6 +92,7 @@ architecture rtl of blitter is
 
 	signal write_newrow : std_logic;
 	signal write_newword : std_logic;
+	signal lastword : std_logic;
 
 	signal read_newrow : std_logic;
 	signal read_ready : std_logic;
@@ -213,7 +214,7 @@ begin
 					if write_newrow='1' then
 						channels(0).address<=unsigned(signed(channels(0).address)+channels(0).modulo);
 					end if;
-					
+
 					if read_newrow='1' then
 						for i in 1 to blitterchannels-1 loop
 							channels(i).address<=unsigned(signed(channels(i).address)+channels(i).modulo+signed(channels(i).span&"00"));
@@ -364,6 +365,8 @@ begin
 		signal sdram_req : std_logic;
 	begin
 
+		lastword <= '1' when rowcounter=1 else '0';
+	
 		write_newword<='1' when writestate=WAITSRC and src_ready='1' and rowcounter/=0 else '0';
 		write_newrow <= '1' when from_sdram.ack='1' and rowcounter=0 else '0';
 
@@ -383,6 +386,7 @@ begin
 						if running='1' then
 							writestate<=WAITSRC;
 						end if;
+
 					when WAITSRC =>
 						if running='0' then
 							writestate<=IDLE;
@@ -449,7 +453,7 @@ begin
 				
 				for i in 1 to blitterchannels-1 loop
 					dma_requests(i-1).req<='0';
-					if write_newword='1' or read_newrow='1' then
+					if (write_newword='1' and lastword='0') or read_newrow='1' then
 						dma_requests(i-1).req<=channels_active(i);
 						channels_valid_n(i)<='1';
 					end if;
@@ -463,6 +467,7 @@ begin
 			dma_requests(i-1).setreqlen<=channels_active(i) and read_newrow;
 			dma_requests(i-1).addr<=std_logic_vector(channels(i).address);
 			dma_requests(i-1).reqlen<=channels(i).span;
+			dma_requests(i-1).pri<='0';
 		end generate;
 
 	end block;

@@ -408,6 +408,7 @@ static void *AllocUnmasked(struct MemoryPool *pool,int size, int flags, int flag
 		AddAllocTag(p,size,fragflags);
 		p+=sizeof(struct AllocTag);
 	}
+//	printf("Memory allocated at %x (size %x)\n",(long)p,size-sizeof(struct AllocTag));
 	return(p);
 }
 

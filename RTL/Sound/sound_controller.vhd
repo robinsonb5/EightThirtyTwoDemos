@@ -91,6 +91,8 @@ begin
 
 	-- Handle CPU access to hardware registers
 	
+	channel_fromhost.pri<='0';
+	
 	process(clk,reset)
 	begin
 		if reset='0' then

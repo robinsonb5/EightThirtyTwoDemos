@@ -16,6 +16,7 @@ package DMACache_pkg is
 		reqlen : unsigned(DMACache_ReqLenMaxBit downto 0);
 		setreqlen : std_logic;
 		req : std_logic;
+		pri : std_logic;
 	end record;
 
 	type DMAChannel_ToHost is record

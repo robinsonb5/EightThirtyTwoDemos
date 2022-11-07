@@ -157,7 +157,8 @@ int Audio_Handle(struct AudioContext *ac)
 			bytesread=ac->FillFunction(ac->FillUserData,(char *)buf,AUDIOBUFFERSIZE);
 		if(bytesread<AUDIOBUFFERSIZE)
 		{
-			for(i=bytesread;i<AUDIOBUFFERSIZE;++i)
+			bytesread/=2;
+			for(i=(bytesread-1)/2;i<(AUDIOBUFFERSIZE/2);++i)
 			{
 				buf[i]=0;
 			}
