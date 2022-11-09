@@ -1,8 +1,32 @@
--- Direct mapped Cache
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--                                                                          --
+-- Direct mapped cacheway                                                   --
+--                                                                          --
+-- Copyright (c) 2022 Alastair M. Robinson                                  -- 
+--                                                                          --
+-- This source file is free software: you can redistribute it and/or modify --
+-- it under the terms of the GNU General Public License as published        --
+-- by the Free Software Foundation, either version 3 of the License, or     --
+-- (at your option) any later version.                                      --
+--                                                                          --
+-- This source file is distributed in the hope that it will be useful,      --
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of           --
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            --
+-- GNU General Public License for more details.                             --
+--                                                                          --
+-- You should have received a copy of the GNU General Public License        --
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.    --
+--                                                                          --
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
 -- Simplified version, with the host being responsible for collecting the first word from the burst.
 
 -- 32 bit address and data.
--- 8 word bursts, 32-bit SDRAM interface, so cachelines of 8 32-bit words
+-- Intended to be used with 8 word bursts, but at 32-bit width, so if the SDRAM is only
+-- 16 bits wide, the bursts will be effectively half the length.
+
 
 library ieee;
 use ieee.std_logic_1164.all;

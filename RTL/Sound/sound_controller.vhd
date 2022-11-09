@@ -1,3 +1,32 @@
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--                                                                          --
+-- Sound controller                                                         --
+-- a module to handle a single channel of DMA-driven 8 or 16-bit audio,     --
+-- with six bit volume control, giving 22-bit output.                       --
+-- (Designed with easy playback of Amiga ProTracker in mind                 --
+--                                                                          --
+-- Copyright (c) 2014 - 2022 Alastair M. Robinson                           -- 
+--                                                                          --
+-- This source file is free software: you can redistribute it and/or modify --
+-- it under the terms of the GNU General Public License as published        --
+-- by the Free Software Foundation, either version 3 of the License, or     --
+-- (at your option) any later version.                                      --
+--                                                                          --
+-- This source file is distributed in the hope that it will be useful,      --
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of           --
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            --
+-- GNU General Public License for more details.                             --
+--                                                                          --
+-- You should have received a copy of the GNU General Public License        --
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.    --
+--                                                                          --
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+-- To achieve Amiga-accurate pitches we need a clock of
+-- 3546895 Hz (PAL) or 3579545 (NTSC)
+
 library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.ALL;
@@ -5,14 +34,6 @@ use IEEE.numeric_std.ALL;
 library work;
 use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
-
--- Sound controller
--- a module to handle a single channel of DMA-driven 8-bit audio, with
--- six bit volume control, giving 14-bit output.
--- (These specifications might sound familiar to ex-Amiga users!)
-
--- To achieve Amiga-accurate pitches we need a clock of
--- 3546895 Hz (PAL) or 3579545 (NTSC)
 
 
 entity sound_controller is

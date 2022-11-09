@@ -2,6 +2,21 @@
 -- Adds one bit of temporal dithering and one bit of spatial dithering,
 -- allowing the 4-bit video output of the DE1 to approach 6-bit colour resolution,
 -- and the MIST 6-bit resistor ladder DAC to approach 8-bit resolution.
+-- Copyright (c) 2014 - 2022 by Alastair M. Robinson
+
+-- This source file is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Lesser General Public License as published
+-- by the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This source file is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
