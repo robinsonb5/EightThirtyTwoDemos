@@ -30,6 +30,21 @@ struct AllocTag
 };
 
 
+void *MemoryPool_CheckTags(void *p)
+{
+	int result=0;
+	struct AllocTag *at=(struct AllocTag *)(((char *)p)-sizeof(struct AllocTag));
+	if(!p)
+		return(0);
+	if(at->guard!=GUARDWORD1 || at->guard2!=GUARDWORD2)
+	{
+		printf("Error - chunk at %lx has guardwords %x and %x\n",(long)p,at->guard,at->guard2);
+		return(0);
+	}
+	return((void *)at);
+}
+
+
 static void addfreerecord(struct MemoryPool *pool,struct MemoryPool_AllocRecord *record, int size)
 {
 	if(pool && record)
@@ -244,7 +259,7 @@ static void AddAllocTag(void *p,int size,int flags)
 		at->size=size;
 		at->flags=flags;
 		at->guard2=GUARDWORD2;
-		printf("Setting alloctag flags at %x to %x\n",(int)at,flags);
+//		printf("Setting alloctag flags at %x to %x\n",(int)at,flags);
 	}
 }
 
@@ -387,7 +402,7 @@ static void *AllocUnmasked(struct MemoryPool *pool,int size, int flags, int flag
 	{
 		if((fragment->size>=size) && ((fragment->flags^flags)&flagmask)==0)   /* Do we have a match? */
 		{
-			printf("Found fragment at %lx with size %x and flags %d\n",(long)fragment,fragment->size,fragment->flags);
+//			printf("Found fragment at %lx with size %x and flags %d\n",(long)fragment,fragment->size,fragment->flags);
 			removefragment(pool,fragment);
 			addfragment(pool,(char *)fragment+size,fragment->size-size,fragment->flags);     /* Record leftovers */
 			fragflags=fragment->flags;
@@ -415,17 +430,12 @@ static void *AllocUnmasked(struct MemoryPool *pool,int size, int flags, int flag
 
 static void Free(struct MemoryPool *pool,void *p)
 {
-	struct AllocTag *at=(struct AllocTag *)(((char *)p)-sizeof(struct AllocTag));
-	if(!p)
-		return;
-	if(at->guard==GUARDWORD1 && at->guard2==GUARDWORD2)
+	struct AllocTag *at=(struct AllocTag *)MemoryPool_CheckTags(p);
+	if(p)
 	{
 		at->guard=at->guard2=-1;
 		addfragment(pool,(void *)at,at->size,at->flags); // Fragment->flags);
 	}
-	else
-		printf("Error - chunk at %lx has guardwords %x and %x\n",(long)p,at->guard,at->guard2);
-
 	mergefragments(pool);
 }
 
@@ -542,6 +552,7 @@ void MemoryPool_SeedMemory(struct MemoryPool *pool,void *p,int size,int flags)
 		addfragment(pool,c,size,flags);
 	}
 }
+
 
 #if 0
 #include <stdlib.h>

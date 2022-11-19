@@ -48,6 +48,8 @@ architecture rtl of video_vga_dither is
 	signal red : unsigned(7 downto 0);
 	signal green : unsigned(7 downto 0);
 	signal blue : unsigned(7 downto 0);
+	signal hsync_d : std_logic;
+	signal vsync_d : std_logic;
 	signal dither : unsigned(7 downto 0);
 	signal ctr : unsigned(2 downto 0);
 	signal prevhsync : std_logic :='0';
@@ -56,10 +58,6 @@ architecture rtl of video_vga_dither is
 	signal vid_ena_d2 : std_logic :='0';
 	constant vidmax : unsigned(7 downto 0) := "11111111";
 begin
-
-	oRed <= red(7 downto (8-outbits)) when vid_ena_d='1' else (others=>'0');
-	oGreen <= green(7 downto (8-outbits)) when vid_ena_d='1' else (others=>'0');
-	oBlue <= blue(7 downto (8-outbits)) when vid_ena_d='1' else (others=>'0');
 
 	process(clk)
 	begin
@@ -103,8 +101,21 @@ begin
 			end if;
 			
 			-- Delay sync signals by the same amount as the actual video.
-			ohsync <= hsync;
-			ovsync <= vsync;
+			hsync_d <= hsync;
+			ohsync <= hsync_d;
+
+			vsync_d <= vsync;
+			ovsync <= vsync_d;
+
+			if vid_ena_d='1' then
+				oRed <= red(7 downto (8-outbits));
+				oGreen <= green(7 downto (8-outbits));
+				oBlue <= blue(7 downto (8-outbits));
+			else
+				oRed <= (others => '0');
+				oGreen <= (others => '0');
+				oBlue <= (others => '0');
+			end if;
 		end if;
 	end process;
 end architecture;
