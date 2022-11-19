@@ -1,0 +1,1028 @@
+	//registers used:
+		//r1: yes
+		//r2: no
+		//r3: yes
+		//r4: yes
+		//r5: no
+		//r6: no
+		//r7: no
+		//tmp: no
+	.section	.text.4
+	.global	_jpeg_alloc_quant_table
+_jpeg_alloc_quant_table:
+	stdec	r6
+	mt	r3
+	stdec	r6
+	mt	r4
+	stdec	r6
+						// allocreg r4
+						// allocreg r1
+						// Q1 disposable
+		// Offsets 0, 0
+		// Have am? yes, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r4 - no need to prep
+						// (obj to tmp) flags 40 type a
+						// reg r1 - only match against tmp
+	mt	r1
+						// (save temp)isreg
+	mr	r4
+						//save_temp done
+						// freereg r1
+						// allocreg r3
+
+						//jcomapi.c, line 89
+						// (bitwise/arithmetic) 	//ops: 5, 0, 4
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 64
+						// const
+						// matchobj comparing flags 1 with 64
+	.liconst	4
+	addt	r4
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+						// allocreg r1
+
+						//jcomapi.c, line 89
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// matchobj comparing flags 106 with 74
+						// deref 
+	ld	r3
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 89
+						//FIXME convert
+						// (convert - reducing type a to 3
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// matchobj comparing flags 106 with 106
+						// deref 
+	ld	r1
+						//Saving to reg r1
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+						//No need to mask - same size
+
+						//jcomapi.c, line 89
+						// Q1 disposable
+						// (a/p push)
+						// a: pushed 0, regnames[sp] r6
+						// (obj to tmp) flags 4a type 3
+						// matchobj comparing flags 74 with 106
+						// reg r1 - only match against tmp
+	//mt
+	stdec	r6
+						// freereg r1
+
+						//jcomapi.c, line 89
+						// (a/p push)
+						// a: pushed 4, regnames[sp] r6
+						// (obj to tmp) flags 82 type a
+						// matchobj comparing flags 130 with 74
+						// (prepobj tmp)
+ 						// matchobj comparing flags 130 with 74
+						// static
+	.liabs	l18,0
+						// static pe is varadr
+	stdec	r6
+
+						//jcomapi.c, line 89
+						//call
+						//pcreltotemp
+	.lipcrel	_printf // extern
+	add	r7
+						// Deferred popping of 8 bytes (8 in total)
+
+						//jcomapi.c, line 91
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// deref 
+	ld	r3
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+
+						//jcomapi.c, line 91
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// matchobj comparing flags 106 with 106
+						// deref 
+	ld	r3
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+
+						//jcomapi.c, line 91
+						// (a/p push)
+						// a: pushed 0, regnames[sp] r6
+						// (obj to tmp) flags 1 type 103
+						// matchobj comparing flags 1 with 106
+						// const
+						// matchobj comparing flags 1 with 106
+	.liconst	132
+	stdec	r6
+
+						//jcomapi.c, line 91
+						// (a/p push)
+						// a: pushed 4, regnames[sp] r6
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 1
+						// const
+						// matchobj comparing flags 1 with 1
+	.liconst	0
+	stdec	r6
+						// allocreg r1
+
+						//jcomapi.c, line 91
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 42 type a
+						// matchobj comparing flags 66 with 1
+						// reg r4 - only match against tmp
+	mt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 91
+						// Q1 disposable
+						//call
+						// (obj to tmp) flags 6a type f
+						// matchobj comparing flags 106 with 66
+						// deref 
+	mt	r3
+	exg	r7
+						// Deferred popping of 8 bytes (16 in total)
+						// freereg r3
+						// freereg r1
+						// allocreg r3
+
+						//jcomapi.c, line 91
+						// (getreturn)						// (save result) // isreg
+	mt	r0
+	mr	r3
+						// allocreg r1
+
+						//jcomapi.c, line 92
+						// (bitwise/arithmetic) 	//ops: 4, 0, 2
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	128
+	addt	r3
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 92
+						// Z disposable
+		// Offsets 0, 0
+		// Have am? no, yes
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	0
+						// (save temp)store type 3
+	st	r1
+						//save_temp done
+						// freereg r1
+						// allocreg r1
+
+						//jcomapi.c, line 93
+						//FIXME convert
+						// (convert - reducing type a to 3
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 4a type a
+						// matchobj comparing flags 74 with 1
+						// reg r3 - only match against tmp
+	mt	r3
+						//Saving to reg r1
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+						//No need to mask - same size
+
+						//jcomapi.c, line 93
+						// Q1 disposable
+						// (a/p push)
+						// a: pushed 0, regnames[sp] r6
+						// (obj to tmp) flags 4a type 3
+						// matchobj comparing flags 74 with 74
+						// reg r1 - only match against tmp
+	//mt
+	stdec	r6
+						// freereg r1
+
+						//jcomapi.c, line 93
+						// (a/p push)
+						// a: pushed 4, regnames[sp] r6
+						// (obj to tmp) flags 82 type a
+						// matchobj comparing flags 130 with 74
+						// (prepobj tmp)
+ 						// matchobj comparing flags 130 with 74
+						// static
+	.liabs	l19,0
+						// static pe is varadr
+	stdec	r6
+
+						//jcomapi.c, line 93
+						//call
+						//pcreltotemp
+	.lipcrel	_printf // extern
+	add	r7
+						// Deferred popping of 8 bytes (24 in total)
+
+						//jcomapi.c, line 94
+						// Q1 disposable
+						//setreturn
+						// (obj to r0) flags 4a type a
+						// reg r3 - only match against tmp
+	mt	r3
+	mr	r0
+						// freereg r3
+						// freereg r4
+						// matchobj comparing flags 1 with 74
+						// matchobj comparing flags 1 with 74
+	.liconst	-24
+	sub	r6
+	ldinc	r6
+	mr	r4
+
+	ldinc	r6
+	mr	r3
+
+	ldinc	r6
+	mr	r7
+
+	//registers used:
+		//r1: yes
+		//r2: yes
+		//r3: yes
+		//r4: yes
+		//r5: no
+		//r6: no
+		//r7: no
+		//tmp: no
+	.section	.text.5
+	.global	_jpeg_alloc_huff_table
+_jpeg_alloc_huff_table:
+	stdec	r6
+	mt	r3
+	stdec	r6
+	mt	r4
+	stdec	r6
+						// allocreg r4
+						// allocreg r1
+						// Q1 disposable
+		// Offsets 0, 0
+		// Have am? yes, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r4 - no need to prep
+						// (obj to tmp) flags 40 type a
+						// reg r1 - only match against tmp
+	mt	r1
+						// (save temp)isreg
+	mr	r4
+						//save_temp done
+						// freereg r1
+						// allocreg r3
+
+						//jcomapi.c, line 104
+						// (bitwise/arithmetic) 	//ops: 5, 0, 4
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 64
+						// const
+						// matchobj comparing flags 1 with 64
+	.liconst	4
+	addt	r4
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+
+						//jcomapi.c, line 104
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// matchobj comparing flags 106 with 74
+						// deref 
+	ld	r3
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+
+						//jcomapi.c, line 104
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// matchobj comparing flags 106 with 106
+
+			// required value found in tmp
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+
+						//jcomapi.c, line 104
+						// (a/p push)
+						// a: pushed 0, regnames[sp] r6
+						// (obj to tmp) flags 1 type 103
+						// matchobj comparing flags 1 with 106
+						// const
+						// matchobj comparing flags 1 with 106
+	.liconst	280
+	stdec	r6
+
+						//jcomapi.c, line 104
+						// (a/p push)
+						// a: pushed 4, regnames[sp] r6
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 1
+						// const
+						// matchobj comparing flags 1 with 1
+	.liconst	0
+	stdec	r6
+						// allocreg r1
+
+						//jcomapi.c, line 104
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 42 type a
+						// matchobj comparing flags 66 with 1
+						// reg r4 - only match against tmp
+	mt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 104
+						// Q1 disposable
+						//call
+						// (obj to tmp) flags 6a type f
+						// matchobj comparing flags 106 with 66
+						// deref 
+	mt	r3
+	exg	r7
+						// Deferred popping of 8 bytes (8 in total)
+						// freereg r3
+						// freereg r1
+						// allocreg r1
+
+						//jcomapi.c, line 104
+						// (getreturn)						// (save result) // isreg
+	mt	r0
+	mr	r1
+						// allocreg r2
+
+						//jcomapi.c, line 105
+						// (bitwise/arithmetic) 	//ops: 2, 0, 3
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r2 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	276
+	addt	r1
+						// (save temp)isreg
+	mr	r2
+						//save_temp done
+
+						//jcomapi.c, line 105
+						// Z disposable
+		// Offsets 0, 0
+		// Have am? no, yes
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r2 - no need to prep
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	0
+						// (save temp)store type 3
+	st	r2
+						//save_temp done
+						// freereg r2
+
+						//jcomapi.c, line 106
+						// Q1 disposable
+						//setreturn
+						// (obj to r0) flags 4a type a
+						// matchobj comparing flags 74 with 1
+						// reg r1 - only match against tmp
+	mt	r1
+	mr	r0
+						// freereg r1
+						// freereg r4
+						// matchobj comparing flags 1 with 74
+						// matchobj comparing flags 1 with 74
+	.liconst	-8
+	sub	r6
+	ldinc	r6
+	mr	r4
+
+	ldinc	r6
+	mr	r3
+
+	ldinc	r6
+	mr	r7
+
+	//registers used:
+		//r1: yes
+		//r2: yes
+		//r3: yes
+		//r4: yes
+		//r5: no
+		//r6: no
+		//r7: no
+		//tmp: no
+	.section	.text.6
+	.global	_jpeg_abort
+_jpeg_abort:
+	stdec	r6
+	mt	r3
+	stdec	r6
+	mt	r4
+	stdec	r6
+						// allocreg r4
+						// allocreg r1
+						// Q1 disposable
+		// Offsets 0, 0
+		// Have am? yes, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r4 - no need to prep
+						// (obj to tmp) flags 40 type a
+						// reg r1 - only match against tmp
+	mt	r1
+						// (save temp)isreg
+	mr	r4
+						//save_temp done
+						// freereg r1
+						// allocreg r2
+						// allocreg r1
+
+						//jcomapi.c, line 34
+						// (bitwise/arithmetic) 	//ops: 5, 0, 3
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r2 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 64
+						// const
+						// matchobj comparing flags 1 with 64
+	.liconst	4
+	addt	r4
+						// (save temp)isreg
+	mr	r2
+						//save_temp done
+
+						//jcomapi.c, line 34
+						// (test)
+						// (obj to tmp) flags 62 type a
+						// matchobj comparing flags 98 with 66
+						// deref 
+	ld	r2
+
+						//jcomapi.c, line 34
+	cond	EQ
+						//conditional branch regular
+						//pcreltotemp
+	.lipcrel	l11
+		add	r7
+						// freereg r1
+						// allocreg r3
+
+						//jcomapi.c, line 41
+						// (bitwise/arithmetic) 	//ops: 3, 0, 4
+						// (obj to r3) flags 62 type a
+						// matchobj comparing flags 98 with 98
+
+			// required value found in tmp
+	mr	r3
+				//return 0
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 98
+						// const
+						// matchobj comparing flags 1 with 98
+	.liconst	36
+	add	r3
+						// (save result) // isreg
+
+						//jcomapi.c, line 41
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// matchobj comparing flags 106 with 1
+						// deref 
+	ld	r3
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+
+						//jcomapi.c, line 41
+						// (a/p push)
+						// a: pushed 0, regnames[sp] r6
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 106
+						// const
+						// matchobj comparing flags 1 with 106
+	.liconst	1
+	stdec	r6
+						// allocreg r1
+
+						//jcomapi.c, line 41
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 42 type a
+						// matchobj comparing flags 66 with 1
+						// reg r4 - only match against tmp
+	mt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 41
+						// Q1 disposable
+						//call
+						// (obj to tmp) flags 6a type f
+						// matchobj comparing flags 106 with 66
+						// deref 
+	mt	r3
+	exg	r7
+						// Flow control - popping 4 + 0 bytes
+	.liconst	4
+	add	r6
+						// freereg r3
+						// freereg r1
+						// allocreg r1
+
+						//jcomapi.c, line 45
+						// (bitwise/arithmetic) 	//ops: 5, 0, 2
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 1
+						// const
+						// matchobj comparing flags 1 with 1
+	.liconst	16
+	addt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 45
+						// Q1 disposable
+						// (test)
+						// (obj to tmp) flags 6a type 3
+						// matchobj comparing flags 106 with 74
+						// deref 
+	ld	r1
+						// freereg r1
+
+						//jcomapi.c, line 45
+	cond	EQ
+						//conditional branch regular
+						//pcreltotemp
+	.lipcrel	l10
+		add	r7
+						// allocreg r1
+
+						//jcomapi.c, line 46
+						// (bitwise/arithmetic) 	//ops: 5, 0, 2
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 106
+						// const
+						// matchobj comparing flags 1 with 106
+	.liconst	20
+	addt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 46
+						// Z disposable
+		// Offsets 200, 0
+		// Have am? no, yes
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	200
+						// (save temp)store type 3
+	st	r1
+						//save_temp done
+						// freereg r1
+						// allocreg r1
+
+						//jcomapi.c, line 50
+						// (bitwise/arithmetic) 	//ops: 5, 0, 2
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 1
+						// const
+						// matchobj comparing flags 1 with 1
+	.liconst	296
+	addt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 50
+						// Z disposable
+		// Offsets 0, 0
+		// Have am? no, yes
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	0
+						// (save temp)store type a
+	st	r1
+						//save_temp done
+						// freereg r1
+
+						//jcomapi.c, line 51
+						//pcreltotemp
+	.lipcrel	l11
+	add	r7
+l10: # 
+						// allocreg r1
+
+						//jcomapi.c, line 52
+						// Q1 disposable
+						// (bitwise/arithmetic) 	//ops: 5, 0, 2
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// const
+	.liconst	20
+	addt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 52
+						// Z disposable
+		// Offsets 100, 0
+		// Have am? no, yes
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	100
+						// (save temp)store type 3
+	st	r1
+						//save_temp done
+						// freereg r1
+l11: # 
+						// allocreg r1
+						// freereg r1
+						// freereg r2
+						// freereg r4
+	ldinc	r6
+	mr	r4
+
+	ldinc	r6
+	mr	r3
+
+	ldinc	r6
+	mr	r7
+
+	//registers used:
+		//r1: yes
+		//r2: no
+		//r3: yes
+		//r4: yes
+		//r5: yes
+		//r6: no
+		//r7: no
+		//tmp: no
+	.section	.text.7
+	.global	_jpeg_destroy
+_jpeg_destroy:
+	exg	r6
+	stmpdec	r6
+	stmpdec	r3
+	stmpdec	r4
+	stmpdec	r5
+	exg	r6
+						// allocreg r4
+						// allocreg r1
+						// Q1 disposable
+		// Offsets 0, 0
+		// Have am? yes, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r4 - no need to prep
+						// (obj to tmp) flags 40 type a
+						// reg r1 - only match against tmp
+	mt	r1
+						// (save temp)isreg
+	mr	r4
+						//save_temp done
+						// freereg r1
+						// allocreg r5
+						// allocreg r1
+
+						//jcomapi.c, line 73
+						// (bitwise/arithmetic) 	//ops: 5, 0, 6
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r5 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 64
+						// const
+						// matchobj comparing flags 1 with 64
+	.liconst	4
+	addt	r4
+						// (save temp)isreg
+	mr	r5
+						//save_temp done
+
+						//jcomapi.c, line 73
+						// (test)
+						// (obj to tmp) flags 62 type a
+						// matchobj comparing flags 98 with 66
+						// deref 
+	ld	r5
+
+						//jcomapi.c, line 73
+	cond	EQ
+						//conditional branch regular
+						//pcreltotemp
+	.lipcrel	l15
+		add	r7
+						// freereg r1
+						// allocreg r3
+
+						//jcomapi.c, line 74
+						// (bitwise/arithmetic) 	//ops: 6, 0, 4
+						// (obj to r3) flags 62 type a
+						// matchobj comparing flags 98 with 98
+
+			// required value found in tmp
+	mr	r3
+				//return 0
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 98
+						// const
+						// matchobj comparing flags 1 with 98
+	.liconst	40
+	add	r3
+						// (save result) // isreg
+
+						//jcomapi.c, line 74
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r3 - no need to prep
+						// (obj to tmp) flags 6a type a
+						// matchobj comparing flags 106 with 1
+						// deref 
+	ld	r3
+						// (save temp)isreg
+	mr	r3
+						//save_temp done
+						// allocreg r1
+
+						//jcomapi.c, line 74
+		// Offsets 0, 0
+		// Have am? no, no
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 42 type a
+						// matchobj comparing flags 66 with 106
+						// reg r4 - only match against tmp
+	mt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 74
+						// Q1 disposable
+						//call
+						// (obj to tmp) flags 6a type f
+						// matchobj comparing flags 106 with 66
+						// deref 
+	mt	r3
+	exg	r7
+						// Flow control - popping 0 + 0 bytes
+						// freereg r3
+						// freereg r1
+l15: # 
+
+						//jcomapi.c, line 75
+						// Z disposable
+		// Offsets 0, 0
+		// Have am? no, yes
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r5 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// const
+	.liconst	0
+						// (save temp)store type a
+	st	r5
+						//save_temp done
+						// allocreg r1
+
+						//jcomapi.c, line 76
+						// Q1 disposable
+						// (bitwise/arithmetic) 	//ops: 5, 0, 2
+						//Special case - addt
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type a
+						// matchobj comparing flags 1 with 1
+						// const
+						// matchobj comparing flags 1 with 1
+	.liconst	20
+	addt	r4
+						// (save temp)isreg
+	mr	r1
+						//save_temp done
+
+						//jcomapi.c, line 76
+						// Z disposable
+		// Offsets 0, 0
+		// Have am? no, yes
+						// (a/p assign)
+						// Have an addressing mode...
+						// (prepobj r0)
+ 						// reg r1 - no need to prep
+						// (obj to tmp) flags 1 type 3
+						// matchobj comparing flags 1 with 74
+						// const
+						// matchobj comparing flags 1 with 74
+	.liconst	0
+						// (save temp)store type 3
+	st	r1
+						//save_temp done
+						// freereg r1
+						// freereg r4
+						// freereg r5
+	ldinc	r6
+	mr	r5
+
+	ldinc	r6
+	mr	r4
+
+	ldinc	r6
+	mr	r3
+
+	ldinc	r6
+	mr	r7
+
+	.section	.rodata.8
+	.align	4
+l18:
+	.byte	65
+	.byte	108
+	.byte	108
+	.byte	111
+	.byte	99
+	.byte	97
+	.byte	116
+	.byte	105
+	.byte	110
+	.byte	103
+	.byte	32
+	.byte	113
+	.byte	117
+	.byte	97
+	.byte	110
+	.byte	116
+	.byte	32
+	.byte	116
+	.byte	97
+	.byte	98
+	.byte	108
+	.byte	101
+	.byte	32
+	.byte	40
+	.byte	102
+	.byte	117
+	.byte	110
+	.byte	99
+	.byte	32
+	.byte	97
+	.byte	116
+	.byte	32
+	.byte	37
+	.byte	120
+	.byte	41
+	.byte	10
+	.byte	0
+	.section	.rodata.9
+	.align	4
+l19:
+	.byte	71
+	.byte	111
+	.byte	116
+	.byte	32
+	.byte	116
+	.byte	97
+	.byte	98
+	.byte	108
+	.byte	101
+	.byte	32
+	.byte	97
+	.byte	116
+	.byte	32
+	.byte	37
+	.byte	120
+	.byte	10
+	.byte	0

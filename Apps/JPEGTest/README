@@ -1,0 +1,12 @@
+JPEGTest
+
+JPEGTest demonstrates running full-featured software on the
+EightThirtyTwoDemos SOC platform, including loading files from disk,
+and making use of libJPEG.
+The project can be bootstrapped either over RS232 or by SD card, but either
+way the SD card needs to contain the Bird.jpg file.
+
+If bootstrapping over RS232, simply upload the JPEGTest.srec file.
+If bootstrapping by SD card, the card needs to contain JPEGTest.bin
+and the JPEGTest.bin file should be named "boot832.bin"
+

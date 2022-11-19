@@ -1,0 +1,242 @@
+--- jcomapi.asm.working	2022-11-18 22:04:59.730213606 +0000
++++ jcomapi.asm.broken	2022-11-18 22:05:07.958058050 +0000
+@@ -1,8 +1,8 @@
+ 	//registers used:
+ 		//r1: yes
+-		//r2: no
++		//r2: yes
+ 		//r3: yes
+-		//r4: yes
++		//r4: no
+ 		//r5: no
+ 		//r6: no
+ 		//r7: no
+@@ -13,9 +13,7 @@
+ 	stdec	r6
+ 	mt	r3
+ 	stdec	r6
+-	mt	r4
+-	stdec	r6
+-						// allocreg r4
++						// allocreg r2
+ 						// allocreg r1
+ 						// Q1 disposable
+ 		// Offsets 0, 0
+@@ -23,18 +21,18 @@
+ 						// (a/p assign)
+ 						// Have an addressing mode...
+ 						// (prepobj r0)
+- 						// reg r4 - no need to prep
++ 						// reg r2 - no need to prep
+ 						// (obj to tmp) flags 40 type a
+ 						// reg r1 - only match against tmp
+ 	mt	r1
+ 						// (save temp)isreg
+-	mr	r4
++	mr	r2
+ 						//save_temp done
+ 						// freereg r1
+ 						// allocreg r3
+ 
+-						//jcomapi.c, line 89
+-						// (bitwise/arithmetic) 	//ops: 5, 0, 4
++						//jcomapi.c, line 91
++						// (bitwise/arithmetic) 	//ops: 3, 0, 4
+ 						//Special case - addt
+ 						// (prepobj r0)
+  						// reg r3 - no need to prep
+@@ -43,71 +41,10 @@
+ 						// const
+ 						// matchobj comparing flags 1 with 64
+ 	.liconst	4
+-	addt	r4
++	addt	r2
+ 						// (save temp)isreg
+ 	mr	r3
+ 						//save_temp done
+-						// allocreg r1
+-
+-						//jcomapi.c, line 89
+-		// Offsets 0, 0
+-		// Have am? no, no
+-						// (a/p assign)
+-						// Have an addressing mode...
+-						// (prepobj r0)
+- 						// reg r1 - no need to prep
+-						// (obj to tmp) flags 6a type a
+-						// matchobj comparing flags 106 with 74
+-						// deref 
+-	ld	r3
+-						// (save temp)isreg
+-	mr	r1
+-						//save_temp done
+-
+-						//jcomapi.c, line 89
+-						//FIXME convert
+-						// (convert - reducing type a to 3
+-						// (prepobj r0)
+- 						// reg r1 - no need to prep
+-						// (obj to tmp) flags 6a type a
+-						// matchobj comparing flags 106 with 106
+-						// deref 
+-	ld	r1
+-						//Saving to reg r1
+-						// (save temp)isreg
+-	mr	r1
+-						//save_temp done
+-						//No need to mask - same size
+-
+-						//jcomapi.c, line 89
+-						// Q1 disposable
+-						// (a/p push)
+-						// a: pushed 0, regnames[sp] r6
+-						// (obj to tmp) flags 4a type 3
+-						// matchobj comparing flags 74 with 106
+-						// reg r1 - only match against tmp
+-	//mt
+-	stdec	r6
+-						// freereg r1
+-
+-						//jcomapi.c, line 89
+-						// (a/p push)
+-						// a: pushed 4, regnames[sp] r6
+-						// (obj to tmp) flags 82 type a
+-						// matchobj comparing flags 130 with 74
+-						// (prepobj tmp)
+- 						// matchobj comparing flags 130 with 74
+-						// static
+-	.liabs	l18,0
+-						// static pe is varadr
+-	stdec	r6
+-
+-						//jcomapi.c, line 89
+-						//call
+-						//pcreltotemp
+-	.lipcrel	_printf // extern
+-	add	r7
+-						// Deferred popping of 8 bytes (8 in total)
+ 
+ 						//jcomapi.c, line 91
+ 		// Offsets 0, 0
+@@ -117,6 +54,7 @@
+ 						// (prepobj r0)
+  						// reg r3 - no need to prep
+ 						// (obj to tmp) flags 6a type a
++						// matchobj comparing flags 106 with 74
+ 						// deref 
+ 	ld	r3
+ 						// (save temp)isreg
+@@ -132,8 +70,8 @@
+  						// reg r3 - no need to prep
+ 						// (obj to tmp) flags 6a type a
+ 						// matchobj comparing flags 106 with 106
+-						// deref 
+-	ld	r3
++
++			// required value found in tmp
+ 						// (save temp)isreg
+ 	mr	r3
+ 						//save_temp done
+@@ -168,8 +106,8 @@
+  						// reg r1 - no need to prep
+ 						// (obj to tmp) flags 42 type a
+ 						// matchobj comparing flags 66 with 1
+-						// reg r4 - only match against tmp
+-	mt	r4
++						// reg r2 - only match against tmp
++	mt	r2
+ 						// (save temp)isreg
+ 	mr	r1
+ 						//save_temp done
+@@ -182,7 +120,7 @@
+ 						// deref 
+ 	mt	r3
+ 	exg	r7
+-						// Deferred popping of 8 bytes (16 in total)
++						// Deferred popping of 8 bytes (8 in total)
+ 						// freereg r3
+ 						// freereg r1
+ 						// allocreg r3
+@@ -261,7 +199,7 @@
+ 						// (prepobj tmp)
+  						// matchobj comparing flags 130 with 74
+ 						// static
+-	.liabs	l19,0
++	.liabs	l18,0
+ 						// static pe is varadr
+ 	stdec	r6
+ 
+@@ -270,7 +208,7 @@
+ 						//pcreltotemp
+ 	.lipcrel	_printf // extern
+ 	add	r7
+-						// Deferred popping of 8 bytes (24 in total)
++						// Deferred popping of 8 bytes (16 in total)
+ 
+ 						//jcomapi.c, line 94
+ 						// Q1 disposable
+@@ -280,15 +218,12 @@
+ 	mt	r3
+ 	mr	r0
+ 						// freereg r3
+-						// freereg r4
++						// freereg r2
+ 						// matchobj comparing flags 1 with 74
+ 						// matchobj comparing flags 1 with 74
+-	.liconst	-24
++	.liconst	-16
+ 	sub	r6
+ 	ldinc	r6
+-	mr	r4
+-
+-	ldinc	r6
+ 	mr	r3
+ 
+ 	ldinc	r6
+@@ -969,46 +904,6 @@
+ 	.section	.rodata.8
+ 	.align	4
+ l18:
+-	.byte	65
+-	.byte	108
+-	.byte	108
+-	.byte	111
+-	.byte	99
+-	.byte	97
+-	.byte	116
+-	.byte	105
+-	.byte	110
+-	.byte	103
+-	.byte	32
+-	.byte	113
+-	.byte	117
+-	.byte	97
+-	.byte	110
+-	.byte	116
+-	.byte	32
+-	.byte	116
+-	.byte	97
+-	.byte	98
+-	.byte	108
+-	.byte	101
+-	.byte	32
+-	.byte	40
+-	.byte	102
+-	.byte	117
+-	.byte	110
+-	.byte	99
+-	.byte	32
+-	.byte	97
+-	.byte	116
+-	.byte	32
+-	.byte	37
+-	.byte	120
+-	.byte	41
+-	.byte	10
+-	.byte	0
+-	.section	.rodata.9
+-	.align	4
+-l19:
+ 	.byte	71
+ 	.byte	111
+ 	.byte	116
