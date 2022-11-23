@@ -156,7 +156,7 @@ begin
 				end if;
 				
 				if byte="01" then
-					if datalen=X"0000" then
+					if datalen=X"0000" and repeatlen/=X"0000" then
 						channel_fromhost.addr <= datapointer;
 						channel_fromhost.setaddr <='1';
 						if dmawidth=32 then

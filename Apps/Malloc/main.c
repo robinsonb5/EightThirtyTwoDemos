@@ -13,6 +13,18 @@ int main(int argc, char **argv)
 //  initMem will be called automatically via a ctor.
 //	_initMem();
 
+	for(i=0;i<1;++i)
+	{
+		printf("Allocating memory\n");
+		p=malloc(200000-10000*i);
+		printf("p: %x\n",(int)p);
+		if(p)
+		{
+			printf("Freeing memory\n");
+			free(p);
+		}
+	}
+
 #if 0
 	malloc_dump();
 

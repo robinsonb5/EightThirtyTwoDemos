@@ -98,12 +98,17 @@ char *ModMenu()
 	int c;
 
 	ChangeDirectoryByCluster(0);
-	de=0;	
+1	de=0;	
 	while(de=NextDirEntry(de ? 0 : 1,matchfunc))
 	{
 		if(!(de->Attributes & ATTR_DIRECTORY))
 		{
-			printf("%d: %s (%s)\n",idx,de->Name,longfilename);
+			char c=idx;
+			if(idx>9)
+				c+='A'-10;
+			else
+				c+='0';
+			printf("%c: %s (%s)\n",c,de->Name,longfilename);
 			++idx;
 		}
 	}
@@ -113,6 +118,11 @@ char *ModMenu()
 	while(1)
 	{
 		c=getserial();
+		if(c>='a')
+			c-=('a'-'A');
+		if(c>='A')
+			c-='A'-('9'+1);
+
 		if((c>='0') && (c<('0'+idx)))
 		{
 			de=0;
