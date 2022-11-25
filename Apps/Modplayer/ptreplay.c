@@ -172,12 +172,12 @@ static int extSamplingFreq;
 
 // Macros
 
-#define mt_paulaSetLoop(i,x,y) if (x != NULL) REG_SOUNDCHANNEL[i].DAT=x; REG_SOUNDCHANNEL[i].LEN=y;
+#define mt_paulaSetLoop(i,x,y) if (x != NULL) REG_SOUNDCHANNEL[i].DAT=x; REG_SOUNDCHANNEL[i].LEN=(y>4 ? y : 0);
 #define mt_paulaSetPer(i,x) REG_SOUNDCHANNEL[i].PERIOD=x;
 #define mt_paulaStart(i) REG_SOUNDCHANNEL[i].TRIGGER=0;
 //#define mt_paulaStart(i)
 #define mt_paulaSetVol(i,x) REG_SOUNDCHANNEL[i].VOL=x;
-#define mt_paulaSetLen(i, x) REG_SOUNDCHANNEL[i].LEN = x;
+#define mt_paulaSetLen(i, x) REG_SOUNDCHANNEL[i].LEN = (x>4 ? x : 0);
 #define mt_paulaSetDat(i, x) REG_SOUNDCHANNEL[i].DAT = x;
 
 //#define mt_paulaSetLoop(i, x, y) if (x != NULL) AUD[i].REPDAT = x; AUD[i].REPLEN = y;
@@ -1073,7 +1073,7 @@ void mt_init(unsigned char *mt_data)
 
     sampleStarts = (char *)&mt_SongDataPtr[1084 + (pattNum << 10)];
 
-	printf("samples start at %x\n",sampleStarts);
+	printf("samples start at %x\n",(int)sampleStarts);
 
     for (i = 0; i < 31; ++i)
     {
@@ -1105,7 +1105,7 @@ void mt_init(unsigned char *mt_data)
 }
 
 
-static void timer_interrupt()
+static void timer_interrupt(void *userdata)
 {
 	int ints;
 	tick=1;
@@ -1161,8 +1161,14 @@ void ptBuddyClose(void)
 
 __constructor(500.modplayer) void modplayerinit()
 {
-	puts("Setting interrupt handler...\n");
+	puts("Setting modplayer interrupt handler...\n");
 	AddInterruptHandler(&handler);
+}
+
+__destructor(500.modplayer) void modplayerdeinit()
+{
+	puts("Removing modplayer interrupt handler...\n");
+	RemoveInterruptHandler(&handler);
 }
 
 

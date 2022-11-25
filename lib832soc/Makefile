@@ -18,7 +18,7 @@ clean :
 
 
 lib832soc.a : $(OBJDIR)/interrupts.o $(OBJDIR)/syscalls.o $(OBJDIR)/uart_buffered.o $(OBJDIR)/signals.o \
-				$(OBJDIR)/minfat.o $(OBJDIR)/keyboard.o $(OBJDIR)/ps2.o $(OBJDIR)/hw_ringbuffer.o $(OBJDIR)/timer.o \
+				$(OBJDIR)/minfat.o $(OBJDIR)/fileutils.o $(OBJDIR)/keyboard.o $(OBJDIR)/ps2.o $(OBJDIR)/hw_ringbuffer.o $(OBJDIR)/timer.o \
 				$(OBJDIR)/spi_c.o $(OBJDIR)/hexdump.o $(OBJDIR)/memorypool.o $(OBJDIR)/socmemory.o $(OBJDIR)/malloc.o \
 				$(OBJDIR)/swap.o $(OBJDIR)/rand.o $(OBJDIR)/screenmode.o $(OBJDIR)/framebuffer.o $(OBJDIR)/mousedriver.o
 	cat >$@ $+

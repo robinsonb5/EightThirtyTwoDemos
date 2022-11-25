@@ -80,8 +80,8 @@ static void removefreerecord(struct MemoryPool *pool,struct MemoryPool_AllocReco
 static void addfragment(struct MemoryPool *pool,void *p, int s,int flags)
 {
 	struct MemoryPool_AllocFragment *fragment;
-	/* Don't bother with chunks less than four times the size of the header. */
-	if(s>4*sizeof(struct MemoryPool_AllocFragment))
+	/* Don't bother with chunks less than the size of the header. */
+	if(s>sizeof(struct MemoryPool_AllocFragment))
 	{
 		fragment=(struct MemoryPool_AllocFragment *)p;
 		fragment->next=pool->fragmentlist;
@@ -116,7 +116,7 @@ static void removefragment(struct MemoryPool *pool,struct MemoryPool_AllocFragme
 static void mergefragments(struct MemoryPool *pool)
 {
 	struct MemoryPool_AllocFragment *fragment1,*fragment2;
-
+//	printf("Merging memory fragments\n");
 	fragment1=pool->fragmentlist;
 	while(fragment1)
 	{
@@ -127,6 +127,7 @@ static void mergefragments(struct MemoryPool *pool)
 			char *r1,*r2;
 			r1=(char *)fragment1;
 			r2=(char *)fragment2;
+//			printf("Considering fragments at %x (size %x) and %x (size %x)\n",(int)fragment1,fragment1->size,(int)fragment2,fragment2->size);
 			if((r2-r1)==fragment1->size && fragment1->flags==fragment2->flags)
 			{
 				removefragment(pool,fragment2);
@@ -300,7 +301,7 @@ static void *AllocAligned(struct MemoryPool *pool,int size,int alignment,int fla
 		if(pool && (p=pool->Provision(pool,allocsize,flags,flagmask)))
 		{
 			fragflags=provision_getflags(p);
-			printf("Fragment flags %d\n",fragflags);
+//			printf("Fragment flags %d\n",fragflags);
 			result=checkalign(size,((char *)p)+sizeof(struct AllocTag),allocsize,alignment);
 		}
 	}
@@ -339,7 +340,7 @@ static void *AllocMasked(struct MemoryPool *pool,int size,int alignment,int flag
 
 	while(fragment)
 	{
-		printf("%x, %x, %x\n",fragment->flags,flags,(fragment->flags^flags)&flagmask);
+//		printf("%x, %x, %x\n",fragment->flags,flags,(fragment->flags^flags)&flagmask);
 		if(((fragment->flags^flags)&flagmask)==0)
 		{
 			if((result=(char *)checkmask(size,
@@ -431,9 +432,11 @@ static void *AllocUnmasked(struct MemoryPool *pool,int size, int flags, int flag
 static void Free(struct MemoryPool *pool,void *p)
 {
 	struct AllocTag *at=(struct AllocTag *)MemoryPool_CheckTags(p);
+//	printf("Freeing memory at %x (%x)\n",(int)p,(int)at);
 	if(p)
 	{
 		at->guard=at->guard2=-1;
+//		printf("Returning fragment at %x, size %x to pool\n",(int)at,at->size);
 		addfragment(pool,(void *)at,at->size,at->flags); // Fragment->flags);
 	}
 	mergefragments(pool);

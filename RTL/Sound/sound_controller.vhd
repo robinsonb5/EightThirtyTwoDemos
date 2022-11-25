@@ -112,7 +112,7 @@ begin
 
 	-- Handle CPU access to hardware registers
 	
-	channel_fromhost.pri<='0';
+	channel_fromhost.pri<='1';
 	
 	process(clk,reset)
 	begin

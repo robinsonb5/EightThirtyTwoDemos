@@ -108,6 +108,8 @@ unsigned int FindDrive(void)
 	uint32_t boot_sector;
 	int partitioncount;
 
+	fat_start=0;
+
 	fat32=0;
 
 	STATUS("Reading MBR\n");
@@ -600,7 +602,7 @@ void ChangeDirectory(DIRENTRY *p)
 }
 
 
-int MatchDirEntry(DIRENTRY *dir,int (*matchfunc)(const char *fn, int len))
+int MatchDirEntry(DIRENTRY *dir,int (*matchfunc)(const char *fn, int len, void *userdata),void *userdata)
 {
 	const char *fn=&dir->Name[0];
 	int ll=11;
@@ -613,11 +615,11 @@ int MatchDirEntry(DIRENTRY *dir,int (*matchfunc)(const char *fn, int len))
 		ll=65535;
 	}
 #endif
-	return(matchfunc(fn,ll));
+	return(matchfunc(fn,ll,userdata));
 }
 
 
-DIRENTRY *NextDirEntry(int init,int (*matchfunc)(const char *fn,int len))
+DIRENTRY *NextDirEntry(int init,int (*matchfunc)(const char *fn,int len,void *userdata),void *userdata)
 {
 	static DIRENTRY      *pEntry = NULL;        // pointer to current entry in sector buffer
 	static unsigned long  iDirectorySector;     // current sector of directory entries table
@@ -689,7 +691,7 @@ DIRENTRY *NextDirEntry(int init,int (*matchfunc)(const char *fn,int len))
 #endif
 					prevlfn=0;
 					// FIXME - should check the lfn checksum here.
-					if((pEntry->Attributes & ATTR_DIRECTORY) || MatchDirEntry(pEntry,matchfunc))
+					if((pEntry->Attributes & ATTR_DIRECTORY) || MatchDirEntry(pEntry,matchfunc,userdata))
 						return(pEntry);
 				}
 				else
@@ -778,4 +780,20 @@ int ValidateDirectory(uint32_t directory)
     }
 	return(0);
 }
+
+int FilesystemPresent()
+{
+	return(fat_start!=0);
+}
+
+/* Constructor dependencies: spi */
+__constructor(102.minfat) void _InitMinFAT(void)
+{
+	int t;
+	printf("Searching for partition table\n");
+	if(FindDrive())
+		return;
+	printf("SD Initialisation failed\n");
+}
+
 

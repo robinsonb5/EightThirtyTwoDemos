@@ -280,7 +280,7 @@ int main(int argc,char **argv)
 	int i;
 
 	puts("Initializing SD card\n");
-	havesd=spi_init() && FindDrive();
+	havesd=(sd_get_size()>0) && FilesystemPresent();
 
 	puts("RS232 boot - press ESC to boot from SD.");
 	SREC_MAX_ADDR=0;

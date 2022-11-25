@@ -17,14 +17,10 @@
 extern "C" {
 #endif
 
-int spi_init();
 int sd_read_sector(unsigned long lba,unsigned char *buf);
 int sd_write_sector(unsigned long lba,unsigned char *buf); // FIXME - stub
+int sd_is_sdhc();
 int sd_get_size();
-
-extern int spi_checksum;
-extern int sd_is_sdhc;
-extern int sd_size;
 
 #ifdef __cplusplus
 }

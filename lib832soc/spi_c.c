@@ -2,8 +2,8 @@
 #include <hw/uart.h>
 #include <hw/spi.h>
 
-int sd_is_sdhc;
-int sd_size;
+static int is_sdhc;
+static int sd_size;
 
 // #define SPI_WAIT(x) while(HW_PER(PER_SPI_CS)&(1<<PER_SPI_BUSY));
 // #define SPI(x) {while((HW_PER(PER_SPI_CS)&(1<<PER_SPI_BUSY))); HW_PER(PER_SPI)=(x);}
@@ -74,7 +74,7 @@ int cmd_write(unsigned long cmd, unsigned long lba)
 
 	SPI(cmd & 255);
 
-	if(!sd_is_sdhc)	// If normal SD then we have to use byte offset rather than LBA offset.
+	if(!is_sdhc)	// If normal SD then we have to use byte offset rather than LBA offset.
 		lba<<=9;
 
 	PDBG("LBA %x, ",lba);
@@ -162,7 +162,7 @@ int wait_init()
 }
 
 
-int is_sdhc()
+static int get_sdhc()
 {
 	int i,r;
 
@@ -229,54 +229,6 @@ int is_sdhc()
 		}
 	}
 	return(0);
-}
-
-
-int spi_init()
-{
-	int i;
-	int r;
-	sd_is_sdhc=1;
-//	SPI_CS(0);	// Disable CS
-//	spi_spin();
-	puts("SPI");
-	i=8;
-	while(--i)
-	{
-		SPI_CS(0);	// Disable CS
-		spi_spin();
-		DBG("Activating CS\n");
-		SPI_CS(1);
-		if(cmd_reset()==1) // Enable SPI mode
-			i=1;
-		DBG("Sent reset command\n");
-		if(i==2)
-		{
-			puts("IERR");
-			DBG("SD card initialization error!\n");
-			return(0);
-		}
-	}
-	DBG("Card responded to reset\n");
-	sd_is_sdhc=is_sdhc();
-	if(sd_is_sdhc)
-		DBG("SDHC card detected\n");
-	else // If not SDHC, Set blocksize to 512 bytes
-	{
-		DBG("Sending cmd16 (blocksize)\n");
-		cmd_CMD16(1);
-	}
-	SPI(0xFF);
-
-	sd_size=sd_get_size();
-	printf("SD card size is %d\n",sd_size);
-
-
-	SPI_CS(0);
-	SPI(0xFF);
-	DBG("Init done\n");
-
-	return(1);
 }
 
 
@@ -398,8 +350,18 @@ int sd_read_sector(unsigned long lba,unsigned char *buf)
 	return(result);
 }
 
-unsigned char sizebuf[18];
 int sd_get_size()
+{
+	return(sd_size);
+}
+
+int sd_is_sdhc()
+{
+	return is_sdhc;
+}
+
+static unsigned char sizebuf[18];
+static int sd_readsizefromcard()
 {
 	// Reading the card size is much easier for SDHC than regular SD.
 	int r;
@@ -436,5 +398,62 @@ int sd_get_size()
 		printf("%d blocks of 512 bytes\n",r);
 	}
 	return(r);
+}
+
+
+static int spi_init()
+{
+	int i;
+	int r;
+	is_sdhc=1;
+	sd_size=0;
+//	SPI_CS(0);	// Disable CS
+//	spi_spin();
+	puts("SPI");
+	i=8;
+	while(--i)
+	{
+		SPI_CS(0);	// Disable CS
+		spi_spin();
+		DBG("Activating CS\n");
+		SPI_CS(1);
+		if(cmd_reset()==1) // Enable SPI mode
+			i=1;
+		DBG("Sent reset command\n");
+		if(i==2)
+		{
+			puts("IERR");
+			DBG("SD card initialization error!\n");
+			return(0);
+		}
+	}
+	DBG("Card responded to reset\n");
+	is_sdhc=get_sdhc();
+	if(is_sdhc)
+		DBG("SDHC card detected\n");
+	else // If not SDHC, Set blocksize to 512 bytes
+	{
+		DBG("Sending cmd16 (blocksize)\n");
+		cmd_CMD16(1);
+	}
+	SPI(0xFF);
+
+	sd_size=sd_readsizefromcard();
+	printf("SD card size is %d\n",sd_size);
+
+
+	SPI_CS(0);
+	SPI(0xFF);
+	DBG("Init done\n");
+
+	return(1);
+}
+
+/* Constructor dependencies: none */
+__constructor(100.spi) void _InitSPI(void)
+{
+	if(spi_init())
+		return;
+	printf("SPI initialisation failed\n");
 }
 

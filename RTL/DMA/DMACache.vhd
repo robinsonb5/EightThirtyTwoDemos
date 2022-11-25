@@ -245,6 +245,10 @@ myDMACacheRAM : entity work.DMACacheRAM
 
 				-- Wait for SDRAM, fill first word.
 				when waitrcv =>
+					if from_sdram.nak='1' then -- Back out of a read request if the cycle's not serviced
+						to_sdram.req<='0';	-- (Allows priorities to be reconsidered.)
+						inputstate<=rd1;
+					end if;
 					if from_sdram.strobe='1' then
 						inputstate<=rcv;
 					

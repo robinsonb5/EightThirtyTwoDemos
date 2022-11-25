@@ -36,8 +36,9 @@ package sdram_controller_pkg is
 	end record;
 	
 	type sdram_port_response is record
-		busy : std_logic;	-- Indicate that the port is able to accept a write
+		busy : std_logic;	-- Indicate whether the port is able to accept a write
 		ack : std_logic;	-- For DMA ports, acknowledge the read request, for CPU port indicates a write was accepted
+		nak : std_logic;	-- For DMA ports, tell the controller that a slot was denied, giving an opportunity to re-evaluate priorities.
 		burst : std_logic;	-- High while a burst is in progress
 		strobe : std_logic; -- A high pulse for each 32-bit word of the transfer.
 		q : std_logic_vector(31 downto 0); -- Data from SDRAM.

@@ -34,25 +34,18 @@ extern void _init(void);
 // Hardware initialisation
 // Sets up RS232 baud rate and attempts to initialise the SD card, if present.
 
-static int sdcard_present;
 static int filesystem_present;
 
-__constructor(105.syscalls) void _initIO(void)
+/* Constructor dependencies: minfat */
+__constructor(120.syscalls) void _initsyscalls(void)
 {
 	int t;
 	filesystem_present=0;
 #ifdef DISABLE_FILESYSTEM
 	printf("Filesystem disabled\n");
 #else
-	printf("Initialising SD card\n");
-	if((sdcard_present=spi_init()))
-	{
-		printf("SD card successfully initialised\n");
-		filesystem_present=FindDrive();
-		printf("%sFilesystem found\n",filesystem_present ? "" : "No ");
-	}
-	else
-		printf("No SD card found\n");
+	filesystem_present=FilesystemPresent();
+	printf("%sFilesystem found\n",filesystem_present ? "" : "No ");
 #endif
 	printf("Initialising files\n");
 	for(t=0;t<MAX_FILES;++t)

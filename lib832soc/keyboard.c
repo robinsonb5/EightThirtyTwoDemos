@@ -1,8 +1,9 @@
+#include <stdio.h>
+
 #include <hw/keyboard.h>
 #include <hw/ps2.h>
 #include <hw/interrupts.h>
-
-#include "printf.h"
+#include <hw/uart.h>
 
 // FIXME - create another ring buffer for ASCII keystrokes
 
@@ -141,7 +142,7 @@ int HandlePS2RawCodes()
 	}
 	if(updateleds)
 	{
-		printf("LEDs: %x\n",leds&0xff);
+//		printf("LEDs: %x\n",leds&0xff);
 		PS2KeyboardWriteChar(0xed);
 		PS2KeyboardWriteChar(leds&0xff);
 	}
@@ -171,7 +172,8 @@ int TestKey(int rawcode)
 	return(result);
 }
 
-__constructor(100.keyboard) void KBInit()
+/* Constructor dependencies: none (but might as well follow PS/2) */
+__constructor(120.keyboard) void KBInit()
 {
 	puts("In Keyboard constructor\n");
 	ClearKeyboard();

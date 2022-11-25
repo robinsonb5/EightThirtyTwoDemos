@@ -6,7 +6,6 @@
 #include <hw/interrupts.h>
 #include <hw/keyboard.h>
 
-
 struct hw_ringbuffer kbbuffer;
 struct hw_ringbuffer mousebuffer;
 
@@ -126,7 +125,8 @@ void PS2MouseWriteChar(int x)
 }
 
 
-__constructor(101.ps2) void PS2Init()
+/* Constructor dependencies:  Interrupts */
+__constructor(110.ps2) void PS2Init()
 {
 	puts("In PS2 constructor\n");
 	hw_ringbuffer_init(&kbbuffer);
@@ -136,7 +136,7 @@ __constructor(101.ps2) void PS2Init()
 	AddInterruptHandler(&ps2_inthandler);
 }
 
-__destructor(101.ps2) void PS2End()
+__destructor(110.ps2) void PS2End()
 {
 	RemoveInterruptHandler(&ps2_inthandler);
 }

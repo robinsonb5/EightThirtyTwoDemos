@@ -7,72 +7,14 @@
 #include <sys/stat.h>
 
 #include <minfat.h>
+#include <fileutils.h>
+
 #include <hw/vga.h>
 
 fileTYPE *file;
 
 char string[]="Hello world!\n";
 
-
-char *LoadFile(const char *filename)
-{
-	char *result=0;
-	struct stat statbuf;
-	int fd=open(filename,0,O_RDONLY);
-	printf("open() returned %d\n",fd);
-	if((fd>0)&&!fstat(fd,&statbuf))
-	{
-		int n;
-		int size=statbuf.st_size; /* Caution - 64-bit value */
-		result=(char *)malloc(size);
-		if(result)
-		{
-			if(read(fd,result,size)<0)
-			{
-				printf("Read failed\n");
-				free(result);
-				result=0;
-			}
-		}
-	}
-	return(result);
-}
-
-
-int filename_matchwildcard(const char *str1, const char *str2,int maxlen,int casesensitive)
-{
-	int idx1=0,idx2=0,idxw=0;
-	int c1,c2;
-	c1=str1[idx1++];
-	c2=str2[idx2++];
-	while(c2)
-	{
-		if(c1=='*')
-		{
-			idxw=idx1;
-			c1=str1[idx1++];
-		}
-		if(!casesensitive)
-		{
-			c1&=~32;
-			c2&=~32;
-		}
-		if((c1&~32)!=(c2&~32))
-			idx1=idxw;
-		c1=str1[idx1++];
-		c2=str2[idx2++];
-		if(idx2>maxlen)
-			c2=0;
-		if(c1==0 && c2==0)
-			return(1);
-	}
-	return(0);
-}
-
-int matchfunc(const char *str,int len)
-{
-	return(filename_matchwildcard("*mod",str,len,0));
-}
 
 int main(int argc, char **argv)
 {
@@ -81,6 +23,7 @@ int main(int argc, char **argv)
 	int cluster;
 	int count=0;
 	DIRENTRY *dir=0;
+	struct wildcard_pattern pattern;
 
 	if((ptr=LoadFile("PIC1    RAW")))
 	{
@@ -133,7 +76,7 @@ int main(int argc, char **argv)
 	printf("Scanning directory\n");
 	dir=0;
 	ChangeDirectoryByCluster(0);
-	while((dir=NextDirEntry(dir==0,0)))
+	while((dir=NextDirEntry(dir==0,0,0)))
 	{
 		if (dir->Name[0] != SLOT_EMPTY && dir->Name[0] != SLOT_DELETED) // valid entry??
 		{
@@ -145,7 +88,9 @@ int main(int argc, char **argv)
 
 	ChangeDirectoryByCluster(0);
 	dir=0;
-	while(dir=NextDirEntry(dir ? 0 : 1,matchfunc))
+	pattern.casesensitive=0;
+	pattern.pattern="*.mod";
+	while(dir=NextDirEntry(dir ? 0 : 1,MatchWildcard,&pattern))
 	{
 		if(!(dir->Attributes & ATTR_DIRECTORY))
 			printf("Mod file found: %s (%s)\n",dir->Name,longfilename);

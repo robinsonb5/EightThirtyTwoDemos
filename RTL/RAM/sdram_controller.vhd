@@ -87,7 +87,7 @@ architecture rtl of sdram_controller is
 	type sdram_states is (ph0,ph1,ph2,ph3,ph4,ph5,ph6,ph7,ph8,ph9,ph10,ph11,ph12,ph13,ph14,ph15);
 	signal sdram_state		: sdram_states;
 
-	type sdram_ports is (idle,port0,port1,port2,writecache);
+	type sdram_ports is (idle,video,cpu,dma,writecache);
 
 	signal sdram_slot1 : sdram_ports := idle;
 	signal sdram_slot2 : sdram_ports := idle;
@@ -109,7 +109,7 @@ architecture rtl of sdram_controller is
 
 	signal bankbusy : std_logic_vector(3 downto 0);
 
-	signal port0_extend : std_logic;
+	signal video_extend : std_logic;
 
 	signal slot1_precharge : std_logic;
 	signal slot1_autoprecharge : std_logic;
@@ -151,8 +151,8 @@ begin
 	arbiter : block
 		signal video_req_masked : std_logic;
 		signal wb_req_masked : std_logic;
-		signal port1_req_masked : std_logic;
-		signal port2_req_masked : std_logic;
+		signal cpu_req_masked : std_logic;
+		signal dma_req_masked : std_logic;
 	begin
 
 		process(sysclk) begin
@@ -167,40 +167,41 @@ begin
 					wb_req_masked<=wbreq and not video_req.pri and not dma_req.pri; -- Delay writes if video is desperate for RAM access */
 				end if;
 
-				 -- For cache coherency reasons we don't service CPU read requests while the writebuffer contains data.
-				port1_req_masked<='0';
+				-- For cache coherency reasons we don't service CPU read requests while the writebuffer contains data.
+				cpu_req_masked<='0';
 				if bankbusy(to_integer(unsigned(cache_req.addr(sdram_bank_high downto sdram_bank_low))))='0' then
-					port1_req_masked<=cache_req.req and not wbreq;
+					cpu_req_masked<=cache_req.req and not wbreq;
 				end if;
 
-				 -- For cache coherency reasons we don't service DMA read requests while the writebuffer contains data.
-				port2_req_masked <='0';
+				-- For cache coherency reasons we don't service DMA read requests while the
+				-- writebuffer contains data, unless the priority flag is set.
+				dma_req_masked <='0';
 				if bankbusy(to_integer(unsigned(dma_req.addr(sdram_bank_high downto sdram_bank_low))))='0' then
-					port2_req_masked<=dma_req.req and not (wbreq and not dma_req.pri);
+					dma_req_masked<=dma_req.req and not (wbreq and not dma_req.pri);
 				end if;
 			end if;	
 		end process;
 		
-		process(sysclk,port1_req_masked,port2_req_masked,video_req_masked,wb_req_masked) begin
+		process(sysclk,cpu_req_masked,dma_req_masked,video_req_masked,wb_req_masked) begin
 			if rising_edge(sysclk) then
 				-- Video port is highest priority when video_req.pri is '1', lowest priority otherwise.
-				if port0_extend='1' or (video_req_masked='1' and video_req.pri='1') then
-					nextport <= port0;
+				if video_extend='1' or (video_req_masked='1' and video_req.pri='1') then
+					nextport <= video;
 					nextaddr <= video_req.addr(31 downto 3 + sdram_width/16) & std_logic_vector(to_unsigned(0,3+sdram_width/16));
 				elsif refresh_force='1' then
 					nextport<=idle;
 					nextaddr <= (others => 'X');
+				elsif dma_req_masked='1' then -- DMA should be higher priority than the writebuffer
+					nextport <= dma;
+					nextaddr <= dma_req.addr(31 downto 3 + sdram_width/16) & std_logic_vector(to_unsigned(0,3+sdram_width/16));
 				elsif wb_req_masked='1' then
 					nextport <= writecache;
 					nextaddr <= wbflagsaddr;
-				elsif port1_req_masked='1' then
-					nextport <= port1;
+				elsif cpu_req_masked='1' then
+					nextport <= cpu;
 					nextaddr <= cache_req.addr(31 downto 2) & "00";
-				elsif port2_req_masked='1' then
-					nextport <= port2;
-					nextaddr <= dma_req.addr(31 downto 3 + sdram_width/16) & std_logic_vector(to_unsigned(0,3+sdram_width/16));
 				elsif video_req_masked='1' then
-					nextport <= port0;
+					nextport <= video;
 					nextaddr <= video_req.addr(31 downto 3 + sdram_width/16) & std_logic_vector(to_unsigned(0,3+sdram_width/16));
 				else
 					nextport <= idle;
@@ -300,17 +301,17 @@ begin
 		signal videoburst : std_logic;
 		signal videostrobe : std_logic;
 	begin
-		cacheburst <= '1' when (slot1_fill='1' and sdram_slot1=port1) or (slot2_fill='1' and sdram_slot2=port1) else '0';
+		cacheburst <= '1' when (slot1_fill='1' and sdram_slot1=cpu) or (slot2_fill='1' and sdram_slot2=cpu) else '0';
 		cache_ack.q <= sdata_reg;
 		cache_ack.burst <= cacheburst;
 		cache_ack.strobe <= cachestrobe;
 		
-		dmaburst <= '1' when (slot1_fill='1' and sdram_slot1=port2) or (slot2_fill='1' and sdram_slot2=port2) else '0';
+		dmaburst <= '1' when (slot1_fill='1' and sdram_slot1=dma) or (slot2_fill='1' and sdram_slot2=dma) else '0';
 		dma_ack.q <= sdata_reg;
 		dma_ack.burst <= dmaburst;
 		dma_ack.strobe <= dmastrobe;
 
-		videoburst <= '1' when (slot1_fill='1' and sdram_slot1=port0) or (slot2_fill='1' and sdram_slot2=port0) else '0';
+		videoburst <= '1' when (slot1_fill='1' and sdram_slot1=video) or (slot2_fill='1' and sdram_slot2=video) else '0';
 		video_ack.q <= sdata_reg;
 		video_ack.burst <= videoburst;
 		video_ack.strobe <= videostrobe;
@@ -429,8 +430,12 @@ begin
 			slot2_precharge_bank<="00";			
 			sdwrite<='0';
 			bankbusy <= (others => '0');
-			port0_extend<='0';
+			video_extend<='0';
 		elsif rising_edge(sysclk) THEN -- rising edge
+
+			dma_ack.nak<='0';
+			video_ack.nak<='0';
+			cache_ack.nak<='0';
 
 			refresh_ack<='0';
 			sdwrite<='0';
@@ -493,7 +498,7 @@ begin
 						slot1read<='0';
 
 						slot1_autoprecharge<='1';
-						port0_extend<='0';
+						video_extend<='0';
 
 						sdram_slot1<=nextport;
 						sdaddr <= nextaddr(sdram_row_high downto sdram_row_low);
@@ -503,28 +508,35 @@ begin
 						casaddr <= nextaddr; -- read whole cache line in burst mode.
 						if nextport/=idle then
 							bankbusy(to_integer(unsigned(nextaddr(sdram_bank_high downto sdram_bank_low))))<='1';
-							if port0_extend='0' then
+							if video_extend='0' then
 								sd_cs <= '0'; --ACTIVE
 								sd_ras <= '0';
 							end if;
+							-- Inform subsystems if they didn't get the slot
+							dma_ack.nak<=dma_req.req;
+							video_ack.nak<=video_req.req;
+							cache_ack.nak<=cache_req.req;
 						end if;
-						
-						if nextport=port0 then
+
+						if nextport=video then
 							slot1read<='1';
 							if unsigned(nextaddr(sdram_col_high downto 5)) /= (2**(sdram_col_high-4)-1) then
 								slot1_autoprecharge<=not video_req.pri;
-								port0_extend<=video_req.pri;
+								video_extend<=video_req.pri;
 							end if;
 							video_ack.ack<='1'; -- Signal to the video controller that we're servicing its request.
+							video_ack.nak<='0';
 						elsif nextport=writecache then
 							slot1_precharge<='1';
 							wb_bank <= wbflagsaddr(sdram_bank_high downto sdram_bank_low);
-						elsif nextport=port1 then
+						elsif nextport=cpu then
 							slot1read<='1';
 							cache_ack.ack<='1'; -- Signal to the cache that we're servicing its request.
-						elsif nextport=port2 then
+							cache_ack.nak<='0';
+						elsif nextport=dma then
 							slot1read<='1';
 							dma_ack.ack<='1'; -- Signal to DMA controller that that we're servicing its request.
+							dma_ack.nak<='0';
 						end if;
 
 					when ph3 =>
@@ -584,7 +596,7 @@ begin
 						-- Slot 2, active command
 						
 						sdram_slot2<=idle;
-						port0_extend<='0';
+						video_extend<='0';
 						slot2_autoprecharge<='1';
 						
 						sdram_slot2<=nextport;
@@ -596,28 +608,36 @@ begin
 
 						if nextport/=idle then
 							bankbusy(to_integer(unsigned(nextaddr(sdram_bank_high downto sdram_bank_low))))<='1';
-							if port0_extend='0' then
+							if video_extend='0' then
 								sd_cs <= '0'; --ACTIVE
 								sd_ras <= '0';
 							end if;
 						end if;
 
-						if nextport=port0 then
+						-- Inform subsystems if they didn't get the slot
+						dma_ack.nak<=dma_req.req;
+						video_ack.nak<=video_req.req;
+						cache_ack.nak<=cache_req.req;
+
+						if nextport=video then
 							slot2read<='1';
 							if unsigned(nextaddr(sdram_col_high downto 5)) /= (2**(sdram_col_high-4)-1) then
 								slot2_autoprecharge<=not video_req.pri;
-								port0_extend<=video_req.pri;
+								video_extend<=video_req.pri;
 							end if;
 							video_ack.ack<='1'; -- Signal to VGA controller that we're servicing its request
+							video_ack.nak<='0';
 						elsif nextport=writecache then
 							slot2_precharge<='1';
 							wb_bank <= wbflagsaddr(sdram_bank_high downto sdram_bank_low);
-						elsif nextport=port1 then 
+						elsif nextport=cpu then 
 							slot2read<='1';
 							cache_ack.ack<='1'; -- Signal to the cache that we're servicing its request
-						elsif nextport=port2 then
+							cache_ack.nak<='0';
+						elsif nextport=dma then
 							slot2read<='1';
 							dma_ack.ack<='1'; -- Signal to DMA controller that we're servicing its request
+							dma_ack.nak<='0';
 						end if;
 						
 				

@@ -29,7 +29,8 @@ static struct InterruptHandler uart_inthandler=
 	INTERRUPT_SERIAL
 };
 
-__constructor(101.uart) void UARTInit()
+/* Constructor dependencies: interrupts */
+__constructor(101.uartbuffered) void UARTInit()
 {
 	puts("In buffered UART constructor\n");
 	uartbuffer.action=UARTHandler;
@@ -37,7 +38,7 @@ __constructor(101.uart) void UARTInit()
 	AddInterruptHandler(&uart_inthandler);
 }
 
-__destructor(101.uart) void UARTEnd()
+__destructor(101.uartbuffered) void UARTEnd()
 {
 	RemoveInterruptHandler(&uart_inthandler);
 }

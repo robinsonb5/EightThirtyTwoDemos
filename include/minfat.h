@@ -130,7 +130,7 @@ int LoadFileAbs(const char *fn, unsigned char *buf);
 uint32_t CurrentDirectory();
 void ChangeDirectory(DIRENTRY *p);
 void ChangeDirectoryByCluster(uint32_t cluster);
-DIRENTRY *NextDirEntry(int prev,int (*matchfunc)(const char *fn,int len));
+DIRENTRY *NextDirEntry(int prev,int (*matchfunc)(const char *fn,int len,void *userdata),void *userdata);
 int FindByCluster(uint32_t parent, uint32_t cluster);
 int ValidateDirectory(uint32_t directory);
 
@@ -138,6 +138,8 @@ extern unsigned int dir_entries;             // number of entries in directory t
 extern char longfilename[261];
 
 #define FileFirstSector(x) { (x)->sector=0; (x)->cursor=0; (x)->cluster=(x)->firstcluster; }
+
+int FilesystemPresent();
 
 #endif
 

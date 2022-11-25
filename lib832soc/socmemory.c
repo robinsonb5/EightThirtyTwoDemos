@@ -23,7 +23,9 @@ static char *stacksize=&STACKSIZE;
 
 #define MAXMEMBIT 27
 
-__constructor(100.socmeory) void _initMem()
+
+/* Constructor dependencies: none */
+__constructor(100.socmemory) void _initMem()
 {
 	int ss=(int)stacksize;
 	volatile int *freebase=(int*)&_bss_end__;

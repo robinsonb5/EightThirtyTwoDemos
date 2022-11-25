@@ -78,21 +78,6 @@ void RemoveInterruptHandler(struct InterruptHandler *handler)
 }
 
 
-__constructor(100.interrupts) void intconstructor()
-{
-	puts("In interrupt constructor\n");
-	DisableInterrupts();
-	intchain=0;
-	enabled=0;
-	*(void **)13=(void *)inthandler;
-}
-
-__destructor(100.interrupts) void intdestructor()
-{
-	HW_INTERRUPT(REG_INTERRUPT_CTRL)=0;
-}
-
-
 volatile int GetInterrupts()
 {
 	return(HW_INTERRUPT(REG_INTERRUPT_CTRL));
@@ -125,5 +110,22 @@ int DisableInterrupts()
 	result=enabled;
 	enabled=0;
 	return(result);
+}
+
+
+/* Constructor dependencies:  none */
+
+__constructor(100.interrupts) void intconstructor()
+{
+	puts("In interrupt constructor\n");
+	DisableInterrupts();
+	intchain=0;
+	enabled=0;
+	*(void **)13=(void *)inthandler;
+}
+
+__destructor(100.interrupts) void intdestructor()
+{
+	HW_INTERRUPT(REG_INTERRUPT_CTRL)=0;
 }
 
