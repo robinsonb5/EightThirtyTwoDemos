@@ -73,7 +73,6 @@ type DMAChannel_Internal is record
 	wrptr : unsigned(DMACache_MaxCacheBit downto 0);
 	wrptr_next : unsigned(DMACache_MaxCacheBit downto 0);
 	addr : std_logic_vector(31 downto 0); -- Current RAM address
-	count : unsigned(DMACache_ReqLenMaxBit+1 downto 0); -- Number of words to transfer.
 end record;
 
 type DMAChannels_Internal is array (DMACache_MaxChannel downto 0) of DMAChannel_Internal;
@@ -81,6 +80,7 @@ signal internals : DMAChannels_Internal;
 
 type DMAChannel_Internal_Read is record
 	rdptr : unsigned(DMACache_MaxCacheBit downto 0);
+	count : unsigned(DMACache_ReqLenMaxBit downto 0); -- Number of words to read from SDRAM.
 	pending : std_logic; -- Host has a request pending on this channel
 end record;
 
@@ -185,7 +185,6 @@ myDMACacheRAM : entity work.DMACacheRAM
 	to_sdram.addr(31 downto burstlog2+2)<=internals(activechannel).addr(31 downto burstlog2+2);
 	to_sdram.addr(burstlog2+2-1 downto 0)<=(others => '0');
 
-	--cache_wraddr(burstlog2-1 downto 0)<=std_logic_vector(cache_wraddr_lsb);
 	cache_wraddr(cachemsb downto 0)
 		<= std_logic_vector(to_unsigned(activechannel,3))
 			&std_logic_vector(internals(activechannel).wrptr(DMACache_MaxCacheBit downto 0));
@@ -200,12 +199,6 @@ myDMACacheRAM : entity work.DMACacheRAM
 	begin
 
 		if rising_edge(clk) then
-			if reset_n='0' then
-				inputstate<=rd1;
-				for I in 0 to DMACache_MaxChannel loop
-					internals(I).count<=(others => '0');
-				end loop;
-			end if;
 
 			cache_wren<='0';
 						
@@ -214,10 +207,6 @@ myDMACacheRAM : entity work.DMACacheRAM
 				to_sdram.pri <= '0';
 				internals(activechannel).addr<=std_logic_vector(unsigned(internals(activechannel).addr)+(sdram_width/8)*8);
 			end if;
-			
-			if from_sdram.strobe='1' and internals(activechannel).count/=X"0000" then
-				internals(activechannel).count<=internals(activechannel).count-1;
-			end if;
 
 			-- Request and receive data from SDRAM:
 			case inputstate is
@@ -225,10 +214,7 @@ myDMACacheRAM : entity work.DMACacheRAM
 				-- Lowest numbered channel has highest priority.
 				when rd1 =>
 					for I in DMACache_MaxChannel downto 0 loop
-						if internals_FIFO(I).full='0'
-							and internals(I).count(DMACache_ReqLenMaxBit downto 0)/=X"0000"
-								and internals(I).count(DMACache_ReqLenMaxBit+1)='0' then
---									and channels_from_host(I).setaddr='0' then
+						if internals_FIFO(I).full='0'	and internals_read(I).count/=X"0000" then
 							activechannel <= I;
 							to_sdram.req<='1';
 							to_sdram.pri <= channels_from_host(I).pri;
@@ -238,7 +224,7 @@ myDMACacheRAM : entity work.DMACacheRAM
 					end loop;
 
 					for I in 0 to DMACache_MaxChannel loop
-						if internals(I).count=X"0000" then
+						if internals_read(I).count=X"0000" then
 							channels_to_host(I).done<='1';
 						end if;
 					end loop;
@@ -252,7 +238,7 @@ myDMACacheRAM : entity work.DMACacheRAM
 					if from_sdram.strobe='1' then
 						inputstate<=rcv;
 					
-						if sdram_abort='0' and internals(activechannel).count/=X"0000" then
+						if sdram_abort='0' then -- and internals_read(activechannel).count/=X"0000" then
 							data_from_ram<=from_sdram.q;
 							cache_wren<='1';
 							internals(activechannel).wrptr(burstlog2-1 downto 0)<=(others => '0');
@@ -261,7 +247,7 @@ myDMACacheRAM : entity work.DMACacheRAM
 
 				when rcv =>
 
-					if from_sdram.strobe='1' and sdram_abort='0' and internals(activechannel).count/=X"0000" then
+					if from_sdram.strobe='1' and sdram_abort='0' then -- and internals(activechannel).count/=X"0000" then
 						data_from_ram<=from_sdram.q;
 						cache_wren<='1';
 						internals(activechannel).wrptr(burstlog2-1 downto 0)<=wrptr_lsb_next;
@@ -292,12 +278,11 @@ myDMACacheRAM : entity work.DMACacheRAM
 					internals(I).wrptr<=(others =>'0');
 					internals(I).wrptr_next<=(others =>'0');
 					internals(I).wrptr_next(burstlog2) <= '1';
-					internals(I).count<=(others=>'0');
+					internals_read(I).count<=(others=>'0');
 					addresslsb := unsigned(channels_from_host(I).addr(burstlog2+1 downto 2));
 				end if;
 				if channels_from_host(I).setreqlen='1' then
-					internals(I).count(DMACache_ReqLenMaxBit downto 0)<=channels_from_host(I).reqlen+addresslsb;
-					internals(I).count(DMACache_ReqLenMaxBit+1)<='0';
+					internals_read(I).count(DMACache_ReqLenMaxBit downto 0)<=channels_from_host(I).reqlen;
 					channels_to_host(I).done<='0';
 				end if;
 			end loop;
@@ -326,11 +311,12 @@ myDMACacheRAM : entity work.DMACacheRAM
 				end if;
 			end loop;
 
-			if serviceactive='1' then
+			if serviceactive='1' and internals_read(servicechannel).count/=X"0000" then
 				cache_rdaddr<=std_logic_vector(to_unsigned(servicechannel,3))&std_logic_vector(internals_read(servicechannel).rdptr);
 				internals_read(servicechannel).rdptr<=internals_read(servicechannel).rdptr+1;
 				channelvalid(servicechannel)<='1';
 				internals_read(servicechannel).pending<='0';
+				internals_read(servicechannel).count<=internals_read(servicechannel).count-1;
 			end if;
 
 			-- Reset read pointers when a new address is set
@@ -347,6 +333,13 @@ myDMACacheRAM : entity work.DMACacheRAM
 					end if;
 				end if;
 			end loop;
+
+			if reset_n='0' then
+				inputstate<=rd1;
+				for I in 0 to DMACache_MaxChannel loop
+					internals_read(I).count<=(others => '0');
+				end loop;
+			end if;
 
 		end if;
 	end process;

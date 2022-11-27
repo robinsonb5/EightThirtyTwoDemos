@@ -501,7 +501,6 @@ begin
 		signal spritectr : unsigned(11 downto 0);
 		signal spriteena : std_logic;
 		signal spriteactive : std_logic;
-		signal spritefetchctr : unsigned(DMACache_ReqLenMaxBit downto 0);
 		signal spritefinished_vc : std_logic;
 		signal spritefinished_sc : std_logic;
 		signal spritefinished_sc_d : std_logic;
@@ -531,7 +530,6 @@ begin
 					sprite0_sys.setaddr<='1';
 					sprite0_sys.reqlen<=unsigned(sprite0_reqlen);
 					sprite0_sys.setreqlen<='1';
-					spritefetchctr<=unsigned(sprite0_reqlen);
 				end if;					
 
 				-- Latch the incoming sprite data (on the SDRAM clock)
@@ -540,12 +538,11 @@ begin
 				if sprite0_status.valid='1' then
 					spritedata_sc<=spritedata;
 					spritedata_stb_sc<='1';
-					spritefetchctr<=spritefetchctr-1;
 				end if;
 
 				spritefinished_sc_d<='0';
 				spritefinished_sc<='0';
-				if spritefetchctr=0 then
+				if sprite0_status.done='1' then
 					spritefinished_sc<=not spritefinished_sc_d;
 					spritefinished_sc_d<='1';
 				end if;
@@ -553,7 +550,7 @@ begin
 			end if;
 		end process;
 		
-		sprite0_sys.req <='1' when spritefetchctr/=0 and spritedata_req_sc='1' else '0';
+		sprite0_sys.req <='1' when sprite0_status.done='0' and spritedata_req_sc='1' else '0';
 
 		-- Display logic on video clock domain
 		

@@ -46,6 +46,8 @@ port (
 	cpu_req : in std_logic;
 	cpu_wr : in std_logic; -- 0 for read cycle, 1 for write cycles
 	cpu_cachevalid : out std_logic;
+	cpu_bytesel : in std_logic_vector(3 downto 0);
+	data_from_cpu : in std_logic_vector(31 downto 0);
 	data_to_cpu : out std_logic_vector(31 downto 0);
 	-- SDRAM interface
 	data_from_sdram : in std_logic_vector(31 downto 0);
@@ -68,7 +70,6 @@ architecture behavioural of cacheway is
 		S_FILL, S_PAUSE1);
 	signal state : states_t := S_INIT;
 
-	signal readword_burst : std_logic;
 	signal readword : unsigned(burstlog2-1 downto 0);
 
 	signal latched_cpuaddr : std_logic_vector(31 downto 0);
@@ -165,7 +166,6 @@ begin
 			if rising_edge(clk) then			
 				-- Defaults
 				data_wren<='0';
-				readword_burst<='0';
 
 				busy_i <= '1';
 
@@ -192,17 +192,14 @@ begin
 					when S_INIT =>
 						ready<='0';
 						state<=S_FLUSH1;
-						readword_burst<='1';
 
 					when S_FLUSH1 =>
 						latched_cpuaddr<=std_logic_vector(to_unsigned(2**taglsb,32));
 						readword<=(0=>'1',others =>'0');
 						tag_wren<='1';	-- Invalidate the cacheline
-						readword_burst<='1';
 						state<=S_FLUSH2;
 
 					when S_FLUSH2 =>
-						readword_burst<='1';
 						if readword=0 then
 							latched_cpuaddr<=std_logic_vector(unsigned(latched_cpuaddr)+2**taglsb);
 						end if;
@@ -223,10 +220,7 @@ begin
 							if cpu_wr='0' then -- Read cycle
 								state<=S_WAITRD;
 							elsif newreq='1' then	-- Write cycle
-								readword_burst<='1';
-								if cpu_addr(30) = '0' then 	-- An upper image of the RAM with cache clear bypass.
-									tag_wren<='1';	-- Invalidate the cacheline
-								end if;
+								state<=S_WRITE1;
 							end if;
 						end if;
 						if flushpending='1' then
@@ -234,8 +228,13 @@ begin
 						end if;
 
 					when S_WRITE1 =>
-						readword_burst<='1';
 						if tag_hit='1' then 
+							if cpu_bytesel="1111" then -- Update the complete word
+								data_w<=data_from_cpu;
+								data_wren<='1';
+							else
+								tag_wren<='1';	-- Invalidate the cacheline
+							end if;
 						end if;
 						state<=S_WAITING;
 
@@ -260,7 +259,6 @@ begin
 						end if;
 					
 					when S_WAITFILL =>
-						readword_burst<='1';
 						-- In the interests of performance, read the word we're waiting for first.
 						readword<=unsigned(latched_cpuaddr(burstlog2+1 downto 2));
 
@@ -275,7 +273,6 @@ begin
 					when S_FILL =>
 						-- write next word to Cache...
 						if sdram_strobe='1' then
-							readword_burst<='1';
 							readword<=readword+1;
 							data_w<=data_from_sdram;
 							data_wren<='1';

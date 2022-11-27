@@ -117,15 +117,16 @@ begin
 	process(clk,reset)
 	begin
 		if reset='0' then
+			datapointer<=(others => '0');
 			channel_fromhost.req <='0';
-			channel_fromhost.setaddr <='0';
 			channel_fromhost.reqlen <= (others => '0');
-			channel_fromhost.setreqlen <='1';
+			channel_fromhost.setreqlen <='0';
 			channel_fromhost.addr <= (others => '0');
 			channel_fromhost.setaddr <= '0';
 			volume(5 downto 0) <= (others => '0');
 			byte <="00";
 			trigger <='0';
+			repeatlen<=(others => '0');
 			datalen<=(others => '0');
 			sampleword <= (others => '0');
 			reg_data_out<=(others => '0');

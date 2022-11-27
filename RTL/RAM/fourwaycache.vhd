@@ -198,6 +198,8 @@ begin
 					cpu_req => req,
 					cpu_cachevalid => cache_valid(i),
 					cpu_wr => from_cpu.wr,
+					cpu_bytesel => from_cpu.bytesel,
+					data_from_cpu => from_cpu.d,
 					data_to_cpu => cachedata(i),
 					-- SDRAM interface
 					data_from_sdram => from_sdram.q,
