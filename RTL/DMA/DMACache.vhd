@@ -315,10 +315,13 @@ myDMACacheRAM : entity work.DMACacheRAM
 				cache_rdaddr<=std_logic_vector(to_unsigned(servicechannel,3))&std_logic_vector(internals_read(servicechannel).rdptr);
 				internals_read(servicechannel).rdptr<=internals_read(servicechannel).rdptr+1;
 				channelvalid(servicechannel)<='1';
-				internals_read(servicechannel).pending<='0';
 				internals_read(servicechannel).count<=internals_read(servicechannel).count-1;
 			end if;
 
+			if serviceactive='1' then
+				internals_read(servicechannel).pending<='0';
+			end if;
+			
 			-- Reset read pointers when a new address is set
 			for I in 0 to DMACache_MaxChannel loop
 				if channels_from_host(I).setaddr='1' then

@@ -32,7 +32,9 @@ entity qmtech_cyclonev_a5_top is
 		SD_CS : out std_logic;
 		SD_CLK : out std_logic;
 		SD_MISO : in std_logic;
-		SD_MOSI : out std_logic
+		SD_MOSI : out std_logic;
+		sigma_l : out std_logic; -- Included just to avoid audio being optimised out
+		sigma_r : out std_logic
 	);
 END entity;
 
@@ -77,12 +79,6 @@ architecture RTL of qmtech_cyclonev_a5_top is
 -- Sound
 	signal audio_l : std_logic_vector(15 downto 0);
 	signal audio_r : std_logic_vector(15 downto 0);
-
-	signal sigma_l : std_logic;
-	signal sigma_r : std_logic;
---	alias sigma_l : std_logic is GPIO(18);
---	alias sigma_r : std_logic is GPIO(20);
-
 	
 -- IO
 
@@ -137,7 +133,7 @@ virtualtoplevel : entity work.VirtualToplevel
 		sdram_rows => 13,
 		sdram_cols => 9,
 		sysclk_frequency => Toplevel_Frequency*10, -- Sysclk frequency * 10
-		debug => true
+		debug => false
 	)
 	port map(
 		clk => fastclk,

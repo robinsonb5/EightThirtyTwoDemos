@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	char *fn;
 	struct wildcard_pattern pattern;
 	pattern.casesensitive=0;
-	pattern.pattern="*.mod";
+	pattern.pattern="*mod";
 	while(1)
 	{
 		ChangeDirectoryByCluster(0);
