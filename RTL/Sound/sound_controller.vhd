@@ -148,10 +148,12 @@ begin
 			trigger<='0';
 			audio_int <= '0';
 			if sampletick='1' then
-				if byte="00" and datalen/=X"0000" then
-					-- request one sample
-					channel_fromhost.req<='1';
-					datalen<=datalen-1;
+				if byte="00" then
+					if datalen/=X"0000" then
+						-- request one sample
+						channel_fromhost.req<='1';
+						datalen<=datalen-1;
+					end if;
 				else
 					byte<=byte-1;
 				end if;

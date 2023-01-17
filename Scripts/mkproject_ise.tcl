@@ -37,6 +37,8 @@ if { ${requires_sdram}==0 || ${have_sdram}==1 } {
 	project set "Preferred Language" "VHDL"
 	project set "Enable Message Filtering" "false"
 
+	set fpgatoolchain "ise"
+
 	source ${boardpath}/${board}/${board}_support.tcl
 	source ${corename}_files.tcl
 	xfile add ${boardpath}../PLL/${fpga}_${base_clock}_${target_frequency_xilinx}/pll.${pll_extension}

@@ -23,6 +23,9 @@ cat $1 | while read a; do
 	if [ "${b: -4}" = ".svh" ]; then
 		echo "\"[file normalize \"$2/${a}\"]\"\\"
 	fi
+	if [ "${b: -4}" = ".xci" ]; then
+		echo "\"[file normalize \"$2/${a}\"]\"\\"
+	fi
 	if [ "${b: -4}" = ".qip" ]; then
 		bash ../../../Scripts/expandtemplate_vivado.sh $2/${a%.qip}.files $2/$(dirname $a)
 	fi

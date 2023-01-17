@@ -15,6 +15,9 @@ RTL/SoC_Peripheral_config.vhd
 ../RTL/DMA/DMACache.vhd
 ../RTL/DMA/VideoFIFO.vhd
 
+../RTL/Sound/iirfilter_shift.vhd
+../RTL/Sound/karplus_strong.vhd
+../RTL/Sound/karplus_strong_controller.vhd
 ../RTL/Sound/sound_controller.vhd
 ../RTL/Sound/sound_wrapper.vhd
 ../RTL/Video/video_vga_dither.vhd
