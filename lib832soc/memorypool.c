@@ -476,10 +476,19 @@ static void *Provision(struct MemoryPool *pool,int size,int flags,int flagmask)
 	return(p);
 }
 
+static int GetAllocSize(struct MemoryPool *pool,void *ptr)
+{
+	int result=0;
+	struct AllocTag *at=(struct AllocTag *)MemoryPool_CheckTags(ptr);
+	if(at)
+		result=at->size-sizeof(struct AllocTag);
+	return(result);
+}
+
 
 /* Release a chunk back to the parent pool. */
 
-static void *Release(struct MemoryPool *pool,void *p)
+static void Release(struct MemoryPool *pool,void *p)
 {
 	printf("FIXME - release not yet implemented\n");
 }
@@ -502,6 +511,7 @@ static void initpool(struct MemoryPool *pool,struct MemoryPool *parent)
 	pool->Alloc=AllocUnmasked;
 	pool->Free=Free;
 	pool->FreeAll=FreeAllMasked;
+	pool->GetAllocSize=GetAllocSize;
 	pool->Provision=Provision;
 	pool->Release=Release;
 	pool->recordlist=0;
@@ -555,6 +565,7 @@ void MemoryPool_SeedMemory(struct MemoryPool *pool,void *p,int size,int flags)
 		addfragment(pool,c,size,flags);
 	}
 }
+
 
 
 #if 0

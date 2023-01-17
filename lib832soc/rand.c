@@ -58,8 +58,8 @@ int rand() {
 void srand(int seed)
 {
 	s[0] = (uint32_t)seed;
-	s[1] = 0x1a2b3c4d,
-	s[2] = 0x56789abc,
-	s[3] = 0xfedcba98
+	s[1] = 0x1a2b3c4d;
+	s[2] = 0x56789abc;
+	s[3] = 0xfedcba98;
 }
 

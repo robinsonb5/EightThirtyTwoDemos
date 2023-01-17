@@ -14,7 +14,17 @@ struct SoundChannel
 	long MODE; // 28-32
 };	// 32 bytes long
 
+struct SynthChannel
+{
+	int PERIOD; // 0-3
+	int FILTERPERIOD; // 4-7
+	int VOL;	// 8-11
+	int TRIGGER; // 12-15
+};	// 16 bytes long
+
 #define REG_SOUNDCHANNEL ((volatile struct SoundChannel *)0xFFFFFD00)
+
+#define REG_SYNTHCHANNEL ((volatile struct SynthChannel *)0xFFFFFD80)
 
 #define SOUND_FORMAT_MONO_S8 0
 #define SOUND_FORMAT_MONO_S16 1

@@ -40,16 +40,12 @@ JB:
 
 #define NULL 0
 #include <sys/types.h>
-// #include <stdio.h>
+#include <stdio.h>
 #include <string.h>
-//#include <ctype.h>
 
 #include "hw/spi.h"
 
 #include "swap_le.h"
-#include "hw/uart.h"
-#include "printf.h"
-#include "hw/timer.h"
 
 #include "minfat.h"
 
@@ -256,7 +252,7 @@ uint32_t GetCluster(uint32_t cluster)
 DIRENTRY *FindDirEntry(const char *name)
 {
 	DIRENTRY *p=0;
-	while(p=NextDirEntry(p==NULL,0))
+	while(p=NextDirEntry(p==NULL,0,0))
 	{
 #ifndef DISABLE_LONG_FILENAMES
 		if(strcasecmp(longfilename,name)==0)
@@ -530,7 +526,7 @@ unsigned int FileRead(fileTYPE *file, unsigned char *buffer, int count)
 }
 
 
-char FileGetCh(fileTYPE *file)
+int FileGetCh(fileTYPE *file)
 {
 	if (!(file->cursor&0x1ff)) {
 		// reload buffer
@@ -539,7 +535,7 @@ char FileGetCh(fileTYPE *file)
 		FileReadSector(file, sector_buffer);
 	}
 	if (file->cursor >= file->size)
-		return 0;
+		return EOF;
 	else
 		return (sector_buffer[(file->cursor++)&0x1ff]);
 }
@@ -726,7 +722,7 @@ int FindByCluster(uint32_t parent, uint32_t cluster)
 {
     DIRENTRY      *p = NULL;        // pointer to current entry in sector buffer
 	ChangeDirectoryByCluster(parent);
-	while(p=NextDirEntry(p==NULL,0))
+	while(p=NextDirEntry(p==NULL,0,0))
 	{
 		if(ClusterFromDirEntry(p)==cluster)
 			return(1);

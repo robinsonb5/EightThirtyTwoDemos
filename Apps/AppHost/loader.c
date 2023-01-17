@@ -99,19 +99,7 @@ int LoadApp(const char *filename)
 
 int main(int argc,char**argv)
 {
-	int filesystem_present;
-	int sdcard_present;
-	printf("Initialising SD card\n");
-	if((sdcard_present=spi_init()))
-	{
-		printf("SD card successfully initialised\n");
-		filesystem_present=FindDrive();
-		printf("%sFilesystem found\n",filesystem_present ? "" : "No ");
-	}
-	else
-		printf("No SD card found\n");
-
-	if(filesystem_present && sdcard_present)
+	if(FilesystemPresent())
 	{
 		printf("LoadApp\n");
 		LoadApp("RELOCT~1832");

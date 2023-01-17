@@ -239,7 +239,7 @@ __weak off_t lseek(int fd,  off_t offset, int whence)
 #ifndef DISABLE_FILESYSTEM
 		FileSeek(FILEHANDLE(fd),pos+offset);
 #endif
-		return((off_t)FileTell(FILEHANDLE(fd));
+		return((off_t)FileTell(FILEHANDLE(fd)));
 	}
 }
 
@@ -276,20 +276,20 @@ __weak int fstat(int fd, struct stat *buf)
 /*
  * fstat
  */
-	printf("Clearing stat buffer at %x\n",buf);
+	printf("Clearing stat buffer at %x\n",(int)buf);
 	memset(buf,0,sizeof(struct stat));
 	printf("Done\n");
 	if(fd<3)
 	{
-		printf("Setting mode to TTY\n",buf);
+		printf("Setting mode to TTY\n");
 		buf->st_mode = S_IFCHR;	/* Always pretend to be a tty */
 		buf->st_blksize = 0;
 	}
 	else if(FILEHANDLE(fd))
 	{
-		printf("Setting mode to TTY\n",buf);
+		printf("Filehandle is a file\n");
 		buf->st_size = FILEHANDLE(fd)->size;
-		printf("Setting st_size (%d) to %d (Sizeof st_size: %d)\n",((char *)&buf->st_size)-((char *)buf),FILEHANDLE(fd)->size, sizeof(buf->st_size));
+		printf("Setting st_size %ud\n",FILEHANDLE(fd)->size);
 	}
 	return (0);
 }
@@ -322,6 +322,21 @@ __weak int isatty(int fd)
 	return(fd < 3 ? 1 : 0);
 }
 
+
+int fgetc(FILE *f)
+{
+	unsigned char buf;
+	if(f)
+		return(FileGetCh(f));
+	else
+	{
+		/* Read from UART */
+		int in;
+		while(!((in=HW_UART(REG_UART))&(1<<REG_UART_RXINT)))
+			;
+		return(in&0xff);
+	}
+}
 
 void setbuf(FILE *f,char *buf)
 {

@@ -40,6 +40,7 @@ void AddInterruptHandler(struct InterruptHandler *handler);
 void CallInterruptHandler(struct InterruptHandler *handler);
 void RemoveInterruptHandler(struct InterruptHandler *handler);
 void EnableInterrupts();
+void EnableInterruptsAndSleep();
 int DisableInterrupts();
 volatile int GetInterrupts();
 void AcknowledgeInterrupts();

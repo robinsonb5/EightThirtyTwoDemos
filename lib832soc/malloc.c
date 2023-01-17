@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <string.h>
 #include <memorypool.h>
 #include "malloc.h"
 #include "hexdump.h"
@@ -145,6 +146,28 @@ void *calloc(int nmemb,size_t size)
 		{
 			*ptr++=0;
 		}
+	}
+	return(result);
+}
+
+void *realloc(void *ptr, size_t size)
+{
+	void *result=malloc(size);
+	struct MemoryPool *pool=SoCMemory_GetPool();
+	if(!ptr)
+		return(result);
+	if(pool)
+	{
+		int oldsize=pool->GetAllocSize(pool,ptr);
+		if(oldsize)
+			memcpy(result,ptr,oldsize);
+		else
+		{
+			printf("Error - can't fetch size of old block\n");
+			free(result);
+			result=0;
+		}
+		free(ptr);
 	}
 	return(result);
 }

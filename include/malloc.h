@@ -18,6 +18,7 @@ void *malloc(size_t);
 void *malloc_high(size_t);
 void *malloc_aligned(size_t size,int alignment);
 void *calloc(int nmemb,size_t size);
+void *realloc(void *ptr,size_t size);
 void free(void *m);
 int availmem();
 

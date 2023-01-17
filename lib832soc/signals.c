@@ -1,7 +1,7 @@
 #include <hw/interrupts.h>
 #include <signals.h>
 
-static int signals;
+static volatile int signals;
 
 void SetSignal(int signalbit)
 {
@@ -23,7 +23,7 @@ int WaitSignal(int signalmask)
 		signals=signals & ~signalmask;
 		if(!sig)
 			EnableInterruptsAndSleep();
-	} while(!sig)
+	} while(!sig);
 	EnableInterrupts();
 	return(sig);
 }

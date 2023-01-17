@@ -29,9 +29,12 @@ struct MemoryPool
 	/* Free all chunks allocated with the above functions. */
 	void (*FreeAll)(struct MemoryPool *pool);
 
+	/* Return the size of a previously-allocated chunk of memory */
+	int (*GetAllocSize)(struct MemoryPool *pool,void *ptr);
+
 	/* private */
 	void *(*Provision)(struct MemoryPool *pool,int size,int flags,int flagmask);
-	void *(*Release)(struct MemoryPool *pool, void *p);
+	void (*Release)(struct MemoryPool *pool, void *p);
 	struct MemoryPool_AllocFragment *fragmentlist;
 	struct MemoryPool_AllocRecord *recordlist;
 	struct MemoryPool *parent;
