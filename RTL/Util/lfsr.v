@@ -24,7 +24,7 @@
 // Pulse the save input high to store the current value for later recall
 // Pulse the restore input high to restore a saved value.
 
-module lfsr #(parameter width=128, parameter seed=123456789) 
+module lfsr #(parameter width=32, parameter seed=123456789) 
 (
 	input clk,
 	input reset_n,

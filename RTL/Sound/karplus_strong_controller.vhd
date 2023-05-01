@@ -119,16 +119,16 @@ begin
 	-- Generate noise burst:
 	noiseburst : block
 		component lfsr is
-			generic (
-				width : integer := 32
-			);
+--			generic (
+--				width : integer := 32
+--			);
 			port (
 				clk : in std_logic;
 				reset_n : in std_logic;
 				e : in std_logic;
 				save : in std_logic := '0';
 				restore : in std_logic := '0';
-				q : out std_logic_vector(width-1 downto 0)
+				q : out std_logic_vector(31 downto 0)
 			);
 		end component;
 		signal lfsrdata : std_logic_vector(31 downto 0);
@@ -137,9 +137,9 @@ begin
 		signal ksin : unsigned(23 downto 0);
 	begin
 		chirplfsr : component lfsr
-			generic map (
-				width => 32
-			)
+--			generic map (
+--				width => 32
+--			)
 			port map (
 				clk => clk,
 				reset_n => reset_n,

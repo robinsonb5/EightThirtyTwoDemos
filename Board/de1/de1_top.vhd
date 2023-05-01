@@ -80,6 +80,7 @@ architecture rtl of de1_top is
 signal reset : std_logic;
 signal sysclk : std_logic;
 signal slowclk : std_logic;
+signal videoclk : std_logic;
 signal pll_locked : std_logic;
 
 signal audio_l : signed(15 downto 0);
@@ -158,17 +159,29 @@ PS2_DAT <= '0' when ps2k_dat_out='0' else 'Z';
 ps2k_clk_in<=PS2_CLK;
 PS2_CLK <= '0' when ps2k_clk_out='0' else 'Z';
 
+pll : block
+	component pll is
+	port (
+		inclk0 : in std_logic;
+		c0 : out std_logic;
+		c1 : out std_logic;
+		c2 : out std_logic;
+		locked : out std_logic
+	);
+	end component;
+begin
 
+	mypll : component pll
+	port map
+	(
+		inclk0 => CLOCK_50,
+		c0 => DRAM_CLK,
+		c1 => sysclk,
+		c2 => slowclk,
+		locked => pll_locked
+	);
 
-mypll : entity work.pll
-port map
-(
-	inclk0 => CLOCK_50,
-	c0 => DRAM_CLK,
-	c1 => sysclk,
-	c2 => slowclk,
-	locked => pll_locked
-);
+end block;
 
 reset<=(not SW(0) xor KEY(0)) and pll_locked;
 
@@ -178,12 +191,13 @@ generic map
 (
 	sdram_rows => 12,
 	sdram_cols => 8,
-	sysclk_frequency => 1333
+	sysclk_frequency => 1000
 )
 port map
 (	
 	clk => sysclk,
 	slowclk => slowclk,
+	videoclk => videoclk,
 	reset_in => reset,
 
 	-- video

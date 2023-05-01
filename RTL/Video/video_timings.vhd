@@ -68,6 +68,8 @@ architecture rtl of video_timings is
 	signal pixel_stb_r : std_logic;
 	signal hb_internal : std_logic;
 	signal vb_internal : std_logic;
+	signal reset_n_d : std_logic_vector(1 downto 0) := (others => '0');
+	signal reset_s : std_logic;
 begin
 
 pixel_stb<=pixel_stb_r;
@@ -76,10 +78,17 @@ vblank_n <= vb_internal;
 xpos <= hcounter when hb_internal='1' else (others => '1');
 ypos <= vcounter when vb_internal='1' else (others => '1');
 
-process(clk,reset_n)
+process(clk,reset_n) begin
+	if rising_edge(clk) then
+		reset_n_d <= reset_n_d(0) & reset_n;
+	end if;
+end process;
+reset_s <= reset_n_d(1);
+
+process(clk,reset_s)
 begin
 
-	if reset_n='0' then
+	if reset_s='0' then
 		clkdivCnt<=(others=>'0');
 		hcounter<=(others=>'0');
 		vcounter<=(others=>'0');

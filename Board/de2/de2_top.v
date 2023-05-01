@@ -312,6 +312,8 @@ pll mypll
 	.locked(pll_locked)
 );
 
+wire videoclk;
+
 
 wire [7:0] red;
 wire [7:0] green;
@@ -385,6 +387,7 @@ VirtualToplevel myvirtualtoplevel
 (	
 	.clk(sysclk),
 	.slowclk(slowclk),
+	.videoclk(videoclk),
 	.reset_in(SW[0]),
 	
 	// video
