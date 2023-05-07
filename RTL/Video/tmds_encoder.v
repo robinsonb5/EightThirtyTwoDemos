@@ -19,6 +19,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * tmds_encode implementation (c) 2020 Hirosh Dabui <hirosh@dabui.de>
  * based on Digital Visual Interface Revision 1.0, Page 29
  */
+ 
+/* Pipelined by Alastair M. Robinson, May 2023. */
+
 module tmds_encoder(
            input clk,
            input pixel_stb,
@@ -29,6 +32,8 @@ module tmds_encoder(
            output reg[9:0] q_out = 0
        );
 parameter LEGACY_DVI_CONTROL_LUT = 1;
+
+`default_nettype none
 
 function [3:0] N0;
     input [7:0] d;
@@ -50,103 +55,285 @@ function [3:0] N1;
     end
 endfunction
 
-reg signed [7:0] cnt_prev = 0;
-reg signed [7:0] cnt = 0;
 
-reg [8:0] q_m;
+// First pipeline stage
 
-always @(*) begin
+reg [7:0] D_p1;
+reg C0_p1;
+reg C1_p1;
+reg pixel_stb_p1;
+reg window_p1;
 
-    if ( (N1(D) > 4) | (N1(D) == 4) & (D[0] == 0) ) begin
-
-        q_m[0] =           D[0];
-        q_m[1] = q_m[0] ~^ D[1];
-        q_m[2] = q_m[1] ~^ D[2];
-        q_m[3] = q_m[2] ~^ D[3];
-        q_m[4] = q_m[3] ~^ D[4];
-        q_m[5] = q_m[4] ~^ D[5];
-        q_m[6] = q_m[5] ~^ D[6];
-        q_m[7] = q_m[6] ~^ D[7];
-        q_m[8] = 1'b0;
-
-    end else begin
-
-        q_m[0] =          D[0];
-        q_m[1] = q_m[0] ^ D[1];
-        q_m[2] = q_m[1] ^ D[2];
-        q_m[3] = q_m[2] ^ D[3];
-        q_m[4] = q_m[3] ^ D[4];
-        q_m[5] = q_m[4] ^ D[5];
-        q_m[6] = q_m[5] ^ D[6];
-        q_m[7] = q_m[6] ^ D[7];
-        q_m[8] = 1'b1;
-
-    end /* (N1(D) > 4) | (N1(D) == 4) & (D[0] == 0) */
-
+always @(posedge clk) begin
+	D_p1<=D;
+	C0_p1<=C0;
+	C1_p1<=C1;
+	pixel_stb_p1<=pixel_stb;
+	window_p1<=window;
 end
+
+reg [7:0] q_m_a_t;
+reg [7:0] q_m_a_p1;
+
+always @(posedge clk) begin
+	q_m_a_t[0] =           D[0];
+	q_m_a_t[1] = q_m_a_t[0] ~^ D[1];
+	q_m_a_t[2] = q_m_a_t[1] ~^ D[2];
+	q_m_a_t[3] = q_m_a_t[2] ~^ D[3];
+	q_m_a_t[4] = q_m_a_t[3] ~^ D[4];
+	q_m_a_p1 <= q_m_a_t;
+end
+
+reg [7:0] q_m_b_t;
+reg [7:0] q_m_b_p1;
+
+always @(posedge clk) begin
+	q_m_b_t[0] =           D[0];
+	q_m_b_t[1] = q_m_b_t[0] ^ D[1];
+	q_m_b_t[2] = q_m_b_t[1] ^ D[2];
+	q_m_b_t[3] = q_m_b_t[2] ^ D[3];
+	q_m_b_t[4] = q_m_b_t[3] ^ D[4];
+	q_m_b_p1 <= q_m_b_t;
+end
+
+
+
+
+// Second pipeline stage
+
+reg D0_p2;
+reg C0_p2;
+reg C1_p2;
+reg pixel_stb_p2;
+reg window_p2;
+
+always @(posedge clk) begin
+	D0_p2<=D_p1[0];
+	C0_p2<=C0_p1;
+	C1_p2<=C1_p1;
+	pixel_stb_p2<=pixel_stb_p1;
+	window_p2<=window_p1;
+end
+
+
+reg [7:0] q_m_a_t2;
+reg [8:0] q_m_a_p2;
+
+always @(posedge clk) begin
+	q_m_a_t2[4:0] = q_m_a_p1[4:0];
+	q_m_a_t2[5] = q_m_a_t2[4] ~^ D_p1[5];
+	q_m_a_t2[6] = q_m_a_t2[5] ~^ D_p1[6];
+	q_m_a_t2[7] = q_m_a_t2[6] ~^ D_p1[7];
+	q_m_a_p2 <= {1'b0,q_m_a_t2};
+end
+
+reg [7:0] q_m_b_t2;
+reg [8:0] q_m_b_p2;
+
+always @(posedge clk) begin
+	q_m_b_t2[4:0] = q_m_b_p1[4:0];
+	q_m_b_t2[5] = q_m_b_t2[4] ^ D_p1[5];
+	q_m_b_t2[6] = q_m_b_t2[5] ^ D_p1[6];
+	q_m_b_t2[7] = q_m_b_t2[6] ^ D_p1[7];
+	q_m_b_p2 <= {1'b1,q_m_b_t2};
+end
+
+reg [2:0] n1_p2;
+always @(posedge clk) n1_p2 <= N1(D_p1);
+
+
+// Third pipeline stage
+
+reg C0_p3;
+reg C1_p3;
+reg pixel_stb_p3;
+reg window_p3;
+
+always @(posedge clk) begin
+	C0_p3<=C0_p2;
+	C1_p3<=C1_p2;
+	pixel_stb_p3<=pixel_stb_p2;
+	window_p3<=window_p2;
+end
+
+
+reg [8:0] q_m_p3;
+reg msb_p3;
 
 always @(posedge clk) begin
 
-	if (pixel_stb) begin
-		if (window) begin
+	if(n1_p2 > 4 | (n1_p2 == 4) & D0_p2[0] == 0) begin
+		q_m_p3 <= q_m_a_p2; 
+		msb_p3 <= 1'b0;
+	end else begin
+		q_m_p3 <= q_m_b_p2;
+		msb_p3 <= 1'b1;
+	end
+end
 
-		    if ((cnt_prev == 0) | (N1(q_m[7:0]) == N0(q_m[7:0]))) begin
 
-		        q_out[9]   <= ~q_m[8];
-		        q_out[8]   <=  q_m[8];
-		        q_out[7:0] <= q_m[8] ? q_m[7:0] : ~q_m[7:0];
 
-		        if (q_m[8] == 0) begin
-		            cnt = cnt_prev + (N0(q_m[7:0]) - N1(q_m[7:0]));
-		        end else begin
-		            cnt = cnt_prev + (N1(q_m[7:0]) - N0(q_m[7:0]));
-		        end /*q_m[8] == 0*/
+// Fourth pipeline stage
+
+reg C0_p4;
+reg C1_p4;
+reg pixel_stb_p4;
+reg window_p4;
+reg msb_p4;
+
+always @(posedge clk) begin
+	C0_p4<=C0_p3;
+	C1_p4<=C1_p3;
+	pixel_stb_p4<=pixel_stb_p3;
+	window_p4<=window_p3;
+	msb_p4<=msb_p3;
+end
+
+
+reg [7:0] q_m_p4;
+reg [3:0] n0_q_m_p4;
+reg [3:0] n1_q_m_p4;
+
+always @(posedge clk) begin
+	q_m_p4<=q_m_p3;
+	n0_q_m_p4 <= N0(q_m_p3);
+	n1_q_m_p4 <= N1(q_m_p3);
+end
+
+
+
+// Fifth pipeline stage
+
+reg C0_p5;
+reg C1_p5;
+reg pixel_stb_p5;
+reg window_p5;
+reg msb_p5;
+
+always @(posedge clk) begin
+	C0_p5<=C0_p4;
+	C1_p5<=C1_p4;
+	pixel_stb_p5<=pixel_stb_p4;
+	window_p5<=window_p4;
+	msb_p5<=msb_p4;
+end
+
+
+reg [7:0] q_m_p5;
+reg [3:0] n0_q_m_p5;
+reg [3:0] n1_q_m_p5;
+reg signed [5:0] n1minusn0_q_m_p5;
+reg signed [7:0] cntinc_a_p5;
+reg signed [7:0] cntinc_b_p5;
+reg difzero_p5;
+
+always @(posedge clk) begin
+	q_m_p5 <= q_m_p4;
+	n0_q_m_p5 <= n0_q_m_p4;
+	n1_q_m_p5 <= n1_q_m_p4;
+
+	difzero_p5 <= n0_q_m_p4 == 4'd4 ? 1'b1 : 1'b0;
+	
+	n1minusn0_q_m_p5 <= n1_q_m_p4-n0_q_m_p4;
+	cntinc_a_p5 <= {msb_p4,1'b0} + n0_q_m_p4 - n1_q_m_p4;
+	cntinc_b_p5 <= -{~msb_p4, 1'b0} + (n1_q_m_p4 - n0_q_m_p4);
+end
+
+
+reg [9:0] q_sync_p5;
+always @(posedge clk) begin
+	case ({C1_p4, C0_p4})
+	`ifdef LEGACY_DVI_CONTROL_LUT
+        /* dvi control data lut */
+        2'b00: q_sync_p5 <= 10'b00101_01011;
+        2'b01: q_sync_p5 <= 10'b11010_10100;
+        2'b10: q_sync_p5 <= 10'b00101_01010;
+        2'b11: q_sync_p5 <= 10'b11010_10101;
+	`else
+        /* hdmi control data period */
+        2'b00: q_sync_p5 <= 10'b1101010100;
+        2'b01: q_sync_p5 <= 10'b0010101011;
+        2'b10: q_sync_p5 <= 10'b0101010100;
+        2'b11: q_sync_p5 <= 10'b1010101011;
+	`endif
+    endcase
+end
+
+
+reg [9:0] q_out_a_p5;
+reg [9:0] q_out_b_p5;
+reg [9:0] q_out_c_p5;
+
+always @(posedge clk) begin
+    q_out_a_p5[9]   <= ~msb_p4;
+    q_out_a_p5[8]   <=  msb_p4;
+    q_out_a_p5[7:0] <= msb_p4 ? q_m_p4[7:0] : ~q_m_p4[7:0];
+    
+	q_out_b_p5[9] <= 1;
+	q_out_b_p5[8] <= msb_p4;
+	q_out_b_p5[7:0] <= ~q_m_p4;
+
+	q_out_c_p5[9] <= 0;
+	q_out_c_p5[8] <= msb_p4;
+	q_out_c_p5[7:0] <= q_m_p4;
+end
+
+
+
+wire [8:0] q_m;
+assign q_m = q_m_p5;
+
+
+reg signed [7:0] cnt = 0;
+reg signed [7:0] cntinc_p6;
+reg signed[7:0] cntinv;
+reg cntzero;
+
+reg signed[9:0] q_out_p6;
+
+always @(posedge clk) begin
+
+	if (pixel_stb_p4) begin 
+		cnt <= cnt + cntinc_p6;
+		cntzero <= (cntinc_p6==cntinv) ? 1'b1 : 1'b0;			
+	end
+
+	if (pixel_stb_p5) begin
+		if (window_p5) begin
+
+		    if ((cnt == 0) || difzero_p5) begin // (n1_q_m_p5 == 4'd4)) begin
+
+				q_out_p6 <= q_out_a_p5;
+
+		        if (msb_p5)
+		            cntinc_p6 <= n1minusn0_q_m_p5;
+		        else
+		            cntinc_p6 <= -n1minusn0_q_m_p5;
 
 		    end else begin
 
-		        if ( (cnt_prev > 0 & (N1(q_m[7:0]) > N0(q_m[7:0]))) |
-		                (cnt_prev < 0 & (N0(q_m[7:0]) > N1(q_m[7:0]))) ) begin
-		            q_out[9] <= 1;
-		            q_out[8] <= q_m[8];
-		            q_out[7:0] <= ~q_m[7:0];
-		            cnt = cnt_prev + 2*q_m[8] + (N0(q_m[7:0]) - N1(q_m[7:0]));
+//		        if ( (cnt > 0 && (n1minusn0_q_m_p5 > 0 )) ||
+//		                (cnt < 0 && (n1minusn0_q_m_p5 < 0 ))) begin
+				if(!cntzero && !difzero_p5 && (cnt[7]==n1minusn0_q_m_p5[5])) begin
+					q_out_p6 <= q_out_b_p5;
+		            cntinc_p6 <= cntinc_a_p5;
 		        end else begin
-		            q_out[9] <= 0;
-		            q_out[8] <= q_m[8];
-		            q_out[7:0] <= q_m[7:0];
-		            cnt = cnt_prev - {~q_m[8], 1'b0} + (N1(q_m[7:0]) - N0(q_m[7:0]));
-		        end /*
-		            (cnt_prev > 0 & N1(q_m[7:0]) > N0(q_m[7:0]))) |
-		            (cnt_prev < 0 & N0(q_m[7:0]) > N1(q_m[7:0])))
-		          */
+					q_out_p6 <= q_out_c_p5;
+		            cntinc_p6 <= cntinc_b_p5;
+		        end
 
-		    end /* ((cnt_prev == 0) | (N1(q_m[7:0]) == N0(q_m[7:0]))) */
+		    end
 
 		end else begin
-		    /* !DE */
-		    cnt = 0;
-		    /* hsync -> c0 | vsync -> c1 */
-		    case ({C1, C0})
-	`ifdef LEGACY_DVI_CONTROL_LUT
-		        /* dvi control data lut */
-		        2'b00: q_out <= 10'b00101_01011;
-		        2'b01: q_out <= 10'b11010_10100;
-		        2'b10: q_out <= 10'b00101_01010;
-		        2'b11: q_out <= 10'b11010_10101;
-	`else
-		        /* hdmi control data period */
-		        2'b00: q_out <= 10'b1101010100;
-		        2'b01: q_out <= 10'b0010101011;
-		        2'b10: q_out <= 10'b0101010100;
-		        2'b11: q_out <= 10'b1010101011;
-	`endif
-		    endcase
-
-		end /* DE */
-	    cnt_prev <= cnt;
-
-	end /* pixel_stb */
-
+		    cntinc_p6 <= 0;
+		    q_out_p6 <= q_sync_p5;
+		end
+		cntinv <= ~(cnt-1);
+	end
 end
 
+always @(posedge clk)
+	q_out <= q_out_p6;
+
 endmodule
+

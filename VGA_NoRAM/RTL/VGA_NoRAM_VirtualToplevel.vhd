@@ -146,7 +146,16 @@ vtimings : entity work.video_timings
 		-- Pixel positions
 		xpos => xpos,
 		ypos => ypos,
-		clkdiv => to_unsigned(5,4)
+		clkdiv => to_unsigned(3,4),
+		htotal => to_unsigned(1024-1,11),
+		hbstart => to_unsigned(800-1,11),
+		hsstart => to_unsigned(824-1,11),
+		hsstop => to_unsigned(896-1,11),
+
+		vtotal => to_unsigned(625-1,11),
+		vbstart => to_unsigned(600-1,11),
+		vsstart => to_unsigned(637-1,11),
+		vsstop => to_unsigned(643-1,11) 
 	);
 
 vga_red <= xpos(7 downto 0);

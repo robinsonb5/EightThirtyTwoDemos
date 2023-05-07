@@ -115,7 +115,7 @@ begin
 			end if;
 		end process;
 
-		tag_hit <= '1' when tag_q(31-taglsb downto 0) = cpu_addr(31 downto taglsb) else '0';
+		tag_hit <= '1' when tag_q(31-taglsb downto 0) = latched_cpuaddr(31 downto taglsb) else '0';
 		data_valid <= tag_q(31);
 		
 	end block;
@@ -154,7 +154,6 @@ begin
 
 
 	statemachine : block
-		signal cpu_req_d : std_logic;
 		signal flushpending : std_logic;
 		signal newreq : std_logic;
 	begin
@@ -173,8 +172,6 @@ begin
 				tag_wren<='0';
 				tag_w(31 downto 32-taglsb)<=(others => '0');
 				tag_w(31-taglsb downto 0) <= latched_cpuaddr(31 downto taglsb);
-				
-				cpu_req_d<=cpu_req;
 				
 				if flush='1' then
 					flushpending<='1';

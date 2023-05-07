@@ -78,7 +78,11 @@ begin
 
 	cpu_ack.busy <= wbfull;
 	cpu_ack.ack <= wback;
+	cpu_ack.burst<='0';
+	cpu_ack.strobe<='0';
 	cpu_ack.nak <= '0';
+	cpu_ack.q <= (others =>'X');
+	cpu_ack.err <= '0';
 
 	ram_req <= wb_req;
 	ram_flagsaddr <= wbflagsaddr;

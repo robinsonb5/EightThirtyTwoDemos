@@ -35,6 +35,16 @@ package sdram_controller_pkg is
 		bytesel : std_logic_vector(3 downto 0);
 	end record;
 	
+	constant sdram_port_request_null : sdram_port_request := (
+		addr => (others => 'X'),
+		req => '0',
+		burst => '0',
+		pri => '0',
+		wr => '0',
+		d => (others => '0'),
+		bytesel => (others =>'0')
+	);
+	
 	type sdram_port_response is record
 		busy : std_logic;	-- Indicate whether the port is able to accept a write
 		ack : std_logic;	-- For DMA ports, acknowledge the read request, for CPU port indicates a write was accepted

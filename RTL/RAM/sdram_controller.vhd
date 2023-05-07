@@ -58,20 +58,20 @@ port (
 	-- Read only ports:
 
 	-- Port 0 - Video
-	video_req : in sdram_port_request;
+	video_req : in sdram_port_request:= sdram_port_request_null;
 	video_ack : out sdram_port_response;
 
 	-- Port 1 - CPU cache
-	cache_req : in sdram_port_request;
+	cache_req : in sdram_port_request:= sdram_port_request_null;
 	cache_ack : out sdram_port_response;
 	
 	-- Port 2 - DMA
-	dma_req : in sdram_port_request;
+	dma_req : in sdram_port_request:= sdram_port_request_null;
 	dma_ack : out sdram_port_response;
 
 	-- Write only ports:
 
-	cpu_req : in sdram_port_request;
+	cpu_req : in sdram_port_request:= sdram_port_request_null;
 	cpu_ack : out sdram_port_response
 );
 end entity;
@@ -305,16 +305,22 @@ begin
 		cache_ack.q <= sdata_reg;
 		cache_ack.burst <= cacheburst;
 		cache_ack.strobe <= cachestrobe;
+		cache_ack.busy<='0';
+		cache_ack.err<='0';
 		
 		dmaburst <= '1' when (slot1_fill='1' and sdram_slot1=dma) or (slot2_fill='1' and sdram_slot2=dma) else '0';
 		dma_ack.q <= sdata_reg;
 		dma_ack.burst <= dmaburst;
 		dma_ack.strobe <= dmastrobe;
+		dma_ack.busy<='0';
+		dma_ack.err<='0';
 
 		videoburst <= '1' when (slot1_fill='1' and sdram_slot1=video) or (slot2_fill='1' and sdram_slot2=video) else '0';
 		video_ack.q <= sdata_reg;
 		video_ack.burst <= videoburst;
 		video_ack.strobe <= videostrobe;
+		video_ack.busy<='0';
+		video_ack.err<='0';
 
 	
 		--   sample SDRAM data - procedure varies with width:

@@ -60,13 +60,9 @@ architecture behavioural of FourWayCache is
 	signal cpu_req_d2 : std_logic;
 	signal cache_cpu_req : std_logic_vector(ways-1 downto 0);
 	signal way_hit : std_logic_vector(1 downto 0);
-	signal way_chosen : std_logic_vector(1 downto 0);
 	signal cache_valid : std_logic_vector(ways-1 downto 0);
 	signal busy_i : std_logic;
 begin
-
-	to_sdram.addr <= from_cpu.addr;
-	to_sdram.wr <= '0';
 
 	waylogic : block
 		signal way_req : std_logic;
@@ -120,7 +116,6 @@ begin
 				if cpu_req_d='1' and cpu_req_d2='0' then -- React to a delayed rising edge of cpu_req
 					if from_cpu.wr='0' then -- Read cycle
 						if cache_valid="0000" then
-							way_chosen<=wayselect_lru;
 							way_mru<=wayselect_lru;
 							way_req<='1';
 							case (wayselect_lru) is
@@ -210,7 +205,6 @@ begin
 					flush => flush
 				);
 
---			cache_sdram_fill(i) <= from_sdram.burst when way_chosen=std_logic_vector(to_unsigned(i,2)) else '0';
 		end generate;
 
 		way_hit <= "00" when cache_valid(0)='1' else
@@ -227,7 +221,18 @@ begin
 			firstword;
 
 		to_cpu.ack<='0' when (firstword_advance='0' and cache_valid="0000") or (from_cpu.req='0' or from_cpu.wr='1') else '1';
+		to_cpu.nak<='0';
+		to_cpu.err<='0';
+		to_cpu.burst<='0';
+		to_cpu.strobe<='0';
+		
+		to_sdram.addr<=from_cpu.addr;
+		to_sdram.wr<='0';
+		to_sdram.burst<='1';
+		to_sdram.pri<='0';
 		to_sdram.req<='0' when cache_sdram_req="0000" else '1';
+		to_sdram.d<=(others => '0');
+		to_sdram.bytesel<=(others => '1');
 		
 		busy_i <= '0' when cache_busy="0000" else '1';
 		to_cpu.busy <= busy_i when wayselect_ready='1' and cache_ready="1111" else '1';

@@ -43,6 +43,7 @@ module dvi #(parameter DDR_ENABLED=0) (
 
 localparam OUT_TMDS_MSB = DDR_ENABLED ? 1 : 0;
 
+
 /* */
 wire [9:0] tmds_red;
 wire [9:0] tmds_green;
@@ -66,18 +67,34 @@ reg [9:0] tmds_shift_clk_n    = 0;
 wire [9:0] tmds_pixel_clk = 10'b00000_11111;
 /* ddr 5 shifts a 2 bits, sdr 10 shifts a 1 bit */
 
-wire max_shifts_reached = tmds_modulo == (DDR_ENABLED ? 4 : 9);
+wire max_shifts_reached = (tmds_modulo == (DDR_ENABLED ? 4 : 9));
 always @(posedge tmds_clk) tmds_modulo      <= max_shifts_reached ? 0 : tmds_modulo + 1;
 always @(posedge tmds_clk) tmds_shift_load  <= max_shifts_reached;
 
+reg [9:0] tmds_red_r;
+reg [9:0] tmds_green_r;
+reg [9:0] tmds_blue_r;
+reg [9:0] tmds_red_ri;
+reg [9:0] tmds_green_ri;
+reg [9:0] tmds_blue_ri;
+
 always @(posedge tmds_clk) begin
-    tmds_shift_red    <= tmds_shift_load ? tmds_red       : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_red   [9: DDR_ENABLED ? 2 : 1]};
-    tmds_shift_green  <= tmds_shift_load ? tmds_green     : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_green [9: DDR_ENABLED ? 2 : 1]};
-    tmds_shift_blue   <= tmds_shift_load ? tmds_blue      : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_blue  [9: DDR_ENABLED ? 2 : 1]};
+	tmds_red_r <= tmds_red;
+	tmds_green_r <= tmds_green;
+	tmds_blue_r <= tmds_blue;
+	tmds_red_ri <= ~tmds_red;
+	tmds_green_ri <= ~tmds_green;
+	tmds_blue_ri <= ~tmds_blue;
+end
+
+always @(posedge tmds_clk) begin
+    tmds_shift_red    <= tmds_shift_load ? tmds_red_r       : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_red   [9: DDR_ENABLED ? 2 : 1]};
+    tmds_shift_green  <= tmds_shift_load ? tmds_green_r     : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_green [9: DDR_ENABLED ? 2 : 1]};
+    tmds_shift_blue   <= tmds_shift_load ? tmds_blue_r      : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_blue  [9: DDR_ENABLED ? 2 : 1]};
     tmds_shift_clk    <= tmds_shift_load ? tmds_pixel_clk : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_clk   [9: DDR_ENABLED ? 2 : 1]};
-    tmds_shift_red_n    <= ~(tmds_shift_load ? tmds_red       : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_red   [9: DDR_ENABLED ? 2 : 1]});
-    tmds_shift_green_n  <= ~(tmds_shift_load ? tmds_green     : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_green [9: DDR_ENABLED ? 2 : 1]});
-    tmds_shift_blue_n   <= ~(tmds_shift_load ? tmds_blue      : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_blue  [9: DDR_ENABLED ? 2 : 1]});
+    tmds_shift_red_n    <= tmds_shift_load ? tmds_red_ri       : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_red_n   [9: DDR_ENABLED ? 2 : 1]};
+    tmds_shift_green_n  <= tmds_shift_load ? tmds_green_ri     : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_green_n [9: DDR_ENABLED ? 2 : 1]};
+    tmds_shift_blue_n   <= tmds_shift_load ? tmds_blue_ri      : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_blue_n  [9: DDR_ENABLED ? 2 : 1]};
     tmds_shift_clk_n    <= ~(tmds_shift_load ? tmds_pixel_clk : {DDR_ENABLED ? 2'b00 : 1'b0, tmds_shift_clk   [9: DDR_ENABLED ? 2 : 1]});
 end
 

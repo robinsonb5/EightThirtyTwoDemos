@@ -589,7 +589,14 @@ begin
 		from_ram(31 downto 24)<=cache_to_cpu.q(7 downto 0);
 
 		cpu_to_sdram.addr<=cpu_addr;
+		cpu_to_sdram.burst<='0';
+		cpu_to_sdram.pri<='0';
+
 		cpu_to_cache.addr<=cpu_addr;
+		cpu_to_cache.burst<='0';
+		cpu_to_cache.pri<='0';
+		cpu_to_cache.bytesel<=(others => '0'); -- Ensure writes always flush the cacheway.  FIXME - why doesn't updating the cacheway work?
+		cpu_to_cache.d<=(others => '0');
 
 		process(clk,reset_n) begin
 			if reset_n='0' then
