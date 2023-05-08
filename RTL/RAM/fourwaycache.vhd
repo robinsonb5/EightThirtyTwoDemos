@@ -146,7 +146,6 @@ begin
 	cachelogic : block
 		signal cache_ready : std_logic_vector(ways-1 downto 0);
 		signal cache_busy : std_logic_vector(ways-1 downto 0);
---		signal cache_sdram_fill : std_logic_vector(ways-1 downto 0);
 		signal cache_sdram_req : std_logic_vector(ways-1 downto 0);
 		type cachedata_t is array(0 to 3) of std_logic_vector(31 downto 0);
 		signal cachedata : cachedata_t;

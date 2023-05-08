@@ -70,7 +70,7 @@ architecture behavioural of cacheway is
 		S_FILL, S_PAUSE1);
 	signal state : states_t := S_INIT;
 
-	signal readword : unsigned(burstlog2-1 downto 0);
+	signal storeword : unsigned(burstlog2-1 downto 0);
 
 	signal latched_cpuaddr : std_logic_vector(31 downto 0);
 
@@ -134,7 +134,7 @@ begin
 		-- from the CPU address; when writing to the cache it's determined by the state
 		-- machine.
 
-		data_wa <= latched_cpuaddr(cachemsb downto taglsb)&std_logic_vector(readword);
+		data_wa <= latched_cpuaddr(cachemsb downto taglsb)&std_logic_vector(storeword);
 		data_ra <= cpu_addr(cachemsb downto 2);
 
 		process(clk) begin
@@ -155,7 +155,7 @@ begin
 
 	statemachine : block
 		signal flushpending : std_logic;
-		signal newreq : std_logic;
+--		signal newreq : std_logic;
 	begin
 		data_to_cpu <= data_q;
 		busy <= busy_i;
@@ -176,10 +176,6 @@ begin
 				if flush='1' then
 					flushpending<='1';
 				end if;
-
-				if cpu_req='0' then
-					newreq<='1';
-				end if;
 				
 				case state is
 
@@ -192,31 +188,33 @@ begin
 
 					when S_FLUSH1 =>
 						latched_cpuaddr<=std_logic_vector(to_unsigned(2**taglsb,32));
-						readword<=(0=>'1',others =>'0');
+						storeword<=(0=>'1',others =>'0');
 						tag_wren<='1';	-- Invalidate the cacheline
 						state<=S_FLUSH2;
 
 					when S_FLUSH2 =>
-						if readword=0 then
+						if storeword=0 then
 							latched_cpuaddr<=std_logic_vector(unsigned(latched_cpuaddr)+2**taglsb);
 						end if;
-						readword<=readword+1;
+						storeword<=storeword+1;
 						tag_wren<='1';	-- Invalidate the cacheline
-						if unsigned(latched_cpuaddr(cachemsb+1 downto taglsb))=0 and readword=0 then
+						if unsigned(latched_cpuaddr(cachemsb+1 downto taglsb))=0 and storeword=0 then
 							state<=S_WAITING;
 							flushpending<='0';
 						end if;
 
 					when S_WAITING =>
+						-- In the interests of performance, read the word we're waiting for first.
+						storeword<=unsigned(cpu_addr(burstlog2+1 downto 2));
+
 						state<=S_WAITING;
 						ready<='1';
 						busy_i <= '0';
 						latched_cpuaddr<=cpu_addr;
 						if cpu_req='1' then
-							newreq<='0';
 							if cpu_wr='0' then -- Read cycle
 								state<=S_WAITRD;
-							elsif newreq='1' then	-- Write cycle
+							else
 								state<=S_WRITE1;
 							end if;
 						end if;
@@ -225,15 +223,15 @@ begin
 						end if;
 
 					when S_WRITE1 =>
-						if tag_hit='1' then 
+						data_w<=data_from_cpu;
+						if tag_hit='1' and data_valid='1' then 
 							if cpu_bytesel="1111" then -- Update the complete word
-								data_w<=data_from_cpu;
 								data_wren<='1';
 							else
 								tag_wren<='1';	-- Invalidate the cacheline
 							end if;
 						end if;
-						state<=S_WAITING;
+						state<=S_PAUSE1;
 
 					when S_WAITRD =>
 						if cpu_req='1' then -- Read cycle
@@ -256,9 +254,6 @@ begin
 						end if;
 					
 					when S_WAITFILL =>
-						-- In the interests of performance, read the word we're waiting for first.
-						readword<=unsigned(latched_cpuaddr(burstlog2+1 downto 2));
-
 						if sdram_strobe='1' then
 							sdram_req<='0';
 							-- write first word to Cache...
@@ -270,14 +265,14 @@ begin
 					when S_FILL =>
 						-- write next word to Cache...
 						if sdram_strobe='1' then
-							readword<=readword+1;
+							storeword<=storeword+1;
 							data_w<=data_from_sdram;
 							data_wren<='1';
 						end if;
 						if sdram_burst='0' then
 							tag_w(31)<='1';	-- Mark the cacheline as valid.
 							tag_wren<='1';
-							readword<=unsigned(latched_cpuaddr(burstlog2+1 downto 2));
+							storeword<=unsigned(latched_cpuaddr(burstlog2+1 downto 2));
 							state<=S_WAITING;
 						end if;
 
