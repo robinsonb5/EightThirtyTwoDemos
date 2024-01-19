@@ -44,7 +44,7 @@ int main(int argc,char **argv)
 		}
 	}
 	else
-		printf("Chdir failed\n",);
+		printf("Chdir failed\n");
 	printf("Done\n");
 	return(0);
 }

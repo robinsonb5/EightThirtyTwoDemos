@@ -71,7 +71,7 @@ architecture rtl of sound_controller is
 	signal volume : signed(6 downto 0);
 	signal pan : std_logic_vector(1 downto 0);
 	signal format : std_logic_vector(1 downto 0);
-	signal mode : std_logic_vector(1 downto 0);
+	signal mode : std_logic_vector(0 downto 0);
 
 	-- Sound data
 	signal byte : unsigned(1 downto 0);
@@ -231,7 +231,7 @@ begin
 					when X"18" => -- Sample format
 						format <= reg_data_in(1 downto 0);
 					when X"1C" => -- Mode
-						mode <= reg_data_in(1 downto 0);
+						mode <= reg_data_in(0 downto 0);
 					when others =>
 				end case;
 			end if;

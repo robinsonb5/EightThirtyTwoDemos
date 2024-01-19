@@ -20,6 +20,7 @@ off_t lseek(int fd,  off_t offset, int whence);
 int fstat(int fd, struct stat *buf);
 int stat(const char *path, struct stat *buf);
 int isatty(int fd);
+int chdir(const char *path);
 //void setbuf(FILE *f,char *buf);
 //int fprintf(FILE *f,const char *fmt, ...);
 #endif

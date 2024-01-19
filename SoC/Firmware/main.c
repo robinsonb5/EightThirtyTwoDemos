@@ -9,6 +9,7 @@
 #include <minfat.h>
 #include <hw/cachecontrol.h>
 #include "dualthread.h"
+#include "memcheck.h"
 
 // #define Breadcrumb(x) HW_UART(REG_UART)=x;
 
@@ -297,6 +298,10 @@ int main(int argc,char **argv)
 			if(r&(1<<REG_UART_RXINT))
 			{
 				c=r&255;
+				if(c=='m')
+				{
+					MemCheck(BOOT_ADDR);
+				}
 				if(c==27)
 				{
 					if(havesd && LoadFileAbs("BOOT832 BIN",BOOT_ADDR))

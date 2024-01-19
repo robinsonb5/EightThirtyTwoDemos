@@ -80,7 +80,7 @@ architecture rtl of sdram_controller is
 	signal initstate	:unsigned(3 downto 0) := (others => '0');	-- Counter used to initialise the RAM
 	signal init_done	:std_logic :='0';
 	signal datain		:std_logic_vector(sdram_width-1 downto 0);
-	signal casaddr		:std_logic_vector(31 downto 0);
+	signal casaddr		:std_logic_vector(sdram_colbits-1 downto 0);
 	signal sdwrite 		:std_logic;
 	signal sdata_reg	:std_logic_vector(31 downto 0);
 
@@ -511,7 +511,7 @@ begin
 						ba <= nextaddr(sdram_bank_high downto sdram_bank_low);
 						slot1_bank <= nextaddr(sdram_bank_high downto sdram_bank_low);
 						slot1_precharge_bank <= nextaddr(sdram_bank_high downto sdram_bank_low);
-						casaddr <= nextaddr; -- read whole cache line in burst mode.
+						casaddr <= nextaddr(sdram_col_high downto sdram_col_low); -- read whole cache line in burst mode.
 						if nextport/=idle then
 							bankbusy(to_integer(unsigned(nextaddr(sdram_bank_high downto sdram_bank_low))))<='1';
 							if video_extend='0' then
@@ -554,7 +554,7 @@ begin
 					when ph5 => -- Read command
 						if slot1read='1' then
 							sdaddr <= (others=>'0');
-							sdaddr((sdram_colbits-1) downto 0) <= casaddr(sdram_col_high downto sdram_col_low) ;--auto precharge
+							sdaddr((sdram_colbits-1) downto 0) <= casaddr;
 							sdaddr(10) <= slot1_autoprecharge; -- Auto precharge.
 							ba <= slot1_bank;
 							sd_cs <= '0';
@@ -610,7 +610,7 @@ begin
 						ba <= nextaddr(sdram_bank_high downto sdram_bank_low);
 						slot2_bank <= nextaddr(sdram_bank_high downto sdram_bank_low);
 						slot2_precharge_bank <= nextaddr(sdram_bank_high downto sdram_bank_low);
-						casaddr <= nextaddr; -- read whole cache line in burst mode.
+						casaddr <= nextaddr(sdram_col_high downto sdram_col_low); -- read whole cache line in burst mode.
 
 						if nextport/=idle then
 							bankbusy(to_integer(unsigned(nextaddr(sdram_bank_high downto sdram_bank_low))))<='1';
@@ -658,7 +658,7 @@ begin
 					when ph13 =>
 						if slot2read='1' then
 							sdaddr <= (others=>'0');
-							sdaddr((sdram_colbits-1) downto 0) <= casaddr(sdram_col_high downto sdram_col_low) ;--auto precharge
+							sdaddr((sdram_colbits-1) downto 0) <= casaddr;
 							sdaddr(10) <= slot2_autoprecharge; -- Auto precharge.
 							ba <= slot2_bank;
 							sd_cs <= '0';

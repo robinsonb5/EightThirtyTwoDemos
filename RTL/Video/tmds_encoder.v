@@ -72,8 +72,8 @@ always @(posedge clk) begin
 	window_p1<=window;
 end
 
-reg [7:0] q_m_a_t;
-reg [7:0] q_m_a_p1;
+reg [7:0] q_m_a_t=0;
+reg [7:0] q_m_a_p1=0;
 
 always @(posedge clk) begin
 	q_m_a_t[0] =           D[0];
@@ -84,8 +84,8 @@ always @(posedge clk) begin
 	q_m_a_p1 <= q_m_a_t;
 end
 
-reg [7:0] q_m_b_t;
-reg [7:0] q_m_b_p1;
+reg [7:0] q_m_b_t=0;
+reg [7:0] q_m_b_p1=0;
 
 always @(posedge clk) begin
 	q_m_b_t[0] =           D[0];

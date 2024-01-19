@@ -90,6 +90,8 @@ architecture rtl of ulx3s_85f_top is
 	signal clk_sdram : std_logic;
 	signal clk_sys : std_logic;
 	signal clk_slow : std_logic;
+	signal clk_video : std_logic;
+	signal clk_video_src : std_logic;
 	signal clk_tmds : std_logic;
 	signal pll_locked : std_logic;
 
@@ -128,7 +130,7 @@ begin
 		clk_o(0) => clk_sys,
 		clk_o(1) => clk_sdram,
 		clk_o(2) => clk_slow,
-		clk_o(3) => clk_tmds,
+		clk_o(3) => clk_video_src,
 		locked   => pll_locked
 	);
 
@@ -145,6 +147,7 @@ begin
 	port map(
 		clk => clk_sys,
 		slowclk => clk_slow,
+		videoclk => clk_video,
 		reset_in => reset_n,
 		txd => ftdi_rxd,
 		rxd => ftdi_txd,
@@ -212,11 +215,7 @@ begin
 			out_tmds_red : out std_logic_vector(useddr downto 0);
 			out_tmds_green : out std_logic_vector(useddr downto 0);
 			out_tmds_blue : out std_logic_vector(useddr downto 0);
-			out_tmds_clk : out std_logic_vector(useddr downto 0);
-			out_tmds_red_n : out std_logic_vector(useddr downto 0);
-			out_tmds_green_n : out std_logic_vector(useddr downto 0);
-			out_tmds_blue_n : out std_logic_vector(useddr downto 0);
-			out_tmds_clk_n : out std_logic_vector(useddr downto 0)
+			out_tmds_clk : out std_logic_vector(useddr downto 0)
 		); end component;
 		
 		component ODDRX1F
@@ -228,23 +227,89 @@ begin
 			RST : in std_logic
 		); end component;
 
+		component DCSC
+		generic (
+			DCSMODE : string := "POS"
+		);
+		port (
+			CLK1, CLK0 : in std_logic;
+			SEL1, SEL0 : in std_logic;
+			MODESEL : in std_logic;
+			DCSOUT : out std_logic
+		);
+		end component;
+
+		signal pcnt : unsigned(3 downto 0);
+		signal clksel : std_logic_vector(1 downto 0);
+
 		signal dvi_r : std_logic_vector(useddr downto 0);
 		signal dvi_g : std_logic_vector(useddr downto 0);
 		signal dvi_b : std_logic_vector(useddr downto 0);
 		signal dvi_clk : std_logic_vector(useddr downto 0);
-		signal dvi_r_n : std_logic_vector(useddr downto 0);
-		signal dvi_g_n : std_logic_vector(useddr downto 0);
-		signal dvi_b_n : std_logic_vector(useddr downto 0);
-		signal dvi_clk_n : std_logic_vector(useddr downto 0);
+		signal vidclks : std_logic_vector(3 downto 0);
 		
 	begin
+
+		process(clk_video) begin
+
+			-- Clock multiplexing:  Video timings are derived from a 150MHz clock.
+			-- vga_pixel is high for one cycle at the start of each pixel, so by counting
+			-- the number of clocks between each pulse we can determine the pixel clock and
+			-- thus the appropriate TMDS clock to use.
+			-- We will see a pcnt value of 1 for 75MHz modes, 2 for 50MHz modes, 3 for 37.5MHz
+			-- 4 for 30MHz, and 5 for 25MHz.
+			-- Since we don't seem to be able to cascade DCSCs, we're stuck with just two
+			-- TDMS clocks, which will be 5*75MHz and 5*50Mhz.
+			if rising_edge(clk_video) then
+				if vga_pixel='1' then
+					pcnt <=(others => '0');
+					clksel(0)<='0';
+					case pcnt is 
+						when X"5" => -- 25MHz pixel clock
+							clksel(0) <= '1';
+						when X"2" => -- 50Mhz pixel clock
+							clksel(0) <= '1';
+						when others =>
+							null;
+					end case;
+				else
+					pcnt<=pcnt+1;
+				end if;
+			end if;
+			clksel(1) <= not clksel(0);
+		end process;
+
+		vidpll : entity work.ecp5pll
+		generic map(
+			in_hz => 150000,
+			out0_hz => 250000,
+			out1_hz => 375000,
+			out2_hz => 150000
+		)
+		port map (
+			clk_i => clk_video_src,
+			clk_o => vidclks
+		);
+		
+		clkmux1 : component DCSC
+		port map (
+			CLK0 => vidclks(0),
+			CLK1 => vidclks(1),
+			SEL1 => clksel(1),
+			SEL0 => clksel(0),
+			MODESEL => '1',
+			DCSOUT => clk_tmds
+		);
+
+		clk_video <= vidclks(2);
+
 
 		dvi_inst : component dvi
 		generic map (
 			DDR_ENABLED => useddr
 		)
 		port map (
-			pclk => clk_sys,
+			pclk => clk_video,
 			tmds_clk => clk_tmds,
 
 			in_vga_red => vga_r_i,
@@ -259,11 +324,7 @@ begin
 			out_tmds_red => dvi_r,
 			out_tmds_green => dvi_g,
 			out_tmds_blue => dvi_b,
-			out_tmds_clk => dvi_clk,
-			out_tmds_red_n => dvi_r_n,
-			out_tmds_green_n => dvi_g_n,
-			out_tmds_blue_n => dvi_b_n,
-			out_tmds_clk_n => dvi_clk_n
+			out_tmds_clk => dvi_clk
 		);
 
 		dviout_c : component ODDRX1F port map (D0 => dvi_clk(0), D1=>dvi_clk(1), Q => gpdi_dp(3), SCLK =>clk_tmds, RST=>'0');

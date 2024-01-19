@@ -33,7 +33,7 @@ clean :
 	$(ROMGEN) -b -w $*.bin >>$*_ROM_word.vhd
 	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_word.vhd
 
-SoC.bin : $(LIBDIR)/dualcrt0.a $(LIBDIR)/lib832.a thread2boot.o main.o ../../lib832soc/lib832soc.a
+SoC.bin : $(LIBDIR)/dualcrt0.a $(LIBDIR)/lib832.a thread2boot.o main.o memcheck.o ../../lib832soc/lib832soc.a
 	$(LD) -m $@.map -o $@ $+
 	grep __bss_end__ $@.map
 
