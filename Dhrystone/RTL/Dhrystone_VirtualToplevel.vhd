@@ -201,7 +201,7 @@ myuart : entity work.jtag_uart
 	)
 	port map(
 		clk => clk,
-		reset => reset_n, -- active low
+		reset => '1', -- active low
 		txdata => ser_txdata,
 		txready => ser_txready,
 		txgo => ser_txgo,

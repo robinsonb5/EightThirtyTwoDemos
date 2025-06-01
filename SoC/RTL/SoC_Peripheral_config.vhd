@@ -6,5 +6,7 @@ package SoC_Peripheral_config is
 	constant SoC_BlockBits : integer := 4;
 	constant SoC_Block_HighBit : integer := 11;
 	constant SoC_Block_LowBit : integer := 8;
+	constant SoC_Register_HighBit : integer := 7;
+	constant SoC_Register_LowBit : integer := 0;
 end package;
 

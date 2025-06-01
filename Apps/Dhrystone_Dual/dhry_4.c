@@ -17,7 +17,6 @@
 
 #include "dhry.h"
 //#include <sys/null.h>
-#include <stddef.h>
 #include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
@@ -28,8 +27,8 @@
         /* i.e. no register variables   */
 #endif
 
-extern  int     Int_Glob;
-extern  char    Ch_1_Glob;
+extern  int     t2_Int_Glob;
+extern  char    t2_Ch_1_Glob;
 
 #if 0
 #define strcmp _strcmp
@@ -51,7 +50,7 @@ int _strcmp(const char *s1,const char *s2)
 }
 #endif 
 
-Proc_6 (Enum_Val_Par, Enum_Ref_Par)
+t2_Proc_6 (Enum_Val_Par, Enum_Ref_Par)
 /*********************************/
     /* executed once */
     /* Enum_Val_Par == Ident_3, Enum_Ref_Par becomes Ident_2 */
@@ -60,7 +59,7 @@ Enumeration  Enum_Val_Par;
 Enumeration *Enum_Ref_Par;
 {
   *Enum_Ref_Par = Enum_Val_Par;
-  if (! Func_3 (Enum_Val_Par))
+  if (! t2_Func_3 (Enum_Val_Par))
     /* then, not executed */
     *Enum_Ref_Par = Ident_4;
   switch (Enum_Val_Par)
@@ -69,7 +68,7 @@ Enumeration *Enum_Ref_Par;
       *Enum_Ref_Par = Ident_1;
       break;
     case Ident_2: 
-      if (Int_Glob > 100)
+      if (t2_Int_Glob > 100)
         /* then */
       *Enum_Ref_Par = Ident_1;
       else *Enum_Ref_Par = Ident_4;
@@ -82,10 +81,10 @@ Enumeration *Enum_Ref_Par;
       *Enum_Ref_Par = Ident_3;
       break;
   } /* switch */
-} /* Proc_6 */
+} /* t2_Proc_6 */
 
 
-Proc_7 (Int_1_Par_Val, Int_2_Par_Val, Int_Par_Ref)
+t2_Proc_7 (Int_1_Par_Val, Int_2_Par_Val, Int_Par_Ref)
 /**********************************************/
     /* executed three times                                      */ 
     /* first call:      Int_1_Par_Val == 2, Int_2_Par_Val == 3,  */
@@ -102,10 +101,10 @@ One_Fifty      *Int_Par_Ref;
 
   Int_Loc = Int_1_Par_Val + 2;
   *Int_Par_Ref = Int_2_Par_Val + Int_Loc;
-} /* Proc_7 */
+} /* t2_Proc_7 */
 
 
-Proc_8 (Arr_1_Par_Ref, Arr_2_Par_Ref, Int_1_Par_Val, Int_2_Par_Val)
+t2_Proc_8 (Arr_1_Par_Ref, Arr_2_Par_Ref, Int_1_Par_Val, Int_2_Par_Val)
 /*********************************************************************/
     /* executed once      */
     /* Int_Par_Val_1 == 3 */
@@ -127,11 +126,11 @@ int             Int_2_Par_Val;
   }
   Arr_2_Par_Ref [Int_Loc] [Int_Loc-1] += 1;
   Arr_2_Par_Ref [Int_Loc+20] [Int_Loc] = Arr_1_Par_Ref [Int_Loc];
-  Int_Glob = 5;
-} /* Proc_8 */
+  t2_Int_Glob = 5;
+} /* t2_Proc_8 */
 
 
-Enumeration Func_1 (Ch_1_Par_Val, Ch_2_Par_Val)
+Enumeration t2_Func_1 (Ch_1_Par_Val, Ch_2_Par_Val)
 /*************************************************/
     /* executed three times                                         */
     /* first call:      Ch_1_Par_Val == 'H', Ch_2_Par_Val == 'R'    */
@@ -151,13 +150,13 @@ Capital_Letter   Ch_2_Par_Val;
     return (Ident_1);
   else  /* not executed */
   {
-    Ch_1_Glob = Ch_1_Loc;
+    t2_Ch_1_Glob = Ch_1_Loc;
     return (Ident_2);
    }
-} /* Func_1 */
+} /* t2_Func_1 */
 
 
-Boolean Func_2 (Str_1_Par_Ref, Str_2_Par_Ref)
+Boolean t2_Func_2 (Str_1_Par_Ref, Str_2_Par_Ref)
 /*************************************************/
     /* executed once */
     /* Str_1_Par_Ref == "DHRYSTONE PROGRAM, 1'ST STRING" */
@@ -170,7 +169,7 @@ Str_30  Str_2_Par_Ref;
       Capital_Letter    Ch_Loc;
   Int_Loc = 2;
   while (Int_Loc <= 2) /* loop body executed once */
-    if (Func_1 (Str_1_Par_Ref[Int_Loc],
+    if (t2_Func_1 (Str_1_Par_Ref[Int_Loc],
                 Str_2_Par_Ref[Int_Loc+1]) == Ident_1)
       /* then, executed */
     {
@@ -189,16 +188,16 @@ Str_30  Str_2_Par_Ref;
       /* then, not executed */
     {
       Int_Loc += 7;
-      Int_Glob = Int_Loc;
+      t2_Int_Glob = Int_Loc;
       return (true);
     }
     else /* executed */
       return (false);
   } /* if Ch_Loc */
-} /* Func_2 */
+} /* t2_Func_2 */
 
 
-Boolean Func_3 (Enum_Par_Val)
+Boolean t2_Func_3 (Enum_Par_Val)
 /***************************/
     /* executed once        */
     /* Enum_Par_Val == Ident_3 */
@@ -212,5 +211,5 @@ Enumeration Enum_Par_Val;
     return (true);
   else /* not executed */
     return (false);
-} /* Func_3 */
+} /* t2_Func_3 */
 

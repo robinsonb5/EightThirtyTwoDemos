@@ -22,11 +22,15 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdarg.h>
+//#include "tiny_printf.h"
 #include <stdio.h>
 #ifndef __GNUC__
-#include <hw/timer.h>
-#include <hw/vga.h>
+#include "hw/timer.h"
+#include "hw/vga.h"
 #endif
+
+
+int threadlock;
 
 /* Global Variables: */
 
@@ -119,7 +123,8 @@ int main ()
   REG   int             Run_Index;
 
   /* Initializations */
-	HW_VGA(FRAMEBUFFERPTR)=0x01000000; /* Move the framebuffer out of bank zero */
+  HW_VGA(FRAMEBUFFERPTR)=0x01000000; /* Move the framebuffer out of bank zero */
+ 
 
 //  Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
 //  Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
@@ -132,18 +137,17 @@ int main ()
   Ptr_Glob->variant.var_1.Enum_Comp     = Ident_3;
   Ptr_Glob->variant.var_1.Int_Comp      = 40;
 
-
   strcpy (Ptr_Glob->variant.var_1.Str_Comp, 
           "DHRYSTONE PROGRAM, SOME STRING");
   strcpy (Str_1_Loc, "DHRYSTONE PROGRAM, 1'ST STRING");
-
+//	printf("%s\n",Ptr_Glob->variant.var_1.Str_Comp);
   Arr_2_Glob [8][7] = 10;
         /* Was missing in published program. Without this statement,    */
         /* Arr_2_Glob [8][7] would have an undefined value.             */
         /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
         /* overflow may occur for this array element.                   */
   printf ("\n");
-  printf ("(1st thread) Dhrystone Benchmark, Version 2.1 (Language: C)\n");
+  printf ("Dhrystone Benchmark, Version 2.1 (Language: C) (Dual-threaded version)\n");
   printf ("\n");
   if (Reg)
   {
@@ -216,7 +220,6 @@ int main ()
       /* Int_1_Loc == 1, Int_2_Loc == 13, Int_3_Loc == 7 */
     Proc_2 (&Int_1_Loc);
       /* Int_1_Loc == 5 */
-
   } /* loop "for Run_Index" */
 
   /**************/
@@ -241,7 +244,6 @@ int main ()
 
 printf("Checking results...\n");
 
-#if 1
 checkparam("Int_Glob",Int_Glob,5);
 checkparam("Bool_Glob",Bool_Glob,1);
 checkparam("Ch_1_Glob",Ch_1_Glob,'A');
@@ -263,7 +265,6 @@ checkparam("Int_3_Loc",Int_3_Loc,7);
 checkparam("Enum_Loc",Enum_Loc,1);
 checksparam("Str_1_Loc",Str_1_Loc,"DHRYSTONE PROGRAM, 1'ST STRING");
 checksparam("Str_2_Loc",Str_2_Loc,"DHRYSTONE PROGRAM, 2'ND STRING");
-#endif 
 
 #if 1
   printf ("Execution ends\n");
@@ -356,11 +357,7 @@ checksparam("Str_2_Loc",Str_2_Loc,"DHRYSTONE PROGRAM, 2'ND STRING");
     printf ("VAX MIPS rating * 1000 = %d \n",(int)Vax_Mips);
     printf ("\n");
   }
-	while(!thread_asleep())
-		;
-	printf("Waking second thread\n");
-  thread_wake(); 
-
+  threadlock=0;
 
   return 0;
 }

@@ -6,13 +6,13 @@ library work;
 use work.Toplevel_Config.ALL;
 
 
-entity CoreBoard_Toplevel is
+entity coreboard_top is
 port(
 	CLK50M : in std_logic;
 	KEY0 : in std_logic;
 	KEY1 : in std_logic;
 	LED : out std_logic_vector(1 downto 0);
-	CK : in std_logic_vector(3 downto 0); -- Alias SW(3 downto 0)
+	SW : in std_logic_vector(3 downto 0);
 	-- SDRAM interface
 	SDRAM_Addr : out std_logic_vector(12 downto 0);
 	SDRAM_BA : out std_logic_vector(1 downto 0);
@@ -29,10 +29,12 @@ port(
 );
 end entity;
 
-architecture rtl of CoreBoard_Toplevel is
+architecture rtl of coreboard_top is
 
 signal sysclk : std_logic;
 signal slowclk : std_logic;
+signal videoclk : std_logic;
+signal pll_locked : std_logic;
 signal reset : std_logic;
 signal UART_TXD : std_logic;
 signal UART_RXD : std_logic;
@@ -119,7 +121,7 @@ end process;
 process(sysclk)
 begin
 	if rising_edge(sysclk) then
-		reset <= KEY0;
+		reset <= KEY0 and pll_locked;
 	end if;
 end process;
 
@@ -131,27 +133,32 @@ port map(
 	inclk0 => CLK50M,
 	c0 => SDRAM_CLK,
 	c1 => sysclk,
-	c2 => slowclk
+	c2 => slowclk,
+	c3 => videoclk,
+	locked => pll_locked
 );
 
 -- Main project instance.
 
-myproject : entity work.VirtualToplevel
+project : entity work.VirtualToplevel
 		generic map(
 			sdram_rows => 13,
 			sdram_cols => 9,
-			sysclk_frequency => 1000
+			sysclk_frequency => 1000,
+			jtag_uart => true,
+			debug => false
 	)
 		port map(
 			clk => sysclk,
 			slowclk => slowclk,
+			videoclk => videoclk,
 			reset_in => reset,
 
 			-- SDRAM - presenting a single interface to both chips.
 			sdr_addr => SDRAM_Addr,
 			sdr_data_in => SDRAM_DQ,
 			sdr_data_out => SDRAM_DQ,
-			sdr_ba => SDRsAM_BA,
+			sdr_ba => SDRAM_BA,
 			sdr_cke => SDRAM_CKE,
 			sdr_dqm => SDRAM_DQM,
 			sdr_cs => SDRAM_CS_N,
@@ -183,7 +190,7 @@ sd: component hybrid_pwm_sd
 		d_l => std_logic_vector(audio_l),
 		q_l => sd_left,
 		d_r => std_logic_vector(audio_l),
-		q_r => sd_left
+		q_r => sd_right
 	);
 end generate;
 

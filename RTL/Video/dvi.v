@@ -31,14 +31,14 @@ module dvi #(parameter DDR_ENABLED=0) (
            input in_vga_pixel,
            input in_vga_window,
 
-           output [OUT_TMDS_MSB:0] out_tmds_red,
-           output [OUT_TMDS_MSB:0] out_tmds_green,
-           output [OUT_TMDS_MSB:0] out_tmds_blue,
-           output [OUT_TMDS_MSB:0] out_tmds_clk,
-           output [OUT_TMDS_MSB:0] out_tmds_red_n,
-           output [OUT_TMDS_MSB:0] out_tmds_green_n,
-           output [OUT_TMDS_MSB:0] out_tmds_blue_n,
-           output [OUT_TMDS_MSB:0] out_tmds_clk_n
+           output [DDR_ENABLED:0] out_tmds_red,
+           output [DDR_ENABLED:0] out_tmds_green,
+           output [DDR_ENABLED:0] out_tmds_blue,
+           output [DDR_ENABLED:0] out_tmds_clk,
+           output [DDR_ENABLED:0] out_tmds_red_n,
+           output [DDR_ENABLED:0] out_tmds_green_n,
+           output [DDR_ENABLED:0] out_tmds_blue_n,
+           output [DDR_ENABLED:0] out_tmds_clk_n
        );
 
 localparam OUT_TMDS_MSB = DDR_ENABLED ? 1 : 0;

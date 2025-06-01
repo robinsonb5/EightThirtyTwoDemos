@@ -277,7 +277,7 @@ begin
 				when ph0 => 
 					wbnextword<=slot2write;
 				when ph1 => null;
-					-- No write word here since it would clash with slot 2's RAS.
+					-- No write word here since it would clash with slot 1's RAS.
 				when ph2 =>
 					wbfirstword<=not slot2write;
 					wbnextword<=slot2write;
