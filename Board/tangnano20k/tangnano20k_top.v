@@ -1,67 +1,66 @@
 /*
     top.sv - for tang nano 20k
 */ 
-
  
 module tangnano20k_top(
-  input			clk,
+  input	wire		clk,
 
-  input			reset, // button S2
-  input			user,  // button S1
+  input wire		reset, // button S2
+  input wire		user,  // button S1
 
-  input         uart_rx,
-  output        uart_tx,
+  input wire        uart_rx,
+  output wire       uart_tx,
 
-  output [5:0]	leds_n,
-  output		ws2812,
+  output wire [5:0]	leds_n,
+  output wire   	ws2812,
 
   // spi flash interface
-  output		mspi_cs,
-  output		mspi_clk,
-  inout			mspi_di,
-  inout			mspi_hold,
-  inout			mspi_wp,
-  inout			mspi_do,
+  output wire 	    mspi_cs,
+  output wire		mspi_clk,
+  inout wire		mspi_di,
+  inout wire		mspi_hold,
+  inout wire		mspi_wp,
+  inout wire		mspi_do,
 
   // "Magic" port names that the gowin compiler connects to the on-chip SDRAM
-  output		O_sdram_clk,
-  output		O_sdram_cke,
-  output		O_sdram_cs_n,  // chip select
-  output		O_sdram_cas_n, // columns address select
-  output		O_sdram_ras_n, // row address select
-  output		O_sdram_wen_n, // write enable
-  inout [31:0]	IO_sdram_dq, // 32 bit bidirectional data bus
-  output [10:0]	O_sdram_addr, // 11 bit multiplexed address bus
-  output [1:0]	O_sdram_ba, // two banks
-  output [3:0]	O_sdram_dqm, // 32/4
+  output wire		O_sdram_clk,
+  output wire		O_sdram_cke,
+  output wire		O_sdram_cs_n,  // chip select
+  output wire		O_sdram_cas_n, // columns address select
+  output wire		O_sdram_ras_n, // row address select
+  output wire		O_sdram_wen_n, // write enable
+  inout wire [31:0]	IO_sdram_dq, // 32 bit bidirectional data bus
+  output wire [10:0]	O_sdram_addr, // 11 bit multiplexed address bus
+  output wire [1:0]	O_sdram_ba, // two banks
+  output wire [3:0]	O_sdram_dqm, // 32/4
 
   // generic IO, used for mouse/joystick/...
-  input [7:0]	io,
+  input wire [7:0]	io,
 
   // interface to external BL616/M0S
-  inout [5:0]	m0s,
+  inout wire [5:0]	m0s,
 
   // MIDI/UART
-  input			midi_in,
-  output		midi_out,
+  input wire			midi_in,
+  output wire		midi_out,
 		   
   // SD card slot
-  output		sd_clk,
-  inout			sd_cmd, // MOSI
-  inout [3:0]	sd_dat, // 0: MISO, 3: CS
+  output wire		sd_clk,
+  inout wire		sd_cmd, // MOSI
+  inout wire [3:0]	sd_dat, // 0: MISO, 3: CS
 	   
   // SPI connection to ob-board BL616. By default an external
   // connection is used with a M0S Dock
-  input			spi_sclk, // in... 
-  input			spi_csn, // in (io?)
-  output		spi_dir, // out
-  input			spi_dat, // in (io?)
+  input wire			spi_sclk, // in... 
+  input wire			spi_csn, // in (io?)
+  output wire		spi_dir, // out
+  input wire			spi_dat, // in (io?)
 
   // hdmi/tdms
-  output		tmds_clk_n,
-  output		tmds_clk_p,
-  output [2:0]	tmds_d_n,
-  output [2:0]	tmds_d_p
+  output wire		tmds_clk_n,
+  output wire		tmds_clk_p,
+  output wire [2:0]	tmds_d_n,
+  output wire [2:0]	tmds_d_p
 );
 
 assign m0s = 6'bZZZZZZ;
@@ -94,8 +93,16 @@ wire [31:0] sdr_dout;
 wire [31:0] sdr_din;
 wire sdr_drive;
 
-assign sdr_in = IO_sdram_dq;
+assign sdr_din = IO_sdram_dq;
 assign IO_sdram_dq = sdr_drive ? sdr_dout : 32'bZZZZZZZZ_ZZZZZZZZ_ZZZZZZZZ_ZZZZZZZZ;
+
+wire [7:0] red;
+wire [7:0] green;
+wire [7:0] blue;
+wire hsync;
+wire vsync;
+wire window;
+wire pixel;
 
 VirtualTopLevel #(
     .sysclk_frequency(1000),

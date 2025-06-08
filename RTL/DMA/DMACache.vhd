@@ -61,7 +61,7 @@ end entity;
 
 architecture rtl of dmacache is
 
-constant burstlog2 : integer := integer(log2(real(sdram_width/4))); -- Four words if RAM is 16-bit, eight if 32-bit.
+constant burstlog2 : integer := 1+(sdram_width/16); -- integer(log2(real(sdram_width/4))); -- Four words if RAM is 16-bit, eight if 32-bit.
 constant cachemsb : integer := DMACache_MaxCacheBit + DMACache_MaxChannelsLog2;
 type inputstate_t is (rd1,waitrcv,rcv,abort);
 signal inputstate : inputstate_t := rd1;

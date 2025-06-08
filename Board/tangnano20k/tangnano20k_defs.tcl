@@ -1,4 +1,4 @@
-set have_sdram 0
+set have_sdram 1
 set base_clock 27
 set vendor "gowin"
 set device_full "GW2AR-LV18QN88C8/I7"
