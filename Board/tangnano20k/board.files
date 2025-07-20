@@ -1,1 +1,4 @@
 Board_Config.vhd
+tangnano20k_sdram_defs.v
+gw_jtag.v
+

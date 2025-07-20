@@ -9,7 +9,7 @@ module tangnano20k_top(
   input wire		user,  // button S1
 
   input wire        uart_rx,
-  output wire       uart_tx,
+  output reg        uart_tx,
 
   output wire [5:0]	leds_n,
   output wire   	ws2812,
@@ -104,6 +104,8 @@ wire vsync;
 wire window;
 wire pixel;
 
+wire txd;
+
 VirtualTopLevel #(
     .sysclk_frequency(1000),
     .sdram_rows(11),
@@ -147,6 +149,7 @@ VirtualTopLevel #(
     .rxd(uart_rx),
     .txd(uart_tx)
 );
+
 
 
 // differential output

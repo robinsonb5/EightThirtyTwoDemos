@@ -50,14 +50,6 @@ clean :
 	cat >>$*_ROM_interleaved.vhd $(ROMGENDIR)/rom_epilogue_slice.vhd
 	sed 's/eightthirtytwo_rom/$*_rom/' >>$*_ROM_interleaved.vhd <$(ROMGENDIR)/rom_prologue_interleaved.vhd
 
-%.rpt: %.elf
-	@echo -n "End of code:\t"
-	@$(DUMP) -x $< | grep _romend
-	@echo -n "Start of BSS:\t"
-	@$(DUMP) -x $< | grep __bss_start__
-	@echo -n "End of BSS:\t"
-	@$(DUMP) -x $< | grep __bss_end__
-
 Dhrystone.bin : $(LIBDIR)/crt0.a $(LIBDIR)/lib832.a dhry_1.o dhry_2.o
 	$(LD) $(LDFLAGS) -M $@.map -o $@ $+
 

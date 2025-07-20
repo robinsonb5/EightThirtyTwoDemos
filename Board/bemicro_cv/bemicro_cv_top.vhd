@@ -38,6 +38,7 @@ signal pll_locked : std_logic;
 signal clk_fast : std_logic;
 signal clk_slow : std_logic;
 signal clk_ram : std_logic;
+signal clk_video : std_logic;
 
 component pll is
 	port (
@@ -46,6 +47,7 @@ component pll is
 		outclk_0 : out std_logic;        -- outclk0.clk
 		outclk_1 : out std_logic;        -- outclk1.clk
 		outclk_2 : out std_logic;        -- outclk2.clk
+		outclk_3 : out std_logic;        -- outclk2.clk
 		locked   : out std_logic         --  locked.export
 	);
 end component;
@@ -57,9 +59,11 @@ reset_n <= user_button_n(0);
 	myclocks : component pll
 	port map (
 		refclk => clk_50,
+		rst => not reset_n,
 		outclk_0 => clk_fast,
 		outclk_1 => clk_ram,
 		outclk_2 => clk_slow,
+		outclk_3 => clk_video,
 		locked => pll_locked
 	);
 
@@ -71,6 +75,7 @@ reset_n <= user_button_n(0);
 		port map(
 			clk => clk_fast,
 			slowclk => clk_slow,
+			videoclk => clk_video,
 			reset_in => reset_n and pll_locked,
 			
 			-- SDRAM - presenting a single interface to both chips.

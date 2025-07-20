@@ -158,7 +158,7 @@ spi_cs<='1';
 
 -- Reset counter.
 
-process(clk)
+process(clk,reset_in)
 begin
 	if reset_in='0' then
 		reset_counter<=X"FF";

@@ -11,7 +11,7 @@ LIBSOCDIR = ../../lib832soc/
 INCLUDES = $(832DIR)/include ../../include
 
 
-all: HelloWorld_ROM_byte.vhd HelloWorld_ROM_word.vhd
+all: HelloWorld_ROM_byte.vhd HelloWorld_ROM_word.vhd HelloWorld_ROM_interleaved.vhd
 
 
 clean :
@@ -33,6 +33,21 @@ HelloWorld.bin : HelloWorld.o
 	sed 's/eightthirtytwo_rom/$*_ROM/' >$*_ROM_word.vhd <$(ROMGENDIR)/rom_prologue_word.vhd
 	$(ROMGEN) -b -w $*.bin >>$*_ROM_word.vhd
 	cat >>$*_ROM_word.vhd $(ROMGENDIR)/rom_epilogue_word.vhd
+
+%_ROM_interleaved.vhd: %.bin $(ROMGEN)
+	sed 's/eightthirtytwo_rom_slice/$*_rom_slice0/' >$*_ROM_interleaved.vhd <$(ROMGENDIR)/rom_prologue_slice.vhd
+	$(ROMGEN) -b -z1 -o0 -s3 $*.bin >>$*_ROM_interleaved.vhd
+	cat >>$*_ROM_interleaved.vhd $(ROMGENDIR)/rom_epilogue_slice.vhd
+	sed 's/eightthirtytwo_rom_slice/$*_rom_slice1/' >>$*_ROM_interleaved.vhd <$(ROMGENDIR)/rom_prologue_slice.vhd
+	$(ROMGEN) -b -z1 -o1 -s3 $*.bin >>$*_ROM_interleaved.vhd
+	cat >>$*_ROM_interleaved.vhd $(ROMGENDIR)/rom_epilogue_slice.vhd
+	sed 's/eightthirtytwo_rom_slice/$*_rom_slice2/' >>$*_ROM_interleaved.vhd <$(ROMGENDIR)/rom_prologue_slice.vhd
+	$(ROMGEN) -b -z1 -o2 -s3 $*.bin >>$*_ROM_interleaved.vhd
+	cat >>$*_ROM_interleaved.vhd $(ROMGENDIR)/rom_epilogue_slice.vhd
+	sed 's/eightthirtytwo_rom_slice/$*_rom_slice3/' >>$*_ROM_interleaved.vhd <$(ROMGENDIR)/rom_prologue_slice.vhd
+	$(ROMGEN) -b -z1 -o3 -s3 $*.bin >>$*_ROM_interleaved.vhd
+	cat >>$*_ROM_interleaved.vhd $(ROMGENDIR)/rom_epilogue_slice.vhd
+	sed 's/eightthirtytwo_rom/$*_rom/' >>$*_ROM_interleaved.vhd <$(ROMGENDIR)/rom_prologue_interleaved.vhd
 
 $(ROMGEN): $(ROMGENDIR)/romgen.c
 	gcc -o $(ROMGENDIR)/romgen $(ROMGENDIR)/romgen.c

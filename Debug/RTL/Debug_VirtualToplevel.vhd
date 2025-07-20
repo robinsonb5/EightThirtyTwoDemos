@@ -13,6 +13,7 @@ entity VirtualToplevel is
 	port (
 		clk 			: in std_logic;
 		slowclk		: in std_logic;
+		videoclk    : in std_logic;
 		reset_in 	: in std_logic;
 
 		-- VGA
@@ -26,7 +27,7 @@ entity VirtualToplevel is
 
 		-- SDRAM
 		sdr_drive_data	: out std_logic;
-		sdr_data_in		: in std_logic_vector(15 downto 0);
+		sdr_data_in		: in std_logic_vector(15 downto 0) := X"0000";
 		sdr_data_out	: inout std_logic_vector(15 downto 0);
 		sdr_addr		: out std_logic_vector((sdram_rows-1) downto 0);
 		sdr_dqm 		: out std_logic_vector(1 downto 0);

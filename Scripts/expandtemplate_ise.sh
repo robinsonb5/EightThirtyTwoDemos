@@ -3,7 +3,7 @@
 cat $1 | while read a; do
 	b=${a,,}
 	if [ "${b: -4}" = ".rom" ]; then
-		echo "xfile add \"$2/${a%.rom}_word.vhd\""
+		echo "xfile add \"$2/${a%.rom}_interleaved.vhd\""
 	fi
 	if [ "${b: -4}" = ".vhd" ]; then
 		echo "xfile add \"$2/${a}\""
