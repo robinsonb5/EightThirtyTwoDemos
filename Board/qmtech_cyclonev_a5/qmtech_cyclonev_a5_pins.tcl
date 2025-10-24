@@ -188,19 +188,55 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to RESET_N
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to UART_RX
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to UART_TX
 
-set_location_assignment PIN_C20 -to SD_CLK
-set_location_assignment PIN_A20 -to SD_CS
-set_location_assignment PIN_B20 -to SD_MOSI
-set_location_assignment PIN_D19 -to SD_MISO
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_CLK
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_CS
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_MOSI
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_MISO
+set_location_assignment PIN_C20 -to DB_SD_CLK
+set_location_assignment PIN_A20 -to DB_SD_CS
+set_location_assignment PIN_D19 -to DB_SD_MISO
+set_location_assignment PIN_B20 -to DB_SD_MOSI
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DB_SD_CLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DB_SD_CS
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DB_SD_MOSI
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DB_SD_MISO
 
 set_location_assignment PIN_AB21 -to sigma_r
 set_location_assignment PIN_AB20 -to sigma_l
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sigma_r
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sigma_l
+
+set_location_assignment PIN_F19 -to DB_KEY[0]
+set_location_assignment PIN_T10 -to DB_KEY[1]
+set_location_assignment PIN_R9 -to DB_KEY[2]
+set_location_assignment PIN_U11 -to DB_KEY[3]
+set_location_assignment PIN_U12 -to DB_KEY[4]
+set_location_assignment PIN_AB21 -to DB_PMOD_J11[0]
+set_location_assignment PIN_AB20 -to DB_PMOD_J11[4]
+set_location_assignment PIN_Y19 -to DB_PMOD_J11[1]
+set_location_assignment PIN_Y20 -to DB_PMOD_J11[5]
+set_location_assignment PIN_AA20 -to DB_PMOD_J11[2]
+set_location_assignment PIN_AA19 -to DB_PMOD_J11[6]
+set_location_assignment PIN_W19 -to DB_PMOD_J11[3]
+set_location_assignment PIN_V20 -to DB_PMOD_J11[7]
+set_location_assignment PIN_U17 -to DB_PMOD_J10[0]
+set_location_assignment PIN_U16 -to DB_PMOD_J10[4]
+set_location_assignment PIN_R16 -to DB_PMOD_J10[1]
+set_location_assignment PIN_R17 -to DB_PMOD_J10[5]
+set_location_assignment PIN_T15 -to DB_PMOD_J10[2]
+set_location_assignment PIN_R15 -to DB_PMOD_J10[6]
+set_location_assignment PIN_R14 -to DB_PMOD_J10[3]
+set_location_assignment PIN_P14 -to DB_PMOD_J10[7]
+set_location_assignment PIN_AA7 -to DB_GPIO_J1[0]
+set_location_assignment PIN_AB7 -to DB_GPIO_J1[1]
+set_location_assignment PIN_AA8 -to DB_GPIO_J1[2]
+set_location_assignment PIN_AB8 -to DB_GPIO_J1[3]
+set_location_assignment PIN_R6 -to DB_GPIO_J1[4]
+set_location_assignment PIN_R5 -to DB_GPIO_J1[5]
+set_location_assignment PIN_P6 -to DB_GPIO_J1[6]
+set_location_assignment PIN_N6 -to DB_GPIO_J1[7]
+set_location_assignment PIN_M6 -to DB_GPIO_J1[8]
+set_location_assignment PIN_M7 -to DB_GPIO_J1[9]
+set_location_assignment PIN_P8 -to DB_GPIO_J1[10]
+set_location_assignment PIN_N8 -to DB_GPIO_J1[11]
+set_location_assignment PIN_T7 -to DB_GPIO_J1[12]
+set_location_assignment PIN_T8 -to DB_GPIO_J1[13]
 
 
 

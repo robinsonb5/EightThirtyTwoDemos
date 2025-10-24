@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.Toplevel_Config.all;
+use work.pmod_pkg.all;
 
 -- -----------------------------------------------------------------------
 
@@ -29,18 +30,23 @@ entity qmtech_cyclonev_a5_top is
 		VGA_B		:	 OUT UNSIGNED(4 DOWNTO 0);
 		UART_RX : in STD_LOGIC;
 		UART_TX : out std_logic;
-		SD_CS : out std_logic;
-		SD_CLK : out std_logic;
-		SD_MISO : in std_logic;
-		SD_MOSI : out std_logic;
-		sigma_l : out std_logic; -- Included just to avoid audio being optimised out
-		sigma_r : out std_logic
+		
+		-- Daughterboard signals
+		DB_SD_CS : out std_logic;
+		DB_SD_CLK : out std_logic;
+		DB_SD_MISO : in std_logic;
+		DB_SD_MOSI : out std_logic;
+		DB_LED : out std_logic_vector(4 downto 0);
+		DB_KEY : in std_logic_vector(4 downto 0);
+		DB_PMOD_J10 : inout std_logic_vector(7 downto 0);
+		DB_PMOD_J11 : inout std_logic_vector(7 downto 0);
+		DB_GPIO_J1 : inout std_logic_vector(13 downto 0)
 	);
 END entity;
 
 architecture RTL of qmtech_cyclonev_a5_top is
-   constant reset_cycles : integer := 131071;
-	
+   constant reset_cycles : integer := 131071; 
+  
 -- System clocks
 
 	signal slowclk : std_logic;
@@ -57,7 +63,6 @@ architecture RTL of qmtech_cyclonev_a5_top is
 	
 -- Global signals
 	signal n_reset : std_logic;
-
 	
 -- Video
 	signal vga_red: std_logic_vector(7 downto 0);
@@ -66,8 +71,20 @@ architecture RTL of qmtech_cyclonev_a5_top is
 	signal vga_window : std_logic;
 	signal vga_hsync : std_logic;
 	signal vga_vsync : std_logic;
-	
-	
+
+-- Keyboard and mouse
+	signal ps2k_dat_in : std_logic;
+	signal ps2k_dat_out : std_logic;
+	signal ps2k_clk_in : std_logic;
+	signal ps2k_clk_out : std_logic;
+	signal ps2m_dat_in : std_logic;
+	signal ps2m_dat_out : std_logic;
+	signal ps2m_clk_in : std_logic;
+	signal ps2m_clk_out : std_logic;
+
+	constant ps2_pmod_offset : integer := 0;
+	alias ps2_pmod is DB_PMOD_J11;
+
 -- RS232 serial
 	signal rs232_rxd : std_logic;
 	signal rs232_txd : std_logic;
@@ -80,22 +97,10 @@ architecture RTL of qmtech_cyclonev_a5_top is
 	signal audio_l : std_logic_vector(15 downto 0);
 	signal audio_r : std_logic_vector(15 downto 0);
 	
+	alias sigma_l is DB_GPIO_J1(0);
+	alias sigma_r is DB_GPIO_J1(1);
+	
 -- IO
-
-
--- Sigma Delta audio
-	COMPONENT hybrid_pwm_sd
-	generic ( depop : integer := 1 );
-	PORT
-	(
-		clk	:	IN STD_LOGIC;
-		terminate : in std_logic;
-		d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		q_l	:	OUT STD_LOGIC;
-		d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-		q_r	:	OUT STD_LOGIC
-	);
-	END COMPONENT;
 
 	component pll is
 		port (
@@ -114,7 +119,7 @@ architecture RTL of qmtech_cyclonev_a5_top is
 	
 begin
 
-U00 : component pll
+	U00 : component pll
 	port map(
 		refclk => CLOCK_50,       -- 50 MHz external
 		outclk_0     => DRAM_CLK,        -- Fast clock - external
@@ -124,11 +129,11 @@ U00 : component pll
 		locked => pll_locked
 	);
 
-n_reset<=RESET_N and pll_locked;
+	n_reset<=RESET_N and pll_locked;
 
-DRAM_DQ<=sdram_dq when drive_dq='1' else (others => 'Z');
+	DRAM_DQ<=sdram_dq when drive_dq='1' else (others => 'Z');
 
-virtualtoplevel : entity work.VirtualToplevel
+	virtualtoplevel : entity work.VirtualToplevel
 	generic map(
 		sdram_rows => 13,
 		sdram_cols => 9,
@@ -162,37 +167,46 @@ virtualtoplevel : entity work.VirtualToplevel
 		sdr_cs => DRAM_CS_N,
 		sdr_cke => DRAM_CKE,
 
-		
-    -- PS/2 keyboard ports
---	 ps2k_clk_out => ps2_keyboard_clk_out,
---	 ps2k_dat_out => ps2_keyboard_dat_out,
---	 ps2k_clk_in => ps2_keyboard_clk_in,
---	 ps2k_dat_in => ps2_keyboard_dat_in,
---
---	 ps2m_clk_out => ps2_mouse_clk_out,
---	 ps2m_dat_out => ps2_mouse_dat_out,
---	 ps2m_clk_in => ps2_mouse_clk_in,
---	 ps2m_dat_in => ps2_mouse_dat_in,
- 
-    -- SD/MMC slot ports
-	spi_clk => spi_clk,
-	spi_mosi => spi_mosi,
-	spi_cs => spi_cs,
-	spi_miso => spi_miso,
+		-- PS/2 keyboard ports
+		ps2k_clk_out => ps2k_clk_out,
+		ps2k_dat_out => ps2k_dat_out,
+		ps2k_clk_in => ps2k_clk_in,
+		ps2k_dat_in => ps2k_dat_in,
 
-	signed(audio_l) => audio_l,
-	signed(audio_r) => audio_r,
+		ps2m_clk_out => ps2m_clk_out,
+		ps2m_dat_out => ps2m_dat_out,
+		ps2m_clk_in => ps2m_clk_in,
+		ps2m_dat_in => ps2m_dat_in,
 	 
-	rxd => UART_RX,
-	txd => UART_TX
-);
+		-- SD/MMC slot ports
+		spi_clk => spi_clk,
+		spi_mosi => spi_mosi,
+		spi_cs => spi_cs,
+		spi_miso => spi_miso,
 
-SD_CLK <= spi_clk;
-SD_CS <= spi_cs;
-SD_MOSI <= spi_mosi;
-spi_miso <= SD_MISO;
+		signed(audio_l) => audio_l,
+		signed(audio_r) => audio_r,
+		 
+		rxd => UART_RX,
+		txd => UART_TX
+	);
+
+	DB_SD_CLK <= spi_clk;
+	DB_SD_CS <= spi_cs;
+	DB_SD_MOSI <= spi_mosi;
+	spi_miso <= DB_SD_MISO;
 	
--- Dither the video down to 5 bits per gun.
+	-- Wire keyboard to PMOD with open-collector semantics.
+	ps2_pmod(PMOD_PS2_KDAT+ps2_pmod_offset) <= '0' when ps2k_dat_out='0' else 'Z';
+	ps2_pmod(PMOD_PS2_KCLK+ps2_pmod_offset) <= '0' when ps2k_clk_out='0' else 'Z';
+	ps2_pmod(PMOD_PS2_MDAT+ps2_pmod_offset) <= '0' when ps2m_dat_out='0' else 'Z';
+	ps2_pmod(PMOD_PS2_MCLK+ps2_pmod_offset) <= '0' when ps2m_clk_out='0' else 'Z';
+	ps2k_dat_in <= ps2_pmod(PMOD_PS2_KDAT+ps2_pmod_offset);
+	ps2k_clk_in <= ps2_pmod(PMOD_PS2_KCLK+ps2_pmod_offset);
+	ps2m_dat_in <= ps2_pmod(PMOD_PS2_MDAT+ps2_pmod_offset);
+	ps2m_clk_in <= ps2_pmod(PMOD_PS2_MCLK+ps2_pmod_offset);
+	
+	-- Dither the video down to 5 bits per gun.
 	
 	mydither : entity work.video_vga_dither
 		generic map(
@@ -211,21 +225,74 @@ spi_miso <= SD_MISO;
 			oBlue(5 downto 1) => VGA_B
 		);
 	
-VGA_HS<=vga_hsync;
-VGA_VS<=vga_vsync;
+	VGA_HS<=vga_hsync;
+	VGA_VS<=vga_vsync;
 	
-audio_sd: component hybrid_pwm_sd
-	port map
-	(
-		clk => fastclk,
-		terminate => '0',
-		d_l(15) => not audio_l(15),
-		d_l(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
-		q_l => sigma_l,
-		d_r(15) => not audio_r(15),
-		d_r(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
-		q_r => sigma_r
-	);
-	
+	audio : block
+		-- Sigma Delta audio
+		COMPONENT hybrid_pwm_sd
+		generic ( depop : integer := 1 );
+		PORT
+		(
+			clk	:	IN STD_LOGIC;
+			terminate : in std_logic;
+			d_l	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+			q_l	:	OUT STD_LOGIC;
+			d_r	:	IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+			q_r	:	OUT STD_LOGIC
+		);
+		END COMPONENT;
+	begin
+
+		audio_sd: component hybrid_pwm_sd
+		port map
+		(
+			clk => fastclk,
+			terminate => '0',
+			d_l(15) => not audio_l(15),
+			d_l(14 downto 0) => std_logic_vector(audio_l(14 downto 0)),
+			q_l => sigma_l,
+			d_r(15) => not audio_r(15),
+			d_r(14 downto 0) => std_logic_vector(audio_r(14 downto 0)),
+			q_r => sigma_r
+		);
+	end block;
+
+	-- LEDS.  Not so much a "blinky" as a "pulsey"...
+	pwmblock : block
+		signal pwmcounter : unsigned(16 downto 0);
+		signal redctr : unsigned(16 downto 0);
+		signal greenctr : unsigned(16 downto 0);
+		signal redctr_i : unsigned(15 downto 0);
+		signal greenctr_i : unsigned(15 downto 0);
+		signal led1 : std_logic;
+		signal led2 : std_logic;
+	begin
+		redctr_i <= redctr(16 downto 1) when redctr(16)='0' else not redctr(16 downto 1);
+		greenctr_i <= greenctr(16 downto 1) when greenctr(16)='0' else not greenctr(16 downto 1);
+		process(fastclk) begin
+			if rising_edge(fastclk) then
+				pwmcounter<=pwmcounter + 1;
+				if pwmcounter='1'&X"FFFF" then
+					redctr<=redctr+13;
+					greenctr<=greenctr+7;
+					led1<='1';
+					led2<='1';
+				end if;
+				if redctr_i = pwmcounter then
+					led1<='0';
+				end if; 
+				if greenctr_i = pwmcounter then
+					led2<='0';
+				end if; 
+			end if;
+		end process;
+		
+		DB_LED(0) <= led1;
+		DB_LED(1) <= led2;
+		DB_LED(2) <= not led1;
+		DB_LED(3) <= not led2;
+		DB_LED(4) <= led1 xor led2;
+	end block;
 
 end architecture;

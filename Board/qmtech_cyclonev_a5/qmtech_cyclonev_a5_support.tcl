@@ -3,6 +3,7 @@ set_global_assignment -name VHDL_FILE ../../../Board/qmtech_cyclonev_a5/Board_Co
 set_global_assignment -name VHDL_FILE ../../../Board/qmtech_cyclonev_a5/qmtech_cyclonev_a5_top.vhd
 set_global_assignment -name VHDL_FILE ../../../RTL/Video/video_vga_dither.vhd
 set_global_assignment -name VERILOG_FILE ../../../RTL/Sound/hybrid_pwm_sd.v
+set_global_assignment -name VHDL_FILE ../../../RTL/Peripherals/pmod_pkg.vhd
 
 set_global_assignment -name VERILOG_MACRO "SDRAM_WINBOND=1"
 set_global_assignment -name VERILOG_MACRO "SDRAM_ROWBITS=13"

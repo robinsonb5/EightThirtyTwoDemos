@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
-use work.icesugarpro_pmod_pkg.all;
+use work.pmod_pkg.all;
 use work.Toplevel_Config.all;
 
 entity icesugarpro_top is
