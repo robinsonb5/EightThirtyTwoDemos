@@ -1,0 +1,2 @@
+synth_ecp5 -top icepi-zero_top -abc9
+
