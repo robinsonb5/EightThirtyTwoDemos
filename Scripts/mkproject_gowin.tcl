@@ -30,7 +30,7 @@ if { ${requires_sdram}==1 && ${have_sdram}==0 } {
 	exit
 }
 
-set_device $device_full -name $fpga
+set_device $device_full -name $device
 set_option -synthesis_tool gowinsynthesis
 set_option -output_base_name $corename
 set_option -verilog_std sysv2017

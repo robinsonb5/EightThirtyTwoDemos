@@ -2,6 +2,7 @@ set have_sdram 1
 set base_clock 27
 set vendor "gowin"
 set device_full "GW2AR-LV18QN88C8/I7"
+set device "GW2AR-18C"
 set fpga "GW2AR"
 set pll_extension "v"
 
