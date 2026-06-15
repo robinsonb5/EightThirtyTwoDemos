@@ -67,8 +67,7 @@ architecture rtl of Peripheral_Standard is
 
 	-- SPI signals
 	signal host_to_spi : std_logic_vector(7 downto 0);
-	signal spi_to_host : std_logic_vector(31 downto 0);
-	signal spi_wide : std_logic;
+	signal spi_to_host : std_logic_vector(7 downto 0);
 	signal spi_trigger : std_logic;
 	signal spi_busy : std_logic;
 	signal spi_active : std_logic;
@@ -402,13 +401,6 @@ begin
 						busy<='0';
 
 					when X"D4" => -- SPI Data
-						spi_wide<='0';
-						spi_trigger<='1';
-						host_to_spi<=request.d(7 downto 0);
-						spi_active<='1';
-					
-					when X"D8" => -- SPI Pump (32-bit read)
-						spi_wide<='1';
 						spi_trigger<='1';
 						host_to_spi<=request.d(7 downto 0);
 						spi_active<='1';
@@ -463,12 +455,6 @@ begin
 					when X"D4" => -- SPI read (blocking)
 						spi_active<='1';
 
-					when X"D8" => -- SPI wide read (blocking)
-						spi_wide<='1';
-						spi_trigger<='1';
-						spi_active<='1';
-						host_to_spi<=X"FF";
-
 					-- Read from PS/2 regs
 					when X"E0" =>
 						response.q<=(others =>'0');
@@ -491,7 +477,7 @@ begin
 			-- SPI cycles
 
 			if spi_active='1' and spi_busy='0' then
-				response.q<=spi_to_host;
+				response.q<=X"000000" & spi_to_host;
 				spi_active<='0';
 				busy<='0';
 			end if;

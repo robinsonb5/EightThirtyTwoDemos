@@ -42,7 +42,7 @@ wire [15:0] port_din[5];
 
 // Test the ROM ports
 
-localparam rom_high=21;
+localparam rom_high=18;
 wire [rom_high:1] rom_addr;
 wire rom_we;
 wire romwr_req;
@@ -77,7 +77,7 @@ porttest #(.addrwidth(rom_high),.datawidth(16),.cyclewidth(4)) romport
 
 
 // Test the WRAM port
-localparam wram_high=22;
+localparam wram_high=19;
 wire wram_we;
 wire wram_req;
 wire wram_rd_req;

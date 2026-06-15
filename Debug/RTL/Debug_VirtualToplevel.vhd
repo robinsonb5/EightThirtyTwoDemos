@@ -206,11 +206,11 @@ end generate;
 
 	rom : entity work.HelloWorld_rom
 	generic map(
-		ADDR_WIDTH => 14
+		ADDR_WIDTH => 12
 	)
 	port map(
 		clk => slowclk,
-		addr => cpu_addr(15 downto 2),
+		addr => cpu_addr(13 downto 2),
 		d => from_cpu,
 		q => from_rom,
 		we => rom_wr,

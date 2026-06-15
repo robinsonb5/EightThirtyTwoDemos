@@ -315,7 +315,7 @@ architecture mix of ecp5pll is
   -- internal signal declarations
   signal CLKOP_t  : std_logic;
   signal REFCLK   : std_logic;
-  signal PHASESEL_HW : std_logic_vector(1 downto 0);
+  signal PHASESEL_HW : std_logic_vector(1 downto 0) := "00";
 
   attribute FREQUENCY_PIN_CLKI   : string;
   attribute FREQUENCY_PIN_CLKOP  : string;

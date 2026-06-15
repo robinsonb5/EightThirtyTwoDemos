@@ -103,7 +103,7 @@ an S-record uploaded over serial.
 ## Applications:
 
 ### HelloWorld:
-A simple Hellow World program written in C
+A simple Hello World program written in C
 
 ### Dhrystone:
 The Dhrystone demo compiled as an application which will run from SDRAM rather than
@@ -128,4 +128,33 @@ A program to play an Amiga ProTracker module.  The actual replay code is ported 
 
 ### TCPIP
 An attempt to port UIP to 832, communicating via SLIP with an ESP8322 module.
+
+## Boards:
+The following boards support SDRAM, video and audio
+* chameleon64  -  the first revision of the Turbo Chameleon 64 cartridge for Commodore 64
+* chameleon64v2  -  the second revision of the Turbo Chameleon 64 cartridge for Commodore 64
+* coreboard  -  a cheap Cyclone 4E board acquired from EBay some years ago.
+* de1  -  the venerable Altera Cyclone II development board.
+* de10lite  -  a MAX10-based development board.
+* de2  -  the DE1's bigger brother.
+* icepi-zero  -  a new Lattice ECP5-based board in Raspberry Pi Zero form factor
+* icesugarpro  -  a Lattice ECP5-based board in SODIMM form factor.
+* icesugarpro_diamond  -  as above but using Lattice Diamond tooling rather than Yosys.
+* mist  -  a retro-gaming platform, successor to Minimig, predecessor to MiSTer and SiDi128.
+* neptuno  -  a retro-gaming platform based on a QMTech FPGA module.
+* qmtech_cycloneiv55  -  the board used in Neptuno.
+* qmtech_cyclonev_a5  -  a short-lived QMTech board with dual SDRAM.
+* SiDi128  -  a successor to MiST with Cyclone 10LP (120k LEs)
+* tangnano20k  -  a Gowin-based board. FPGA has SDRAM built in.
+* ulx3s_85f  -  an ECP5-based board.
+
+The following boards have no regular (single data rate) SDRAM, so are currently only supported by ROM- and UART-based demos.
+* bemicro_cv - Cyclone V based dev board.
+* deca - MAX10 based dev board.
+* de10nano - the heart of the MiSTer project. (SDRAM available but generally has DQMs tied low, so not compatible with this project.)
+* minimig
+* panologic_g1
+* qmtech_artix7_200T
+* qmtech_kintex7_325T
+* zyjzgw_kintex7_325T
 

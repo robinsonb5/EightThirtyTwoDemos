@@ -63,12 +63,12 @@ module sdram #(parameter SDRAM_tCK=7800 )
 
 	input      [15:0] rom_din,
 	output     [15:0] rom_dout,
-	input      [21:1] rom_addr,
+	input      [18:1] rom_addr,
 	input             rom_req,
 	output reg        rom_req_ack,
 	input             rom_we,
 	
-	input      [21:0] wram_addr,
+	input      [18:0] wram_addr,
 	input       [7:0] wram_din,
 	output     [15:0] wram_dout,
 	input             wram_req,
@@ -97,6 +97,8 @@ module sdram #(parameter SDRAM_tCK=7800 )
 	input             aram_we
 );
 
+localparam ADDR_HIGH = `SDRAM_ROWBITS + `SDRAM_COLBITS;
+
 localparam BANK_DELAY = ((`SDRAM_tRC+(SDRAM_tCK-1))/SDRAM_tCK)-2; // tRC-2 in cycles (rounded up)
 localparam BANK_WRITE_DELAY = ((`SDRAM_tRP+(SDRAM_tCK-1))/SDRAM_tCK)+`SDRAM_tWR; // tWR + tRP in cycles (rounded up)
 localparam REFRESH_DELAY = ((`SDRAM_tRC+(SDRAM_tCK-1))/SDRAM_tCK)-1; // tRC-1 in cycles (rounded up)
@@ -113,6 +115,17 @@ localparam OP_MODE        = 2'b00;  // only 00 (standard operation) allowed
 localparam NO_WRITE_BURST = 1'b1;   // 0= write burst enabled, 1=only single access write
 
 localparam MODE = { 3'b000, NO_WRITE_BURST, OP_MODE, CAS_LATENCY, ACCESS_TYPE, BURST_LENGTH}; 
+
+
+// Request handling and priority encoding
+
+localparam PORT_NONE   = 4'd0;
+localparam PORT_ROM    = 4'd1;
+localparam PORT_WRAM   = 4'd2;
+localparam PORT_VRAM0  = 4'd3;
+localparam PORT_VRAM1  = 4'd4;
+localparam PORT_ARAM   = 4'd5;
+localparam PORT_REFRESH = 4'd6;
 
 
 // RAM control signals
@@ -358,16 +371,6 @@ assign bankready[2]=bankbusy[2][4];
 assign bankready[3]=bankbusy[3][4];
 
 
-// Request handling and priority encoding
-
-localparam PORT_NONE   = 4'd0;
-localparam PORT_ROM    = 4'd1;
-localparam PORT_WRAM   = 4'd2;
-localparam PORT_VRAM0  = 4'd3;
-localparam PORT_VRAM1  = 4'd4;
-localparam PORT_ARAM   = 4'd5;
-localparam PORT_REFRESH = 4'd6;
-
 reg [3:0] bankreq;
 reg [3:0] bankstate;
 reg [3:0] bankwr;
@@ -385,14 +388,14 @@ always @(posedge clk) begin
 		bankport[0]<=PORT_ROM;
 		bankdqm[0]<={!rom_we,!rom_we};
 		bankwrdata[0]<=rom_din;
-		bankaddr[0]<={2'b00,rom_addr[21:1]};
+		bankaddr[0]<={5'b00000,rom_addr[18:1]};
 		bankwr[0]<=rom_we;
 	end else if ((!force_refresh[0]) && wram_req ^ port_state[PORT_WRAM]) begin
 		bankreq[0]<=evencycle;
 		bankstate[0]<=wram_req;
 		bankport[0]<=PORT_WRAM;
 		bankdqm[0]<=wram_we ? { ~wram_addr[0], wram_addr[0] } : 2'b11;
-		bankaddr[0]<={2'b01,wram_addr[21:1]};
+		bankaddr[0]<={5'b11111,wram_addr[18:1]};
 		bankwr[0]<=wram_we;
 		bankwrdata[0]<={wram_din,wram_din};
 	end else begin

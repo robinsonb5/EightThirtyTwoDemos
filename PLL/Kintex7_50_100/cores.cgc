@@ -244,7 +244,7 @@
                <xilinx:part>
                   <xilinx:device>xc7k325t</xilinx:device>
                   <xilinx:deviceFamily>kintex7</xilinx:deviceFamily>
-                  <xilinx:package>fbg676</xilinx:package>
+                  <xilinx:package>ffg676</xilinx:package>
                   <xilinx:speedGrade>-3</xilinx:speedGrade>
                </xilinx:part>
                <xilinx:flowOptions>
@@ -746,7 +746,7 @@
                <xilinx:part>
                   <xilinx:device>xc7k325t</xilinx:device>
                   <xilinx:deviceFamily>kintex7</xilinx:deviceFamily>
-                  <xilinx:package>fbg676</xilinx:package>
+                  <xilinx:package>ffg676</xilinx:package>
                   <xilinx:speedGrade>-3</xilinx:speedGrade>
                </xilinx:part>
                <xilinx:flowOptions>
@@ -1546,7 +1546,7 @@
          <xilinx:part>
             <xilinx:device>xc7k325t</xilinx:device>
             <xilinx:deviceFamily>kintex7</xilinx:deviceFamily>
-            <xilinx:package>fbg676</xilinx:package>
+            <xilinx:package>ffg676</xilinx:package>
             <xilinx:speedGrade>-3</xilinx:speedGrade>
          </xilinx:part>
          <xilinx:flowOptions>

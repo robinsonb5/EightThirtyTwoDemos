@@ -202,6 +202,11 @@ set_location_assignment PIN_AB20 -to sigma_l
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sigma_r
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to sigma_l
 
+set_location_assignment PIN_AB10 -to DB_LED[2]
+set_location_assignment PIN_V9 -to DB_LED[0]
+set_location_assignment PIN_V10 -to DB_LED[1]
+set_location_assignment PIN_AB11 -to DB_LED[3]
+set_location_assignment PIN_AB13 -to DB_LED[4]
 set_location_assignment PIN_F19 -to DB_KEY[0]
 set_location_assignment PIN_T10 -to DB_KEY[1]
 set_location_assignment PIN_R9 -to DB_KEY[2]
