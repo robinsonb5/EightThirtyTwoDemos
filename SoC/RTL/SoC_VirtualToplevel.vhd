@@ -67,6 +67,10 @@ entity VirtualToplevel is
 		rxd2	: in std_logic := '1';
 		txd2	: out std_logic;
 		
+		-- USB
+		usb_dp : inout std_logic_vector(1 downto 0);
+		usb_dn : inout std_logic_vector(1 downto 0);
+		
 		-- Audio
 		AUDIO_L : out signed(15 downto 0);
 		AUDIO_R : out signed(15 downto 0)
@@ -75,10 +79,8 @@ end entity;
 
 architecture rtl of VirtualToplevel is
 
-	constant Peripheral_Blocks : integer := 5;
+	constant Peripheral_Blocks : integer := 6;
 	constant interrupt_max : integer := 3;
-	constant sysclk_hz : integer := sysclk_frequency*1000;
-
 
 	-- Reset signals
 
@@ -131,7 +133,6 @@ architecture rtl of VirtualToplevel is
 	signal flushcaches : std_logic;
 
 	-- Peripheral signals	
-	signal peripheral_block : std_logic_vector(3 downto 0);
 	signal peripherals_ack : std_logic;
 	signal from_peripherals : std_logic_vector(31 downto 0);
 
@@ -485,6 +486,24 @@ begin
 			response => peripheral_responses(3),
 
 			ticks(0) => timer_tick -- Tick signal is used to trigger an interrupt
+		);
+
+		-- USB
+			
+		usb : entity work.usb_hid_controller
+		generic map(
+			BlockAddress => X"A",
+			sysclk_freq => sysclk_frequency/10
+		)
+		port map (
+			clk_sys => clk,
+			reset_n => reset_n,
+
+			request => peripheral_req,
+			response => peripheral_responses(5),
+
+			usb_dp => usb_dp,
+			usb_dn => usb_dn
 		);
 
 		
