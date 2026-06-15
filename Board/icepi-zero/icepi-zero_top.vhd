@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.Toplevel_Config.all;
+use work.usb_phy_pkg.all;
 
 entity icepizero_top is
 port(
@@ -30,6 +31,9 @@ port(
 	sd_mosi : out std_logic;
 	sd_csn : out std_logic;
 	sd_miso : in std_logic;
+
+	usb_dn : inout std_logic_vector(1 downto 0);
+	usb_dp : inout std_logic_vector(1 downto 0);
 
 	gpdi_dp : out std_logic_vector(3 downto 0)	-- Quasi-differential output for digital video.
 	-- gpdi_dn : out std_logic_vector(3 downto 0)  -- Don't declare the _n pins - the _p pins are declared as
@@ -178,11 +182,21 @@ begin
 		sdr_ba => sdram_ba,
 		sdr_cke => sdram_cke,
 		
+		-- USB
+		usb_dp => usb_dp,
+		usb_dn => usb_dn,
+		
+		-- Audio
 		signed(audio_l) => audio_l,
 		signed(audio_r) => audio_r
 --		trace_out => trace
 	);
 
+
+	gennovideo : if Toplevel_UseVGA=false generate
+		gpdi_dp <= (others => '1');
+		clk_video <= clk_video_src;
+	end generate;
 
 	-- Instantiate DVI out:
 	genvideo: if Toplevel_UseVGA=true generate

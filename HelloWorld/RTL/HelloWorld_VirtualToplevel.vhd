@@ -62,6 +62,10 @@ entity VirtualToplevel is
 		rxd2 : in std_logic := '1';
 		txd2 : out std_logic;
 
+		-- USB
+		usb_dp : inout std_logic_vector(1 downto 0);
+		usb_dn : inout std_logic_vector(1 downto 0);
+
 		-- Audio
 		audio_l : out signed(15 downto 0);
 		audio_r : out signed(15 downto 0)
@@ -104,7 +108,14 @@ signal mem_rd : std_logic;
 signal mem_wr : std_logic; 
 signal rom_wr : std_logic;
 
+signal usb_dummy : std_logic_vector(3 downto 0);
+signal sdr_data : std_logic_vector(15 downto 0);
 begin
+
+usb_dp <= "ZZ";
+usb_dn <= "ZZ";
+usb_dummy <= usb_dp & usb_dn;
+sdr_data <= sdr_data_in;
 
 ps2k_dat_out<='1';
 ps2k_clk_out<='1';

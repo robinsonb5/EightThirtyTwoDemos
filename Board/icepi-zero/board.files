@@ -1,4 +1,5 @@
 Board_Config.vhd
+usb_phy_pkg.vhd
 ../../PLL/ECP5/ecp5pll.vhd
 ../../RTL/Video/video_vga_dither.vhd
 ../../RTL/Video/dvi.v

@@ -3,6 +3,8 @@ RTL/DMACache_config.vhd
 RTL/SoC_Peripheral_config.vhd
 
 ../RTL/Peripherals/peripheral_standard.qip
+../RTL/usb_hid_host/usb_hid_host.qip
+../RTL/Peripherals/usb_hid_controller.vhd
 
 ../RTL/RAM/sdram_controller.qip
 

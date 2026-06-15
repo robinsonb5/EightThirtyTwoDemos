@@ -251,6 +251,11 @@ virtualtoplevel : entity work.VirtualToplevel
 
 	signed(audio_l) => audio_l,
 	signed(audio_r) => audio_r,
+	
+	usb_dp(0) => GPIO(32),
+	usb_dp(1) => GPIO(33),
+	usb_dn(0) => GPIO(34),
+	usb_dn(1) => GPIO(35),
 	 
 	rxd => rs232_rxd,
 	txd => rs232_txd,
