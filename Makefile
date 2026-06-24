@@ -58,15 +58,19 @@ EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd:
 	git submodule update
 
 lib832soc/lib832soc.a:
-	make -f firmware.mk PROJECTS=
+	make -f firmware.mk lib832soc/lib832soc.a
 
 firmware: EightThirtyTwo/RTL/eightthirtytwo_cpu.vhd lib832soc/lib832soc.a
-	make -f firmware.mk PROJECTS=$(PROJECTS)
+	for PROJECT in ${PROJECTS}; do \
+		make -f firmware.mk PROJECT=$$PROJECT; \
+	done
 
 .phony firmware_clean:
 firmware_clean:
-	make -f firmware.mk PROJECTS=$(PROJECTS) clean
-
+	for PROJECT in ${PROJECTS}; do \
+		make -f firmware.mk PROJECT=$$PROJECT clean; \
+	done
+	
 site.mk:
 	$(info Copy the example site.template file to site.mk)
 	$(info and edit the paths to Quartus, ISE, Vivado as appropriate)
@@ -75,39 +79,55 @@ site.mk:
 
 init: firmware
 ifdef BOARD
-	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=init
+	@for PROJECT in ${PROJECTS}; do \
+		make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=init; \
+	done
 else
 	@for BOARD in ${BOARDS}; do \
-		make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=init; \
+		for PROJECT in ${PROJECTS}; do \
+			make -f Scripts/project.mk PROJECT=$$PROJECT BOARD=$$BOARD CMD=init; \
+		done; \
 	done
 endif
 
 compile: firmware
 ifdef BOARD
 	@make -f firmware.mk PROJECTS=$(PROJECTS)
-	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=compile
+	@for PROJECT in ${PROJECTS}; do \
+		make -f Scripts/project.mk PROJECT=$$PROJECTS BOARD=$(BOARD) CMD=compile; \
+	done
 else
 	@for BOARD in ${BOARDS}; do \
-		make -f firmware.mk PROJECTS=$(PROJECTS); \
-		make --quiet -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=compile; \
+		for PROJECT in ${PROJECTS}; do \
+			make -f firmware.mk PROJECT=$$PROJECTS; \
+			make --quiet -f Scripts/project.mk PROJECT=$$PROJECT BOARD=$$BOARD CMD=compile; \
+		done; \
 	done
 endif
 
 config: firmware
 ifdef BOARD
-	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=config
+	@for PROJECT in ${PROJECTS}; do \
+		make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=config; \
+	done
 else
 	@for BOARD in ${BOARDS}; do \
-		make --quiet -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=config; \
+		for PROJECT in ${PROJECTS}; do \
+			make --quiet -f Scripts/project.mk PROJECT=$$PROJECT BOARD=$$BOARD CMD=config; \
+		done; \
 	done
 endif
 
 clean: firmware_clean
 ifdef BOARD
-	@make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=clean
+	@for PROJECT in ${PROJECTS}; do \
+		make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$(BOARD) CMD=clean; \
+	done
 else
 	@for BOARD in ${BOARDS}; do \
-		make -f Scripts/project.mk PROJECTS=$(PROJECTS) BOARD=$$BOARD CMD=clean; \
+		for PROJECT in ${PROJECTS}; do \
+			make -f Scripts/project.mk PROJECT=$$PROJECT BOARD=$$BOARD CMD=clean; \
+		done; \
 	done
 endif
 
