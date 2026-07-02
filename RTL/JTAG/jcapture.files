@@ -1,0 +1,6 @@
+${vendor}/vjtag.sv
+jtaggwrapper.v
+vjtag_sync_fifo.sv
+jcapture.sv
+jcapture_pkg.vhd
+

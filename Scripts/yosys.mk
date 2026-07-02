@@ -45,7 +45,7 @@ $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
 
 $(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf $(DEPS)
 	-rm $@
-	$(TOOLPATH)yosys -mghdl -p 'tcl $(SCRIPTSDIR)/mkproject_yosys.tcl $(PROJECT) $(BOARD)' || echo "yosys not found - skipping compilation."
+	$(TOOLPATH)yosys -l log -mghdl -mslang -p 'tcl $(SCRIPTSDIR)/mkproject_yosys.tcl $(PROJECT) $(BOARD)' || echo "yosys not found - skipping compilation."
 
 $(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl
 	-rm $@

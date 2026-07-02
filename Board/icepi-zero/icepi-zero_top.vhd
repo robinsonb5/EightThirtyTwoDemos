@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 library work;
 use work.Toplevel_Config.all;
-use work.usb_phy_pkg.all;
+use work.USB_Phy_pkg.all;
 
 entity icepizero_top is
 port(
@@ -32,8 +32,8 @@ port(
 	sd_csn : out std_logic;
 	sd_miso : in std_logic;
 
-	usb_dn : inout std_logic_vector(1 downto 0);
-	usb_dp : inout std_logic_vector(1 downto 0);
+	usb_dn : inout std_logic_vector(usb_ports-1 downto 0);
+	usb_dp : inout std_logic_vector(usb_ports-1 downto 0);
 
 	gpdi_dp : out std_logic_vector(3 downto 0)	-- Quasi-differential output for digital video.
 	-- gpdi_dn : out std_logic_vector(3 downto 0)  -- Don't declare the _n pins - the _p pins are declared as
@@ -101,6 +101,8 @@ architecture rtl of icepizero_top is
 	signal capreset : std_logic;
 	signal reset_n : std_logic;
 
+	signal usb_in : USB_Phy_In;
+	signal usb_out : USB_Phy_Out;
 begin
 
 	sdram_tristate_dq <= not sdram_drive_dq;
@@ -183,14 +185,23 @@ begin
 		sdr_cke => sdram_cke,
 		
 		-- USB
-		usb_dp => usb_dp,
-		usb_dn => usb_dn,
+		usb_in => usb_in,
+		usb_out => usb_out,
 		
 		-- Audio
 		signed(audio_l) => audio_l,
 		signed(audio_r) => audio_r
 --		trace_out => trace
 	);
+
+	-- Hookup USB
+	genusb : for I in 0 to (usb_ports-1) generate
+		usb_dp(I) <= usb_out.dp(I) when usb_out.oe(I) = '1' else 'Z';
+		usb_dn(I) <= usb_out.dm(I) when usb_out.oe(I) = '1' else 'Z';
+
+		usb_in.dp(I) <= usb_dp(I);
+		usb_in.dm(I) <= usb_dn(I);
+	end generate;
 
 
 	gennovideo : if Toplevel_UseVGA=false generate

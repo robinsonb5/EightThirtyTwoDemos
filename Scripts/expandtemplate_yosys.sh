@@ -15,10 +15,10 @@ cat $1 | while read a; do
 		echo "lappend verilog_files \"[file normalize \"$2/${a}\"]\""
 	fi
 	if [ "${b: -3}" = ".sv" ]; then
-		echo "lappend verilog_files \"[file normalize \"$2/${a}\"]\""
+		echo "lappend systemverilog_files \"[file normalize \"$2/${a}\"]\""
 	fi
 	if [ "${b: -4}" = ".svh" ]; then
-		echo "lappend verilog_files \"[file normalize \"$2/${a}\"]\""
+		echo "lappend systemverilog_files \"[file normalize \"$2/${a}\"]\""
 	fi
 	if [ "${b: -4}" = ".qip" ]; then
 		bash ../../../Scripts/expandtemplate_yosys.sh $2/${a%.qip}.files $2/$(dirname $a)

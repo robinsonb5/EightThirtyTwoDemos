@@ -7,6 +7,7 @@ use work.SoC_Peripheral_config.all;
 use work.SoC_Peripheral_pkg.all;
 use work.sdram_controller_pkg.all;
 use work.sound_wrapper_pkg.all;
+use work.USB_Phy_pkg.all;
 
 entity VirtualToplevel is
 	generic (
@@ -68,8 +69,8 @@ entity VirtualToplevel is
 		txd2	: out std_logic;
 		
 		-- USB
-		usb_dp : inout std_logic_vector(1 downto 0);
-		usb_dn : inout std_logic_vector(1 downto 0);
+		usb_in : in USB_Phy_In;
+		usb_out : out USB_Phy_Out;
 		
 		-- Audio
 		AUDIO_L : out signed(15 downto 0);
@@ -490,10 +491,11 @@ begin
 
 		-- USB
 			
-		usb : entity work.usb_hid_controller
+		usb : entity work.usb_controller
 		generic map(
 			BlockAddress => X"A",
-			sysclk_freq => sysclk_frequency/10
+			sysclk_freq => sysclk_frequency/10,
+			usbclk_freq => sysclk_frequency/10
 		)
 		port map (
 			clk_sys => clk,
@@ -502,8 +504,9 @@ begin
 			request => peripheral_req,
 			response => peripheral_responses(5),
 
-			usb_dp => usb_dp,
-			usb_dn => usb_dn
+			usb_clk => clk,
+			usb_in => usb_in,
+			usb_out => usb_out
 		);
 
 		

@@ -52,6 +52,12 @@ if {[info exists verilog_files]} {
 		yosys read_verilog -sv $f
 	}
 }
+if {[info exists systemverilog_files]} {
+	foreach {f} $systemverilog_files {
+		puts $f
+		eval yosys read_verilog -sv $f
+	}
+}
 yosys ghdl ${topmodule}
 # Create .json file
 yosys synth_ecp5 -abc9 -top ${topmodule} -json ${corename}.json
