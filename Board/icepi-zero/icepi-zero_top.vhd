@@ -8,7 +8,7 @@ use work.USB_Phy_pkg.all;
 
 entity icepizero_top is
 port(
-	clk : in std_logic; -- 25MHz
+	clk : in std_logic; -- 50MHz
 
 	usb_tx : out std_logic;
 	usb_rx : in std_logic;
