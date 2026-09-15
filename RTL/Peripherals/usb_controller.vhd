@@ -98,7 +98,7 @@ begin
 			
 			d_stb : in std_logic;
 			d_send : in std_logic;
-			d : in std_logic_vector(7 downto 0);
+			d : in std_logic_vector(8 downto 0);
 			
 			-- Incoming data - port to SoC
 
@@ -118,7 +118,7 @@ begin
 		signal usb_status : std_logic_vector(7 downto 0);
 		signal usb_port : std_logic_vector(usb_ports_log2 downto 0);
 		signal usb_port_reset : std_logic;
-		signal usb_d_data : std_logic_vector(7 downto 0);
+		signal usb_d_data : std_logic_vector(8 downto 0);
 		signal usb_d_stb : std_logic;
 		signal usb_d_send : std_logic;
 
@@ -189,7 +189,7 @@ begin
 							usb_port_reset <= usb_d(15);
 							usb_port <= usb_d(usb_ports_log2 downto 0);
 						when "0001" =>  -- Data
-							usb_d_data <= usb_d(7 downto 0);
+							usb_d_data <= usb_d(8 downto 0);
 							usb_d_stb <= '1';
 						when "0010" =>  -- Command - send: bit 0
 							usb_d_send <= usb_d(0);						
@@ -235,11 +235,11 @@ begin
 		
 		capture_d(0) <= usb_d_send;
 		capture_d(1) <= usb_d_stb;
-		capture_d(9 downto 2) <= usb_d_data;
-		capture_d(11 downto 10) <= usb_in.dp;
-		capture_d(13 downto 12) <= usb_in.dm;
-		capture_d(14) <= usb_port_reset;
-		capture_d(capture_d'high downto 15) <= (others => '0');
+		capture_d(10 downto 2) <= usb_d_data;
+		capture_d(12 downto 11) <= usb_in.dp;
+		capture_d(14 downto 13) <= usb_in.dm;
+		capture_d(15) <= usb_port_reset;
+		capture_d(capture_d'high downto 16) <= (others => '0');
 
 --		jcapture_inst : component jcapture
 --		generic map (

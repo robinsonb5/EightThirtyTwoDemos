@@ -1,3 +1,8 @@
+// FIXME - it seems likely that we're taking too much time preparing the get_descriptor message
+// and will have to cue up both the token and actual message before sending. This means we'll 
+// need to widen the FIFO so we have enough bits to encoding an SEZ in the stream.
+// Also worth checking the clocking.
+
 #include <sys/types.h>
 #include <stddef.h>
 #include <string.h>

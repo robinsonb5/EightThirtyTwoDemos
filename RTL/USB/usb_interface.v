@@ -23,7 +23,7 @@ module usb_interface #(parameter portslog2=0, parameter ports=1, parameter signa
 	// Outgoing data
 	input d_stb,	// Queue up an outgoing byte
 	input d_send,	// Send the contents of the output buffer
-	input [7:0] d,
+	input [8:0] d,	// Bit 8 - EOP, bits 7-0 - data
 
 	// Incoming data
 	output reg q_ready,	// Incoming data is available
@@ -236,7 +236,7 @@ usb_fifo rx_fifo (
 wire fifo_tx_empty;
 wire fifo_tx_full;
 reg fifo_tx_next;
-reg [7:0] fifo_tx_q;
+reg [8:0] fifo_tx_q;
 
 reg tx_shift;
 reg tx_sez;
@@ -290,7 +290,7 @@ always @(posedge clk_signal) begin
 				if(tx_sez_d) begin
 					dp_t <= fullspeed;
 					dm_t <= ~fullspeed;
-					sending <= 1'b0;
+					sending <= ~fifo_tx_empty; // 1'b0;
 					tx_sez_d<=1'b0;
 				end
 			end
@@ -302,9 +302,9 @@ always @(posedge clk_signal) begin
 	if(tx_shift) begin
 		out_data <= {1'b0,out_data[7:1]};
 		if(out_bit==0) begin
-			out_data <= fifo_tx_q;
+			out_data <= fifo_tx_q[7:0];
 			fifo_tx_next<=1'b1;
-			tx_sez<=fifo_tx_empty;
+			tx_sez<=fifo_tx_q[8] | fifo_tx_empty;
 		end
 		out_bit <= out_bit-1;
 	end
@@ -317,9 +317,9 @@ always @(posedge clk_signal) begin
 		out_prev <= 1'b0;
 		out_bit<=7;
 		sending <= 1'b1;
-		out_data <= fifo_tx_q;
+		out_data <= fifo_tx_q[7:0];
 		fifo_tx_next<=1'b1;
-		tx_sez<=fifo_tx_empty;
+		tx_sez<=fifo_tx_q[8] | fifo_tx_empty;
 	end
 
 	// FIXME - insert keepalive here.
@@ -351,9 +351,9 @@ always @(posedge clk_signal) begin
 	oe_local[portselect] <= oe_t; // FIXME - must be a more elegant way to solve this.
 end
 
-reg [7:0] fifo_tx_t;
+reg [8:0] fifo_tx_t;
 
-usb_fifo tx_fifo (
+usb_fifo #(.fifowidth(9)) tx_fifo (
 	// Read side - signal clock
 	.clk_rd(clk_signal),
 	.reset_n_rd(reset_n_signal),
