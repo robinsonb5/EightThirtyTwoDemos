@@ -408,21 +408,21 @@ wire [3:0] juser_ir;
 wire [31:0] juser_q;
 wire juser_update;
 
-jcapture #(
-	.capturewidth(capturewidth),
-	.capturedepth(13),
-	.designid(16'haa55)
-) capture (
-	.clk(clk_sys),
-	.reset_n(reset_n_sys),
-	.stb(1'b1),
-	.capture_d(capture_d),
-	.user_ir(juser_ir),
-	.user_ir_update(),
-	.user_d(0),
-	.user_q(juser_q),
-	.user_update(juser_update)
-);
+//jcapture #(
+//	.capturewidth(capturewidth),
+//	.capturedepth(13),
+//	.designid(16'haa55)
+//) capture (
+//	.clk(clk_sys),
+//	.reset_n(reset_n_sys),
+//	.stb(1'b1),
+//	.capture_d(capture_d),
+//	.user_ir(juser_ir),
+//	.user_ir_update(),
+//	.user_d(0),
+//	.user_q(juser_q),
+//	.user_update(juser_update)
+//);
 
 always @(posedge clk_sys) begin
 	if(juser_update) begin

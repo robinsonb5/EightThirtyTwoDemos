@@ -7,7 +7,6 @@ library work;
 use work.SoC_Peripheral_config.all;
 use work.SoC_Peripheral_pkg.all;
 use work.USB_Phy_pkg.all;
-use work.JCapture_pkg.all;
 
 entity usb_controller is
 	generic(

@@ -1,0 +1,8 @@
+Board_Config.vhd
+USB_Phy_pkg.vhd
+../../PLL/ECP5/ecp5pll.vhd
+../../RTL/Video/video_vga_dither.vhd
+../../RTL/Video/dvi.v
+../../RTL/Video/tmds_encoder.v
+
+

@@ -2,8 +2,6 @@ RTL/Toplevel_Config.vhd
 RTL/DMACache_config.vhd
 RTL/SoC_Peripheral_config.vhd
 
-../RTL/JTAG/jcapture.qip
-
 ../RTL/Peripherals/peripheral_standard.qip
 ../RTL/USB/usb_interface.qip
 ../RTL/Peripherals/usb_controller.vhd
