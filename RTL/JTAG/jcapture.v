@@ -23,29 +23,33 @@
 // Use JTAG commands to set the following registers:
 // Mask: '1' bits select which signals should be included in the trigger condition.
 // Invert: The trigger will match '0' bits unless the corresponding bit in this register is set.
-// Edge: For bits set in both Edge and Mask, the trigger will match on falling edges, unless the corresponding invert bit is set.
+// Edge: For bits set in both Edge and Mask, the trigger will match on falling edges,
+// unless the corresponding invert bit is set.
 
 `default_nettype none
 
 module jcapture #(
 	parameter userwidth=32,
-	parameter capturewidth=32,
+	parameter capturewidth=31,     // Run-length encoding costs 1 bit
 	parameter capturedepth=9,
-	parameter triggerwidth=32,
-	parameter userirwidth=4, // Can be a maxmium of 4.
+	parameter triggerwidth=0,      // Reducing the trigger width can reduce footprint and increase speed
+	parameter userirwidth=4,       // Can be a maxmium of 4.
 	parameter runlengthencoding=1, // Disable to reduce logic footprint and increase speed.
 	parameter designid = 16'h35ac
 ) (
-	input clk,
-	input reset_n,
-	input stb,
-	input [capturewidth-1:0] capture_d,
+	input wire clk,
+	input wire reset_n,
+	input wire stb,
+	input wire [capturewidth-1:0] capture_d,
+	output reg trigger_match,		// Strobe on trigger, when enabled by host
 	output reg [userirwidth-1:0] user_ir,
 	output reg user_ir_update,
-	input [userwidth-1:0] user_d,
+	input wire [userwidth-1:0] user_d,
 	output reg [userwidth-1:0] user_q,
 	output reg user_update
 );
+
+localparam triggersize = triggerwidth ? triggerwidth : capturewidth;
 
 localparam jcapture_irwidth = 4;
 localparam jcapture_ir_cmd          = 4'd0;
@@ -59,15 +63,14 @@ localparam jcapture_ir_capturewidth = 4'd7;
 localparam jcapture_ir_capturedepth = 4'd8;
 localparam jcapture_ir_triggerwidth = 4'd9;
 localparam jcapture_ir_subsample    = 4'ha;
-localparam jcapture_ir_spare1       = 4'hb;
+localparam jcapture_ir_status       = 4'hb;
 localparam jcapture_ir_spare2       = 4'hc;
 localparam jcapture_ir_spare3       = 4'hd;
 localparam jcapture_ir_spare4       = 4'he;
 localparam jcapture_ir_spare5       = 4'hf;
 
 localparam jtag_irsize = jcapture_irwidth + 1;
-localparam jtag_drsize = capturewidth < 24 ? 24 : (userwidth < capturewidth ? capturewidth : userwidth);
-
+localparam jtag_drsize = capturewidth < 24 ? 24 : (userwidth < capturewidth ? capturewidth + 1 : userwidth);
 // JTAG signals
 
 wire irupdate;
@@ -100,12 +103,12 @@ wire fifo_empty;
 
 wire trigger;
 
-reg [triggerwidth-1:0] prev;
-reg [triggerwidth-1:0] trigedge;
-reg [triggerwidth-1:0] triginvert;
-reg [triggerwidth-1:0] trigmask;
-reg [triggerwidth-1:0] triggers;
-wire [triggerwidth-1:0] inverted;
+reg [triggersize-1:0] prev;
+reg [triggersize-1:0] trigedge;
+reg [triggersize-1:0] triginvert;
+reg [triggersize-1:0] trigmask;
+reg [triggersize-1:0] triggers;
+wire [triggersize-1:0] inverted;
 
 // User IR code
 always @(posedge clk) begin
@@ -131,11 +134,11 @@ always @(posedge clk) begin
 		if(!irfromjtag[jtag_irsize-1]) begin
 			// JCapture IR code
 			case (irfromjtag[jcapture_irwidth-1:0])
-				jcapture_ir_setmask   : trigmask   <= drfromjtag[triggerwidth-1:0];
-				jcapture_ir_setinvert : triginvert <= drfromjtag[triggerwidth-1:0];
-				jcapture_ir_setedge   : trigedge   <= drfromjtag[triggerwidth-1:0];
+				jcapture_ir_setmask   : trigmask   <= drfromjtag[triggersize-1:0];
+				jcapture_ir_setinvert : triginvert <= drfromjtag[triggersize-1:0];
+				jcapture_ir_setedge   : trigedge   <= drfromjtag[triggersize-1:0];
 				default : ;
-			endcase;
+			endcase
 		end
 	end
 	if(!reset_n) begin
@@ -145,7 +148,7 @@ always @(posedge clk) begin
 	end
 end
 
-assign inverted = capture_d[triggerwidth-1:0] ^ triginvert;
+assign inverted = capture_d[triggersize-1:0] ^ triginvert;
 
 always @(posedge clk) begin
 	prev <= inverted;
@@ -188,10 +191,10 @@ always @(posedge clk) begin
 			end
 			default :
 				;
-		endcase;
+		endcase
 	end
 	if(!reset_n) begin
-		subsample_schedule <= 7'b0;
+		subsample_schedule <= 6'b0;
 		subsample_stb_sel <= 1'b0;
 	end
 end
@@ -205,6 +208,7 @@ localparam jcapture_cmd_sample      = 4'd1;
 localparam jcapture_cmd_capture     = 4'd2;
 localparam jcapture_cmd_abort       = 4'd3;
 localparam jcapture_cmd_flush       = 4'd4;
+localparam jcapture_cmd_notify_trigger = 4'd5;
 
 // Capture logic
 // We imitate the semantics of JTAG - i.e. a read-only Instruction Register
@@ -213,8 +217,12 @@ localparam jcapture_cmd_flush       = 4'd4;
 // connect directly to a true JTAG TAP or the Intel Virtual JTAG module in
 // future.
 
-typedef enum logic [2:0] { STATE_IDLE,STATE_CAPTURE,STATE_FILL,STATE_READ } capstate_t;
-capstate_t capstate;
+localparam STATE_IDLE = 4'd0;
+localparam STATE_CAPTURE = 4'd1;
+localparam STATE_FILL = 4'd2;
+localparam STATE_READ = 4'd3;
+localparam STATE_NOTIFY_TRIGGER = 4'd4;
+reg [3:0] capstate;
 
 reg fifo_reset_n;
 
@@ -230,20 +238,22 @@ always @(posedge clk)
 assign jtag_reset_n = jtag_reset_s[0];
 
 // Instantiate the TAP
-wire [1:0] tck;
-wire [1:0] tdi;
-wire [1:0] sel;
-wire [1:0] shift;
-wire [1:0] update;
-wire [1:0] tdo;
+wire [1:0] jtck;
+wire [1:0] jtdi;
+wire [1:0] jsel;
+wire [1:0] jshift;
+wire [1:0] jupdate;
+wire [1:0] jcapture;
+wire [1:0] jtdo;
 
 vjtag jtag_inst (
-	.tck(tck),
-	.tdi(tdi),
-	.sel(sel),
-	.shift(shift),
-	.update(update),
-	.tdo(tdo),
+	.tck(jtck),
+	.tdi(jtdi),
+	.sel(jsel),
+	.shift(jshift),
+	.capture(jcapture),
+	.update(jupdate),
+	.tdo(jtdo),
 	.reset_n(jtag_reset_u)
 );
 
@@ -251,6 +261,8 @@ reg [3:0] ircmd;
 
 always @(posedge clk) begin
 	fifo_wr <= 1'b0;
+	
+	trigger_match <= 1'b0;
 
 	case(capstate)
 		STATE_CAPTURE : begin
@@ -259,7 +271,7 @@ always @(posedge clk) begin
 				leadin <= 2'b00;
 				fifo_wr <= subsample_stb;
 			end else begin
-				if(leadin)
+				if(|leadin)
 					fifo_wr <= subsample_stb;
 			end
 		end
@@ -276,6 +288,13 @@ always @(posedge clk) begin
 				capstate <= STATE_IDLE;
 		end
 		
+		STATE_NOTIFY_TRIGGER : begin
+			if(trigger) begin
+				trigger_match <= 1'b1;
+				capstate <= STATE_IDLE;
+			end
+		end
+		
 		default :
 			capstate <= STATE_IDLE;
 	endcase
@@ -283,9 +302,7 @@ always @(posedge clk) begin
 	fifo_reset_n <= jtag_reset_n & reset_n;
 	user_update <= 1'b0;
 	if(drupdate) begin
-		if(irfromjtag=={jtag_irsize{1'b1}}) begin     // Bypass mode
-
-		end else if (irfromjtag[jtag_irsize-1]) begin // User command
+		if (irfromjtag[jtag_irsize-1]) begin // User command
 			user_q <= drfromjtag;
 			user_update <= 1'b1;
 		end else begin                                // System command
@@ -326,6 +343,10 @@ always @(posedge clk) begin
 							fifo_reset_n <= 1'b0;
 						end
 
+						jcapture_cmd_notify_trigger : begin
+							capstate <= STATE_NOTIFY_TRIGGER;
+						end
+
 						default : 
 							;
 
@@ -348,9 +369,9 @@ end
 
 
 wire frd_en;
-wire [capturewidth-1:0] frd;
+wire [capturewidth:0] frd; // One extra bit for RLE
 
-vjtag_sync_fifo #(.fifowidth(capturewidth),.fifodepth(capturedepth)) fifo (
+vjtag_sync_fifo #(.fifowidth(capturewidth+1),.fifodepth(capturedepth)) fifo (
 	.sysclk(clk),
 	.reset_n(fifo_reset_n),
 	
@@ -371,12 +392,13 @@ vjtag_sync_fifo #(.fifowidth(capturewidth),.fifodepth(capturedepth)) fifo (
 vjtag_register #(.bits(jtag_irsize)) vir (
 	// JTAG plumbing and system clock (must be significantly faster than the JTAG clock)
 	.sysclk(clk),
-	.tck(tck[0]),
-	.tdi(tdi[0]),
-	.sel(sel[0]),
-	.shift(shift[0]),
-	.update(update[0]),
-	.tdo(tdo[0]),
+	.tck(jtck[0]),
+	.tdi(jtdi[0]),
+	.sel(jsel[0]),
+	.shift(jshift[0]),
+	.capture(jcapture[0]),
+	.update(jupdate[0]),
+	.tdo(jtdo[0]),
 	// Input, output and update signal.
 	.d({jtag_irsize{1'b0}}),
 	.q(irfromjtag),
@@ -393,14 +415,14 @@ always @(posedge clk) begin
 		case(irfromjtag[jcapture_irwidth-1:0])
 			jcapture_ir_cmd :
 				drtojtag <= {designid,capturing,fifo_empty,fifo_full,busy};
-			jcapture_ir_spare1 :
+			jcapture_ir_status :
 				drtojtag <= {reset_n,capstate,ircmd,designid,capturing,fifo_empty,fifo_full,busy};
 			jcapture_ir_capturewidth :
-				drtojtag <= capturewidth;
+				drtojtag <= jtag_drsize; // capturewidth+1;
 			jcapture_ir_capturedepth :
 				drtojtag <= capturedepth;
 			jcapture_ir_triggerwidth :
-				drtojtag <= triggerwidth;
+				drtojtag <= triggersize;
 			default:
 				drtojtag <= frd;
 		endcase
@@ -411,12 +433,13 @@ end
 vjtag_register #(.bits(jtag_drsize)) vdr (
 	// JTAG plumbing and system clock (must be significantly faster than the JTAG clock)
 	.sysclk(clk),
-	.tck(tck[1]),
-	.tdi(tdi[1]),
-	.sel(sel[1]),
-	.shift(shift[1]),
-	.update(update[1]),
-	.tdo(tdo[1]),
+	.tck(jtck[1]),
+	.tdi(jtdi[1]),
+	.sel(jsel[1]),
+	.shift(jshift[1]),
+	.capture(jcapture[1]),
+	.update(jupdate[1]),
+	.tdo(jtdo[1]),
 	// Input, output and update signal.
 	.d(drtojtag),
 	.q(drfromjtag),

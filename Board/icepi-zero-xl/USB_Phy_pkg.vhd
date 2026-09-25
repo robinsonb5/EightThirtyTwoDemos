@@ -16,6 +16,7 @@ package USB_Phy_pkg is
 		dm : std_logic_vector(usb_ports-1 downto 0);
 		oe : std_logic_vector(usb_ports-1 downto 0);
 	end record;
-	
+
+	constant usb_out_null : USB_Phy_out := (oe => (others => '0'), others => (others => '0'));
 end package;
 

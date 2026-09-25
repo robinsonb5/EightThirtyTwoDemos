@@ -65,8 +65,7 @@ proc ::jcapture::setup { newtap capture_fields {designid 0x35ac}} {
 	set ::jcapture::tap $newtap
 	set ::jcapture::fields ""
 	set cw 0
-	for {set i 0} {$i< [llength $capture_fields]} {incr i} {
-		set record [lindex $capture_fields $i]
+	foreach record $capture_fields {
 		set cw [expr {$cw + [lindex $record 1]}]
 		# Add mask, edge and invert fields to capture list
 		lappend record 0
@@ -75,18 +74,23 @@ proc ::jcapture::setup { newtap capture_fields {designid 0x35ac}} {
 		lappend ::jcapture::fields $record
 	}
 
+	# Account for 1 bit of capture headroom used by run-length-encoding
+	lappend ::jcapture::fields {jcapture_rle 1 0 0 0}
+	incr cw
+
 	# Determine Usr1 and Usr2 JTAG IR scan codes for the current device
 	set id [jtag cget $::jcapture::tap -idcode]
 
 	set v -1
-	for {set i 0} {$i < [llength $::jcapture::devices]} {incr i} {
-		set record [lindex $::jcapture::devices $i]
+	set i 0
+	foreach record $::jcapture::devices {
 		if {[lindex $record 0] == $id} {
 			set ::jcapture::vir [lindex $record 1]
 			set ::jcapture::vdr [lindex $record 2]
 			puts "[lindex $record 3] found - vir $::jcapture::vir, vdr $::jcapture::vdr"
 			set v $i
 		}
+		incr i
 	}
 
 	if {$v==-1} {
@@ -133,11 +137,11 @@ proc ::jcapture::setup { newtap capture_fields {designid 0x35ac}} {
 # These system commands are mapped to bits 3:0 of the ir scan code, with bit 4 clear.
 set ::jcapture::ircodes {
 	"cmd" "read" "write" "setleadin" "setmask" "setinvert" "setedge" "capturewidth" "capturedepth" "triggerwidth"
-	"subsample" "spare1" "spare2" "spare3" "spare4" "bypass"
+	"subsample" "status" "spare2" "spare3" "spare4" "bypass"
 }
 
 set ::jcapture::commands {
-	"nop" "sample" "capture" "abort" "flushfifo"
+	"nop" "sample" "capture" "abort" "flushfifo" "notify_trigger"
 }
 
 proc ::jcapture::virscan {{cmd status}} {
@@ -155,7 +159,9 @@ proc ::jcapture::virscan {{cmd status}} {
 # user design as the user IR code.
 
 # Empty list of user IR codes. The user design should override this.
-set ::jcapture::usercodes [list]
+if {[info exists ::jcapture::usercodes]==0} {
+	set ::jcapture::usercodes [list]
+}
 
 proc ::jcapture::userir {cmd} {
 	set v [lsearch $::jcapture::usercodes $cmd]
@@ -212,7 +218,7 @@ set ::jcapture::flag_empty 0x4
 
 
 # Wait for the busy flag to fall 
-proc ::jcapture::wait_fifobusy { } {
+proc ::jcapture::wait_busy { } {
 	set status [getstatus]
 	while {[expr "0x$status & $::jcapture::flag_busy"] != 0 } {
 		set status [getstatus]
@@ -238,7 +244,7 @@ proc ::jcapture::wait_fifofull { } {
 		}
 		set status [getstatus]
 	}
-	wait_fifobusy
+	wait_busy
 }
 
 # Dump the FIFO contents to the shell window
@@ -249,10 +255,9 @@ proc ::jcapture::dump_fifo { } {
 		set captures ""
 		set lastfield [expr {$fields - 1}]
 		
+		set i 0
 		virscan read
-
-		for {set i 0 } {$i < $fields} {incr i} {
-			set record [lindex $::jcapture::fields $i]
+		foreach record $::jcapture::fields {
 			set w [lindex $record 1]
 			if {$i==0} {
 				set d [vdrscan $w 0 -start]
@@ -264,6 +269,7 @@ proc ::jcapture::dump_fifo { } {
 				}
 			}			
 			lappend captures $d
+			incr i
 		}
 				
 		for {set i 0} {$i < $fields} {incr i} {
@@ -326,8 +332,10 @@ proc ::jcapture::create_vcd {filename {timezero 0}} {
 
 	puts $chan "\$scope module TOP \$end"
 
-	for {set i 0 } {$i < [llength $::jcapture::fields]} {incr i} {
-		set record [lindex $::jcapture::fields $i]
+	set fields [lrange $::jcapture::fields 0 end-1]
+	set i 0
+
+	foreach record $fields {
 		set w [lindex $record 1]
 		if {$w > 1} {
 			set wfmt "\[[expr {$w - 1}]:0\]"
@@ -336,8 +344,22 @@ proc ::jcapture::create_vcd {filename {timezero 0}} {
 		}
 		set id [vcdid $i]
 		puts $chan "\$var wire [lindex $record 1] $id [lindex $record 0] $wfmt \$end"
+		incr i
 	}
 	puts $chan {$enddefinitions $end}
+	return $chan
+}
+
+# Create a CSV file from the capture_fields array, and write a header.
+
+proc ::jcapture::create_csv {filename {delim "\t"}} {	
+	set chan [open $filename w]
+	set headers "Sample"
+	set fields [lrange $::jcapture::fields 0 end-1]
+	foreach record $fields {
+		set headers "$headers\t[lindex $record 0]"
+	}
+	puts $chan $headers
 	return $chan
 }
 
@@ -364,11 +386,9 @@ proc ::jcapture::extractbits {word start width} {
 
 # Dump the FIFO contents to a previously-created VCD file
 proc ::jcapture::fifo_to_vcd { chan } {
-    puts "Dumping to VCD file"
-	set fields [llength $::jcapture::fields]
+	set fields [lrange $::jcapture::fields 0 end-1]
 
 	set vcdi 0
-	set lastfield [expr {$fields - 1}]
 
 	set status [getstatus]
 	virscan read
@@ -385,8 +405,8 @@ proc ::jcapture::fifo_to_vcd { chan } {
 			puts $chan "#$vcdi"
 
 			set firstbit 0
-			for {set i 0 } {$i < $fields} {incr i} {
-				set record [lindex $::jcapture::fields $i]
+			set i 0
+			foreach record $fields {
 				set w [lindex $record 1]
 				
 				set d [extractbits $dr $firstbit $w]
@@ -394,6 +414,7 @@ proc ::jcapture::fifo_to_vcd { chan } {
 				set id [vcdid $i]
 				puts $chan "b[dec2bin $d $w] $id"
 				lappend captures "b[dec2bin $d $w] $id"
+				incr i
 			}
 			incr vcdi
 		} else {
@@ -416,22 +437,72 @@ proc ::jcapture::fifo_to_vcd { chan } {
 	close $chan
 }
 
+# Dump the FIFO contents to a previously-created CSV file
+proc ::jcapture::fifo_to_csv { chan {delim "\t"} } {
+	set fields [lrange $::jcapture::fields 0 end-1]
+
+	set vcdi 0
+
+	set status [getstatus]
+	virscan read
+	set dr [vdrscan $::jcapture::capture_width 0]
+	while {[expr "0x$status & $::jcapture::flag_empty"] == 0 } {
+		set captures ""
+
+		virscan read
+		set dr [vdrscan $::jcapture::capture_width 0]
+		
+		set comp [extractbits $dr [expr "$::jcapture::capture_width - 1"] 1 ]		
+		
+		if {$comp==0} {
+			set firstbit 0
+			set line ""
+			foreach record $fields {
+				set w [lindex $record 1]
+				
+				set d [extractbits $dr $firstbit $w]
+				set firstbit [expr "$firstbit + $w"]
+				
+				if {$w > 1 } {
+					set digits [expr "($w + 3) / 4"]
+					set line "${line}${delim}0x[format %0${digits}x ${d}]"
+				} else {
+					set line "${line}${delim}${d}"
+				}
+			}
+			puts $chan "${vcdi}${line}"
+			incr vcdi
+		} else {
+			set rl [expr "[extractbits $dr 0 8] + 1"]
+#			puts "$dr : $comp : $rl"
+			if {$vcdi > 0} {
+				for {set i 0} {$i < $rl} {incr i} {
+					puts $chan "${vcdi}${line}"
+					incr vcdi
+				}
+			}
+		}
+		set status [getstatus]
+
+	}
+	close $chan
+}
+
 
 # Silently empty the FIFO.
 proc ::jcapture::flush_fifo { } {
-	puts "Flushing FIFO..."
+#	puts "Flushing FIFO..."
 	command abort
 	command flushfifo
-
-	puts "Done"
+#	puts "Done"
 }
 
 proc ::jcapture::triggerconf {idx} {
 	set fields [llength $::jcapture::fields]
 	set lastfield [expr {$fields - 1}]
-	for {set i 0} {$i < [llength $::jcapture::fields]} {incr i } {
-		set record [lindex $::jcapture::fields $i]
-        puts "$i - [lindex $record 0] [lindex $record $idx]"
+	set i 0
+	foreach record $::jcapture::fields {
+#        puts "$i - [lindex $record 0] [lindex $record $idx]"
 		if {$i==0} {
 			vdrscan [lindex $record 1] [lindex $record $idx] -start
 		} else {
@@ -441,14 +512,13 @@ proc ::jcapture::triggerconf {idx} {
 				vdrscan [lindex $record 1] [lindex $record $idx] -cont
 			}
 		}
+		incr i
 	}
-    puts ""
 }
 
 proc ::jcapture::checktrigger { } {
 	set twidth 0
-	for {set i 0} {$i < [llength $::jcapture::fields]} {incr i } {
-		set record [lindex $::jcapture::fields $i]
+	foreach record $::jcapture::fields {
 		set mask [lindex $record 2]
 		set twidth [expr {$twidth + [lindex $record 1]}]
 		if {$mask > 0 } {
@@ -461,7 +531,7 @@ proc ::jcapture::checktrigger { } {
 
 
 proc ::jcapture::getstatus { } {
-	command spare1
+	command status
 	return [vdrscan 28 0]
 }
 
@@ -477,6 +547,17 @@ proc ::jcapture::capture { } {
 	command capture
 }
 
+proc ::jcapture::notify_trigger { } {
+	checktrigger
+	command setmask
+	triggerconf 2
+	command setedge
+	triggerconf 3
+	command setinvert
+	triggerconf 4
+	command notify_trigger
+}
+
 
 proc ::jcapture::setleadin { leadin } {
 	::jcapture::command setleadin
@@ -484,19 +565,14 @@ proc ::jcapture::setleadin { leadin } {
 }
 
 
-proc ::jcapture::settrigger {triggerparam field value} {
+proc ::jcapture::settriggerparam {triggerparam field value} {
 	set v 0
-	for {set i 0} {$i < [llength $::jcapture::membernames]} {incr i} {
-		if {[lindex $::jcapture::membernames $i] == $triggerparam} {
-			set v $i
-			set i [llength $::jcapture::membernames]
-		}
-	}
+	set v [lsearch $::jcapture::membernames $triggerparam]
 	if {$v > 1} {
 		for {set i 0} {$i < [llength $::jcapture::fields]} {incr i } {
 			set record [lindex $::jcapture::fields $i]
 			if {$field == [lindex $record 0]} {
-				puts "Setting $triggerparam for $field to $value"
+#				puts "Setting $triggerparam for $field to 0x[format %x $value]"
 				lset record $v $value
 				lset ::jcapture::fields $i $record
 				set i [llength $::jcapture::fields]
@@ -508,6 +584,80 @@ proc ::jcapture::settrigger {triggerparam field value} {
 }
 
 
+proc ::jcapture::settrigger {signal args} {
+	set mask 0
+
+	puts "Finding signal"
+	# Find the named signal in the signal list and preset the mask to the signal's width
+	for {set i 0} {$i < [llength $::jcapture::fields]} {incr i } {
+		set record [lindex $::jcapture::fields $i]
+		if {$signal == [lindex $record 0]} {
+			set signalwidth [lindex $record 1]
+			set mask [expr "(1 << $signalwidth) - 1"]
+			set i [llength $::jcapture::fields]
+		}
+	}
+	
+	puts "width $signalwidth"
+	
+	if {$mask==0} {
+		puts "Signal $sigal not found"
+		return
+	}
+
+	set value $mask	
+	set posedge 0
+	set negedge 0
+	set nextmask 0
+
+	foreach a $args {
+		if {$a=="posedge"} {
+			set edge 1
+			set posedge 1
+			set value 1
+		} elseif {$a=="negedge"} {
+			set edge 1
+			set negedge 1
+			set value 0
+		} elseif {$a=="mask"} {
+			set nextmask 1
+		} else {
+			if {$nextmask==1} {
+				scan $a "%x" mask
+			} else {
+				scan $a "%x" value
+			}
+			set nextmask 0
+		}
+	}
+	
+	set edge 0
+	if {$posedge==1} {
+		set edge $mask
+		set value $mask
+	}	
+	if {$negedge==1} {
+		set edge $mask
+		set value 0
+	}
+	
+	settriggerparam mask $signal $mask
+	settriggerparam edge $signal $edge
+	settriggerparam value $signal $value
+	
+#	puts "Edge: 0x[format %x $edge]"
+#	puts "Value: 0x[format %x $value]"
+#	puts "Mask: 0x[format %x $mask]"
+#	puts ""
+}
+
+proc ::jcapture::cleartrigger {signal } {	
+	settriggerparam mask $signal 0
+	settriggerparam edge $signal 0
+	settriggerparam value $signal 0
+}
+
+
 # Subsampling allows the design to capture a sample every n clocks
 # where n ranges from 0 to 127.
 # If the strobe bit is set, the design will wait for an external strobe
@@ -516,7 +666,7 @@ proc ::jcapture::setsubsample {schedule {mode ""} {mode2 ""} } {
 	set triggermode 0
 	if {$mode=="strobe" || $mode2=="strobe"} {set triggermode 0x80}
 	if {$mode=="trigger" || $mode2=="trigger"} {set triggermode [expr $triggermode | 0x40]}
-    puts "Trigger mode: $triggermode"
+	puts "Trigger mode: $triggermode"
 	set v [expr "$triggermode | ($schedule & 0x3f)"]
 	command subsample
 	vdrscan $::jcapture::capture_width $v

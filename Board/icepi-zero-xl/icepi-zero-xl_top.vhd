@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.Toplevel_Config.all;
 use work.USB_Phy_pkg.all;
+use work.I2C_Phy_pkg.all;
 
 entity icepizeroxl_top is
 port(
@@ -35,6 +36,8 @@ port(
 	usb_dn : inout std_logic_vector(usb_ports-1 downto 0);
 	usb_dp : inout std_logic_vector(usb_ports-1 downto 0);
 
+	gpdi_sck : inout std_logic;
+	gpdi_sda : inout std_logic;
 	gpdi_dp : out std_logic_vector(3 downto 0)	-- Quasi-differential output for digital video.
 	-- gpdi_dn : out std_logic_vector(3 downto 0)  -- Don't declare the _n pins - the _p pins are declared as
 	                                               -- LVCMOS33D so their conjugate pairs will be used automatically.
@@ -103,6 +106,9 @@ architecture rtl of icepizeroxl_top is
 
 	signal usb_in : USB_Phy_In;
 	signal usb_out : USB_Phy_Out;
+
+	signal i2c_in : I2C_Phy_In;
+	signal i2c_out : I2C_Phy_Out;
 begin
 
 	sdram_tristate_dq <= not sdram_drive_dq;
@@ -188,6 +194,10 @@ begin
 		usb_in => usb_in,
 		usb_out => usb_out,
 		
+		-- I2C
+		i2c_in => i2c_in,
+		i2c_out => i2c_out,
+
 		-- Audio
 		signed(audio_l) => audio_l,
 		signed(audio_r) => audio_r
@@ -202,7 +212,11 @@ begin
 		usb_in.dp(I) <= usb_dp(I);
 		usb_in.dm(I) <= usb_dn(I);
 	end generate;
+	
 
+	-- Hookup I2C - open collector semantics, drive low or high-z.
+	gpdi_sck_io : component TRELLIS_IO port map ( B => gpdi_sck, I => '0', T => i2c_out.scl(0), O => i2c_in.scl(0));
+	gpdi_sda_io : component TRELLIS_IO port map ( B => gpdi_sda, I => '0', T => i2c_out.sda(0), O => i2c_in.sda(0));
 
 	gennovideo : if Toplevel_UseVGA=false generate
 		gpdi_dp <= (others => '1');

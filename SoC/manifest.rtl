@@ -5,6 +5,8 @@ RTL/SoC_Peripheral_config.vhd
 ../RTL/Peripherals/peripheral_standard.qip
 ../RTL/USB/usb_interface.qip
 ../RTL/Peripherals/usb_controller.vhd
+../RTL/i2c/i2c_interface.qip
+../RTL/Peripherals/i2c_controller.vhd
 
 ../RTL/RAM/sdram_controller.qip
 

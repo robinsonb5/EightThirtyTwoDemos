@@ -18,6 +18,7 @@ package JCapture_Pkg is
 		reset_n : in std_logic;
 		stb : in std_logic := '1'; -- Tied high if there's no incoming strobe
 		capture_d : in std_logic_vector(capturewidth-1 downto 0);
+		trigger_match : out std_logic;
 		user_ir : out std_logic_vector(userirwidth-1 downto 0);
 		user_ir_update : out std_logic;
 		user_d : in std_logic_vector(userwidth-1 downto 0) := (others => '0');

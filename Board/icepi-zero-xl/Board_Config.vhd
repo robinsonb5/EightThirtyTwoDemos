@@ -8,5 +8,8 @@ package board_config is
 	constant board_sdram_colbits : integer := 9;
 	constant board_vga_bits : integer := 8;
 	constant board_jtag_uart : boolean := false;
+	
+	constant board_have_usb : boolean := true;
+	constant board_have_i2c : boolean := true;
 end package;
 

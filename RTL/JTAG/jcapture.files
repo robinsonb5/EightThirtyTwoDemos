@@ -1,6 +1,5 @@
-${vendor}/vjtag.sv
-jtaggwrapper.v
-vjtag_sync_fifo.sv
-jcapture.sv
+vjtag_${fpga}.v
+vjtag_sync_fifo.v
+jcapture.v
 jcapture_pkg.vhd
 

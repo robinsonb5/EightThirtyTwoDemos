@@ -6,7 +6,9 @@
 // write pointer with an offset of 1/4, 1/2 or 3/4 of the FIFO depth,
 // effectively disabling the full / empty logic.
 
-module vjtag_sync_fifo #(parameter fifowidth = 32, parameter fifodepth = 6) (
+`default_nettype none
+
+module vjtag_sync_fifo #(parameter fifowidth = 32, parameter fifodepth = 6, parameter runlengthencoding=1) (
 	input wire sysclk,
 	input wire reset_n,
 	
@@ -23,7 +25,7 @@ module vjtag_sync_fifo #(parameter fifowidth = 32, parameter fifodepth = 6) (
 	input wire [1:0] leadin
 );
 
-reg [fifowidth-1:0] storage [2**fifodepth];
+reg [fifowidth-1:0] storage [0:2**fifodepth-1];
 reg [fifodepth-1:0] readptr;
 reg [fifodepth-1:0] writeptr=0;
 reg [fifodepth-1:0] writeptr_next=1;
@@ -39,12 +41,13 @@ reg wr_fifo;
 reg [fifowidth-1:0] prev;
 reg [fifowidth-1:0] changed_w;
 wire changed = changed_w == 0 ? 1'b0 : 1'b1;
-reg changed_d;
+reg changed_d,changed_d2;
 
 always @(posedge sysclk) begin
 	if(wr_en) begin
-		changed_w <= prev ^ din;
+		changed_w <= runlengthencoding ? prev ^ din : 1'b1;
 		changed_d <= changed;
+		changed_d2 <= changed_d;
 		prev <= din;
 	end
 	wr_en_d <= wr_en;
@@ -60,26 +63,21 @@ always @(posedge sysclk) begin
 
 	if(wr_en_d && !full) begin
 		tofifo <= prev;
+		wr_fifo <= 1'b1;		
+
 		if(changed) begin
 			tofifo[fifowidth-1] <= 1'b0;	// Literal data
 			runlength<=0;
-			wr_fifo <= 1'b1;		
 		end else begin
 			tofifo[fifowidth-1] <= 1'b1;	// Run length
 			tofifo[7:0] <= runlength;
-			wr_fifo <= 1'b1;
 			runlength<=runlength+1;
-		end
-		
-		if(changed | changed_d) begin
-			writeptr <= writeptr_next;
-			writeptr_next <= writeptr_next+1;
 		end
 
 	end
 	if(!reset_n) begin
-		writeptr <= 0;
-		writeptr_next <= 1;
+//		writeptr <= 0;
+//		writeptr_next <= 1;
 		runlength <= 0;
 	end
 end
@@ -90,6 +88,14 @@ end
 always @(posedge sysclk) begin
 	if(wr_fifo && !full) begin
 		storage[writeptr]<=tofifo;
+		if(changed | changed_d) begin
+			writeptr <= writeptr_next;
+			writeptr_next <= writeptr_next+1;
+		end
+	end
+	if(!reset_n) begin
+		writeptr <= 0;
+		writeptr_next <= 1;
 	end
 end
 

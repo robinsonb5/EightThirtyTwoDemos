@@ -8,6 +8,7 @@ use work.SoC_Peripheral_pkg.all;
 use work.sdram_controller_pkg.all;
 use work.sound_wrapper_pkg.all;
 use work.USB_Phy_pkg.all;
+use work.I2C_Phy_pkg.all;
 
 entity VirtualToplevel is
 	generic (
@@ -72,6 +73,10 @@ entity VirtualToplevel is
 		usb_in : in USB_Phy_In;
 		usb_out : out USB_Phy_Out;
 		
+		-- I2C
+		i2c_in : in I2C_Phy_In;
+		i2c_out : out I2C_Phy_Out;
+
 		-- Audio
 		AUDIO_L : out signed(15 downto 0);
 		AUDIO_R : out signed(15 downto 0)
@@ -80,7 +85,7 @@ end entity;
 
 architecture rtl of VirtualToplevel is
 
-	constant Peripheral_Blocks : integer := 6;
+	constant Peripheral_Blocks : integer := 7;
 	constant interrupt_max : integer := 3;
 
 	-- Reset signals
@@ -507,6 +512,25 @@ begin
 			usb_clk => clk,
 			usb_in => usb_in,
 			usb_out => usb_out
+		);
+
+		
+		-- I2C
+			
+		i2c : entity work.i2c_controller
+		generic map(
+			BlockAddress => X"9",
+			sysclk_freq => sysclk_frequency/10
+		)
+		port map (
+			clk_sys => clk,
+			reset_n => reset_n,
+
+			request => peripheral_req,
+			response => peripheral_responses(6),
+
+			i2c_in => i2c_in,
+			i2c_out => i2c_out
 		);
 
 		
