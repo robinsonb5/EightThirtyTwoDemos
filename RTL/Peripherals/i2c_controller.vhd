@@ -80,6 +80,7 @@ begin
 			
 			d : in std_logic_vector(7 downto 0);
 			d_stb : in std_logic;
+			go : in std_logic;
 			
 			q : out std_logic_vector(7 downto 0);
 			q_stb : in std_logic;
@@ -101,6 +102,7 @@ begin
 		
 		signal i2c_d_data : std_logic_vector(7 downto 0);
 		signal i2c_d_stb : std_logic;
+		signal i2c_go : std_logic;
 		
 		signal i2c_q_stb : std_logic;
 		signal i2c_q_ready : std_logic;
@@ -126,6 +128,7 @@ begin
 
 			d => i2c_d_data,
 			d_stb => i2c_d_stb,
+			go => i2c_go,
 			
 			q => i2c_q_data,
 			q_stb => i2c_q_stb,
@@ -134,10 +137,10 @@ begin
 			busy => i2c_busy,
 			err => i2c_err,
 
-			scl_in => i2c_in.scl(0),
-			scl_out => i2c_out.scl(0),
-			sda_in => i2c_in.sda(0),
-			sda_out => i2c_out.sda(0)	
+			scl_in => i2c_in.scl,
+			scl_out => i2c_out.scl,
+			sda_in => i2c_in.sda,
+			sda_out => i2c_out.sda	
 		);
 		
 		i2c_out.porttype <= i2c_porttype_reg;
@@ -149,12 +152,14 @@ begin
 
 				i2c_reset <= reset_n;
 				i2c_d_stb <= '0';
+				i2c_go <= '0';
 				
 				-- Write cycle
 				if i2c_wr='1' then
 					case i2c_addr is
 						when "0000" =>  -- Status, bit 15 for reset, low order bits for port no
 							i2c_reset <= not i2c_d(15);
+							i2c_go <= i2c_d(8);
 							i2c_porttype_reg <= i2c_porttype;
 						when "0001" => -- Outgoing data
 							i2c_d_data <= i2c_d(7 downto 0);

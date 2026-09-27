@@ -38,10 +38,10 @@ port(
 
 	gpdi_sck : inout std_logic;
 	gpdi_sda : inout std_logic;
-	gpdi_dp : out std_logic_vector(3 downto 0)	-- Quasi-differential output for digital video.
+	gpdi_dp : out std_logic_vector(3 downto 0);	-- Differential output for digital video.
 	-- gpdi_dn : out std_logic_vector(3 downto 0)  -- Don't declare the _n pins - the _p pins are declared as
 	                                               -- LVCMOS33D so their conjugate pairs will be used automatically.
-
+	gpio : inout std_logic_vector(27 downto 0)
 );
 end entity;
 
@@ -60,6 +60,9 @@ architecture rtl of icepizeroxl_top is
 		O : out std_logic
 	);
 	end component;
+	
+	alias smbus_sda is gpio(2);
+	alias smbus_scl is gpio(3);
 
 	signal ps2k_dat_in : std_logic;
 	signal ps2k_dat_out : std_logic;
@@ -110,6 +113,9 @@ architecture rtl of icepizeroxl_top is
 	signal i2c_in : I2C_Phy_In;
 	signal i2c_out : I2C_Phy_Out;
 begin
+
+	gpio(1 downto 0) <= (others => 'Z');
+	gpio(gpio'high downto 4) <= (others => 'Z');
 
 	sdram_tristate_dq <= not sdram_drive_dq;
 	
@@ -212,11 +218,47 @@ begin
 		usb_in.dp(I) <= usb_dp(I);
 		usb_in.dm(I) <= usb_dn(I);
 	end generate;
-	
 
 	-- Hookup I2C - open collector semantics, drive low or high-z.
-	gpdi_sck_io : component TRELLIS_IO port map ( B => gpdi_sck, I => '0', T => i2c_out.scl(0), O => i2c_in.scl(0));
-	gpdi_sda_io : component TRELLIS_IO port map ( B => gpdi_sda, I => '0', T => i2c_out.sda(0), O => i2c_in.sda(0));
+	i2cmux : block
+		signal i2c_scl_gpdi_in : std_logic;
+		signal i2c_sda_gpdi_in : std_logic;	
+		signal i2c_scl_gpdi_out : std_logic;
+		signal i2c_sda_gpdi_out : std_logic;	
+		signal i2c_scl_smbus_in : std_logic;
+		signal i2c_sda_smbus_in : std_logic;
+		signal i2c_scl_smbus_out : std_logic;
+		signal i2c_sda_smbus_out : std_logic;
+	begin
+
+		process(clk_sys) begin
+			if rising_edge(clk_sys) then
+				i2c_scl_gpdi_out <= '1';
+				i2c_sda_gpdi_out <= '1';
+				i2c_scl_smbus_out <= '1';
+				i2c_sda_smbus_out <= '1';
+				i2c_in.sda <= '1';
+				i2c_in.scl <= '1';
+				if i2c_out.porttype = EDID then
+					i2c_scl_gpdi_out <= i2c_out.scl;
+					i2c_sda_gpdi_out <= i2c_out.sda;
+					i2c_in.scl <= i2c_scl_gpdi_in;
+					i2c_in.sda <= i2c_sda_gpdi_in;
+				elsif i2c_out.porttype = SMBUS then
+					i2c_scl_smbus_out <= i2c_out.scl;
+					i2c_sda_smbus_out <= i2c_out.sda;		
+					i2c_in.scl <= i2c_scl_smbus_in;
+					i2c_in.sda <= i2c_sda_smbus_in;
+				end if;
+			end if;
+		end process;
+				
+		gpdi_sck_io : component TRELLIS_IO port map ( B => gpdi_sck, I => '0', T => i2c_scl_gpdi_out, O => i2c_scl_gpdi_in);
+		gpdi_sda_io : component TRELLIS_IO port map ( B => gpdi_sda, I => '0', T => i2c_sda_gpdi_out, O => i2c_sda_gpdi_in);
+		smbus_scl_io : component TRELLIS_IO port map ( B => smbus_scl, I => '0', T => i2c_scl_smbus_out, O => i2c_scl_smbus_in);
+		smbus_sda_io : component TRELLIS_IO port map ( B => smbus_sda, I => '0', T => i2c_sda_smbus_out, O => i2c_sda_smbus_in);
+	end block;
+
 
 	gennovideo : if Toplevel_UseVGA=false generate
 		gpdi_dp <= (others => '1');

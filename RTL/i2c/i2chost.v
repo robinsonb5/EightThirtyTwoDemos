@@ -15,6 +15,7 @@ module i2chost #(parameter clkfreq=100) (
 	// Soft interface
 	input wire [7:0] d,   // Data to be sent to a target device
 	input wire d_stb,     // Begin a transaction
+	input wire go,
 
 	output reg [7:0] q,   // Data received from the target device
 	input wire q_stb,     // Advance the output FIFO.
@@ -115,34 +116,41 @@ reg [3:0] shiftctr;
 reg [7:0] bytectr;
 reg failed;
 reg wr;
+reg store;
 
 wire finished = ~(|bytectr);
+
+reg go_pending;
 always @(posedge clk) begin
 
 	of_wr <= 1'b0;
 	if_rd <= 1'b0;
+	
+	if(go)
+		go_pending <= 1'b1;
 
 	case(state)
 		IDLE : begin
 			sda_out <= 1'b1;
 			scl_out <= 1'b1;
-
 			if(!if_empty) begin
 				if(finished) begin
 					bytectr <= d;     // First transaction byte is the count (should still be on the bus).
 					if_rd <= 1'b1;    // Advance the FIFO
-				end	else if (scl_in & tick) begin
+				end	else if (go_pending && scl_in & tick) begin
 					state <= START;
 				end
 			end
 		end
 		
 		START : begin
+			go_pending <= 1'b0;
 			failed <= 1'b0;
 			sda_out <= 1'b0; // Start condition	
 			if(tick && !clockstretch) begin
 				shift <= {if_d,1'b1,1'b0}; // Address, 0 for write, 1 for read, ack, 8 data bits, ack, stop condition.
 				wr <= ~if_d[0];
+				store <= 1'b0; // Only write result of read transactions to the FIFO.
 				if_rd <= 1'b1;    // advance the FIFO
 				shiftctr <= 4'd9; // 9 bits for address phase - 7 addr, 1 r/w, 1 ack.
 				state <= SHIFT_LOW;
@@ -181,20 +189,30 @@ always @(posedge clk) begin
 				case(shiftctr)
 					4'd1 : begin
 						of_d <= shift[7:0];
-						of_wr <= 1'b1;	// FIXME - don't want to latch the address byte or outgoing bytes.
-						failed <= sda_in | of_full; // Target will hold sda low for a successful transaction
+						of_wr <= store;	// Latch only incoming bytes, not address byte or outgoing bytes.
+						store <= ~wr;
+						failed <= (sda_in & ~store) | of_full; // Trigger an error if target doesn't ack outgoing bytes, or if FIFO fills up.
 						if(sda_in | (&shiftctr)) begin // underflow or NAK
-							// FIXME: if we have more bytes to process, go straight to START without passing through STOP.
 							state <= STOP;
 						end else if(|bytectr) begin
-							shift <= {wr ? if_d : 8'hff,~|bytectr[7:1],1'b0};
+							// Ack bit will be high throughout writes, so device can pull it low.  Low for reads, except for the last byte.
+							shift <= {wr ? if_d : 8'hff,wr | (~|bytectr[7:1]),1'b0};
 							if_rd <= wr;
 							shiftctr <= 4'd9;
 							bytectr <= bytectr-1;
 						end else
 							shift[9] <= ~if_empty; // If the FIFO stll contains data, we perform a repeated start rather than a stop.
 					end
-					4'd0 : state <= finished ? STOP : IDLE;
+					// if we have more bytes to process, go straight to START without passing through STOP.
+					4'd0 : begin
+						if(if_empty)
+							state <= STOP;
+						else begin
+							bytectr <= if_d;
+							if_rd <= 1'b1;
+							state <= START;
+						end
+					end
 					default : ;
 				endcase
 			end
@@ -215,6 +233,7 @@ always @(posedge clk) begin
 	if(!reset_n) begin
 		state <= IDLE;
 		failed <= 1'b0;
+		go_pending <= 1'b0;
 	end
 
 end

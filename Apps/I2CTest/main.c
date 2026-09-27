@@ -19,7 +19,8 @@
 #define REG_I2C_STATUS 0
 #define REG_I2C_DATA 4
 
-#define I2C_PORT_EDID 2
+#define I2C_PORT_EDID 1
+#define I2C_PORT_SMBUS 2
 
 #define HW_I2C(x) *(volatile unsigned long *)(I2CBASE+x)
 
@@ -28,6 +29,7 @@
 #define STATUS_ERR 4
 
 #define STATUS_RESET 0x8000
+#define STATUS_GO 0x100
 
 int getstatus() {
 	int status=HW_I2C(REG_I2C_STATUS);
@@ -342,17 +344,16 @@ int main(int argc,char **argv) {
 	HW_I2C(REG_I2C_DATA)=0x1;  // Send 1 byte after the address byte
 	HW_I2C(REG_I2C_DATA)=0xa0; // 0x50, 0 for write
 	HW_I2C(REG_I2C_DATA)=0;    // Start address
+	HW_I2C(REG_I2C_STATUS)=I2C_PORT_EDID | STATUS_GO;
 
 	waitbusy();
 	printf("Receiving data\n");
 	HW_I2C(REG_I2C_DATA)=0x80; // Receive 128 bytes of EDID data
 	HW_I2C(REG_I2C_DATA)=0xa1; // 0x50,1 for read
+	HW_I2C(REG_I2C_STATUS)=I2C_PORT_EDID | STATUS_GO;
+
 	waitbusy();
 
-	int t;
-	t=HW_I2C(REG_I2C_DATA);
-	t=HW_I2C(REG_I2C_DATA);
-	t=HW_I2C(REG_I2C_DATA);
 	i=0;
 	while(getstatus() & STATUS_READY) {
 		edid[i]=HW_I2C(REG_I2C_DATA);
