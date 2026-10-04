@@ -179,9 +179,11 @@ proc ::jcapture::userdr {data} {
 	return [::jcapture::vdrscan $::jcapture::capture_width $data]
 }
 
-proc ::jcapture::usercmd {cmd data} {
+proc ::jcapture::usercmd {cmd {data ""}} {
 	::jcapture::userir $cmd
-	::jcapture::userdr $data
+	if {$data != ""} {
+		::jcapture::userdr $data
+	}
 }
 
 
@@ -239,11 +241,14 @@ proc ::jcapture::wait_fifofull { } {
 		if {[string length $line] > 0} {
 			puts "Aborting"
 			command abort
-			command flushfifo
+			dump_fifo
+# Keep the fifo contents so we can save a partial capture
+#			command flushfifo
 			set done 1
 		}
 		set status [getstatus]
 	}
+	puts $status
 	wait_busy
 }
 
@@ -385,6 +390,7 @@ proc ::jcapture::extractbits {word start width} {
 }
 
 # Dump the FIFO contents to a previously-created VCD file
+# and close the file when finished.
 proc ::jcapture::fifo_to_vcd { chan } {
 	set fields [lrange $::jcapture::fields 0 end-1]
 
@@ -438,6 +444,7 @@ proc ::jcapture::fifo_to_vcd { chan } {
 }
 
 # Dump the FIFO contents to a previously-created CSV file
+# and close the file when finished.
 proc ::jcapture::fifo_to_csv { chan {delim "\t"} } {
 	set fields [lrange $::jcapture::fields 0 end-1]
 
@@ -587,7 +594,6 @@ proc ::jcapture::settriggerparam {triggerparam field value} {
 proc ::jcapture::settrigger {signal args} {
 	set mask 0
 
-	puts "Finding signal"
 	# Find the named signal in the signal list and preset the mask to the signal's width
 	for {set i 0} {$i < [llength $::jcapture::fields]} {incr i } {
 		set record [lindex $::jcapture::fields $i]
@@ -598,10 +604,8 @@ proc ::jcapture::settrigger {signal args} {
 		}
 	}
 	
-	puts "width $signalwidth"
-	
 	if {$mask==0} {
-		puts "Signal $sigal not found"
+		puts "Signal $signal not found"
 		return
 	}
 
@@ -665,7 +669,7 @@ proc ::jcapture::cleartrigger {signal } {
 proc ::jcapture::setsubsample {schedule {mode ""} {mode2 ""} } {
 	set triggermode 0
 	if {$mode=="strobe" || $mode2=="strobe"} {set triggermode 0x80}
-	if {$mode=="trigger" || $mode2=="trigger"} {set triggermode [expr $triggermode | 0x40]}
+	if {$mode=="trigger" || $mode2=="trigger"} {set triggermode [expr "$triggermode | 0x40"]}
 	puts "Trigger mode: $triggermode"
 	set v [expr "$triggermode | ($schedule & 0x3f)"]
 	command subsample

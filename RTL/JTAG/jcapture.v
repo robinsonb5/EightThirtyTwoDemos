@@ -371,7 +371,7 @@ end
 wire frd_en;
 wire [capturewidth:0] frd; // One extra bit for RLE
 
-vjtag_sync_fifo #(.fifowidth(capturewidth+1),.fifodepth(capturedepth)) fifo (
+vjtag_sync_fifo #(.fifowidth(capturewidth+1),.fifodepth(capturedepth),.runlengthencoding(runlengthencoding)) fifo (
 	.sysclk(clk),
 	.reset_n(fifo_reset_n),
 	

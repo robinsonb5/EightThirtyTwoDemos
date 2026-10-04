@@ -28,9 +28,7 @@ puts "Initial status: [::jcapture::getstatus]"
 
 # Set up triggers
 
-::jcapture::settrigger mask d_stb 1
-::jcapture::settrigger edge d_stb 0
-::jcapture::settrigger value d_stb 1
+::jcapture::settrigger d_send posedge
 
 #::jcapture::settrigger mask usb_in_dp 3
 #::jcapture::settrigger edge usb_in_dp 0
@@ -41,12 +39,15 @@ puts "Initial status: [::jcapture::getstatus]"
 
 puts "Recording to cap.vcd"
 
-	set chan [::jcapture::create_vcd cap.vcd 0]
 	::jcapture::setleadin 0
 
 	puts "About to capture - status: [::jcapture::getstatus]"
 
 	::jcapture::capture
 	::jcapture::wait_fifofull
+	puts "Writing vcd file"
+	set chan [::jcapture::create_vcd cap.vcd 0]
 	::jcapture::fifo_to_vcd $chan 
+
 exit
+

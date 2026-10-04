@@ -32,6 +32,8 @@ RTL/SoC_Peripheral_config.vhd
 
 ../EightThirtyTwo/RTL/eightthirtytwo.qip
 
+../RTL/JTAG/jcapture.qip
+
 Firmware/SoC_ROM.rom
 RTL/SoC_VirtualToplevel.vhd
 

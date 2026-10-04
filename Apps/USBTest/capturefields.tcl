@@ -29,6 +29,5 @@ set capture_fields {
 	{ fifo_rx_d 8 }
 	{ fifo_rx_rd 1 }
 	{ receiving 1 }
-	{ pad 1 }
 }
 

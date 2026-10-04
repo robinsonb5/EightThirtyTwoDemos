@@ -40,14 +40,13 @@ reg wr_en_d;
 reg wr_fifo;
 reg [fifowidth-1:0] prev;
 reg [fifowidth-1:0] changed_w;
-wire changed = changed_w == 0 ? 1'b0 : 1'b1;
-reg changed_d,changed_d2;
+wire changed = changed_w == 0 ? (runlength==8'hfe ? 1'b1 : 1'b0) : 1'b1;
+reg changed_d;
 
 always @(posedge sysclk) begin
 	if(wr_en) begin
 		changed_w <= runlengthencoding ? prev ^ din : 1'b1;
 		changed_d <= changed;
-		changed_d2 <= changed_d;
 		prev <= din;
 	end
 	wr_en_d <= wr_en;
@@ -76,8 +75,6 @@ always @(posedge sysclk) begin
 
 	end
 	if(!reset_n) begin
-//		writeptr <= 0;
-//		writeptr_next <= 1;
 		runlength <= 0;
 	end
 end
