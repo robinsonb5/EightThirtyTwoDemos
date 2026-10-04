@@ -45,11 +45,11 @@ $(PROJECT)_$(BOARD)_files.tcl: $(MANIFEST)
 
 $(TARGET): $(MANIFEST) $(PROJECT)_$(BOARD)_files.tcl $(BOARDDIR)/$(BOARD).lpf $(DEPS)
 	-rm $@
-	$(TOOLPATH)yosys -l log -mghdl -mslang -p 'tcl $(SCRIPTSDIR)/mkproject_yosys.tcl $(PROJECT) $(BOARD)' || echo "yosys not found - skipping compilation."
+	$(TOOLPATH)yosys -d >synth.log -mghdl -mslang -p 'tcl $(SCRIPTSDIR)/mkproject_yosys.tcl $(PROJECT) $(BOARD)' || echo "yosys not found - skipping compilation."
 
 $(CFGFILE): $(TARGET) $(PROJECT)_$(BOARD)_files.tcl
 	-rm $@
-	$(TOOLPATH)nextpnr-ecp5 $(DEVICE) --pre-pack $(BOARDDIR)/constraints.py --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
+	$(TOOLPATH)nextpnr-ecp5 2>pnr.log $(DEVICE) --pre-pack $(BOARDDIR)/constraints.py --package $(DEVICE_PACKAGE) --speed $(DEVICE_SPEED) --json $< --textcfg $@ --lpf $(BOARDDIR)/$(BOARD).lpf --timing-allow-fail
 
 $(BITFILE): $(CFGFILE)
 	$(TOOLPATH)ecppack $(ECPPACKOPTS) --svf $(SVFFILE) --input $< --bit $@ 

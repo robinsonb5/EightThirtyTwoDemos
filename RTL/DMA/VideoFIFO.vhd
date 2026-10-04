@@ -244,6 +244,10 @@ begin
 
 		to_sdram.addr <= std_logic_vector(addr);
 		to_sdram.req <= req_i;
+		to_sdram.burst <= '1';
+		to_sdram.wr <= '0';
+		to_sdram.bytesel <= (others => '1');
+		to_sdram.d <= (others =>'0');
 
 		video_underrun <= '1' when ptrcmp=0 else '0';
 		

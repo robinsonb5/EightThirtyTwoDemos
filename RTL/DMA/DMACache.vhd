@@ -90,7 +90,6 @@ signal internals_read : DMAChannels_Internal_Read;
 type DMAChannel_Internal_FIFO is record
 	full : std_logic; -- Is the FIFO full
 	empty_c : std_logic; -- Are the read and write pointers currently equal?
-	empty_l : std_logic; -- Were the read and write pointers equal in the last cycle?
 	empty : std_logic; -- Set whenever the address is set, cleared when empty_c drops.
 	tide : unsigned(DMACache_MaxCacheBit downto 0);
 end record;
@@ -110,32 +109,10 @@ signal data_from_ram : std_logic_vector(31 downto 0);
 signal activechannel : integer range 0 to DMACache_MaxChannel;
 signal channelvalid : std_logic_vector(DMACache_MaxChannel downto 0);
 
-attribute noprune : boolean;
-signal ch5full : std_logic;
-attribute noprune of ch5full : signal is true;
-
-signal ch5collide : std_logic;
-attribute noprune of ch5collide : signal is true;
-
-signal ch5tide : unsigned(DMACache_MaxCacheBit downto 0);
-attribute noprune of ch5tide : signal is true;
-
 signal sdram_abort : std_logic;
 
 begin
 
-process(clk) begin
-	if rising_edge(clk) then
-		ch5full <= internals_FIFO(5).full;
-		if internals_FIFO(5).tide = 0 then
-			ch5collide<='1';
-		else
-			ch5collide<='0';
-		end if;
-		ch5tide <= internals_FIFO(5).tide;
-		ch5full <= internals_FIFO(5).full;
-	end if;
-end process;
 
 FIFOCounters:
 for CHANNEL in 0 to DMACache_MaxChannel generate
@@ -184,6 +161,10 @@ myDMACacheRAM : entity work.DMACacheRAM
 	-- (Limit the fetch address to begin on a burst boundary)
 	to_sdram.addr(31 downto burstlog2+2)<=internals(activechannel).addr(31 downto burstlog2+2);
 	to_sdram.addr(burstlog2+2-1 downto 0)<=(others => '0');
+	to_sdram.burst <= '1';
+	to_sdram.wr <= '0';
+	to_sdram.bytesel <= (others => '1');
+	to_sdram.d <= (others => '0');
 
 	cache_wraddr(cachemsb downto 0)
 		<= std_logic_vector(to_unsigned(activechannel,3))
