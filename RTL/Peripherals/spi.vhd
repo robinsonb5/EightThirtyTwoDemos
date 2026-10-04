@@ -32,7 +32,10 @@ architecture rtl of spi_interface is
 signal sck : std_logic;
 signal sd_shift : std_logic_vector(7 downto 0);
 signal shiftcnt : unsigned(3 downto 0);
+signal in_latch : std_logic;
 begin
+
+mosi <= sd_shift(7);
 
 -----------------------------------------------------------------
 -- SPI-Interface
@@ -46,22 +49,21 @@ begin
 		IF reset ='0' THEN 
 			shiftcnt<=(others => '0');
 			sck <= '0';
-			mosi <= '1';
 			sd_shift<=(others =>'1');
 		ELSIF rising_edge(sysclk) then
 			IF trigger='1' then
 				shiftcnt <= "1111";  -- shift out 8 bits, underflow will clear bit 3, mapped to busy
 				sd_shift <= host_to_spi(7 downto 0);
-				sck <= '1';
+				sck <= '0';
 			ELSE
 				IF spiclk_in='1' and busy='1' THEN
 					IF sck='1' THEN
-						mosi<=sd_shift(7);
+						sd_shift <= sd_shift(6 downto 0)&in_latch;
 						sck <='0';
-					ELSE	
-						sck <='1';
-						sd_shift <= sd_shift(6 downto 0)&miso;
 						shiftcnt <= shiftcnt-1;
+					ELSE
+						sck <='1';
+						in_latch <= miso;
 					END IF;
 				END IF;
 			END IF;

@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
+use work.Board_Config.all;
 use work.SoC_Peripheral_config.all;
 use work.SoC_Peripheral_pkg.all;
 
@@ -28,7 +29,7 @@ entity Peripheral_Standard is
 		spi_miso  : in std_logic := '1'; -- Allow the SPI interface not to be plumbed in.
 		spi_mosi  : out std_logic;
 		spi_clk   : out std_logic;
-		spi_cs    : out std_logic;
+		spi_cs    : out std_logic_vector(spi_device_count-1 downto 0);
 		
 		-- PS/2 signals
 		ps2k_clk_in  : in std_logic := '1';
@@ -353,7 +354,7 @@ begin
 	process(clk,reset_n_i)
 	begin
 		if reset_n_i='0' then
-			spi_cs<='1';
+			spi_cs<=(others => '1');
 			spi_active<='0';
 			int_enabled<='0';
 			kbdrecvreg <='0';
@@ -396,7 +397,7 @@ begin
 						busy<='0';
 
 					when X"D0" => -- SPI CS
-						spi_cs<=not request.d(0);
+						spi_cs(spi_device_count-1 downto 0)<=not request.d(spi_device_count-1 downto 0);
 						spi_fast<=request.d(8);
 						busy<='0';
 
@@ -449,6 +450,7 @@ begin
 
 					when X"D0" => -- SPI Status
 						response.q<=(others=>'X');
+						response.q(spi_device_count-1 downto 0)<=board_spi_devices;
 						response.q(15)<=spi_busy;
 						busy<='0';
 

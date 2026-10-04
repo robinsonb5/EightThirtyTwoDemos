@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
+use work.Board_Config.all;
 use work.Toplevel_Config.all;
 use work.USB_Phy_pkg.all;
 use work.I2C_Phy_pkg.all;
@@ -40,8 +41,14 @@ port(
 	gpdi_sda : inout std_logic;
 	gpdi_dp : out std_logic_vector(3 downto 0);	-- Differential output for digital video.
 	-- gpdi_dn : out std_logic_vector(3 downto 0)  -- Don't declare the _n pins - the _p pins are declared as
-	                                               -- LVCMOS33D so their conjugate pairs will be used automatically.
-	gpio : inout std_logic_vector(27 downto 0)
+                                              -- LVCMOS33D so their conjugate pairs will be used automatically.
+	pi_miso : in std_logic;
+	pi_mosi : out std_logic;
+	pi_sclk : out std_logic;
+	pi_ce0 : out std_logic;
+	pi_ce1 : out std_logic;
+	
+	gpio : inout std_logic_vector(3 downto 0)
 );
 end entity;
 
@@ -64,6 +71,23 @@ architecture rtl of icepizeroxl_top is
 	alias smbus_sda is gpio(2);
 	alias smbus_scl is gpio(3);
 
+--	alias aux_spi_cs0 is gpio(7);
+--	alias aux_spi_cs1 is gpio(8);
+--	alias aux_spi_cipo is gpio(9);
+--	alias aux_spi_copi is gpio(10);
+--	alias aux_spi_clk is gpio(11);
+--	signal aux_spi_cipo_in : std_logic;
+	
+	signal aux_spi_cs0 : std_logic;
+	signal aux_spi_cs1 : std_logic;
+	signal aux_spi_clk : std_logic;
+	signal aux_spi_copi : std_logic;
+
+	signal spi_cs : std_logic_vector(spi_device_count-1 downto 0);
+	signal spi_clk : std_logic;
+	signal spi_cipo : std_logic;
+	signal spi_copi : std_logic;
+	
 	signal ps2k_dat_in : std_logic;
 	signal ps2k_dat_out : std_logic;
 	signal ps2k_clk_in : std_logic;
@@ -115,7 +139,8 @@ architecture rtl of icepizeroxl_top is
 begin
 
 	gpio(1 downto 0) <= (others => 'Z');
-	gpio(gpio'high downto 4) <= (others => 'Z');
+--	gpio(6 downto 4) <= (others => 'Z');
+--	gpio(gpio'high downto 12) <= (others => 'Z');
 
 	sdram_tristate_dq <= not sdram_drive_dq;
 	
@@ -169,10 +194,10 @@ begin
 		vga_window => vga_window,
 		vga_pixel => vga_pixel,
 
-		spi_miso => sd_miso,
-		spi_mosi => sd_mosi,
-		spi_cs => sd_csn,
-		spi_clk => sd_clk,
+		spi_miso => spi_cipo,
+		spi_mosi => spi_copi,
+		spi_cs => spi_cs,
+		spi_clk => spi_clk,
 		
 		ps2k_clk_in => ps2k_clk_in,
 		ps2k_clk_out => ps2k_clk_out,
@@ -209,6 +234,36 @@ begin
 		signed(audio_r) => audio_r
 --		trace_out => trace
 	);
+	
+	-- SPI MUX
+	sd_mosi <= spi_copi;
+	sd_csn <= spi_cs(SPI_DEVICE_SDCARD);
+	sd_clk <= spi_clk;
+
+--	aux_spi_clk_io : component TRELLIS_IO port map ( B => aux_spi_clk, I => spi_clk, T => '0', O => open);
+--	aux_spi_cs0_io : component TRELLIS_IO port map ( B => aux_spi_cs0, I => spi_cs(SPI_DEVICE_AUX1), T => '0', O => open);
+--	aux_spi_cs1_io : component TRELLIS_IO port map ( B => aux_spi_cs1, I => spi_cs(SPI_DEVICE_AUX2), T => '0', O => open);
+--	aux_spi_copi_io : component TRELLIS_IO port map ( B => aux_spi_copi, I => spi_copi, T => '0', O => open);
+--	aux_spi_cipo_io : component TRELLIS_IO port map ( B => aux_spi_cipo, I => '1', T => '1', O => aux_spi_cipo_in);
+
+	process(clk_sys) begin
+		if rising_edge(clk_sys) then
+			aux_spi_clk <= spi_clk;
+			aux_spi_copi <= spi_copi;
+			aux_spi_cs0 <= spi_cs(SPI_DEVICE_AUX1);
+			aux_spi_cs1 <= spi_cs(SPI_DEVICE_AUX2);
+		end if;
+	end process;
+
+	pi_sclk <= aux_spi_clk; -- spi_clk;
+	pi_mosi <= aux_spi_copi; -- spi_copi;
+	pi_ce0 <= aux_spi_cs0;
+	pi_ce1 <= aux_spi_cs1;
+
+	spi_cipo <= sd_miso when spi_cs(SPI_DEVICE_SDCARD)='0' else
+	            pi_miso when spi_cs(SPI_DEVICE_AUX1)='0' else
+	            pi_miso when spi_cs(SPI_DEVICE_AUX2)='0' else
+	            '1';
 
 	-- Hookup USB
 	genusb : for I in 0 to (usb_ports-1) generate

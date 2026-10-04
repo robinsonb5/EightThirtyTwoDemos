@@ -7,9 +7,12 @@
 /* SPI registers */
 #define HW_SPI_CS 0x0	/* CS bits are write-only, but bit 15 reads as the SPI busy signal */
 #define HW_SPI_DATA 0x04 /* Blocks on both reads and writes, making BUSY signal redundant. */
-#define HW_SPI_PUMP 0x08 /* Push 16-bits through SPI in one instruction */
 
-#define HW_SPI_CS_SD 0
+#define HW_SPI_CS_SDCARD 0
+#define HW_SPI_CS_FLASH 1
+#define HW_SPI_CS_AUX1 2
+#define HW_SPI_CS_AUX2 3
+
 #define HW_SPI_FAST 8
 #define HW_SPI_BUSY 15
 

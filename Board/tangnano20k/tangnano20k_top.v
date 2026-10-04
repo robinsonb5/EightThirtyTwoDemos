@@ -60,7 +60,10 @@ module tangnano20k_top(
   output wire		tmds_clk_n,
   output wire		tmds_clk_p,
   output wire [2:0]	tmds_d_n,
-  output wire [2:0]	tmds_d_p
+  output wire [2:0]	tmds_d_p,
+  
+  inout             ddc_sda,
+  inout             ddc_scl
 );
 
 assign m0s = 6'bZZZZZZ;
@@ -105,6 +108,9 @@ wire window;
 wire pixel;
 
 wire txd;
+
+wire i2c_sda;
+wire i2c_scl;
 
 VirtualTopLevel #(
     .sysclk_frequency(1000),

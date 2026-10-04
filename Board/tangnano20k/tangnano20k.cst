@@ -9,6 +9,11 @@ IO_PORT "tmds_d_p[1]" PULL_MODE=NONE DRIVE=8;
 IO_LOC "tmds_d_p[2]" 39,40;
 IO_PORT "tmds_d_p[2]" PULL_MODE=NONE DRIVE=8; 
 
+IO_LOC "ddc_sda" 52
+IO_PORT "ddc_sda" PULL_MODE=UP DRIVE=4;
+IO_LOC "ddc_scl" 53
+IO_PORT "ddc_scl" PULL_MODE=UP DRIVE=4;
+
 // the six on-board leds
 IO_LOC "leds_n[5]" 20;
 IO_PORT "leds_n[5]" PULL_MODE=UP DRIVE=8 IO_TYPE=LVCMOS33;

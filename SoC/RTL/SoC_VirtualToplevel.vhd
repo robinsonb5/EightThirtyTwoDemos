@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.ALL;
+use work.Board_Config.all;
 use work.DMACache_pkg.ALL;
 use work.DMACache_config.ALL;
 use work.SoC_Peripheral_config.all;
@@ -36,7 +37,7 @@ entity VirtualToplevel is
 		-- SDRAM
 		sdr_drive_data  : out std_logic;
 		sdr_data_in		: in std_logic_vector(sdram_width-1 downto 0) := (others => '0');
-		sdr_data_out	: inout std_logic_vector(sdram_width-1 downto 0);
+		sdr_data_out	: out std_logic_vector(sdram_width-1 downto 0);
 		sdr_addr		: out std_logic_vector(sdram_rows-1 downto 0);
 		sdr_dqm 		: out std_logic_vector(sdram_dqmwidth-1 downto 0);
 		sdr_we 		: out std_logic;
@@ -51,7 +52,7 @@ entity VirtualToplevel is
 		spi_miso		: in std_logic := '1'; -- Allow the SPI interface not to be plumbed in.
 		spi_mosi		: out std_logic;
 		spi_clk		: out std_logic;
-		spi_cs 		: out std_logic;
+		spi_cs 		: out std_logic_vector(spi_device_count-1 downto 0);
 		
 		-- PS/2 signals
 		ps2k_clk_in : in std_logic := '1';
