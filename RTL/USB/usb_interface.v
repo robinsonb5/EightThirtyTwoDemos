@@ -34,8 +34,8 @@ module usb_interface #(parameter portslog2=0, parameter ports=1, parameter signa
 	input rewind, // Temporary
 	input [portslog2:0] portselect,
 	input portreset, // active high - force SEZ.
-	output [7:0] portstatus	// Status of the selected port :
-	                        // : 0 m, 1 p, 2 rx empty, 3 tx full, 4 tx empty, 5 q_ready
+	output reg [7:0] portstatus	// Status of the selected port :
+	                            // : 0 m, 1 p, 2 rx empty, 3 tx full, 4 tx empty, 5 q_ready
 );
 
 localparam maxport = ports-1;
@@ -187,7 +187,6 @@ end
 reg fifo_rx_wr;
 reg [7:0] fifo_rx_d;
 
-reg fifo_rx_rd;
 reg [7:0] fifo_rx_q;
 
 reg [2:0] recv_count;
@@ -381,7 +380,7 @@ end
 
 
 // Debugging
-localparam capturewidth=32;
+localparam capturewidth=31;
 wire [capturewidth-1:0] capture_d;
 
 assign capture_d[1:0] = dp_i;
@@ -400,29 +399,29 @@ assign capture_d[17:16] = sample_stb;
 assign capture_d[19:18] = edgesense;
 assign capture_d[20] = fifo_rx_wr;
 assign capture_d[28:21] = fifo_rx_d;
-assign capture_d[29] = fifo_rx_rd;
+assign capture_d[29] = q_ack;
 assign capture_d[30] = receiving;
-assign capture_d[31] = 0;
 
 wire [3:0] juser_ir;
 wire [31:0] juser_q;
 wire juser_update;
 
-//jcapture #(
-//	.capturewidth(capturewidth),
-//	.capturedepth(13),
-//	.designid(16'haa55)
-//) capture (
-//	.clk(clk_sys),
-//	.reset_n(reset_n_sys),
-//	.stb(1'b1),
-//	.capture_d(capture_d),
-//	.user_ir(juser_ir),
-//	.user_ir_update(),
-//	.user_d(0),
-//	.user_q(juser_q),
-//	.user_update(juser_update)
-//);
+jcapture #(
+	.capturewidth(capturewidth),
+	.capturedepth(13),
+	.designid(16'haa55),
+	.runlengthencoding(1)
+) capture (
+	.clk(clk_sys),
+	.reset_n(reset_n_sys),
+	.stb(1'b1),
+	.capture_d(capture_d),
+	.user_ir(juser_ir),
+	.user_ir_update(),
+	.user_d(0),
+	.user_q(juser_q),
+	.user_update(juser_update)
+);
 
 always @(posedge clk_sys) begin
 	if(juser_update) begin
